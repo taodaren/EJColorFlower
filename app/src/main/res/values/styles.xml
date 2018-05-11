@@ -8,4 +8,13 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="ButtonStyle" parent="@android:style/Widget.Button">
+        <item name="android:background">@drawable/ic_button</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <!--解决 AlertDialog 按钮不显示问题-->
+    <style name="BtnDialogColor" parent="@style/Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/colorPrimaryDark</item>
+    </style>
 </resources>

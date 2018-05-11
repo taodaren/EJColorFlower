@@ -1,27 +1,31 @@
-package cn.eejing.ejcolorflower;
+package cn.eejing.ejcolorflower.ui.activity;
 
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
 
 import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements BottomNavigationBar.OnTabSelectedListener {
+import cn.eejing.ejcolorflower.R;
+import cn.eejing.ejcolorflower.ui.base.BaseActivity;
+import cn.eejing.ejcolorflower.ui.fragment.TabControlFragment;
+import cn.eejing.ejcolorflower.ui.fragment.TabDeviceFragment;
+import cn.eejing.ejcolorflower.ui.fragment.TabMallFragment;
+import cn.eejing.ejcolorflower.ui.fragment.TabMineFragment;
+
+public class MainActivity extends BaseActivity implements BottomNavigationBar.OnTabSelectedListener {
     private ArrayList<Fragment> mFragments;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        initView();
+    protected int layoutViewId() {
+        return R.layout.activity_main;
     }
 
-    private void initView() {
+    @Override
+    public void initView() {
         initBtnNavBar();
         mFragments = getFragments();
         setDefFragment();

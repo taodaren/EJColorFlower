@@ -20,11 +20,20 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    //noinspection GradleCompatible
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    implementation 'com.android.support:support-v4:27.1.1'
     // 底部导航
     implementation 'com.ashokvarma.android:bottom-navigation-bar:2.0.4'
-    implementation 'com.android.support:support-v4:27.1.1'
+    // PullLoadMoreRecyclerView 上拉下拉刷新框架
+    implementation 'com.wuxiaolong.pullloadmorerecyclerview:library:1.1.2'
+    // OkGo网络请求框架使用相关
+    implementation 'com.lzy.net:okgo:3.0.4'
+    implementation 'com.lzy.net:okrx2:2.0.2'
+    implementation 'com.lzy.net:okserver:2.0.5'
+    // json 解析
+    implementation 'com.google.code.gson:gson:2.8.4'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
