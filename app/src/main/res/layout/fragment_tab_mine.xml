@@ -1,13 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:stv="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.fragment.TabMineFragment">
 
-    <TextView
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/mine_name" />
+        android:layout_height="match_parent">
 
-</FrameLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:background="@color/colorPrimary">
+
+                <com.allen.library.SuperButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="40dp"
+                    android:enabled="false"
+                    android:paddingBottom="4dp"
+                    android:paddingEnd="40dp"
+                    android:paddingStart="40dp"
+                    android:paddingTop="4dp"
+                    android:text="@string/ej_color_flower"
+                    android:textColor="@color/colorPrimary"
+                    stv:sCornersRadius="3dp"
+                    stv:sSelectorDisableColor="@color/colorWhite"
+                    stv:sUseSelector="true" />
+            </RelativeLayout>
+
+            <com.allen.library.SuperTextView
+                android:id="@+id/stv_mine_opinion"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="12dp"
+                stv:sLeftTextString="意见反馈"
+                stv:sRightIconMarginRight="12dp"
+                stv:sRightIconRes="@drawable/ic_mine_right"
+                stv:sUseRipple="true" />
+
+            <com.allen.library.SuperTextView
+                android:id="@+id/stv_mine_about"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                stv:sLeftTextString="关于我们"
+                stv:sRightIconMarginRight="12dp"
+                stv:sRightIconRes="@drawable/ic_mine_right"
+                stv:sUseRipple="true" />
+
+            <com.allen.library.SuperTextView
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                stv:sLeftTextString="版本信息"
+                stv:sRightTextString="V 1.0.0"
+                stv:sRightViewMarginRight="16dp"
+                stv:sUseRipple="true" />
+
+            <com.allen.library.SuperTextView
+                android:id="@+id/stv_mine_set"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="12dp"
+                stv:sLeftTextString="设置"
+                stv:sRightIconMarginRight="12dp"
+                stv:sRightIconRes="@drawable/ic_mine_right"
+                stv:sRightViewMarginRight="8dp"
+                stv:sUseRipple="true" />
+
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
+
+</RelativeLayout>

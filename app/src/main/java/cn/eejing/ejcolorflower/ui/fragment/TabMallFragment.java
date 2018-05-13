@@ -9,11 +9,9 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.ui.base.BaseFragment;
 
 
-/**
- * 商城模块
- *
- * @author taodaren
- * @date 2018/5/11
+ /**
+ * @创建者 Taodaren
+ * @描述 商城模块
  */
 
 public class TabMallFragment extends BaseFragment {

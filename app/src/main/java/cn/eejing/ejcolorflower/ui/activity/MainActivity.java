@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentTransaction;
 
 import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
+import com.jaeger.library.StatusBarUtil;
 
 import java.util.ArrayList;
 
@@ -125,6 +126,11 @@ public class MainActivity extends BaseActivity implements BottomNavigationBar.On
      */
     @Override
     public void onTabReselected(int position) {
+    }
+
+    @Override
+    protected void setStatusBar() {
+        StatusBarUtil.setColorNoTranslucent(this, getResources().getColor(R.color.colorPrimary));
     }
 
 }

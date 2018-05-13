@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 
 /**
@@ -20,7 +21,8 @@ import cn.eejing.ejcolorflower.R;
  */
 
 public abstract class BaseFragment extends Fragment {
-    protected View fragmentLayout;
+
+    private View mRootView;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -34,13 +36,14 @@ public abstract class BaseFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(layoutViewId(), container, false);
-        fragmentLayout = initView(rootView);
-        return fragmentLayout;
+        // 子类不再需要设置布局 ID，也不再需要使用 ButterKnife.BindView()
+        mRootView = inflater.inflate(layoutViewId(), container, false);
+        ButterKnife.bind(this, mRootView);
+        initView(mRootView);
+        return mRootView;
     }
 
-    public View initView(View rootView) {
-        return rootView;
+    public void initView(View rootView) {
     }
 
     @Override
@@ -70,15 +73,15 @@ public abstract class BaseFragment extends Fragment {
      * @param title           标题
      * @param titleVisibility 标题控件是否显示
      */
-    public void setToolbar(int toolbarId, int title, int titleVisibility ) {
+    public void setToolbar(int toolbarId, int title, int titleVisibility) {
         // Fragment 中使用 Toolbar
         AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
-        Toolbar toolbar = fragmentLayout.findViewById(toolbarId);
+        Toolbar toolbar = mRootView.findViewById(toolbarId);
         assert appCompatActivity != null;
         appCompatActivity.setSupportActionBar(toolbar);
 
         // 设置标题
-        TextView textTitle = fragmentLayout.findViewById(R.id.title_toolbar);
+        TextView textTitle = mRootView.findViewById(R.id.tv_title_toolbar);
         textTitle.setVisibility(titleVisibility);
         textTitle.setText(title);
 

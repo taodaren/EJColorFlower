@@ -5,15 +5,15 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
 
+import com.jaeger.library.StatusBarUtil;
+
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.ui.base.BaseFragment;
 
 
-/**
- * 控制模块
- *
- * @author taodaren
- * @date 2018/5/11
+ /**
+ * @创建者 Taodaren
+ * @描述 控制模块
  */
 
 public class TabControlFragment extends BaseFragment {
@@ -29,6 +29,7 @@ public class TabControlFragment extends BaseFragment {
     protected int layoutViewId() {
         return R.layout.fragment_tab_control;
     }
+
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {

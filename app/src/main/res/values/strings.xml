@@ -63,4 +63,19 @@
 
     <string name="create_group">新建组</string>
     <string name="my_order">我的订单</string>
+    <string name="content_opinion">内容描述</string>
+    <string name="btn_submit">提交</string>
+    <string name="opinion_content_hint">请简要描述您的问题和意见(限500字内)</string>
+    <string name="opinion_content">内容描述</string>
+    <string name="upper_limit">输入字数已达上限</string>
+    <string name="num_500">/500</string>
+    <string name="ej_color_flower">异景彩花机</string>
+    <string name="exit_login">退出登录</string>
+    <string name="btn_confirm">确定</string>
+    <string name="current_psd">当前密码</string>
+    <string name="reset_psd">重置密码</string>
+    <string name="confirm_psd">确认密码</string>
+    <string name="confirm_psd_hint">请确认新密码</string>
+    <string name="current_psd_hint">请输入原密码</string>
+    <string name="reset_psd_hint">请输入新密码</string>
 </resources>
