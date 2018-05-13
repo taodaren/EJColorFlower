@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:stv="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.activity.MiSetActivity">
+
+    <include
+        android:id="@+id/toolbar_mi_set"
+        layout="@layout/layout_toolbar"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp" />
+
+    <com.allen.library.SuperTextView
+        android:id="@+id/stv_set_user_info"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        stv:layout_constraintTop_toBottomOf="@+id/toolbar_mi_set"
+        stv:sLeftTextString="个人信息"
+        stv:sRightIconMarginRight="12dp"
+        stv:sRightIconRes="@drawable/ic_mine_right"
+        stv:sUseRipple="true"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="8dp" />
+
+    <com.allen.library.SuperTextView
+        android:id="@+id/stv_set_modify_pwd"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        stv:layout_constraintTop_toBottomOf="@+id/stv_set_user_info"
+        stv:sLeftTextString="修改密码"
+        stv:sRightIconMarginRight="12dp"
+        stv:sRightIconRes="@drawable/ic_mine_right"
+        stv:sUseRipple="true"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="8dp" />
+
+    <Button
+        android:id="@+id/btn_exit_login"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/colorWhite"
+        android:text="@string/exit_login"
+        android:textColor="@android:color/holo_red_light"
+        stv:layout_constraintBottom_toBottomOf="parent"
+        stv:layout_constraintEnd_toEndOf="parent"
+        stv:layout_constraintStart_toStartOf="parent"
+        stv:layout_constraintTop_toBottomOf="@+id/stv_set_modify_pwd"
+        tools:ignore="MissingConstraints" />
+
+</android.support.constraint.ConstraintLayout>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:stv="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.activity.MiOpinionActivity">
+
+    <include
+        android:id="@+id/toolbar_mi_opinion"
+        layout="@layout/layout_toolbar" />
+
+    <com.allen.library.SuperTextView
+        android:id="@+id/superTextView"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@color/colorGray"
+        stv:sLeftTextString="@string/opinion_content" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@color/colorWhite">
+
+        <EditText
+            android:id="@+id/edit_opinion_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:gravity="top"
+            android:hint="@string/opinion_content_hint"
+            android:inputType="none"
+            android:maxLength="500"
+            android:padding="4dp"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tv_num_length"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/edit_opinion_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:padding="4dp" />
+    </RelativeLayout>
+
+    <com.allen.library.SuperButton
+        android:id="@+id/btn_opinion_submit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="36dp"
+        android:layout_marginRight="36dp"
+        android:layout_marginTop="64dp"
+        android:text="@string/btn_submit"
+        android:textColor="@color/white"
+        stv:sCornersRadius="50dp"
+        stv:sSelectorDisableColor="@color/colorGray"
+        stv:sSelectorNormalColor="@color/colorPrimary"
+        stv:sUseSelector="true" />
+</LinearLayout>
