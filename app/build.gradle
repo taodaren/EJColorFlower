@@ -40,6 +40,9 @@ dependencies {
     implementation 'com.jaeger.statusbarutil:library:1.5.1'
     // Butter Knife
     implementation 'com.jakewharton:butterknife:8.8.1'
+    // QRCode 框架
+    implementation 'cn.bingoogolapple:bga-qrcode-zxing:1.2.1'
+
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'

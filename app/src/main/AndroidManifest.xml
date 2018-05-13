@@ -3,6 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="cn.eejing.ejcolorflower">
 
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" /> <!-- 使用照相机权限 -->
+    <uses-feature android:name="android.hardware.camera.autofocus" /> <!-- 自动聚焦权限 -->
+
     <application
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_descriptor"

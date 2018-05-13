@@ -78,4 +78,5 @@
     <string name="confirm_psd_hint">请确认新密码</string>
     <string name="current_psd_hint">请输入原密码</string>
     <string name="reset_psd_hint">请输入新密码</string>
+    <string name="add_device">添加设备</string>
 </resources>
