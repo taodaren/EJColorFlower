@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.allen.library.SuperButton;
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
@@ -24,42 +25,46 @@ import com.lzy.okgo.model.Response;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.LoginSession;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.Urls;
-import cn.eejing.ejcolorflower.model.request.ControlBean;
+import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
 import cn.eejing.ejcolorflower.util.Settings;
 
 /**
- * @author taodaren
- * @date 2018/5/8
+ * @创建者 Taodaren
+ * @描述
  */
-
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_ITEM = 0;
     private static final int TYPE_FOOTER = 1;
-    // 先声明context和集合
-    Context mContext;
-    List<ControlBean.DataBean> mList;
 
-    public RecyclerViewAdapter(Context mContext, List<ControlBean.DataBean> mList) {
+    private Context mContext;
+    private List<DeviceGroupListBean.DataBean> mList;
+    private LayoutInflater mLayoutInflater;
+
+    public TabControlAdapter(Context mContext, List<DeviceGroupListBean.DataBean> mList) {
         this.mContext = mContext;
         this.mList = mList;
+        this.mLayoutInflater = LayoutInflater.from(mContext);
     }
 
-    // 布局先这样写OK
+    @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder holder = null;
-        View view = null;
+        View inflate;
         switch (viewType) {
             case TYPE_ITEM:
-                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_view_item, parent, false);
-                holder = new ViewHolder(view);
+                inflate = mLayoutInflater.inflate(R.layout.item_unit_control, parent, false);
+                holder = new ItemViewHolder(inflate);
                 break;
             case TYPE_FOOTER:
-                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_view_footer, parent, false);
-                holder = new FootViewHolder(view);
+                inflate = mLayoutInflater.inflate(R.layout.item_footer_control, parent, false);
+                holder = new FootViewHolder(inflate);
+//                holder.setClickListener();
                 break;
             default:
         }
@@ -67,18 +72,16 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         switch (getItemViewType(position)) {
             case TYPE_ITEM:
-                ((ViewHolder) viewHolder).bind(mList.get(position));
+                ((ItemViewHolder) holder).setData(mList.get(position));
                 break;
             case TYPE_FOOTER:
-                ((FootViewHolder) viewHolder).bind();
-
+                ((FootViewHolder) holder).setData();
                 break;
             default:
         }
-
     }
 
     @Override
@@ -95,23 +98,68 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
     }
 
-    // 刷新数据的时候调用
-    public void refreshList(List<ControlBean.DataBean> list) {
+    public void refreshList(List<DeviceGroupListBean.DataBean> list) {
         if (list != null) {
             mList.clear();
             addList(list);
         }
     }
 
-    // 加载更多的时候调用
-    public void addList(List<ControlBean.DataBean> list) {
+    public void addList(List<DeviceGroupListBean.DataBean> list) {
         mList.addAll(list);
         notifyDataSetChanged();
     }
 
-    public class FootViewHolder extends RecyclerView.ViewHolder {
+    class ItemViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.seek_bar_control)
+        SeekBar sbControl;
+        @BindView(R.id.rv_control_group)
+        RecyclerView rvGroup;
+        @BindView(R.id.tv_ctrl_group_info)
+        TextView tvInfo;
+        @BindView(R.id.tv_ctrl_group_name)
+        TextView tvName;
+        @BindView(R.id.ch_ctrl_group_time)
+        Chronometer itemTime;// 这是一个可以倒计时和计时的控件
+        @BindView(R.id.img_ctrl_group_add)
+        ImageView imgAdd;
+        @BindView(R.id.img_ctrl_group_switch)
+        ImageView imgSwitch;
+        @BindView(R.id.sb_ctrl_group_time)
+        SuperButton sbTime;
+
+        LinearLayoutManager manager;
+        DeviceAdapter adapter;
+
+        public ItemViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+
+        public void setData(DeviceGroupListBean.DataBean bean) {
+            // 这里给控件赋值
+            if (bean.getGroup_list() != null && bean.getGroup_list().size() > 0) {
+                tvInfo.setVisibility(View.GONE);
+                rvGroup.setVisibility(View.VISIBLE);
+                init(bean.getGroup_list());
+            } else {
+                tvInfo.setVisibility(View.VISIBLE);
+            }
+            tvName.setText(bean.getGroup_name());
+        }
+
+        private void init(List<String> list) {
+            manager = new LinearLayoutManager(mContext);
+            manager.setOrientation(LinearLayoutManager.HORIZONTAL);
+            rvGroup.setLayoutManager(manager);
+            adapter = new DeviceAdapter(list);
+            rvGroup.setAdapter(adapter);
+        }
+    }
+
+    class FootViewHolder extends RecyclerView.ViewHolder {
         Gson gson;
-        List<ControlBean.DataBean> beanList;
+        List<DeviceGroupListBean.DataBean> beanList;
         ImageView imgAddGroup;
 
         public FootViewHolder(View view) {
@@ -121,7 +169,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             imgAddGroup = view.findViewById(R.id.img_add_group);
         }
 
-        public void bind() {
+        public void setData() {
             imgAddGroup.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -175,7 +223,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                                                              String body = response.body();
                                                              Log.e("GET_DEVICE_GROUP_LIST", "Network request succeeded！！！" + body);
 
-                                                             ControlBean bean = gson.fromJson(body, ControlBean.class);
+                                                             DeviceGroupListBean bean = gson.fromJson(body, DeviceGroupListBean.class);
                                                              beanList = bean.getData();
                                                              refreshList(beanList);
                                                          }
@@ -186,54 +234,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                             });
                 }
             });
-        }
-    }
-
-
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        RecyclerView itemRv;
-        TextView itemAddDevice, itemName;
-        ImageView itemAdd, itemClose;
-        SeekBar itemSb;
-        // 这是一个可以倒计时和计时的控件
-        Chronometer itemTime;
-        LinearLayoutManager manager;
-        DeviceAdapter adapter;
-
-
-        public ViewHolder(View itemView) {
-            super(itemView);
-            itemRv = itemView.findViewById(R.id.item_rv);
-            itemAddDevice = itemView.findViewById(R.id.item_add_device);
-            itemAdd = itemView.findViewById(R.id.item_add);
-            itemName = itemView.findViewById(R.id.item_name);
-            itemClose = itemView.findViewById(R.id.item_close);
-            itemSb = itemView.findViewById(R.id.item_sb);
-            itemTime = itemView.findViewById(R.id.item_time);
-        }
-
-        public void bind(ControlBean.DataBean controllBean) {
-            // 这里给控件赋值
-            //            init(controllBean.getGroup_list());
-            if (controllBean.getGroup_list() != null && controllBean.getGroup_list().size() > 0) {
-                itemAddDevice.setVisibility(View.GONE);
-                itemRv.setVisibility(View.VISIBLE);
-                init(controllBean.getGroup_list());
-            } else {
-                itemAddDevice.setVisibility(View.VISIBLE);
-            }
-
-            itemName.setText(controllBean.getGroup_name());
-
-        }
-
-        private void init(List<String> controllBean) {
-            manager = new LinearLayoutManager(mContext);
-            manager.setOrientation(LinearLayoutManager.HORIZONTAL);
-            itemRv.setLayoutManager(manager);
-
-            adapter = new DeviceAdapter(controllBean);
-            itemRv.setAdapter(adapter);
         }
     }
 
@@ -275,4 +275,5 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             }
         }
     }
+
 }

@@ -3,7 +3,7 @@ package cn.eejing.ejcolorflower.model.request;
 import java.util.List;
 
 
-public class ControlBean {
+public class DeviceGroupListBean {
 
     /**
      * code : 1

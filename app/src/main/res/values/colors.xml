@@ -13,6 +13,7 @@
     <color name="colorWhite">#ffffff</color>
     <color name="colorRed">#ff0000</color>
     <color name="colorGray">#d9d9d9</color>
+    <color name="colorBgGray">#EEEEEE</color>
 
     <color name="colorHighlightTempLow">#619ee4</color>
     <color name="colorHighlightTempHigh">#f75e5e</color>
