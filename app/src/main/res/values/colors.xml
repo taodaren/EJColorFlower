@@ -9,9 +9,11 @@
     <color name="colorTransparent50White">#80FFFFFF</color>
     <color name="colorTransparent30Red">#4Dca0d0d</color>
 
-    <color name="colorWhite">#ffffff</color>
     <color name="colorBlack">#000000</color>
+    <color name="colorWhite">#ffffff</color>
+    <color name="colorRed">#ff0000</color>
     <color name="colorGray">#d9d9d9</color>
+
     <color name="colorHighlightTempLow">#619ee4</color>
     <color name="colorHighlightTempHigh">#f75e5e</color>
     <color name="colorTempMark">#291111</color>

@@ -4,9 +4,7 @@ package cn.eejing.ejcolorflower.ui.fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
@@ -18,11 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
 import cn.eejing.ejcolorflower.R;
+import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.Urls;
-import cn.eejing.ejcolorflower.model.request.ControlBean;
 import cn.eejing.ejcolorflower.model.request.GoodsListBean;
 import cn.eejing.ejcolorflower.ui.adapter.TabMallAdapter;
 import cn.eejing.ejcolorflower.ui.base.BaseFragment;
@@ -35,7 +31,7 @@ import cn.eejing.ejcolorflower.ui.base.BaseFragment;
 
 public class TabMallFragment extends BaseFragment {
     private Gson mGson;
-    private List<GoodsListBean.Data> mList;
+    private List<GoodsListBean.DataBean> mList;
 
     @BindView(R.id.rv_tab_mall)
     PullLoadMoreRecyclerView rvTabMall;
@@ -53,10 +49,9 @@ public class TabMallFragment extends BaseFragment {
     }
 
     @Override
-    public void initView(View rootView) {
+    public void initView(View rootView) {// 我封装的 相当于onCreateView
         mGson = new Gson();
         mList = new ArrayList<>();
-        setRecyclerView();
     }
 
     @Override
@@ -64,12 +59,19 @@ public class TabMallFragment extends BaseFragment {
         super.onActivityCreated(savedInstanceState);
         // 在 onActivityCreated 方法中初始化 Toolbar
         setToolbar(R.id.main_toolbar, R.string.mall_name, View.VISIBLE);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
         getData();
+        //        setRecyclerView();
+        //        rvTabMall.setOnPullLoadMoreListener(new PullLoadMoreRecyclerView.PullLoadMoreListener() {
+        //            @Override
+        //            public void onRefresh() {
+        //                getData();
+        //            }
+        //
+        //            @Override
+        //            public void onLoadMore() {
+        //
+        //            }
+        //        });
     }
 
     private void getData() {
@@ -79,40 +81,25 @@ public class TabMallFragment extends BaseFragment {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.e("GOODS_LIST", "Network request succeeded --->" + body);
+                        Log.e(AppConstant.TAG, "Network request succeeded --->" + body);
                         GoodsListBean bean = mGson.fromJson(body, GoodsListBean.class);
                         mList = bean.getData();
-                        Log.e("GOODS_LIST", "json parse data number --->" + mList.size());
-                        if (mList != null && !mList.isEmpty()) {
-                            // 刷新数据
-//                            rvTabMall.refreshList(mBeanList);
-                            // 刷新结束
-                            rvTabMall.setPullLoadMoreCompleted();
-                        }
+                        Log.e(AppConstant.TAG, "json parse data number --->" + mList.size());
                     }
                 });
+        // 刷新结束
+        rvTabMall.setPullLoadMoreCompleted();
+        rvTabMall.setPushRefreshEnable(false);
     }
 
     private void setRecyclerView() {
-        // 设置布局
-        rvTabMall.setGridLayout(2);
-        // 绑定适配器
-        TabMallAdapter mallAdapter = new TabMallAdapter();
-        rvTabMall.setAdapter(mallAdapter);
-        // 调用下拉刷新和加载更多
-        rvTabMall.setOnPullLoadMoreListener(new PullLoadMoreRecyclerView.PullLoadMoreListener() {
-            @Override
-            public void onRefresh() {
-
-            }
-
-            @Override
-            public void onLoadMore() {
-
-            }
-        });
-        // 刷新结束
-        rvTabMall.setPullLoadMoreCompleted();
+        if (mList != null && !mList.isEmpty()) {
+            // 设置布局
+            rvTabMall.setGridLayout(2);
+            // 绑定适配器
+            TabMallAdapter mallAdapter = new TabMallAdapter(getContext(), mList);
+            rvTabMall.setAdapter(mallAdapter);
+        }
     }
 
 }
