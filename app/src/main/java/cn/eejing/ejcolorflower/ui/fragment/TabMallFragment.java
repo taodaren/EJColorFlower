@@ -35,6 +35,8 @@ public class TabMallFragment extends BaseFragment {
 
     @BindView(R.id.rv_tab_mall)
     PullLoadMoreRecyclerView rvTabMall;
+    private TabMallAdapter mMallAdapter;
+    private int mFlag;
 
     public static TabMallFragment newInstance() {
         return new TabMallFragment();
@@ -49,9 +51,10 @@ public class TabMallFragment extends BaseFragment {
     }
 
     @Override
-    public void initView(View rootView) {// 我封装的 相当于onCreateView
+    public void initView(View rootView) {
         mGson = new Gson();
         mList = new ArrayList<>();
+        initRecyclerView();
     }
 
     @Override
@@ -60,18 +63,6 @@ public class TabMallFragment extends BaseFragment {
         // 在 onActivityCreated 方法中初始化 Toolbar
         setToolbar(R.id.main_toolbar, R.string.mall_name, View.VISIBLE);
         getData();
-        //        setRecyclerView();
-        //        rvTabMall.setOnPullLoadMoreListener(new PullLoadMoreRecyclerView.PullLoadMoreListener() {
-        //            @Override
-        //            public void onRefresh() {
-        //                getData();
-        //            }
-        //
-        //            @Override
-        //            public void onLoadMore() {
-        //
-        //            }
-        //        });
     }
 
     private void getData() {
@@ -84,22 +75,44 @@ public class TabMallFragment extends BaseFragment {
                         Log.e(AppConstant.TAG, "Network request succeeded --->" + body);
                         GoodsListBean bean = mGson.fromJson(body, GoodsListBean.class);
                         mList = bean.getData();
-                        Log.e(AppConstant.TAG, "json parse data number --->" + mList.size());
+                        // 刷新数据
+                        switch (mFlag) {
+                            case AppConstant.DOWN_PULL_REFRESH:
+                                mMallAdapter.refreshList(mList);
+                                break;
+                            case AppConstant.UP_PUSH_LOAD_MORE:
+                                mMallAdapter.addList(mList);
+                                break;
+                            default:
+                        }
+                        // 刷新结束
+                        rvTabMall.setPullLoadMoreCompleted();
                     }
                 });
-        // 刷新结束
-        rvTabMall.setPullLoadMoreCompleted();
-        rvTabMall.setPushRefreshEnable(false);
     }
 
-    private void setRecyclerView() {
-        if (mList != null && !mList.isEmpty()) {
-            // 设置布局
-            rvTabMall.setGridLayout(2);
-            // 绑定适配器
-            TabMallAdapter mallAdapter = new TabMallAdapter(getContext(), mList);
-            rvTabMall.setAdapter(mallAdapter);
-        }
+    private void initRecyclerView() {
+        // 设置布局
+        rvTabMall.setGridLayout(2);
+        // 绑定适配器
+        mMallAdapter = new TabMallAdapter(getContext(), mList);
+        rvTabMall.setAdapter(mMallAdapter);
+        // 调用下拉刷新和加载更多
+        rvTabMall.setOnPullLoadMoreListener(new PullLoadMoreRecyclerView.PullLoadMoreListener() {
+            @Override
+            public void onRefresh() {
+                mFlag = AppConstant.DOWN_PULL_REFRESH;
+                getData();
+            }
+
+            @Override
+            public void onLoadMore() {
+                mFlag = AppConstant.UP_PUSH_LOAD_MORE;
+                getData();
+            }
+        });
+        // 刷新结束
+        rvTabMall.setPullLoadMoreCompleted();
     }
 
 }

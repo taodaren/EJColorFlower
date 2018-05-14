@@ -85,4 +85,5 @@
     <string name="stock_no">无货</string>
     <string name="one">1</string>
     <string name="zero">0</string>
+    <string name="add_group">新建组</string>
 </resources>

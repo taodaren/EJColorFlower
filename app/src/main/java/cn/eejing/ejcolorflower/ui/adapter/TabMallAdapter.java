@@ -13,7 +13,6 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import cn.eejing.ejcolorflower.R;
@@ -34,8 +33,8 @@ public class TabMallAdapter extends RecyclerView.Adapter<TabMallAdapter.MallView
         this.mContext = mContext;
         this.mList = mList;
         this.mLayoutInflater = LayoutInflater.from(mContext);
-        this.mList = new ArrayList<>();
-        this.mList.addAll(mList);
+        //        this.mList.addAll(mList);
+        //        this.mList = new ArrayList<>();
     }
 
     @NonNull
@@ -55,6 +54,25 @@ public class TabMallAdapter extends RecyclerView.Adapter<TabMallAdapter.MallView
     @Override
     public int getItemCount() {
         return mList.size();
+    }
+
+    /**
+     * 刷新列表
+     */
+    public void refreshList(List<GoodsListBean.DataBean> list) {
+        // 先把之前的数据清空
+        mList.clear();
+        addList(list);
+    }
+
+    /**
+     * 加载更多列表
+     */
+    public void addList(List<GoodsListBean.DataBean> list) {
+        // 把新集合添加进来
+        mList.addAll(list);
+        // 通知列表刷新
+        notifyDataSetChanged();
     }
 
     class MallViewHolder extends RecyclerView.ViewHolder {
