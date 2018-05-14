@@ -10,6 +10,7 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.ui.activity.MainActivity;
 import cn.eejing.ejcolorflower.ui.activity.MiAboutActivity;
 import cn.eejing.ejcolorflower.ui.activity.MiOpinionActivity;
+import cn.eejing.ejcolorflower.ui.activity.MiOrderActivity;
 import cn.eejing.ejcolorflower.ui.activity.MiSetActivity;
 import cn.eejing.ejcolorflower.ui.base.BaseFragment;
 
@@ -27,6 +28,8 @@ public class TabMineFragment extends BaseFragment {
     SuperTextView stvMineAbout;
     @BindView(R.id.stv_mine_set)
     SuperTextView stvMineSet;
+    @BindView(R.id.stv_mine_order)
+    SuperTextView stvMineOrder;
 
     public static TabMineFragment newInstance() {
         return new TabMineFragment();
@@ -46,6 +49,12 @@ public class TabMineFragment extends BaseFragment {
     }
 
     private void stvOnClickListener() {
+        stvMineOrder.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
+            @Override
+            public void onClickListener(SuperTextView superTextView) {
+                ((MainActivity) getActivity()).jumpToActivity(MiOrderActivity.class);
+            }
+        });
         stvMineOpinion.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
             @Override
             public void onClickListener(SuperTextView superTextView) {

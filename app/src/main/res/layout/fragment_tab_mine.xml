@@ -38,6 +38,16 @@
             </RelativeLayout>
 
             <com.allen.library.SuperTextView
+                android:id="@+id/stv_mine_order"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="12dp"
+                stv:sLeftTextString="我的订单"
+                stv:sRightIconMarginRight="12dp"
+                stv:sRightIconRes="@drawable/ic_mine_right"
+                stv:sUseRipple="true" />
+
+            <com.allen.library.SuperTextView
                 android:id="@+id/stv_mine_opinion"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
@@ -61,8 +71,7 @@
                 android:layout_height="50dp"
                 stv:sLeftTextString="版本信息"
                 stv:sRightTextString="V 1.0.0"
-                stv:sRightViewMarginRight="16dp"
-                stv:sUseRipple="true" />
+                stv:sRightViewMarginRight="16dp" />
 
             <com.allen.library.SuperTextView
                 android:id="@+id/stv_mine_set"

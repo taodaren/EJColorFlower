@@ -30,13 +30,13 @@ import cn.eejing.ejcolorflower.ui.base.BaseFragment;
  */
 
 public class TabMallFragment extends BaseFragment {
-    private Gson mGson;
-    private List<GoodsListBean.DataBean> mList;
 
     @BindView(R.id.rv_tab_mall)
     PullLoadMoreRecyclerView rvTabMall;
+
+    private Gson mGson;
+    private List<GoodsListBean.DataBean> mList;
     private TabMallAdapter mMallAdapter;
-    private int mFlag;
 
     public static TabMallFragment newInstance() {
         return new TabMallFragment();
@@ -76,15 +76,7 @@ public class TabMallFragment extends BaseFragment {
                         GoodsListBean bean = mGson.fromJson(body, GoodsListBean.class);
                         mList = bean.getData();
                         // 刷新数据
-                        switch (mFlag) {
-                            case AppConstant.DOWN_PULL_REFRESH:
-                                mMallAdapter.refreshList(mList);
-                                break;
-                            case AppConstant.UP_PUSH_LOAD_MORE:
-                                mMallAdapter.addList(mList);
-                                break;
-                            default:
-                        }
+                        mMallAdapter.refreshList(mList);
                         // 刷新结束
                         rvTabMall.setPullLoadMoreCompleted();
                     }
@@ -97,18 +89,17 @@ public class TabMallFragment extends BaseFragment {
         // 绑定适配器
         mMallAdapter = new TabMallAdapter(getContext(), mList);
         rvTabMall.setAdapter(mMallAdapter);
+        // 不需要上拉刷新
+        rvTabMall.setPushRefreshEnable(false);
         // 调用下拉刷新和加载更多
         rvTabMall.setOnPullLoadMoreListener(new PullLoadMoreRecyclerView.PullLoadMoreListener() {
             @Override
             public void onRefresh() {
-                mFlag = AppConstant.DOWN_PULL_REFRESH;
                 getData();
             }
 
             @Override
             public void onLoadMore() {
-                mFlag = AppConstant.UP_PUSH_LOAD_MORE;
-                getData();
             }
         });
         // 刷新结束

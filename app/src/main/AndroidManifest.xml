@@ -6,9 +6,11 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-feature android:name="android.hardware.camera" /> <!-- 使用照相机权限 -->
-    <uses-feature android:name="android.hardware.camera.autofocus" /> <!-- 自动聚焦权限 -->
 
+    <uses-feature android:name="android.hardware.camera" /> <!-- 使用照相机权限 -->
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+
+    <!-- 自动聚焦权限 -->
     <application
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_descriptor"
@@ -31,6 +33,8 @@
         <activity android:name=".ui.activity.MiUserInfoActivity" />
         <activity android:name=".ui.activity.MiModifyPwdActivity" />
         <activity android:name=".ui.activity.QRCodeActivity" />
+        <activity android:name=".ui.activity.MaGoodsDetailsActivity" />
+        <activity android:name=".ui.activity.MiOrderActivity"></activity>
     </application>
 
 </manifest>

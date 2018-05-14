@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
@@ -16,15 +16,15 @@
             android:id="@+id/img_goods_list"
             android:layout_width="match_parent"
             android:layout_height="130dp"
-            android:scaleType="centerCrop"/>
+            android:scaleType="centerCrop"
+            tools:ignore="ContentDescription" />
 
         <TextView
             android:id="@+id/tv_goods_list_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="4dp"
-            android:text="标题"
-            android:textSize="16sp"/>
+            android:textSize="14sp" />
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -36,9 +36,8 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:padding="4dp"
-                android:text="￥ 50"
                 android:textColor="@color/colorRed"
-                android:textSize="16sp"/>
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/tv_goods_list_num"
@@ -46,10 +45,10 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_margin="4dp"
-                android:layout_toRightOf="@id/tv_goods_list_rmb"
-                android:text="已售 500"
+                android:layout_toEndOf="@id/tv_goods_list_rmb"
                 android:textColor="@color/colorGray"
-                android:textSize="10sp"/>
+                android:textSize="10sp"
+                tools:ignore="SmallSp" />
 
             <TextView
                 android:id="@+id/tv_goods_list_has"
@@ -58,9 +57,9 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:padding="4dp"
-                android:text="有货"
                 android:textColor="@color/colorGray"
-                android:textSize="10sp"/>
+                android:textSize="10sp"
+                tools:ignore="RelativeOverlap,SmallSp" />
         </RelativeLayout>
     </LinearLayout>
 </android.support.v7.widget.CardView>

@@ -2,6 +2,7 @@ package cn.eejing.ejcolorflower.ui.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,14 +10,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.model.request.GoodsListBean;
+import cn.eejing.ejcolorflower.ui.activity.MaGoodsDetailsActivity;
+import cn.eejing.ejcolorflower.ui.activity.MainActivity;
 
 /**
  * @创建者 Taodaren
@@ -33,8 +37,6 @@ public class TabMallAdapter extends RecyclerView.Adapter<TabMallAdapter.MallView
         this.mContext = mContext;
         this.mList = mList;
         this.mLayoutInflater = LayoutInflater.from(mContext);
-        //        this.mList.addAll(mList);
-        //        this.mList = new ArrayList<>();
     }
 
     @NonNull
@@ -76,25 +78,33 @@ public class TabMallAdapter extends RecyclerView.Adapter<TabMallAdapter.MallView
     }
 
     class MallViewHolder extends RecyclerView.ViewHolder {
-        View outView;
+        @BindView(R.id.img_goods_list)
         ImageView imgGoods;
-        TextView tvTitle, tvRmb, tvNum, tvHas;
+        @BindView(R.id.tv_goods_list_title)
+        TextView tvTitle;
+        @BindView(R.id.tv_goods_list_rmb)
+        TextView tvRmb;
+        @BindView(R.id.tv_goods_list_num)
+        TextView tvNum;
+        @BindView(R.id.tv_goods_list_has)
+        TextView tvHas;
+
+        View outView;
 
         public MallViewHolder(View itemView) {
             super(itemView);
+            ButterKnife.bind(this, itemView);
             outView = itemView;
-            imgGoods = itemView.findViewById(R.id.img_goods_list);
-            tvTitle = itemView.findViewById(R.id.tv_goods_list_title);
-            tvRmb = itemView.findViewById(R.id.tv_goods_list_rmb);
-            tvNum = itemView.findViewById(R.id.tv_goods_list_num);
-            tvHas = itemView.findViewById(R.id.tv_goods_list_has);
         }
 
         public void setClickListener() {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Toast.makeText(mContext, "" + mList.get(getPosition()).getGoods_id(), Toast.LENGTH_SHORT).show();
+                    int goods_id = mList.get(getAdapterPosition()).getGoods_id();
+                    Intent intent = new Intent(mContext, MaGoodsDetailsActivity.class);
+                    intent.putExtra("goods_id", goods_id);
+                    ((MainActivity) mContext).jumpToActivity(intent);
                 }
             });
         }
@@ -104,13 +114,13 @@ public class TabMallAdapter extends RecyclerView.Adapter<TabMallAdapter.MallView
             Glide.with(mContext).load(bean.getImage()).into(imgGoods);
             tvTitle.setText(bean.getName());
             tvRmb.setText(mContext.getResources().getString(R.string.rmb) + bean.getMoney());
-            tvNum.setText(R.string.sold + bean.getSold());
+            tvNum.setText(mContext.getResources().getString(R.string.sold) + bean.getSold());
             int stock = bean.getStock();
             switch (stock) {
                 case 1:
                     tvHas.setText(mContext.getResources().getString(R.string.stock_have));
                     break;
-                case 2:
+                case 0:
                     tvHas.setText(mContext.getResources().getString(R.string.stock_no));
                     break;
                 default:
