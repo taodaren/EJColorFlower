@@ -3,17 +3,12 @@ package cn.eejing.ejcolorflower.ui.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.ui.activity.MainActivity;
-import cn.eejing.ejcolorflower.ui.activity.MiAboutActivity;
+import cn.eejing.ejcolorflower.app.MainActivity;
 import cn.eejing.ejcolorflower.ui.activity.QRCodeActivity;
 import cn.eejing.ejcolorflower.ui.base.BaseFragment;
 

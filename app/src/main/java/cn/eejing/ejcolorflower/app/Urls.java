@@ -7,7 +7,7 @@ package cn.eejing.ejcolorflower.app;
 public interface Urls {
     String BASE_URL = "http://www.eejing.cn/index.php/index/api/";                     // 域名公共部分
 
-    String FEGISTER = BASE_URL + "register";                                           // 注册
+    String REGISTER = BASE_URL + "register";                                           // 注册
     String LOGIN = BASE_URL + "login";                                                 // 登录
     String PWD_FIND = BASE_URL + "pwdFind";                                            // 密码找回
     String SEND_MSG = BASE_URL + "sendMsg";                                            // 发送短信

@@ -7,7 +7,7 @@ import com.allen.library.SuperTextView;
 
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.ui.activity.MainActivity;
+import cn.eejing.ejcolorflower.app.MainActivity;
 import cn.eejing.ejcolorflower.ui.activity.MiAboutActivity;
 import cn.eejing.ejcolorflower.ui.activity.MiOpinionActivity;
 import cn.eejing.ejcolorflower.ui.activity.MiOrderActivity;

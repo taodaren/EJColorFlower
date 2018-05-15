@@ -21,7 +21,6 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
-import cn.eejing.ejcolorflower.model.request.GoodsListBean;
 import cn.eejing.ejcolorflower.ui.adapter.TabControlAdapter;
 import cn.eejing.ejcolorflower.ui.base.BaseFragment;
 import cn.eejing.ejcolorflower.util.Settings;
@@ -75,6 +74,7 @@ public class TabControlFragment extends BaseFragment {
     private void getData() {
         OkGo.<String>post(Urls.GET_DEVICE_GROUP_LIST)
                 .tag(this)
+                // TODO: 2018/5/15  MemberId 暂时写死
                 .params("member_id", 15)
                 .execute(new StringCallback() {
                              @Override

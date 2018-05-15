@@ -60,11 +60,12 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             case TYPE_ITEM:
                 inflate = mLayoutInflater.inflate(R.layout.item_unit_control, parent, false);
                 holder = new ItemViewHolder(inflate);
+                ((ItemViewHolder) holder).setClickListener();
                 break;
             case TYPE_FOOTER:
                 inflate = mLayoutInflater.inflate(R.layout.item_footer_control, parent, false);
                 holder = new FootViewHolder(inflate);
-//                holder.setClickListener();
+                ((FootViewHolder) holder).setClickListener();
                 break;
             default:
         }
@@ -134,6 +135,21 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         public ItemViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+        }
+
+        public void setClickListener() {
+            sbControl.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                }
+            });
+            imgAdd.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                }
+            });
         }
 
         public void setData(DeviceGroupListBean.DataBean bean) {
@@ -234,6 +250,10 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                             });
                 }
             });
+        }
+
+        public void setClickListener() {
+
         }
     }
 
