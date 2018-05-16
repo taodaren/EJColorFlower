@@ -6,7 +6,6 @@ import cn.eejing.ejcolorflower.LoginSession;
 
 
 /**
- * Created by scc on 2018/3/9.
  * 配置
  */
 

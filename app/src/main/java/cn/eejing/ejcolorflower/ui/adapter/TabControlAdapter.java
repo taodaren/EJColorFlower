@@ -69,7 +69,13 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             case TYPE_ITEM:
                 inflate = mLayoutInflater.inflate(R.layout.item_unit_control, parent, false);
                 holder = new ItemViewHolder(inflate);
-                ((ItemViewHolder) holder).setClickListener();
+                int adapterPosition = holder.getAdapterPosition();
+                Log.e(AppConstant.TAG, "onClick ap" + adapterPosition);
+//                int group_id = mList.get(adapterPosition).getGroup_id();
+//                String group_name = mList.get(adapterPosition).getGroup_name();
+//                Log.e(AppConstant.TAG, "onClick 1" + group_name);
+//                Log.e(AppConstant.TAG, "onClick 1" + group_id);
+//                ((ItemViewHolder) holder).setClickListener(group_name,group_id);
                 break;
             case TYPE_FOOTER:
                 inflate = mLayoutInflater.inflate(R.layout.item_footer_control, parent, false);
@@ -146,7 +152,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             ButterKnife.bind(this, itemView);
         }
 
-        public void setClickListener() {
+        public void setClickListener(final String group_name, final int group_id) {
             sbControl.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -157,8 +163,8 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 @Override
                 public void onClick(View view) {
                     // TODO: 2018/5/16 这里获取值不准确
-                    Log.e(AppConstant.TAG, "onClick " + mGroupName);
-                    Log.e(AppConstant.TAG, "onClick " + mGroupId);
+                    Log.e(AppConstant.TAG, "onClick 2" + group_name);
+                    Log.e(AppConstant.TAG, "onClick 2" + group_id);
                     Toast.makeText(mContext, "" + mGroupName + mGroupId, Toast.LENGTH_SHORT).show();
 
                     Intent intent = new Intent(mContext, CoDeviceActivity.class);
@@ -255,7 +261,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         @Override
         public void onBindViewHolder(@NonNull DeviceHolder holder, int position) {
-            holder.bind(devices.get(position));
+            holder.setData(devices.get(position));
         }
 
         @Override
@@ -264,16 +270,19 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         public class DeviceHolder extends RecyclerView.ViewHolder {
-            ImageView deviceimg;
+            @BindView(R.id.sb_device_add_list)
+            SuperButton sbDevice;
 
             public DeviceHolder(View itemView) {
                 super(itemView);
-                deviceimg = itemView.findViewById(R.id.device_img);
+                ButterKnife.bind(this, itemView);
             }
 
-            public void bind(String s) {
-                // 赋值,这里就是上面那个设备列表，但是我不知道是根据什么显示的,这样写，有几条数据，就会有几个
-                deviceimg.setImageResource(R.drawable.ic_add_solid_black);
+            public void setData(String s) {
+                Log.e(AppConstant.TAG, "devices: " + devices.toString());
+                for (int i=0;i<devices.size();i++) {
+                    sbDevice.setText(devices.get(getAdapterPosition()).toString());
+                }
             }
         }
     }
@@ -284,7 +293,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         OkGo.<String>post(Urls.RM_GROUP)
                 .tag(this)
                 // TODO: 2018/5/15  MemberId 暂时写死
-                .params("member_id", 15)
+                .params("member_id", 12)
                 .params("group_id", groupId)
                 .execute(new StringCallback() {
                     @Override
@@ -302,7 +311,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         OkGo.<String>post(Urls.GET_DEVICE_GROUP_LIST)
                 .tag(this)
                 // TODO: 2018/5/15  MemberId 暂时写死
-                .params("member_id", 15)
+                .params("member_id", 12)
                 .execute(new StringCallback() {
                              @Override
                              public void onSuccess(Response<String> response) {
@@ -328,7 +337,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         OkGo.<String>post(Urls.ADD_GROUP)
                 .tag(this)
                 // TODO: 2018/5/15  MemberId 暂时写死
-                .params("member_id", 15)
+                .params("member_id", 12)
                 .params("group_name", groupName)
                 .execute(new StringCallback() {
                     @Override

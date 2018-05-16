@@ -77,7 +77,7 @@ public class TabControlFragment extends BaseFragment {
         OkGo.<String>post(Urls.GET_DEVICE_GROUP_LIST)
                 .tag(this)
                 // TODO: 2018/5/15  MemberId 暂时写死
-                .params("member_id", 15)
+                .params("member_id", 12)
                 .execute(new StringCallback() {
                              @Override
                              public void onSuccess(Response<String> response) {

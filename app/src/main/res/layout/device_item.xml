@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-    <ImageView
-        android:id="@+id/device_img"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+    xmlns:stv="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <com.allen.library.SuperButton
+        android:id="@+id/sb_device_add_list"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_centerVertical="true"
+        android:layout_gravity="center"
+        android:layout_marginStart="12dp"
+        android:textSize="10sp"
+        stv:sShapeType="oval"
+        stv:sSolidColor="@color/colorWhite"
+        stv:sStrokeColor="@color/colorPrimary"
+        stv:sStrokeWidth="0.5dp" />
 
 </RelativeLayout>

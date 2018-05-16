@@ -12,6 +12,7 @@
 
     <!-- 自动聚焦权限 -->
     <application
+        android:name=".app.GApp"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_descriptor"
         android:icon="@mipmap/ic_launcher"
