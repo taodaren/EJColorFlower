@@ -3,6 +3,7 @@ package cn.eejing.ejcolorflower.ui.adapter;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.allen.library.SuperButton;
 import com.google.gson.Gson;
@@ -22,33 +24,40 @@ import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.LoginSession;
 import cn.eejing.ejcolorflower.R;
+import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
+import cn.eejing.ejcolorflower.model.request.RmGroup;
+import cn.eejing.ejcolorflower.presenter.ItemTouchHelperAdapter;
+import cn.eejing.ejcolorflower.ui.activity.CoDeviceActivity;
 import cn.eejing.ejcolorflower.util.Settings;
 
 /**
  * @创建者 Taodaren
- * @描述
+ * @描述 控制模块适配器
  */
-public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements ItemTouchHelperAdapter {
     private static final int TYPE_ITEM = 0;
     private static final int TYPE_FOOTER = 1;
 
     private Context mContext;
     private List<DeviceGroupListBean.DataBean> mList;
     private LayoutInflater mLayoutInflater;
+    private Gson mGson;
+    private int mGroupId;
+    private String mGroupName;
 
     public TabControlAdapter(Context mContext, List<DeviceGroupListBean.DataBean> mList) {
         this.mContext = mContext;
         this.mList = mList;
         this.mLayoutInflater = LayoutInflater.from(mContext);
+        this.mGson = new Gson();
     }
 
     @NonNull
@@ -74,14 +83,8 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        switch (getItemViewType(position)) {
-            case TYPE_ITEM:
-                ((ItemViewHolder) holder).setData(mList.get(position));
-                break;
-            case TYPE_FOOTER:
-                ((FootViewHolder) holder).setData();
-                break;
-            default:
+        if (getItemViewType(position) == TYPE_ITEM) {
+            ((ItemViewHolder) holder).setData(mList.get(position));
         }
     }
 
@@ -111,6 +114,14 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         notifyDataSetChanged();
     }
 
+    @Override
+    public void onItemDismiss(int position) {
+        getDataWithDelGroup(position);
+        // 移除数据
+        mList.remove(position);
+        notifyItemRemoved(position);
+    }
+
     class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.seek_bar_control)
         SeekBar sbControl;
@@ -129,8 +140,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         @BindView(R.id.sb_ctrl_group_time)
         SuperButton sbTime;
 
-        LinearLayoutManager manager;
-        DeviceAdapter adapter;
 
         public ItemViewHolder(View itemView) {
             super(itemView);
@@ -147,13 +156,27 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             imgAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    // TODO: 2018/5/16 这里获取值不准确
+                    Log.e(AppConstant.TAG, "onClick " + mGroupName);
+                    Log.e(AppConstant.TAG, "onClick " + mGroupId);
+                    Toast.makeText(mContext, "" + mGroupName + mGroupId, Toast.LENGTH_SHORT).show();
 
+                    Intent intent = new Intent(mContext, CoDeviceActivity.class);
+                    intent.putExtra("group_id", mGroupId);
+                    intent.putExtra("group_name", mGroupName);
+//                    mContext.startActivity(intent);
                 }
             });
         }
 
         public void setData(DeviceGroupListBean.DataBean bean) {
-            // 这里给控件赋值
+            mGroupId = bean.getGroup_id();
+            mGroupName = bean.getGroup_name();
+
+            // TODO: 2018/5/16 这里传值准确
+            Log.e(AppConstant.TAG, "setData: " + mGroupId);
+            Log.e(AppConstant.TAG, "setData: " + mGroupName);
+
             if (bean.getGroup_list() != null && bean.getGroup_list().size() > 0) {
                 tvInfo.setVisibility(View.GONE);
                 rvGroup.setVisibility(View.VISIBLE);
@@ -165,103 +188,62 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         private void init(List<String> list) {
-            manager = new LinearLayoutManager(mContext);
+            LinearLayoutManager manager = new LinearLayoutManager(mContext);
             manager.setOrientation(LinearLayoutManager.HORIZONTAL);
             rvGroup.setLayoutManager(manager);
-            adapter = new DeviceAdapter(list);
-            rvGroup.setAdapter(adapter);
+
+            rvGroup.setAdapter(new GroupListAdapter(list));
         }
     }
 
     class FootViewHolder extends RecyclerView.ViewHolder {
-        Gson gson;
-        List<DeviceGroupListBean.DataBean> beanList;
+        @BindView(R.id.img_add_group)
         ImageView imgAddGroup;
 
         public FootViewHolder(View view) {
             super(view);
-            gson = new Gson();
-            beanList = new ArrayList<>();
-            imgAddGroup = view.findViewById(R.id.img_add_group);
+            ButterKnife.bind(this, itemView);
         }
 
-        public void setData() {
+        public void setClickListener() {
             imgAddGroup.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    final EditText editText = new EditText(mContext);
-                    // 弹出新建组 Dialog
-                    new AlertDialog.Builder(mContext, R.style.BtnDialogColor)
-                            .setTitle("请输入新建组名称")
-                            .setMessage("名字长度不能超过6个字符")
-                            .setView(editText)
-                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    getDataWithAddGroup(editText);
-                                }
-                            })
-                            .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    dialogInterface.dismiss();
-                                }
-                            })
-                            .show();
-                }
-
-                private void getDataWithAddGroup(EditText editText) {
-                    // 获取用户 id
-                    LoginSession session = Settings.getLoginSessionInfo(mContext);
-                    final String memberId = String.valueOf(session.getMember_id());
-                    // 获取输入框内容
-                    String groupName = editText.getText().toString();
-
-                    // 网络请求：用户新建设备组
-                    OkGo.<String>post(Urls.ADD_GROUP)
-                            .tag(this)
-                            .params("member_id", memberId)
-                            .params("group_name", groupName)
-                            .execute(new StringCallback() {
-                                @Override
-                                public void onSuccess(Response<String> response) {
-                                    String body = response.body();
-                                    Log.e("ADD_GROUP", "Network request succeeded！！！" + body);
-                                    refreshList(mList);
-
-                                    // 网络请求：获取设备用户组
-                                    OkGo.<String>post(Urls.GET_DEVICE_GROUP_LIST)
-                                            .tag(this)
-                                            .params("member_id", memberId)
-                                            .execute(new StringCallback() {
-                                                         @Override
-                                                         public void onSuccess(Response<String> response) {
-                                                             String body = response.body();
-                                                             Log.e("GET_DEVICE_GROUP_LIST", "Network request succeeded！！！" + body);
-
-                                                             DeviceGroupListBean bean = gson.fromJson(body, DeviceGroupListBean.class);
-                                                             beanList = bean.getData();
-                                                             refreshList(beanList);
-                                                         }
-                                                     }
-                                            );
-
-                                }
-                            });
+                    addGroup();
                 }
             });
         }
 
-        public void setClickListener() {
-
+        private void addGroup() {
+            final EditText editText = new EditText(mContext);
+            // 弹出新建组 Dialog
+            new AlertDialog.Builder(mContext, R.style.BtnDialogColor)
+                    .setTitle("请输入新建组名称")
+                    .setMessage("名字长度不能超过6个字符")
+                    .setView(editText)
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            // 新建组
+                            getDataWithAddGroup(editText);
+                            getDataWithDeviceGroupList();
+                        }
+                    })
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .show();
         }
     }
 
-    public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.DeviceHolder> {
+    public class GroupListAdapter extends RecyclerView.Adapter<GroupListAdapter.DeviceHolder> {
         // 这里的类型根据项目决定
         List<String> devices;
 
-        public DeviceAdapter(List<String> devices) {
+        public GroupListAdapter(List<String> devices) {
             this.devices = devices;
         }
 
@@ -294,6 +276,68 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 deviceimg.setImageResource(R.drawable.ic_add_solid_black);
             }
         }
+    }
+
+
+    private void getDataWithDelGroup(int position) {
+        int groupId = mList.get(position).getGroup_id();
+        OkGo.<String>post(Urls.RM_GROUP)
+                .tag(this)
+                // TODO: 2018/5/15  MemberId 暂时写死
+                .params("member_id", 15)
+                .params("group_id", groupId)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        String body = response.body();
+                        Log.e(AppConstant.TAG, "rm group request succeeded--->" + body);
+
+                        RmGroup json = mGson.fromJson(body, RmGroup.class);
+                        Log.e(AppConstant.TAG, "onSuccess: json" + json);
+                    }
+                });
+    }
+
+    private void getDataWithDeviceGroupList() {
+        OkGo.<String>post(Urls.GET_DEVICE_GROUP_LIST)
+                .tag(this)
+                // TODO: 2018/5/15  MemberId 暂时写死
+                .params("member_id", 15)
+                .execute(new StringCallback() {
+                             @Override
+                             public void onSuccess(Response<String> response) {
+                                 String body = response.body();
+                                 Log.e("GET_DEVICE_GROUP_LIST", "Network request succeeded！！！" + body);
+
+                                 DeviceGroupListBean bean = mGson.fromJson(body, DeviceGroupListBean.class);
+                                 mList = bean.getData();
+                                 refreshList(mList);
+                             }
+                         }
+                );
+    }
+
+    private void getDataWithAddGroup(EditText editText) {
+        // 获取用户 id
+        LoginSession session = Settings.getLoginSessionInfo(mContext);
+        final String memberId = String.valueOf(session.getMember_id());
+        // 获取输入框内容
+        String groupName = editText.getText().toString();
+
+        // 网络请求：用户新建设备组
+        OkGo.<String>post(Urls.ADD_GROUP)
+                .tag(this)
+                // TODO: 2018/5/15  MemberId 暂时写死
+                .params("member_id", 15)
+                .params("group_name", groupName)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        String body = response.body();
+                        Log.e("ADD_GROUP", "Network request succeeded！！！" + body);
+                        refreshList(mList);
+                    }
+                });
     }
 
 }

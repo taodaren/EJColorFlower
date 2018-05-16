@@ -3,6 +3,7 @@ package cn.eejing.ejcolorflower.ui.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.View;
 
@@ -24,6 +25,7 @@ import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
 import cn.eejing.ejcolorflower.ui.adapter.TabControlAdapter;
 import cn.eejing.ejcolorflower.ui.base.BaseFragment;
 import cn.eejing.ejcolorflower.util.Settings;
+import cn.eejing.ejcolorflower.util.SimpleItemTouchHelperCallback;
 
 
 /**
@@ -68,10 +70,10 @@ public class TabControlFragment extends BaseFragment {
         LoginSession session = Settings.getLoginSessionInfo(getActivity());
         mMemberId = String.valueOf(session.getMember_id());
         Log.e(AppConstant.TAG, "onActivityCreated: mMemberId--->" + mMemberId);
-        getData();
+        getDataWithDeviceGroupList();
     }
 
-    private void getData() {
+    private void getDataWithDeviceGroupList() {
         OkGo.<String>post(Urls.GET_DEVICE_GROUP_LIST)
                 .tag(this)
                 // TODO: 2018/5/15  MemberId 暂时写死
@@ -88,12 +90,12 @@ public class TabControlFragment extends BaseFragment {
                                  // 对象中拿到集合
                                  mList = bean.getData();
                                  Log.e(AppConstant.TAG, "onSuccess: get device group list--->" + mList);
-                                 if (mList != null && !mList.isEmpty()) {
+//                                 if (mList != null && !mList.isEmpty()) {
                                      // 刷新数据
                                      mAdapter.refreshList(mList);
                                      // 刷新结束
                                      rvTabControl.setPullLoadMoreCompleted();
-                                 }
+//                                 }
 
                              }
 
@@ -103,6 +105,7 @@ public class TabControlFragment extends BaseFragment {
                              }
                          }
                 );
+
     }
 
     private void initRecyclerView() {
@@ -111,12 +114,20 @@ public class TabControlFragment extends BaseFragment {
         // 绑定适配器
         mAdapter = new TabControlAdapter(getContext(), mList);
         rvTabControl.setAdapter(mAdapter);
+
+        // 先实例化 Callback
+        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(mAdapter);
+        // 用 Callback 构造 ItemTouchHelper
+        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+        // 调用 ItemTouchHelper 的 attachToRecyclerView 方法建立联系
+        touchHelper.attachToRecyclerView(rvTabControl.getRecyclerView());
+
         // 不需要上拉刷新
         rvTabControl.setPushRefreshEnable(false);
         rvTabControl.setOnPullLoadMoreListener(new PullLoadMoreRecyclerView.PullLoadMoreListener() {
             @Override
             public void onRefresh() {
-                getData();
+                getDataWithDeviceGroupList();
             }
 
             @Override

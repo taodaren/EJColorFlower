@@ -34,7 +34,8 @@
         <activity android:name=".ui.activity.MiModifyPwdActivity" />
         <activity android:name=".ui.activity.QRCodeActivity" />
         <activity android:name=".ui.activity.MaGoodsDetailsActivity" />
-        <activity android:name=".ui.activity.MiOrderActivity"></activity>
+        <activity android:name=".ui.activity.MiOrderActivity" />
+        <activity android:name=".ui.activity.CoDeviceActivity"></activity>
     </application>
 
 </manifest>
