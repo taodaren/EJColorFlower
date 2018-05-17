@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -21,7 +22,7 @@ import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
-import com.warkiz.widget.IndicatorSeekBar;
+import com.xw.repo.BubbleSeekBar;
 
 import java.util.List;
 
@@ -119,8 +120,8 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     class ItemViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.seek_bar_control)
-        IndicatorSeekBar sbControl;
+        @BindView(R.id.bubble_seek_bar)
+        BubbleSeekBar sbControl;
         @BindView(R.id.rv_control_group)
         RecyclerView rvGroup;
         @BindView(R.id.tv_ctrl_group_info)
@@ -133,6 +134,8 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         ImageView imgAdd;
         @BindView(R.id.img_ctrl_group_switch)
         ImageView imgSwitch;
+        @BindView(R.id.img_group_name)
+        ImageView imgGroupName;
         @BindView(R.id.sb_ctrl_group_time)
         SuperButton sbTime;
 
@@ -150,20 +153,23 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             } else {
                 tvInfo.setVisibility(View.VISIBLE);
             }
+
             tvName.setText(bean.getGroup_name());
+
+            sbControl.getConfigBuilder()
+                    .min(0)
+                    .max(10f)
+                    .floatType()
+                    .sectionCount(5)
+                    .secondTrackColor(ContextCompat.getColor(mContext, R.color.colorPrimary))
+                    .showThumbText()
+                    .build();
             sbControl.setProgress((float) bean.getHigh());
 
             setClickListener(bean.getGroup_name(), bean.getGroup_id());
         }
 
         public void setClickListener(final String group_name, final int group_id) {
-            sbControl.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                }
-            });
-
             imgAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -171,6 +177,13 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     intent.putExtra("group_id", group_id);
                     intent.putExtra("group_name", group_name);
                     mContext.startActivity(intent);
+                }
+            });
+
+            imgGroupName.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    renameGroup(group_id);
                 }
             });
 
@@ -182,25 +195,11 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 }
             });
 
-            sbControl.setOnSeekChangeListener(new IndicatorSeekBar.OnSeekBarChangeListener() {
+            sbControl.setOnProgressChangedListener(new BubbleSeekBar.OnProgressChangedListenerAdapter() {
                 @Override
-                public void onProgressChanged(IndicatorSeekBar seekBar, int progress, float progressFloat, boolean fromUserTouch) {
-
-                }
-
-                @Override
-                public void onSectionChanged(IndicatorSeekBar seekBar, int thumbPosOnTick, String textBelowTick, boolean fromUserTouch) {
-                    // 这个回调仅在分段系列`discrete`的 SeekBar 生效，当为连续系列`continuous`则不回调。
-                }
-
-                @Override
-                public void onStartTrackingTouch(IndicatorSeekBar seekBar, int thumbPosOnTick) {
-
-                }
-
-                @Override
-                public void onStopTrackingTouch(IndicatorSeekBar seekBar) {
-
+                public void getProgressOnActionUp(BubbleSeekBar bubbleSeekBar, int progress, float progressFloat) {
+                    super.getProgressOnActionUp(bubbleSeekBar, progress, progressFloat);
+                    Log.e(AppConstant.TAG, "getProgressOnActionUp: " + progressFloat);
                 }
             });
 
@@ -213,6 +212,29 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
             rvGroup.setAdapter(new GroupListAdapter(list));
         }
+
+        private void renameGroup(final int group_id) {
+            final EditText editText = new EditText(mContext);
+            // 重命名组 Dialog
+            new AlertDialog.Builder(mContext, R.style.BtnDialogColor)
+                    .setTitle("请重新输入组名称")
+                    .setMessage("名字长度不能超过6个字符")
+                    .setView(editText)
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            getDataWithRenameGroup(editText, group_id);
+                        }
+                    })
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .show();
+        }
+
     }
 
 
@@ -246,7 +268,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                         public void onClick(DialogInterface dialogInterface, int i) {
                             // 新建组
                             getDataWithAddGroup(editText);
-//                            getDataWithDeviceGroupList();
                         }
                     })
                     .setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -356,12 +377,25 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        Log.e("ADD_GROUP", "onSuccess: size = " + mList.size());
                         getDataWithDeviceGroupList();
-//                        refreshList(mList);
                     }
                 });
+    }
+
+    private void getDataWithRenameGroup(EditText editText, int group_id) {
+        String groupName = editText.getText().toString();
+        Log.e(AppConstant.TAG, "getDataWithRenameGroup: " + groupName + "===" + group_id);
+        OkGo.<String>post(Urls.RENAME_GROUP)
+                .tag(this)
+                .params("group_name", groupName)
+                .params("group_id", group_id)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        getDataWithDeviceGroupList();
+                    }
+                });
+
     }
 
 }

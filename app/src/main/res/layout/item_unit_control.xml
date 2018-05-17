@@ -57,25 +57,14 @@
             android:layout_marginTop="50dp"
             android:background="@color/colorWhite">
 
-            <com.warkiz.widget.IndicatorSeekBar
-                android:id="@+id/seek_bar_control"
-                android:layout_width="100dp"
+            <com.xw.repo.BubbleSeekBar
+                android:id="@+id/bubble_seek_bar"
+                android:layout_width="130dp"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="16dp"
-                android:padding="8dp"
-                stv:isb_indicator_color="@color/colorPrimary"
-                stv:isb_indicator_type="rectangle"
-                stv:isb_max="10"
-                stv:isb_min="0"
-                stv:isb_progress_value_float="true"
-                stv:isb_show_indicator="true"
-                stv:isb_thumb_color="@color/colorPrimary"
-                stv:isb_thumb_progress_stay="true"
-                stv:isb_tick_color="@color/colorBlack"
-                stv:isb_tick_on_thumb_left_hide="false"
-                stv:isb_track_background_bar_color="@color/colorGray"
-                stv:isb_track_progress_bar_color="@color/colorPrimary" />
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="2dp"
+                android:layout_marginStart="12dp"
+                stv:bsb_track_size="4dp" />
 
             <ImageView
                 android:id="@+id/img_ctrl_group_switch"
