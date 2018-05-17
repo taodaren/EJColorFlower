@@ -7,6 +7,6 @@ package cn.eejing.ejcolorflower.app;
 
 public class AppConstant {
     public static final String TAG = "taodaren";
-    public static final int DOWN_PULL_REFRESH = 1;
-    public static final int UP_PUSH_LOAD_MORE = 2;
+    public static final String KEY = "0253872624409878";
+
 }

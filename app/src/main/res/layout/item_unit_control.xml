@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:stv="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
@@ -23,23 +24,31 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="16dp"
                 android:padding="8dp"
-                android:text="请添加设备到分组"
+                android:text="@string/please_add_device"
                 android:textSize="12sp"
                 android:visibility="visible" />
 
-            <ImageView
-                android:id="@+id/img_ctrl_group_add"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="12dp"
-                android:src="@drawable/ic_add_solid_black" />
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/rv_control_group"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rv_control_group"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+                <ImageView
+                    android:id="@+id/img_ctrl_group_add"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="12dp"
+                    android:src="@drawable/ic_add_solid_black"
+                    tools:ignore="ContentDescription" />
+            </LinearLayout>
+
         </RelativeLayout>
 
         <RelativeLayout
@@ -48,13 +57,25 @@
             android:layout_marginTop="50dp"
             android:background="@color/colorWhite">
 
-            <SeekBar
+            <com.warkiz.widget.IndicatorSeekBar
                 android:id="@+id/seek_bar_control"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="16dp"
-                android:padding="8dp" />
+                android:padding="8dp"
+                stv:isb_indicator_color="@color/colorPrimary"
+                stv:isb_indicator_type="rectangle"
+                stv:isb_max="10"
+                stv:isb_min="0"
+                stv:isb_progress_value_float="true"
+                stv:isb_show_indicator="true"
+                stv:isb_thumb_color="@color/colorPrimary"
+                stv:isb_thumb_progress_stay="true"
+                stv:isb_tick_color="@color/colorBlack"
+                stv:isb_tick_on_thumb_left_hide="false"
+                stv:isb_track_background_bar_color="@color/colorGray"
+                stv:isb_track_progress_bar_color="@color/colorPrimary" />
 
             <ImageView
                 android:id="@+id/img_ctrl_group_switch"
@@ -63,7 +84,8 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="12dp"
-                android:src="@drawable/ic_switch_on" />
+                android:src="@drawable/ic_switch_on"
+                tools:ignore="ContentDescription" />
 
             <RelativeLayout
                 android:layout_width="wrap_content"
@@ -72,7 +94,8 @@
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="60dp"
                 android:background="@color/colorWhite"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                tools:ignore="RelativeOverlap">
 
                 <com.allen.library.SuperButton
                     android:id="@+id/sb_ctrl_group_time"
@@ -89,9 +112,10 @@
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="4dp"
-                    android:text="喷射时间"
+                    android:text="@string/spray_time"
                     android:textColor="@color/colorPrimary"
-                    android:textSize="10sp" />
+                    android:textSize="10sp"
+                    tools:ignore="SmallSp" />
 
                 <Chronometer
                     android:id="@+id/ch_ctrl_group_time"
@@ -102,7 +126,8 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginBottom="4dp"
                     android:textColor="@color/colorPrimary"
-                    android:textSize="10sp" />
+                    android:textSize="10sp"
+                    tools:ignore="SmallSp" />
             </RelativeLayout>
         </RelativeLayout>
 
@@ -113,7 +138,8 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="15dp"
-            android:src="@drawable/ic_hollow_round" />
+            android:src="@drawable/ic_hollow_round"
+            tools:ignore="ContentDescription" />
 
         <TextView
             android:id="@+id/tv_ctrl_group_name"
@@ -123,7 +149,6 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="15dp"
             android:gravity="center"
-            android:text="打发了"
             android:textSize="13sp" />
     </RelativeLayout>
 
@@ -139,7 +164,7 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:layout_gravity="center"
-            android:text="左滑删除"
+            android:text="@string/slide_left_to_delete"
             android:textColor="@color/colorWhite"
             android:textSize="20sp" />
     </RelativeLayout>

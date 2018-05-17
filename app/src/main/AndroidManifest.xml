@@ -28,15 +28,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!--<activity android:name=".app.MainActivity" />-->
+        <activity android:name=".ui.activity.LoginActivity" />
         <activity android:name=".ui.activity.MiOpinionActivity" />
         <activity android:name=".ui.activity.MiAboutActivity" />
         <activity android:name=".ui.activity.MiSetActivity" />
         <activity android:name=".ui.activity.MiUserInfoActivity" />
         <activity android:name=".ui.activity.MiModifyPwdActivity" />
+        <activity android:name=".ui.activity.MiOrderActivity" />
         <activity android:name=".ui.activity.QRCodeActivity" />
         <activity android:name=".ui.activity.MaGoodsDetailsActivity" />
-        <activity android:name=".ui.activity.MiOrderActivity" />
-        <activity android:name=".ui.activity.CoDeviceActivity"></activity>
+        <activity android:name=".ui.activity.CoDeviceActivity" />
+        <activity android:name=".ui.activity.RegisterActivity" />
+        <activity android:name=".ui.activity.ForgetPwdActivity" />
     </application>
 
 </manifest>

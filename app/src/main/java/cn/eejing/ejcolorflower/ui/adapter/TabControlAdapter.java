@@ -14,15 +14,14 @@ import android.view.ViewGroup;
 import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.allen.library.SuperButton;
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
+import com.warkiz.widget.IndicatorSeekBar;
 
 import java.util.List;
 
@@ -50,8 +49,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private List<DeviceGroupListBean.DataBean> mList;
     private LayoutInflater mLayoutInflater;
     private Gson mGson;
-    private int mGroupId;
-    private String mGroupName;
 
     public TabControlAdapter(Context mContext, List<DeviceGroupListBean.DataBean> mList) {
         this.mContext = mContext;
@@ -69,13 +66,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             case TYPE_ITEM:
                 inflate = mLayoutInflater.inflate(R.layout.item_unit_control, parent, false);
                 holder = new ItemViewHolder(inflate);
-                int adapterPosition = holder.getAdapterPosition();
-                Log.e(AppConstant.TAG, "onClick ap" + adapterPosition);
-//                int group_id = mList.get(adapterPosition).getGroup_id();
-//                String group_name = mList.get(adapterPosition).getGroup_name();
-//                Log.e(AppConstant.TAG, "onClick 1" + group_name);
-//                Log.e(AppConstant.TAG, "onClick 1" + group_id);
-//                ((ItemViewHolder) holder).setClickListener(group_name,group_id);
                 break;
             case TYPE_FOOTER:
                 inflate = mLayoutInflater.inflate(R.layout.item_footer_control, parent, false);
@@ -130,7 +120,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.seek_bar_control)
-        SeekBar sbControl;
+        IndicatorSeekBar sbControl;
         @BindView(R.id.rv_control_group)
         RecyclerView rvGroup;
         @BindView(R.id.tv_ctrl_group_info)
@@ -152,37 +142,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             ButterKnife.bind(this, itemView);
         }
 
-        public void setClickListener(final String group_name, final int group_id) {
-            sbControl.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                }
-            });
-            imgAdd.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    // TODO: 2018/5/16 这里获取值不准确
-                    Log.e(AppConstant.TAG, "onClick 2" + group_name);
-                    Log.e(AppConstant.TAG, "onClick 2" + group_id);
-                    Toast.makeText(mContext, "" + mGroupName + mGroupId, Toast.LENGTH_SHORT).show();
-
-                    Intent intent = new Intent(mContext, CoDeviceActivity.class);
-                    intent.putExtra("group_id", mGroupId);
-                    intent.putExtra("group_name", mGroupName);
-//                    mContext.startActivity(intent);
-                }
-            });
-        }
-
         public void setData(DeviceGroupListBean.DataBean bean) {
-            mGroupId = bean.getGroup_id();
-            mGroupName = bean.getGroup_name();
-
-            // TODO: 2018/5/16 这里传值准确
-            Log.e(AppConstant.TAG, "setData: " + mGroupId);
-            Log.e(AppConstant.TAG, "setData: " + mGroupName);
-
             if (bean.getGroup_list() != null && bean.getGroup_list().size() > 0) {
                 tvInfo.setVisibility(View.GONE);
                 rvGroup.setVisibility(View.VISIBLE);
@@ -191,6 +151,59 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 tvInfo.setVisibility(View.VISIBLE);
             }
             tvName.setText(bean.getGroup_name());
+            sbControl.setProgress((float) bean.getHigh());
+
+            setClickListener(bean.getGroup_name(), bean.getGroup_id());
+        }
+
+        public void setClickListener(final String group_name, final int group_id) {
+            sbControl.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                }
+            });
+
+            imgAdd.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(mContext, CoDeviceActivity.class);
+                    intent.putExtra("group_id", group_id);
+                    intent.putExtra("group_name", group_name);
+                    mContext.startActivity(intent);
+                }
+            });
+
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    // TODO 长按删除
+                    return true;
+                }
+            });
+
+            sbControl.setOnSeekChangeListener(new IndicatorSeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(IndicatorSeekBar seekBar, int progress, float progressFloat, boolean fromUserTouch) {
+
+                }
+
+                @Override
+                public void onSectionChanged(IndicatorSeekBar seekBar, int thumbPosOnTick, String textBelowTick, boolean fromUserTouch) {
+                    // 这个回调仅在分段系列`discrete`的 SeekBar 生效，当为连续系列`continuous`则不回调。
+                }
+
+                @Override
+                public void onStartTrackingTouch(IndicatorSeekBar seekBar, int thumbPosOnTick) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(IndicatorSeekBar seekBar) {
+
+                }
+            });
+
         }
 
         private void init(List<String> list) {
@@ -201,6 +214,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             rvGroup.setAdapter(new GroupListAdapter(list));
         }
     }
+
 
     class FootViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.img_add_group)
@@ -232,7 +246,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                         public void onClick(DialogInterface dialogInterface, int i) {
                             // 新建组
                             getDataWithAddGroup(editText);
-                            getDataWithDeviceGroupList();
+//                            getDataWithDeviceGroupList();
                         }
                     })
                     .setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -280,7 +294,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
             public void setData(String s) {
                 Log.e(AppConstant.TAG, "devices: " + devices.toString());
-                for (int i=0;i<devices.size();i++) {
+                for (int i = 0; i < devices.size(); i++) {
                     sbDevice.setText(devices.get(getAdapterPosition()).toString());
                 }
             }
@@ -320,7 +334,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
                                  DeviceGroupListBean bean = mGson.fromJson(body, DeviceGroupListBean.class);
                                  mList = bean.getData();
-                                 refreshList(mList);
+                                 notifyDataSetChanged();
                              }
                          }
                 );
@@ -343,8 +357,9 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.e("ADD_GROUP", "Network request succeeded！！！" + body);
-                        refreshList(mList);
+                        Log.e("ADD_GROUP", "onSuccess: size = " + mList.size());
+                        getDataWithDeviceGroupList();
+//                        refreshList(mList);
                     }
                 });
     }

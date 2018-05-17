@@ -50,7 +50,6 @@
     <string name="register_success">注册成功</string>
     <string name="operation_success">操作成功</string>
     <string name="action_reset_password">重置密码</string>
-    <string name="get_verify_code">获取验证码</string>
     <string name="login_success">登录成功</string>
     <string name="send_verify_code_success">成功发送验证码</string>
     <string name="get_verify_code_later">%1$d秒后才能重新获取</string>
@@ -86,4 +85,15 @@
     <string name="one">1</string>
     <string name="zero">0</string>
     <string name="add_group">新建组</string>
+    <string name="phone_num">手机号码</string>
+    <string name="login_pwd">登录密码</string>
+    <string name="btn_login">登录</string>
+    <string name="btn_register">注册</string>
+    <string name="btn_forget_pwd">忘记密码</string>
+    <string name="set_pwd">设置密码</string>
+    <string name="verify_code">验证码</string>
+    <string name="get_verify_code">获取验证码</string>
+    <string name="please_add_device">请添加设备到分组</string>
+    <string name="spray_time">喷射时间</string>
+    <string name="slide_left_to_delete">左滑删除</string>
 </resources>
