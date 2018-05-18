@@ -17,7 +17,6 @@ public interface Urls {
     String RM_DEVICE = BASE_URL + "rm_device";                                         // 用户删除设备
     String ADD_GROUP = BASE_URL + "add_group";                                         // 用户新建设备组
     String GET_DEVICE_GROUP_LIST = BASE_URL + "getDeviceGroupList";                    // 获取设备用户组
-    String GO_ADD_DEVICE_TO_GROUP = BASE_URL + "goAddDeviceToGroup";                   // 获取设备用户组——获取设备页面
     String GO_EDIT_DEVICE_TO_GROUP = BASE_URL + "goEditDeviceToGroup";                 // 修改设备组内设备——获取设备页面
     String ADD_DEVICE_TO_GROUP = BASE_URL + "addDeviceToGroup";                        // 添加设备到用户组
     String RM_GROUP = BASE_URL + "rm_group";                                           // 删除用户组

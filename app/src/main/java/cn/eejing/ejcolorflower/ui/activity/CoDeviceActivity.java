@@ -10,6 +10,9 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
 
+/**
+ * 添加、移除设备
+ */
 public class CoDeviceActivity extends BaseActivity {
 
     @BindView(R.id.img_title_back)
