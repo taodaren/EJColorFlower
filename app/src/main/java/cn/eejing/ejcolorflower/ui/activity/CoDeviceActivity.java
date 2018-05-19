@@ -49,7 +49,7 @@ public class CoDeviceActivity extends BaseActivity {
 
     private List<String> mList, mPossess;
     private int mGroupId;
-    private LinearLayoutManager mLayoutManager;
+    private LinearLayoutManager mManager;
 
     @Override
     protected int layoutViewId() {
@@ -58,7 +58,6 @@ public class CoDeviceActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        Toast.makeText(this, "请点击设备添加或移除", Toast.LENGTH_SHORT).show();
         mList = new ArrayList<>();
         mPossess = new ArrayList<>();
 
@@ -108,8 +107,8 @@ public class CoDeviceActivity extends BaseActivity {
         } else {
             tvAddedCan.setVisibility(View.VISIBLE);
         }
-        mLayoutManager = new LinearLayoutManager(this);
-        rvAddedCan.setLayoutManager(mLayoutManager);
+        mManager = new LinearLayoutManager(this);
+        rvAddedCan.setLayoutManager(mManager);
         CoDeviceLeftAdapter adapter = new CoDeviceLeftAdapter(this, mList);
         rvAddedCan.setAdapter(adapter);
     }
@@ -120,10 +119,10 @@ public class CoDeviceActivity extends BaseActivity {
         } else {
             tvAddedAlready.setVisibility(View.VISIBLE);
         }
-        mLayoutManager = new LinearLayoutManager(this);
-        rvAddedCan.setLayoutManager(mLayoutManager);
+        mManager = new LinearLayoutManager(this);
+        rvAddedAlready.setLayoutManager(mManager);
         CoDeviceRightAdapter adapter = new CoDeviceRightAdapter(this, mPossess);
-        rvAddedCan.setAdapter(adapter);
+        rvAddedAlready.setAdapter(adapter);
     }
 
 }
