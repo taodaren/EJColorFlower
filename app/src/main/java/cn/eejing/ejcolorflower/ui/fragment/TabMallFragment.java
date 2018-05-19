@@ -1,8 +1,5 @@
 package cn.eejing.ejcolorflower.ui.fragment;
 
-
-import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 
@@ -22,7 +19,6 @@ import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.model.request.GoodsListBean;
 import cn.eejing.ejcolorflower.ui.adapter.TabMallAdapter;
 import cn.eejing.ejcolorflower.ui.base.BaseFragment;
-
 
 /**
  * @创建者 Taodaren
@@ -58,14 +54,16 @@ public class TabMallFragment extends BaseFragment {
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        // 在 onActivityCreated 方法中初始化 Toolbar
+    public void initToolbar() {
         setToolbar(R.id.main_toolbar, R.string.mall_name, View.VISIBLE);
-        getData();
     }
 
-    private void getData() {
+    @Override
+    public void initData() {
+        getDataWithGoodsList();
+    }
+
+    private void getDataWithGoodsList() {
         OkGo.<String>get(Urls.Mall.GOODS_LIST)
                 .tag(this)
                 .execute(new StringCallback() {
@@ -95,7 +93,7 @@ public class TabMallFragment extends BaseFragment {
         rvTabMall.setOnPullLoadMoreListener(new PullLoadMoreRecyclerView.PullLoadMoreListener() {
             @Override
             public void onRefresh() {
-                getData();
+                getDataWithGoodsList();
             }
 
             @Override

@@ -1,6 +1,5 @@
 package cn.eejing.ejcolorflower.ui.activity;
 
-import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -19,6 +18,7 @@ import java.util.List;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.Urls;
+import cn.eejing.ejcolorflower.model.request.AddDeviceToGroupBean;
 import cn.eejing.ejcolorflower.model.request.EditDeviceToGroupBean;
 import cn.eejing.ejcolorflower.ui.adapter.CoDeviceLeftAdapter;
 import cn.eejing.ejcolorflower.ui.adapter.CoDeviceRightAdapter;
@@ -28,7 +28,8 @@ import cn.eejing.ejcolorflower.ui.base.BaseActivity;
  * @创建者 Taodaren
  * @描述 添加、移除设备
  */
-public class CoDeviceActivity extends BaseActivity implements CoDeviceLeftAdapter.LeftClickListener, CoDeviceRightAdapter.RightClickListener {
+public class CoDeviceActivity extends BaseActivity implements
+        View.OnClickListener, CoDeviceLeftAdapter.LeftClickListener, CoDeviceRightAdapter.RightClickListener {
 
     @BindView(R.id.img_title_back)
     ImageView imgTitleBack;
@@ -44,10 +45,11 @@ public class CoDeviceActivity extends BaseActivity implements CoDeviceLeftAdapte
     RecyclerView rvAddedAlready;
 
     private List<String> mList, mPossess;
-    private int mGroupId;
     private LinearLayoutManager mManager;
     private CoDeviceLeftAdapter leftAdapter;
     private CoDeviceRightAdapter rightAdapter;
+    private int mGroupId;
+    private Gson mGson;
 
     @Override
     protected int layoutViewId() {
@@ -56,14 +58,11 @@ public class CoDeviceActivity extends BaseActivity implements CoDeviceLeftAdapte
 
     @Override
     public void initView() {
+        setToolbar(getIntent().getStringExtra("group_name"), View.VISIBLE);
+
         mList = new ArrayList<>();
         mPossess = new ArrayList<>();
-
-        Intent intent = getIntent();
-        mGroupId = intent.getIntExtra("group_id", 0);
-        String groupName = intent.getStringExtra("group_name");
-
-        setToolbar(groupName, View.VISIBLE);
+        mGroupId = getIntent().getIntExtra("group_id", 0);
     }
 
     @Override
@@ -73,18 +72,8 @@ public class CoDeviceActivity extends BaseActivity implements CoDeviceLeftAdapte
 
     @Override
     public void initListener() {
-        imgTitleBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-        btnDeviceSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
+        imgTitleBack.setOnClickListener(this);
+        btnDeviceSave.setOnClickListener(this);
     }
 
     private void initRvAddedCan() {
@@ -122,8 +111,8 @@ public class CoDeviceActivity extends BaseActivity implements CoDeviceLeftAdapte
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
 
-                        Gson gson = new Gson();
-                        EditDeviceToGroupBean bean = gson.fromJson(body, EditDeviceToGroupBean.class);
+                        mGson = new Gson();
+                        EditDeviceToGroupBean bean = mGson.fromJson(body, EditDeviceToGroupBean.class);
                         mList = bean.getData().getList();
                         mPossess = bean.getData().getPossess();
 
@@ -133,18 +122,50 @@ public class CoDeviceActivity extends BaseActivity implements CoDeviceLeftAdapte
                 });
     }
 
+    private void getDataWithAddDeviceToGroup() {
+        OkGo.<String>post(Urls.ADD_DEVICE_TO_GROUP)
+                .tag(this)
+                .params("member_id", 12)
+                .params("group_id", mGroupId)
+                .params("device_id", "")
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        String body = response.body();
+
+                        mGson = new Gson();
+                        mGson.fromJson(body, AddDeviceToGroupBean.class);
+                    }
+                });
+    }
+
     @Override
     public void onClickLeft(View view) {
         int position = (Integer) view.getTag();
         leftAdapter.removeData(position);
-        rightAdapter.addData(position, mList.get(position));
+        rightAdapter.addData(mPossess.size(), mList.get(position));
     }
 
     @Override
     public void onClickRight(View view) {
         int position = (Integer) view.getTag();
         rightAdapter.removeData(position);
-        leftAdapter.addData(position, mPossess.get(position));
+        leftAdapter.addData(mList.size(), mPossess.get(position));
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.img_title_back:
+                finish();
+                break;
+            case R.id.btn_device_save:
+                // TODO: 18/5/20 未完成
+                getDataWithAddDeviceToGroup();
+                break;
+            default:
+                break;
+        }
     }
 
 }

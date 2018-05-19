@@ -1,8 +1,5 @@
 package cn.eejing.ejcolorflower.ui.fragment;
 
-
-import android.view.View;
-
 import com.allen.library.SuperTextView;
 
 import butterknife.BindView;
@@ -13,7 +10,6 @@ import cn.eejing.ejcolorflower.ui.activity.MiOpinionActivity;
 import cn.eejing.ejcolorflower.ui.activity.MiOrderActivity;
 import cn.eejing.ejcolorflower.ui.activity.MiSetActivity;
 import cn.eejing.ejcolorflower.ui.base.BaseFragment;
-
 
 /**
  * @创建者 Taodaren
@@ -44,29 +40,28 @@ public class TabMineFragment extends BaseFragment {
     }
 
     @Override
-    public void initView(View rootView) {
-        stvOnClickListener();
-    }
-
-    private void stvOnClickListener() {
+    public void initListener() {
         stvMineOrder.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
             @Override
             public void onClickListener(SuperTextView superTextView) {
                 ((MainActivity) getActivity()).jumpToActivity(MiOrderActivity.class);
             }
         });
+
         stvMineOpinion.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
             @Override
             public void onClickListener(SuperTextView superTextView) {
                 ((MainActivity) getActivity()).jumpToActivity(MiOpinionActivity.class);
             }
         });
+
         stvMineAbout.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
             @Override
             public void onClickListener(SuperTextView superTextView) {
                 ((MainActivity) getActivity()).jumpToActivity(MiAboutActivity.class);
             }
         });
+
         stvMineSet.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
             @Override
             public void onClickListener(SuperTextView superTextView) {

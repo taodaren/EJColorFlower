@@ -1,8 +1,5 @@
 package cn.eejing.ejcolorflower.ui.fragment;
 
-
-import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.View;
@@ -26,7 +23,6 @@ import cn.eejing.ejcolorflower.ui.adapter.TabControlAdapter;
 import cn.eejing.ejcolorflower.ui.base.BaseFragment;
 import cn.eejing.ejcolorflower.util.Settings;
 import cn.eejing.ejcolorflower.util.SimpleItemTouchHelperCallback;
-
 
 /**
  * @创建者 Taodaren
@@ -59,17 +55,20 @@ public class TabControlFragment extends BaseFragment {
     public void initView(View rootView) {
         mGson = new Gson();
         mList = new ArrayList<>();
+
+        LoginSession session = Settings.getLoginSessionInfo(getActivity());
+        mMemberId = String.valueOf(session.getMember_id());
+
         initRecyclerView();
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        // 在 onActivityCreated 方法中初始化 Toolbar
+    public void initToolbar() {
         setToolbar(R.id.main_toolbar, R.string.control_name, View.VISIBLE);
-        LoginSession session = Settings.getLoginSessionInfo(getActivity());
-        mMemberId = String.valueOf(session.getMember_id());
-        Log.e(AppConstant.TAG, "onActivityCreated: mMemberId--->" + mMemberId);
+    }
+
+    @Override
+    public void initData() {
         getDataWithDeviceGroupList();
     }
 
@@ -90,12 +89,10 @@ public class TabControlFragment extends BaseFragment {
                                  // 对象中拿到集合
                                  mList = bean.getData();
                                  Log.e(AppConstant.TAG, "onSuccess: get device group list--->" + mList);
-//                                 if (mList != null && !mList.isEmpty()) {
-                                     // 刷新数据
-                                     mAdapter.refreshList(mList);
-                                     // 刷新结束
-                                     rvTabControl.setPullLoadMoreCompleted();
-//                                 }
+                                 // 刷新数据
+                                 mAdapter.refreshList(mList);
+                                 // 刷新结束
+                                 rvTabControl.setPullLoadMoreCompleted();
 
                              }
 

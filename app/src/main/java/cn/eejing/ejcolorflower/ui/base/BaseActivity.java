@@ -104,17 +104,4 @@ public abstract class BaseActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void jumpToActivityAndClearTask(Class activity) {
-        Intent intent = new Intent(this, activity);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
-    }
-
-    public void jumpToActivityAndClearTop(Class activity) {
-        Intent intent = new Intent(this, activity);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-    }
-
 }

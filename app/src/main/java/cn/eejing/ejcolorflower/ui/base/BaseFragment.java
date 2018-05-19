@@ -16,8 +16,8 @@ import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 
 /**
- * @author taodaren
- * @date 2018/5/11
+ * @创建者 Taodaren
+ * @描述 BaseFragment
  */
 
 public abstract class BaseFragment extends Fragment {
@@ -49,8 +49,13 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        initToolbar();
         initData();
         initListener();
+    }
+
+    public void initToolbar() {
+        // Fragment 中必须在 onActivityCreated 方法中初始化 Toolbar
     }
 
     public void initData() {
