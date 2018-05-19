@@ -67,6 +67,7 @@
                 android:layout_centerInParent="true"
                 android:ems="1"
                 android:text="暂无可添加的设备"
+                android:visibility="gone"
                 tools:ignore="HardcodedText" />
 
             <android.support.v7.widget.RecyclerView
@@ -74,7 +75,8 @@
                 android:layout_width="70dp"
                 android:layout_height="match_parent"
                 android:layout_centerHorizontal="true"
-                android:background="@drawable/shape_co_device" />
+                android:background="@drawable/shape_co_device"
+                android:paddingTop="4dp" />
         </RelativeLayout>
 
         <ImageView
@@ -96,6 +98,7 @@
                 android:layout_centerInParent="true"
                 android:ems="1"
                 android:text="点击左侧设备添加到此处"
+                android:visibility="gone"
                 tools:ignore="HardcodedText" />
 
             <android.support.v7.widget.RecyclerView
@@ -103,7 +106,8 @@
                 android:layout_width="70dp"
                 android:layout_height="match_parent"
                 android:layout_centerHorizontal="true"
-                android:background="@drawable/shape_co_device" />
+                android:background="@drawable/shape_co_device"
+                android:paddingTop="4dp" />
         </RelativeLayout>
     </LinearLayout>
 </RelativeLayout>

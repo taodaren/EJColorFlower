@@ -291,7 +291,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         @NonNull
         @Override
         public DeviceHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new DeviceHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.device_item, parent, false));
+            return new DeviceHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_device, parent, false));
         }
 
         @Override

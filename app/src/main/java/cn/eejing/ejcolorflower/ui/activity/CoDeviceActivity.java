@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.allen.library.SuperButton;
 import com.google.gson.Gson;
@@ -14,6 +15,7 @@ import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -21,7 +23,8 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.model.request.EditDeviceToGroupBean;
-import cn.eejing.ejcolorflower.ui.adapter.CoDeviceAdapter;
+import cn.eejing.ejcolorflower.ui.adapter.CoDeviceLeftAdapter;
+import cn.eejing.ejcolorflower.ui.adapter.CoDeviceRightAdapter;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
 
 /**
@@ -44,9 +47,9 @@ public class CoDeviceActivity extends BaseActivity {
     @BindView(R.id.rv_added_already)
     RecyclerView rvAddedAlready;
 
-    private List<String> mRightList;
-    private List<String> mLeftList;
+    private List<String> mList, mPossess;
     private int mGroupId;
+    private LinearLayoutManager mLayoutManager;
 
     @Override
     protected int layoutViewId() {
@@ -55,6 +58,10 @@ public class CoDeviceActivity extends BaseActivity {
 
     @Override
     public void initView() {
+        Toast.makeText(this, "请点击设备添加或移除", Toast.LENGTH_SHORT).show();
+        mList = new ArrayList<>();
+        mPossess = new ArrayList<>();
+
         Intent intent = getIntent();
         mGroupId = intent.getIntExtra("group_id", 0);
         String groupName = intent.getStringExtra("group_name");
@@ -70,20 +77,17 @@ public class CoDeviceActivity extends BaseActivity {
                 .params("group_id", mGroupId)
                 .execute(new StringCallback() {
 
-
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.e(AppConstant.TAG, "goEditDeviceToGroup request succeeded--->" + body);
 
                         Gson gson = new Gson();
                         EditDeviceToGroupBean bean = gson.fromJson(body, EditDeviceToGroupBean.class);
-                        Log.e(AppConstant.TAG, "goEditDeviceToGroup onSuccess: json" + bean);
+                        mList = bean.getData().getList();
+                        mPossess = bean.getData().getPossess();
 
-                        mLeftList = bean.getData().getList();
-                        mRightList = bean.getData().getPossess();
-
-                        initRv();
+                        initRvAddedCan();
+                        initRvAddedReady();
                     }
                 });
     }
@@ -98,13 +102,28 @@ public class CoDeviceActivity extends BaseActivity {
         });
     }
 
-    private void initRv() {
-        LinearLayoutManager manager = new LinearLayoutManager(this);
-        rvAddedCan.setLayoutManager(manager);
-        rvAddedAlready.setLayoutManager(manager);
-        CoDeviceAdapter adapter = new CoDeviceAdapter(this, mLeftList, mRightList);
+    private void initRvAddedCan() {
+        if (mList.size() > 0) {
+            tvAddedCan.setVisibility(View.GONE);
+        } else {
+            tvAddedCan.setVisibility(View.VISIBLE);
+        }
+        mLayoutManager = new LinearLayoutManager(this);
+        rvAddedCan.setLayoutManager(mLayoutManager);
+        CoDeviceLeftAdapter adapter = new CoDeviceLeftAdapter(this, mList);
         rvAddedCan.setAdapter(adapter);
-        rvAddedAlready.setAdapter(adapter);
+    }
+
+    private void initRvAddedReady() {
+        if (mPossess.size() > 0) {
+            tvAddedAlready.setVisibility(View.GONE);
+        } else {
+            tvAddedAlready.setVisibility(View.VISIBLE);
+        }
+        mLayoutManager = new LinearLayoutManager(this);
+        rvAddedCan.setLayoutManager(mLayoutManager);
+        CoDeviceRightAdapter adapter = new CoDeviceRightAdapter(this, mPossess);
+        rvAddedCan.setAdapter(adapter);
     }
 
 }
