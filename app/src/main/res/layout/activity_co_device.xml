@@ -10,47 +10,27 @@
         android:id="@+id/toolbar_co_device"
         layout="@layout/layout_toolbar" />
 
-    <LinearLayout
-        android:id="@+id/ll_co_device"
+
+    <com.allen.library.SuperButton
+        android:id="@+id/btn_device_save"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="36dp"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="36dp">
-
-        <com.allen.library.SuperButton
-            android:id="@+id/btn_device_edit"
-            android:layout_width="0dp"
-            android:layout_height="36dp"
-            android:layout_marginEnd="12dp"
-            android:layout_marginStart="12dp"
-            android:layout_weight="1"
-            android:text="@string/btn_edit"
-            android:textColor="@color/white"
-            stv:sCornersRadius="50dp"
-            stv:sSelectorDisableColor="@color/colorGray"
-            stv:sSelectorNormalColor="@color/colorPrimary"
-            stv:sUseSelector="true" />
-
-        <com.allen.library.SuperButton
-            android:id="@+id/btn_device_save"
-            android:layout_width="0dp"
-            android:layout_height="36dp"
-            android:layout_marginEnd="12dp"
-            android:layout_marginStart="12dp"
-            android:layout_weight="1"
-            android:text="@string/btn_save"
-            android:textColor="@color/white"
-            stv:sCornersRadius="50dp"
-            stv:sSelectorDisableColor="@color/colorGray"
-            stv:sSelectorNormalColor="@color/colorPrimary"
-            stv:sUseSelector="true" />
-    </LinearLayout>
+        android:layout_marginBottom="36dp"
+        android:layout_marginEnd="60dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="36dp"
+        android:text="@string/btn_save"
+        android:textColor="@color/white"
+        stv:sCornersRadius="50dp"
+        stv:sSelectorDisableColor="@color/colorGray"
+        stv:sSelectorNormalColor="@color/colorPrimary"
+        stv:sUseSelector="true" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/ll_co_device"
+        android:layout_above="@id/btn_device_save"
         android:layout_below="@id/toolbar_co_device"
         android:layout_marginTop="36dp">
 

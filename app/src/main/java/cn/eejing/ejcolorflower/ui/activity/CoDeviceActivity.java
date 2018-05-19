@@ -3,11 +3,9 @@ package cn.eejing.ejcolorflower.ui.activity;
 import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.allen.library.SuperButton;
 import com.google.gson.Gson;
@@ -20,7 +18,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.model.request.EditDeviceToGroupBean;
 import cn.eejing.ejcolorflower.ui.adapter.CoDeviceLeftAdapter;
@@ -28,14 +25,13 @@ import cn.eejing.ejcolorflower.ui.adapter.CoDeviceRightAdapter;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
 
 /**
- * 添加、移除设备
+ * @创建者 Taodaren
+ * @描述 添加、移除设备
  */
-public class CoDeviceActivity extends BaseActivity {
+public class CoDeviceActivity extends BaseActivity implements CoDeviceLeftAdapter.LeftClickListener, CoDeviceRightAdapter.RightClickListener {
 
     @BindView(R.id.img_title_back)
     ImageView imgTitleBack;
-    @BindView(R.id.btn_device_edit)
-    SuperButton btnDeviceEdit;
     @BindView(R.id.btn_device_save)
     SuperButton btnDeviceSave;
     @BindView(R.id.tv_added_can)
@@ -50,6 +46,8 @@ public class CoDeviceActivity extends BaseActivity {
     private List<String> mList, mPossess;
     private int mGroupId;
     private LinearLayoutManager mManager;
+    private CoDeviceLeftAdapter leftAdapter;
+    private CoDeviceRightAdapter rightAdapter;
 
     @Override
     protected int layoutViewId() {
@@ -70,6 +68,50 @@ public class CoDeviceActivity extends BaseActivity {
 
     @Override
     public void initData() {
+        getDataWithEditDeviceGroup();
+    }
+
+    @Override
+    public void initListener() {
+        imgTitleBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        btnDeviceSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+    }
+
+    private void initRvAddedCan() {
+        if (mList.size() > 0) {
+            tvAddedCan.setVisibility(View.GONE);
+        } else {
+            tvAddedCan.setVisibility(View.VISIBLE);
+        }
+        mManager = new LinearLayoutManager(this);
+        rvAddedCan.setLayoutManager(mManager);
+        leftAdapter = new CoDeviceLeftAdapter(this, mList, this);
+        rvAddedCan.setAdapter(leftAdapter);
+    }
+
+    private void initRvAddedReady() {
+        if (mPossess.size() > 0) {
+            tvAddedAlready.setVisibility(View.GONE);
+        } else {
+            tvAddedAlready.setVisibility(View.VISIBLE);
+        }
+        mManager = new LinearLayoutManager(this);
+        rvAddedAlready.setLayoutManager(mManager);
+        rightAdapter = new CoDeviceRightAdapter(this, mPossess, this);
+        rvAddedAlready.setAdapter(rightAdapter);
+    }
+
+    private void getDataWithEditDeviceGroup() {
         OkGo.<String>post(Urls.GO_EDIT_DEVICE_TO_GROUP)
                 .tag(this)
                 .params("member_id", 12)
@@ -92,37 +134,17 @@ public class CoDeviceActivity extends BaseActivity {
     }
 
     @Override
-    public void initListener() {
-        imgTitleBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+    public void onClickLeft(View view) {
+        int position = (Integer) view.getTag();
+        leftAdapter.removeData(position);
+        rightAdapter.addData(position, mList.get(position));
     }
 
-    private void initRvAddedCan() {
-        if (mList.size() > 0) {
-            tvAddedCan.setVisibility(View.GONE);
-        } else {
-            tvAddedCan.setVisibility(View.VISIBLE);
-        }
-        mManager = new LinearLayoutManager(this);
-        rvAddedCan.setLayoutManager(mManager);
-        CoDeviceLeftAdapter adapter = new CoDeviceLeftAdapter(this, mList);
-        rvAddedCan.setAdapter(adapter);
-    }
-
-    private void initRvAddedReady() {
-        if (mPossess.size() > 0) {
-            tvAddedAlready.setVisibility(View.GONE);
-        } else {
-            tvAddedAlready.setVisibility(View.VISIBLE);
-        }
-        mManager = new LinearLayoutManager(this);
-        rvAddedAlready.setLayoutManager(mManager);
-        CoDeviceRightAdapter adapter = new CoDeviceRightAdapter(this, mPossess);
-        rvAddedAlready.setAdapter(adapter);
+    @Override
+    public void onClickRight(View view) {
+        int position = (Integer) view.getTag();
+        rightAdapter.removeData(position);
+        leftAdapter.addData(position, mPossess.get(position));
     }
 
 }

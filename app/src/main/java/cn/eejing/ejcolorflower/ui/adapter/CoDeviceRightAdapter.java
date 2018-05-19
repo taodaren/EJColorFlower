@@ -20,16 +20,23 @@ import cn.eejing.ejcolorflower.R;
  * @创建者 Taodaren
  * @描述
  */
-public class CoDeviceRightAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class CoDeviceRightAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements View.OnClickListener {
     private Context mContext;
     private LayoutInflater mLayoutInflater;
     private List<String> mRightList;
 
-    public CoDeviceRightAdapter(Context context, List<String> strings) {
+    private RightClickListener mListener;
+
+    public interface RightClickListener {
+        void onClickRight(View view);
+    }
+
+    public CoDeviceRightAdapter(Context context, List<String> strings, RightClickListener listener) {
         this.mContext = context;
         this.mRightList = new ArrayList<>();
         this.mRightList.addAll(strings);
         this.mLayoutInflater = LayoutInflater.from(context);
+        this.mListener = listener;
     }
 
     @NonNull
@@ -41,12 +48,37 @@ public class CoDeviceRightAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        ((RightViewHolder) holder).setData(mRightList.get(position));
+        ((RightViewHolder) holder).setData(mRightList.get(position), position);
     }
 
     @Override
     public int getItemCount() {
         return mRightList.size();
+    }
+
+    /**
+     * 添加数据
+     */
+    public void addData(int position, String deviceId) {
+        // 在 list 中添加数据，并通知条目加入一条
+        mRightList.add(position, deviceId);
+        // 添加动画
+        notifyItemInserted(position);
+    }
+
+    /**
+     * 删除数据
+     */
+    public void removeData(int position) {
+        mRightList.remove(position);
+        // 删除动画
+        notifyItemRemoved(position);
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public void onClick(View v) {
+        mListener.onClickRight(v);
     }
 
 
@@ -59,8 +91,12 @@ public class CoDeviceRightAdapter extends RecyclerView.Adapter<RecyclerView.View
             ButterKnife.bind(this, itemView);
         }
 
-        public void setData(String rightData) {
+        public void setData(String rightData, int position) {
             sbAddedCan.setText(rightData);
+
+            sbAddedCan.setOnClickListener(CoDeviceRightAdapter.this);
+            sbAddedCan.setTag(position);
         }
     }
+
 }
