@@ -96,4 +96,6 @@
     <string name="please_add_device">请添加设备到分组</string>
     <string name="spray_time">喷射时间</string>
     <string name="slide_left_to_delete">左滑删除</string>
+    <string name="btn_edit">编辑</string>
+    <string name="btn_save">保存</string>
 </resources>

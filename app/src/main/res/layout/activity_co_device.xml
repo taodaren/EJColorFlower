@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:stv="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,29 +8,102 @@
 
     <include
         android:id="@+id/toolbar_co_device"
-        layout="@layout/layout_toolbar"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="0dp" />
+        layout="@layout/layout_toolbar" />
+
+    <LinearLayout
+        android:id="@+id/ll_co_device"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="36dp">
+
+        <com.allen.library.SuperButton
+            android:id="@+id/btn_device_edit"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:text="@string/btn_edit"
+            android:textColor="@color/white"
+            stv:sCornersRadius="50dp"
+            stv:sSelectorDisableColor="@color/colorGray"
+            stv:sSelectorNormalColor="@color/colorPrimary"
+            stv:sUseSelector="true" />
+
+        <com.allen.library.SuperButton
+            android:id="@+id/btn_device_save"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:text="@string/btn_save"
+            android:textColor="@color/white"
+            stv:sCornersRadius="50dp"
+            stv:sSelectorDisableColor="@color/colorGray"
+            stv:sSelectorNormalColor="@color/colorPrimary"
+            stv:sUseSelector="true" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/toolbar_co_device">
+        android:layout_height="wrap_content"
+        android:layout_above="@id/ll_co_device"
+        android:layout_below="@id/toolbar_co_device"
+        android:layout_marginTop="36dp">
 
-        <android.support.v7.widget.RecyclerView
+        <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/tv_added_can"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:ems="1"
+                android:text="暂无可添加的设备"
+                tools:ignore="HardcodedText" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_added_can"
+                android:layout_width="70dp"
+                android:layout_height="match_parent"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/shape_co_device" />
+        </RelativeLayout>
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_dividing_line" />
+            android:src="@drawable/ic_dividing_line"
+            tools:ignore="ContentDescription" />
 
-        <android.support.v7.widget.RecyclerView
+        <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/tv_added_already"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:ems="1"
+                android:text="点击左侧设备添加到此处"
+                tools:ignore="HardcodedText" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_added_already"
+                android:layout_width="70dp"
+                android:layout_height="match_parent"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/shape_co_device" />
+        </RelativeLayout>
     </LinearLayout>
 </RelativeLayout>
