@@ -3,6 +3,8 @@ package cn.eejing.ejcolorflower.ui.fragment;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
+
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.MainActivity;
@@ -14,10 +16,11 @@ import cn.eejing.ejcolorflower.ui.base.BaseFragment;
  * @描述 设备模块
  */
 
-public class TabDeviceFragment extends BaseFragment implements View.OnClickListener {
+public class TabDeviceFragment extends BaseFragment  {
 
-    @BindView(R.id.img_add_device)
-    ImageView imgAddDevice;
+
+    @BindView(R.id.rv_tab_control)
+    PullLoadMoreRecyclerView rvTabControl;
 
     public static TabDeviceFragment newInstance() {
         return new TabDeviceFragment();
@@ -47,17 +50,6 @@ public class TabDeviceFragment extends BaseFragment implements View.OnClickListe
 
     @Override
     public void initListener() {
-        imgAddDevice.setOnClickListener(this);
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.img_add_device:
-                ((MainActivity) getActivity()).jumpToActivity(QRCodeActivity.class);
-                break;
-            default:
-                break;
-        }
-    }
 }
