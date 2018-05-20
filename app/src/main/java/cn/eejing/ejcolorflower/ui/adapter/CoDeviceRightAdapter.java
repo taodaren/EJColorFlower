@@ -20,7 +20,7 @@ import cn.eejing.ejcolorflower.R;
  * @创建者 Taodaren
  * @描述
  */
-public class CoDeviceRightAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements View.OnClickListener {
+public class CoDeviceRightAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context mContext;
     private LayoutInflater mLayoutInflater;
     private List<String> mRightList;
@@ -28,7 +28,7 @@ public class CoDeviceRightAdapter extends RecyclerView.Adapter<RecyclerView.View
     private RightClickListener mListener;
 
     public interface RightClickListener {
-        void onClickRight(View view);
+        void onClickRight(View view, int position);
     }
 
     public CoDeviceRightAdapter(Context context, List<String> strings, RightClickListener listener) {
@@ -47,7 +47,7 @@ public class CoDeviceRightAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
         ((RightViewHolder) holder).setData(mRightList.get(position), position);
     }
 
@@ -59,11 +59,11 @@ public class CoDeviceRightAdapter extends RecyclerView.Adapter<RecyclerView.View
     /**
      * 添加数据
      */
-    public void addData(int position, String deviceId) {
+    public void addData(String deviceId) {
+        String actionID = deviceId;
         // 在 list 中添加数据，并通知条目加入一条
-        mRightList.add(position, deviceId);
-        // 添加动画
-        notifyItemInserted(position);
+        mRightList.add(actionID);
+        notifyItemInserted(mRightList.size() - 1);
     }
 
     /**
@@ -71,14 +71,11 @@ public class CoDeviceRightAdapter extends RecyclerView.Adapter<RecyclerView.View
      */
     public void removeData(int position) {
         mRightList.remove(position);
-        // 删除动画
         notifyItemRemoved(position);
-        notifyDataSetChanged();
-    }
-
-    @Override
-    public void onClick(View v) {
-        mListener.onClickRight(v);
+        // 删除动画
+        if (position != mRightList.size()) {
+            notifyItemRangeChanged(position, mRightList.size() - position);
+        }
     }
 
 
@@ -91,11 +88,14 @@ public class CoDeviceRightAdapter extends RecyclerView.Adapter<RecyclerView.View
             ButterKnife.bind(this, itemView);
         }
 
-        public void setData(String rightData, int position) {
+        public void setData(String rightData, final int position) {
             sbAddedCan.setText(rightData);
-
-            sbAddedCan.setOnClickListener(CoDeviceRightAdapter.this);
-            sbAddedCan.setTag(position);
+            sbAddedCan.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mListener.onClickRight(v, position);
+                }
+            });
         }
     }
 

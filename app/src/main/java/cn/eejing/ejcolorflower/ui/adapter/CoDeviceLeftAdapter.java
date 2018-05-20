@@ -20,7 +20,7 @@ import cn.eejing.ejcolorflower.R;
  * @创建者 Taodaren
  * @描述
  */
-public class CoDeviceLeftAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements View.OnClickListener {
+public class CoDeviceLeftAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private LayoutInflater mInflater;
     private Context mContext;
     private List<String> mLeftList;
@@ -28,7 +28,7 @@ public class CoDeviceLeftAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private LeftClickListener mListener;
 
     public interface LeftClickListener {
-        void onClickLeft(View view);
+        void onClickLeft(View view, int position);
     }
 
     public CoDeviceLeftAdapter(Context mContext, List<String> mLeftList, LeftClickListener listener) {
@@ -47,7 +47,7 @@ public class CoDeviceLeftAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
         ((LeftViewHolder) holder).setData(mLeftList.get(position), position);
     }
 
@@ -59,11 +59,10 @@ public class CoDeviceLeftAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     /**
      * 添加数据
      */
-    public void addData(int position, String deviceId) {
+    public void addData(String deviceId) {
         // 在 list 中添加数据，并通知条目加入一条
-        mLeftList.add(position, deviceId);
-        // 添加动画
-        notifyItemInserted(position);
+        mLeftList.add(deviceId);
+        notifyItemInserted(mLeftList.size() - 1);
     }
 
     /**
@@ -73,13 +72,11 @@ public class CoDeviceLeftAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         mLeftList.remove(position);
         // 删除动画
         notifyItemRemoved(position);
-        notifyDataSetChanged();
+        if (position != mLeftList.size()) {
+            notifyItemRangeChanged(position, mLeftList.size() - position);
+        }
     }
 
-    @Override
-    public void onClick(View v) {
-        mListener.onClickLeft(v);
-    }
 
     class LeftViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.sb_device_added)
@@ -90,11 +87,14 @@ public class CoDeviceLeftAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             ButterKnife.bind(this, itemView);
         }
 
-        public void setData(String leftData, int position) {
+        public void setData(String leftData, final int position) {
             sbAddedCan.setText(leftData);
-
-            sbAddedCan.setOnClickListener(CoDeviceLeftAdapter.this);
-            sbAddedCan.setTag(position);
+            sbAddedCan.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mListener.onClickLeft(v, position);
+                }
+            });
         }
 
     }

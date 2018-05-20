@@ -2,6 +2,7 @@ package cn.eejing.ejcolorflower.ui.activity;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -140,17 +141,39 @@ public class CoDeviceActivity extends BaseActivity implements
     }
 
     @Override
-    public void onClickLeft(View view) {
-        int position = (Integer) view.getTag();
+    public void onClickLeft(View view, int position) {
+        if (mList.size() > 0 && mPossess.size() == 0) {
+            tvAddedCan.setVisibility(View.GONE);
+            tvAddedAlready.setVisibility(View.GONE);
+        } else if (mList.size() == 1 && mPossess.size() > 0) {
+            tvAddedCan.setVisibility(View.VISIBLE);
+            tvAddedAlready.setVisibility(View.GONE);
+        }
+
+        String data = mList.get(position);
+
         leftAdapter.removeData(position);
-        rightAdapter.addData(mPossess.size(), mList.get(position));
+        rightAdapter.addData(data);
+        mPossess.add(data);
+        mList.remove(position);
     }
 
     @Override
-    public void onClickRight(View view) {
-        int position = (Integer) view.getTag();
+    public void onClickRight(View view, int position) {
+        if (mPossess.size() > 0 && mList.size() == 0) {
+            tvAddedCan.setVisibility(View.GONE);
+            tvAddedAlready.setVisibility(View.GONE);
+        } else if (mPossess.size() == 1 && mList.size() > 0) {
+            tvAddedCan.setVisibility(View.GONE);
+            tvAddedAlready.setVisibility(View.VISIBLE);
+        }
+
+        String data = mPossess.get(position);
+
         rightAdapter.removeData(position);
-        leftAdapter.addData(mList.size(), mPossess.get(position));
+        leftAdapter.addData(data);
+        mPossess.remove(position);
+        mList.add(data);
     }
 
     @Override
