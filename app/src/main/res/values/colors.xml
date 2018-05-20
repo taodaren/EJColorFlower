@@ -10,6 +10,8 @@
     <color name="colorTransparent30Red">#4Dca0d0d</color>
 
     <color name="colorBlack">#000000</color>
+    <color name="colorOrange">#d9934d</color>
+    <color name="colorBlue">#69b1bf</color>
     <color name="colorWhite">#ffffff</color>
     <color name="colorRed">#ff0000</color>
     <color name="colorGray">#d9d9d9</color>
