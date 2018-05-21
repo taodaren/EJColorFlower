@@ -50,12 +50,15 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private List<DeviceGroupListBean.DataBean> mList;
     private LayoutInflater mLayoutInflater;
     private Gson mGson;
+    private String mMemberId;
 
     public TabControlAdapter(Context mContext, List<DeviceGroupListBean.DataBean> mList) {
         this.mContext = mContext;
         this.mList = mList;
         this.mLayoutInflater = LayoutInflater.from(mContext);
         this.mGson = new Gson();
+        LoginSession session = Settings.getLoginSessionInfo(mContext);
+        mMemberId = String.valueOf(session.getMember_id());
     }
 
     @NonNull
@@ -327,8 +330,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         int groupId = mList.get(position).getGroup_id();
         OkGo.<String>post(Urls.RM_GROUP)
                 .tag(this)
-                // TODO: 2018/5/15  MemberId 暂时写死
-                .params("member_id", 12)
+                .params("member_id", mMemberId)
                 .params("group_id", groupId)
                 .execute(new StringCallback() {
                     @Override
@@ -345,8 +347,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private void getDataWithDeviceGroupList() {
         OkGo.<String>post(Urls.GET_DEVICE_GROUP_LIST)
                 .tag(this)
-                // TODO: 2018/5/15  MemberId 暂时写死
-                .params("member_id", 12)
+                .params("member_id", mMemberId)
                 .execute(new StringCallback() {
                              @Override
                              public void onSuccess(Response<String> response) {
@@ -371,8 +372,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         // 网络请求：用户新建设备组
         OkGo.<String>post(Urls.ADD_GROUP)
                 .tag(this)
-                // TODO: 2018/5/15  MemberId 暂时写死
-                .params("member_id", 12)
+                .params("member_id", mMemberId)
                 .params("group_name", groupName)
                 .execute(new StringCallback() {
                     @Override
