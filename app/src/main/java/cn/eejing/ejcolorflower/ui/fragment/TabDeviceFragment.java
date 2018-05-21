@@ -19,8 +19,8 @@ import cn.eejing.ejcolorflower.ui.base.BaseFragment;
 public class TabDeviceFragment extends BaseFragment  {
 
 
-    @BindView(R.id.rv_tab_control)
-    PullLoadMoreRecyclerView rvTabControl;
+    @BindView(R.id.rv_tab_device)
+    PullLoadMoreRecyclerView rvTabDevice;
 
     public static TabDeviceFragment newInstance() {
         return new TabDeviceFragment();

@@ -21,15 +21,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".app.MainActivity">
+        <activity android:name=".ui.activity.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!--<activity android:name=".app.MainActivity" />-->
-        <activity android:name=".ui.activity.LoginActivity" />
+        <activity android:name=".app.MainActivity" />
         <activity android:name=".ui.activity.MiOpinionActivity" />
         <activity android:name=".ui.activity.MiAboutActivity" />
         <activity android:name=".ui.activity.MiSetActivity" />

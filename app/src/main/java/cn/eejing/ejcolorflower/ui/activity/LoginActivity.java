@@ -1,8 +1,7 @@
 package cn.eejing.ejcolorflower.ui.activity;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -15,8 +14,6 @@ import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
-import java.nio.charset.Charset;
-
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.LoginSession;
 import cn.eejing.ejcolorflower.R;
@@ -25,10 +22,10 @@ import cn.eejing.ejcolorflower.app.MainActivity;
 import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.model.request.LoginBean;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
-import cn.eejing.ejcolorflower.util.AESUtils;
+import cn.eejing.ejcolorflower.util.Encryption;
 import cn.eejing.ejcolorflower.util.Settings;
 
-public class LoginActivity extends BaseActivity {
+public class LoginActivity extends BaseActivity implements View.OnClickListener {
 
     @BindView(R.id.et_login_phone)
     EditText etLoginPhone;
@@ -40,8 +37,6 @@ public class LoginActivity extends BaseActivity {
     TextView tvLoginRegister;
     @BindView(R.id.tv_login_forget)
     TextView tvLoginForget;
-    private String mPhone;
-    private String mPassword;
 
     @Override
     protected int layoutViewId() {
@@ -51,8 +46,8 @@ public class LoginActivity extends BaseActivity {
     @Override
     public void initView() {
         LoginSession session = Settings.getLoginSessionInfo(this);
-        mPhone = session.getUsername();
-        mPassword = session.getPassword();
+        String mPhone = session.getUsername();
+        String mPassword = session.getPassword();
         if (mPhone != null) {
             etLoginPhone.setText(mPhone);
         }
@@ -63,22 +58,17 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     public void initListener() {
-        btnLogin.setOnClickListener(new View.OnClickListener() {
+        btnLogin.setOnClickListener(this);
+        tvLoginRegister.setOnClickListener(this);
+        tvLoginForget.setOnClickListener(this);
+
+        // TODO: 2018/5/21 测试使用 长按跳转到 MainActivity 完成注册登录功能后删除
+        tvLoginForget.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View view) {
-                login();
-            }
-        });
-        tvLoginRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                jumpToActivity(RegisterActivity.class);
-            }
-        });
-        tvLoginForget.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                jumpToActivity(ForgetPwdActivity.class);
+            public boolean onLongClick(View view) {
+                jumpToActivity(MainActivity.class);
+                finish();
+                return true;
             }
         });
     }
@@ -100,33 +90,46 @@ public class LoginActivity extends BaseActivity {
         String phone = etLoginPwd.getText().toString();
         String password = etLoginPwd.getText().toString();
 
-        getDataWithLogin(progressDialog, phone, password);
+        // 给密码加密
+        String iv = Encryption.newIv();
+        try {
+            String pwd = Encryption.encrypt(password, iv);
+            getDataWithLogin(progressDialog, phone, pwd, iv);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
-    private void getDataWithLogin(final ProgressDialog dialog, String phone, String password) {
+    private void getDataWithLogin(final ProgressDialog dialog, String phone, String password, String iv) {
         OkGo.<String>post(Urls.LOGIN)
                 .tag(this)
                 .params("mobile", phone)
                 .params("password", password)
+                .params("iv", iv)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
                         Log.e(AppConstant.TAG, "login request succeeded--->" + body);
 
-
                         Gson gson = new Gson();
-                        LoginBean.LoginData bean = gson.fromJson(body, LoginBean.LoginData.class);
-
-                        Settings.storeSessionInfo(LoginActivity.this, new LoginSession(
-                                etLoginPhone.getText().toString(),
-                                etLoginPwd.getText().toString(),
-                                bean.getMember_id(),
-                                bean.getToken()
-                        ));
-                        jumpToActivity(MainActivity.class);
-                        onLoginSuccess();
-                        dialog.dismiss();
+                        if (gson.fromJson(body, LoginBean.class).getCode() == 4) {
+                            // 如果帐号或密码输入错误（返回码为4）重新输入
+                            onInputError();
+                            dialog.dismiss();
+                        } else {
+                            LoginBean.LoginData bean = gson.fromJson(body, LoginBean.LoginData.class);
+                            Settings.storeSessionInfo(LoginActivity.this, new LoginSession(
+                                    etLoginPhone.getText().toString(),
+                                    etLoginPwd.getText().toString(),
+                                    bean.getMember_id(),
+                                    bean.getToken()
+                            ));
+                            jumpToActivity(MainActivity.class);
+                            onLoginSuccess();
+                            dialog.dismiss();
+                        }
                     }
 
                     @Override
@@ -144,7 +147,11 @@ public class LoginActivity extends BaseActivity {
 
     public void onLoginFailed() {
         Toast.makeText(getBaseContext(), "登录失败", Toast.LENGTH_LONG).show();
+        btnLogin.setEnabled(true);
+    }
 
+    public void onInputError() {
+        Toast.makeText(getBaseContext(), "手机号码或密码不正确", Toast.LENGTH_LONG).show();
         btnLogin.setEnabled(true);
     }
 
@@ -169,6 +176,25 @@ public class LoginActivity extends BaseActivity {
         }
 
         return valid;
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.btn_login:
+                login();
+                break;
+            case R.id.tv_login_register:
+                jumpToActivity(RegisterActivity.class);
+                break;
+            case R.id.tv_login_forget:
+                Intent intent = new Intent(LoginActivity.this, ForgetPwdActivity.class);
+                intent.putExtra("mobile", etLoginPhone.getText().toString());
+                jumpToActivity(intent);
+                break;
+            default:
+                break;
+        }
     }
 
 }
