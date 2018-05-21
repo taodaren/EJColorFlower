@@ -38,6 +38,7 @@ public class ForgetPwdActivity extends BaseActivity implements View.OnClickListe
     Button btnForgetGetCode;
     @BindView(R.id.btn_reset_pwd)
     SuperButton btnResetPwd;
+
     private Gson mGson;
     private String mMobile, mIv;
 

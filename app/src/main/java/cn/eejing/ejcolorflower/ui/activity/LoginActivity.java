@@ -26,6 +26,7 @@ import cn.eejing.ejcolorflower.util.Encryption;
 import cn.eejing.ejcolorflower.util.Settings;
 
 public class LoginActivity extends BaseActivity implements View.OnClickListener {
+    private static final int REQUEST_SIGNUP = 0;
 
     @BindView(R.id.et_login_phone)
     EditText etLoginPhone;
@@ -61,16 +62,37 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         btnLogin.setOnClickListener(this);
         tvLoginRegister.setOnClickListener(this);
         tvLoginForget.setOnClickListener(this);
+    }
 
-        // TODO: 2018/5/21 测试使用 长按跳转到 MainActivity 完成注册登录功能后删除
-        tvLoginForget.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                jumpToActivity(MainActivity.class);
-                finish();
-                return true;
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_SIGNUP) {
+            if (resultCode == RESULT_OK) {
+
+                // TODO: 在这里实施成功的注册逻辑
+                // 默认情况下，我们只需完成活动并自动登录它们
+                this.finish();
             }
-        });
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.btn_login:
+                login();
+                break;
+            case R.id.tv_login_register:
+                jumpToActivity(RegisterActivity.class);
+                break;
+            case R.id.tv_login_forget:
+                Intent intent = new Intent(LoginActivity.this, ForgetPwdActivity.class);
+                intent.putExtra("mobile", etLoginPhone.getText().toString());
+                jumpToActivity(intent);
+                break;
+            default:
+                break;
+        }
     }
 
     private void login() {
@@ -82,12 +104,12 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         btnLogin.setEnabled(false);
 
         final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this,
-                R.style.Theme_AppCompat_Dialog);
+                ProgressDialog.THEME_HOLO_LIGHT);
         progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Authenticating...");
+        progressDialog.setMessage("登录中...");
         progressDialog.show();
 
-        String phone = etLoginPwd.getText().toString();
+        String phone = etLoginPhone.getText().toString();
         String password = etLoginPwd.getText().toString();
 
         // 给密码加密
@@ -114,17 +136,18 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                         Log.e(AppConstant.TAG, "login request succeeded--->" + body);
 
                         Gson gson = new Gson();
-                        if (gson.fromJson(body, LoginBean.class).getCode() == 4) {
+                        LoginBean bean = gson.fromJson(body, LoginBean.class);
+
+                        if (bean.getCode() == 4) {
                             // 如果帐号或密码输入错误（返回码为4）重新输入
                             onInputError();
                             dialog.dismiss();
                         } else {
-                            LoginBean.LoginData bean = gson.fromJson(body, LoginBean.LoginData.class);
                             Settings.storeSessionInfo(LoginActivity.this, new LoginSession(
                                     etLoginPhone.getText().toString(),
                                     etLoginPwd.getText().toString(),
-                                    bean.getMember_id(),
-                                    bean.getToken()
+                                    bean.getData().getMember_id(),
+                                    bean.getData().getToken()
                             ));
                             jumpToActivity(MainActivity.class);
                             onLoginSuccess();
@@ -176,25 +199,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         }
 
         return valid;
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.btn_login:
-                login();
-                break;
-            case R.id.tv_login_register:
-                jumpToActivity(RegisterActivity.class);
-                break;
-            case R.id.tv_login_forget:
-                Intent intent = new Intent(LoginActivity.this, ForgetPwdActivity.class);
-                intent.putExtra("mobile", etLoginPhone.getText().toString());
-                jumpToActivity(intent);
-                break;
-            default:
-                break;
-        }
     }
 
 }

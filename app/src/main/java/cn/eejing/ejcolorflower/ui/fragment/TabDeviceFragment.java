@@ -1,23 +1,18 @@
 package cn.eejing.ejcolorflower.ui.fragment;
 
 import android.view.View;
-import android.widget.ImageView;
 
 import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
 
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.app.MainActivity;
-import cn.eejing.ejcolorflower.ui.activity.QRCodeActivity;
 import cn.eejing.ejcolorflower.ui.base.BaseFragment;
 
 /**
  * @创建者 Taodaren
  * @描述 设备模块
  */
-
-public class TabDeviceFragment extends BaseFragment  {
-
+public class TabDeviceFragment extends BaseFragment {
 
     @BindView(R.id.rv_tab_device)
     PullLoadMoreRecyclerView rvTabDevice;
