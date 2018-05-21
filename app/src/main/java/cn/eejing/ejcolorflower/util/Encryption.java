@@ -1,6 +1,5 @@
 package cn.eejing.ejcolorflower.util;
 
-
 import android.util.Base64;
 
 import java.security.SecureRandom;
@@ -11,6 +10,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class Encryption {
     private final static String KEY = "0253872624409878";
+
     private static byte[] encrypt(byte[] dataBytes, byte[] iv) throws Exception {
         Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding");
         int blockSize = cipher.getBlockSize();
@@ -40,37 +40,37 @@ public class Encryption {
         return cipher.doFinal(data);
     }
 
-    public static String encrypt(String data, String iv)throws Exception{
+    public static String encrypt(String data, String iv) throws Exception {
         byte[] r = encrypt(data.getBytes(), iv.getBytes());
         return Base64.encodeToString(r, Base64.DEFAULT);
     }
 
-    public static String decrypt(String data, String iv) throws Exception{
+    public static String decrypt(String data, String iv) throws Exception {
         byte[] r = Base64.decode(data, Base64.DEFAULT);
-        if(r==null){
+        if (r == null) {
             throw new Exception("corrupted data");
-        }
-        else{
+        } else {
             r = decrypt(r, iv.getBytes());
             int i;
-            for(i=r.length-1;i>0;i--){
-                if(r[i] != 0){
+            for (i = r.length - 1; i > 0; i--) {
+                if (r[i] != 0) {
                     break;
                 }
             }
-            return new String(r, 0, i+1);
+            return new String(r, 0, i + 1);
         }
     }
 
     @SuppressWarnings("SpellCheckingInspection")
     private static final String ivStr = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final SecureRandom ivGen = new SecureRandom();
-    public static String newIv(){
+
+    public static String newIv() {
         byte[] d = new byte[16];
         ivGen.nextBytes(d);
-        for(int i=0;i<d.length;i++){
-            int k = (int)d[i] & 0xff;
-            d[i] = (byte)ivStr.charAt(k%ivStr.length());
+        for (int i = 0; i < d.length; i++) {
+            int k = (int) d[i] & 0xff;
+            d[i] = (byte) ivStr.charAt(k % ivStr.length());
         }
         return new String(d);
     }

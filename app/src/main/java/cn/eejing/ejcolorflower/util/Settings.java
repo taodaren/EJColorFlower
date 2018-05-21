@@ -2,14 +2,15 @@ package cn.eejing.ejcolorflower.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import cn.eejing.ejcolorflower.LoginSession;
 
+import cn.eejing.ejcolorflower.LoginSession;
 
 /**
  * 配置
  */
 
 public class Settings {
+
     public static LoginSession getLoginSessionInfo(Context context) {
         SharedPreferences settings = context.getSharedPreferences("setting", Context.MODE_PRIVATE);
         return new LoginSession(
@@ -29,6 +30,4 @@ public class Settings {
         editor.apply();
     }
 
-
-    public final static String SERVER_URL = "http:///60.205.226.109/index.php/index/api/";
 }
