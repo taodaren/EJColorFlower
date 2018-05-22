@@ -135,7 +135,9 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             imgAddDevice.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mContext.startActivity(new Intent(mContext, QRCodeActivity.class));
+                    Intent intent = new Intent(mContext, QRCodeActivity.class);
+                    intent.putExtra("member_id", mMemberId);
+                    mContext.startActivity(intent);
                 }
             });
         }

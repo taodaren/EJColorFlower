@@ -121,6 +121,10 @@ public class TabDeviceFragment extends BaseFragment {
                                 startActivity(new Intent(getActivity(), LoginActivity.class));
                                 getActivity().finish();
                                 break;
+                            case 0:
+                                // 若返回码为 0 ，表示暂无设备
+                                rvTabDevice.setPullLoadMoreCompleted();
+                                return;
                             default:
                                 mList = bean.getData().getList();
                                 Log.e(AppConstant.TAG, "onSuccess: get device group list--->" + mList.size());

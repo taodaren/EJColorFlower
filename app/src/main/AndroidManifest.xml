@@ -8,9 +8,8 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <uses-feature android:name="android.hardware.camera" /> <!-- 使用照相机权限 -->
-    <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-feature android:name="android.hardware.camera.autofocus" /> <!-- 自动聚焦权限 -->
 
-    <!-- 自动聚焦权限 -->
     <application
         android:name=".app.GApp"
         android:allowBackup="true"
@@ -21,6 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+
         <activity android:name=".ui.activity.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,18 +28,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".app.MainActivity" />
+        <activity android:name=".ui.activity.QRCodeActivity" />
+        <activity android:name=".ui.activity.RegisterActivity" />
+        <activity android:name=".ui.activity.ForgetPwdActivity" />
+        <activity android:name=".ui.activity.CoDeviceActivity" />
+        <activity android:name=".ui.activity.MaGoodsDetailsActivity" />
         <activity android:name=".ui.activity.MiOpinionActivity" />
         <activity android:name=".ui.activity.MiAboutActivity" />
         <activity android:name=".ui.activity.MiSetActivity" />
         <activity android:name=".ui.activity.MiUserInfoActivity" />
         <activity android:name=".ui.activity.MiModifyPwdActivity" />
         <activity android:name=".ui.activity.MiOrderActivity" />
-        <activity android:name=".ui.activity.QRCodeActivity" />
-        <activity android:name=".ui.activity.MaGoodsDetailsActivity" />
-        <activity android:name=".ui.activity.CoDeviceActivity" />
-        <activity android:name=".ui.activity.RegisterActivity" />
-        <activity android:name=".ui.activity.ForgetPwdActivity" />
     </application>
 
 </manifest>
