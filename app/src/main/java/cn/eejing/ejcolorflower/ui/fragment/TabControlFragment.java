@@ -58,9 +58,7 @@ public class TabControlFragment extends BaseFragment {
     public void initView(View rootView) {
         mGson = new Gson();
         mList = new ArrayList<>();
-
-        LoginSession session = Settings.getLoginSessionInfo(getActivity());
-        mMemberId = String.valueOf(session.getMember_id());
+        mMemberId = String.valueOf(Settings.getLoginSessionInfo(getActivity()).getMember_id());
 
         initRecyclerView();
     }
@@ -106,7 +104,7 @@ public class TabControlFragment extends BaseFragment {
         // 设置布局
         rvTabControl.setLinearLayout();
         // 绑定适配器
-        mAdapter = new TabControlAdapter(getContext(), mList);
+        mAdapter = new TabControlAdapter(getContext(), mList, mMemberId);
         rvTabControl.setAdapter(mAdapter);
 
         // 不需要上拉刷新

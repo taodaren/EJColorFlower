@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,6 +17,7 @@ import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.allen.library.SuperButton;
 import com.google.gson.Gson;
@@ -50,15 +52,15 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private List<DeviceGroupListBean.DataBean> mList;
     private LayoutInflater mLayoutInflater;
     private Gson mGson;
-    private String mMemberId;
+    private String mMemberId, mToken;
 
-    public TabControlAdapter(Context mContext, List<DeviceGroupListBean.DataBean> mList) {
+    public TabControlAdapter(Context mContext, List<DeviceGroupListBean.DataBean> mList, String mMemberId) {
         this.mContext = mContext;
-        this.mList = mList;
         this.mLayoutInflater = LayoutInflater.from(mContext);
+        this.mList = mList;
         this.mGson = new Gson();
-        LoginSession session = Settings.getLoginSessionInfo(mContext);
-        mMemberId = String.valueOf(session.getMember_id());
+        this.mMemberId = mMemberId;
+//        this.mToken = Settings.getLoginSessionInfo(mContext).getToken();
     }
 
     @NonNull
@@ -84,7 +86,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE_ITEM) {
-            ((ItemViewHolder) holder).setData(mList.get(position));
+            ((ItemViewHolder) holder).setData(mList.get(position), position);
         }
     }
 
@@ -133,17 +135,19 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         ImageView imgGroupName;
         @BindView(R.id.sb_ctrl_group_time)
         SuperButton sbTime;
+        View outItem;
 
         public ItemViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            outItem = itemView;
         }
 
-        public void setData(DeviceGroupListBean.DataBean bean) {
+        public void setData(DeviceGroupListBean.DataBean bean, int position) {
             if (bean.getGroup_list() != null && bean.getGroup_list().size() > 0) {
                 tvInfo.setVisibility(View.GONE);
                 rvGroup.setVisibility(View.VISIBLE);
-                init(bean.getGroup_list());
+                initGroupList(bean.getGroup_list());
             } else {
                 tvInfo.setVisibility(View.VISIBLE);
             }
@@ -160,14 +164,15 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     .build();
             sbControl.setProgress((float) bean.getHigh());
 
-            setClickListener(bean.getGroup_name(), bean.getGroup_id());
+            setClickListener(bean.getGroup_name(), bean.getGroup_id(), position);
         }
 
-        public void setClickListener(final String group_name, final int group_id) {
+        public void setClickListener(final String group_name, final int group_id, final int position) {
             imgAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(mContext, CoDeviceActivity.class);
+                    intent.putExtra("member_id", mMemberId);
                     intent.putExtra("group_id", group_id);
                     intent.putExtra("group_name", group_name);
                     mContext.startActivity(intent);
@@ -181,10 +186,17 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 }
             });
 
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            outItem.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    // TODO 长按删除
+                    Snackbar.make(v, "确定要删除组吗？", Snackbar.LENGTH_SHORT)
+                            .setAction("确定", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    getDataWithDelGroup(position);
+                                }
+                            })
+                            .show();
                     return true;
                 }
             });
@@ -197,14 +209,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 }
             });
 
-        }
-
-        private void init(List<String> list) {
-            LinearLayoutManager manager = new LinearLayoutManager(mContext);
-            manager.setOrientation(LinearLayoutManager.HORIZONTAL);
-            rvGroup.setLayoutManager(manager);
-
-            rvGroup.setAdapter(new GroupListAdapter(list));
         }
 
         private void renameGroup(final int group_id) {
@@ -227,6 +231,13 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                         }
                     })
                     .show();
+        }
+
+        private void initGroupList(List<String> list) {
+            LinearLayoutManager manager = new LinearLayoutManager(mContext);
+            manager.setOrientation(LinearLayoutManager.HORIZONTAL);
+            rvGroup.setLayoutManager(manager);
+            rvGroup.setAdapter(new GroupListAdapter(list));
         }
 
     }
@@ -275,7 +286,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     public class GroupListAdapter extends RecyclerView.Adapter<GroupListAdapter.DeviceHolder> {
-        // 这里的类型根据项目决定
         List<String> devices;
 
         public GroupListAdapter(List<String> devices) {
@@ -290,7 +300,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         @Override
         public void onBindViewHolder(@NonNull DeviceHolder holder, int position) {
-            holder.setData(devices.get(position));
+            holder.setData();
         }
 
         @Override
@@ -307,13 +317,14 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 ButterKnife.bind(this, itemView);
             }
 
-            public void setData(String s) {
+            public void setData() {
                 Log.e(AppConstant.TAG, "devices: " + devices.toString());
                 for (int i = 0; i < devices.size(); i++) {
-                    sbDevice.setText(devices.get(getAdapterPosition()).toString());
+                    sbDevice.setText(devices.get(getAdapterPosition()));
                 }
             }
         }
+
     }
 
 
@@ -323,14 +334,11 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 .tag(this)
                 .params("member_id", mMemberId)
                 .params("group_id", groupId)
+//                .params("token", mToken)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        Log.e(AppConstant.TAG, "rm group request succeeded--->" + body);
-
-                        RmGroup json = mGson.fromJson(body, RmGroup.class);
-                        Log.e(AppConstant.TAG, "onSuccess: json" + json);
+                        getDataWithDeviceGroupList();
                     }
                 });
     }
@@ -339,6 +347,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         OkGo.<String>post(Urls.GET_DEVICE_GROUP_LIST)
                 .tag(this)
                 .params("member_id", mMemberId)
+//                .params("token", mToken)
                 .execute(new StringCallback() {
                              @Override
                              public void onSuccess(Response<String> response) {
@@ -354,17 +363,13 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     private void getDataWithAddGroup(EditText editText) {
-        // 获取用户 id
-        LoginSession session = Settings.getLoginSessionInfo(mContext);
-        final String memberId = String.valueOf(session.getMember_id());
-        // 获取输入框内容
         String groupName = editText.getText().toString();
 
-        // 网络请求：用户新建设备组
         OkGo.<String>post(Urls.ADD_GROUP)
                 .tag(this)
                 .params("member_id", mMemberId)
                 .params("group_name", groupName)
+//                .params("token", mToken)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {

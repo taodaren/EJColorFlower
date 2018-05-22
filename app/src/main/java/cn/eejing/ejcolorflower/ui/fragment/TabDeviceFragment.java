@@ -125,7 +125,7 @@ public class TabDeviceFragment extends BaseFragment {
                                 // 若返回码为 0 ，表示暂无设备
                                 rvTabDevice.setPullLoadMoreCompleted();
                                 return;
-                            default:
+                            case 1:
                                 mList = bean.getData().getList();
                                 Log.e(AppConstant.TAG, "onSuccess: get device group list--->" + mList.size());
                                 // 刷新数据
@@ -133,6 +133,7 @@ public class TabDeviceFragment extends BaseFragment {
                                 // 刷新结束
                                 rvTabDevice.setPullLoadMoreCompleted();
                                 break;
+                            default:
                         }
                     }
                 });

@@ -18,6 +18,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
+import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.model.request.AddDeviceToGroupBean;
 import cn.eejing.ejcolorflower.model.request.EditDeviceToGroupBean;
@@ -49,8 +50,9 @@ public class CoDeviceActivity extends BaseActivity implements
     private LinearLayoutManager mManager;
     private CoDeviceLeftAdapter leftAdapter;
     private CoDeviceRightAdapter rightAdapter;
-    private int mGroupId;
+    private int mGroupId, mMemberId;
     private Gson mGson;
+    private String mNewPossess;
 
     @Override
     protected int layoutViewId() {
@@ -63,6 +65,7 @@ public class CoDeviceActivity extends BaseActivity implements
 
         mList = new ArrayList<>();
         mPossess = new ArrayList<>();
+        mMemberId = getIntent().getIntExtra("member_id", 0);
         mGroupId = getIntent().getIntExtra("group_id", 0);
     }
 
@@ -104,7 +107,7 @@ public class CoDeviceActivity extends BaseActivity implements
     private void getDataWithEditDeviceGroup() {
         OkGo.<String>post(Urls.GO_EDIT_DEVICE_TO_GROUP)
                 .tag(this)
-                .params("member_id", 12)
+                .params("member_id", mMemberId)
                 .params("group_id", mGroupId)
                 .execute(new StringCallback() {
 
@@ -126,7 +129,7 @@ public class CoDeviceActivity extends BaseActivity implements
     private void getDataWithAddDeviceToGroup() {
         OkGo.<String>post(Urls.ADD_DEVICE_TO_GROUP)
                 .tag(this)
-                .params("member_id", 12)
+                .params("member_id", mMemberId)
                 .params("group_id", mGroupId)
                 .params("device_id", "")
                 .execute(new StringCallback() {
@@ -156,6 +159,9 @@ public class CoDeviceActivity extends BaseActivity implements
         rightAdapter.addData(data);
         mPossess.add(data);
         mList.remove(position);
+
+        mNewPossess = mGson.toJson(mPossess);
+        Log.e(AppConstant.TAG, "onClickLeft mNewPossess: " + mNewPossess);
     }
 
     @Override
@@ -184,7 +190,7 @@ public class CoDeviceActivity extends BaseActivity implements
                 break;
             case R.id.btn_device_save:
                 // TODO: 18/5/20 未完成
-                getDataWithAddDeviceToGroup();
+//                getDataWithAddDeviceToGroup();
                 break;
             default:
                 break;
