@@ -15,7 +15,7 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
 import butterknife.BindView;
-import cn.eejing.ejcolorflower.LoginSession;
+import cn.eejing.ejcolorflower.app.LoginSession;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.MainActivity;

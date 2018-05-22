@@ -1,6 +1,5 @@
 package cn.eejing.ejcolorflower.ui.fragment;
 
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.View;
 
@@ -14,15 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import cn.eejing.ejcolorflower.LoginSession;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
+import cn.eejing.ejcolorflower.app.LoginSession;
 import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
 import cn.eejing.ejcolorflower.ui.adapter.TabControlAdapter;
 import cn.eejing.ejcolorflower.ui.base.BaseFragment;
 import cn.eejing.ejcolorflower.util.Settings;
-import cn.eejing.ejcolorflower.util.SimpleItemTouchHelperCallback;
 
 /**
  * @创建者 Taodaren
@@ -52,6 +50,11 @@ public class TabControlFragment extends BaseFragment {
     }
 
     @Override
+    public void initToolbar() {
+        setToolbar(R.id.main_toolbar, R.string.control_name, View.VISIBLE);
+    }
+
+    @Override
     public void initView(View rootView) {
         mGson = new Gson();
         mList = new ArrayList<>();
@@ -60,11 +63,6 @@ public class TabControlFragment extends BaseFragment {
         mMemberId = String.valueOf(session.getMember_id());
 
         initRecyclerView();
-    }
-
-    @Override
-    public void initToolbar() {
-        setToolbar(R.id.main_toolbar, R.string.control_name, View.VISIBLE);
     }
 
     @Override
@@ -110,13 +108,6 @@ public class TabControlFragment extends BaseFragment {
         // 绑定适配器
         mAdapter = new TabControlAdapter(getContext(), mList);
         rvTabControl.setAdapter(mAdapter);
-
-        // 先实例化 Callback
-        ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(mAdapter);
-        // 用 Callback 构造 ItemTouchHelper
-        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
-        // 调用 ItemTouchHelper 的 attachToRecyclerView 方法建立联系
-        touchHelper.attachToRecyclerView(rvTabControl.getRecyclerView());
 
         // 不需要上拉刷新
         rvTabControl.setPushRefreshEnable(false);

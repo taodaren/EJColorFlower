@@ -40,6 +40,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/sb_device_temp"
                     android:layout_centerHorizontal="true"
+                    android:layout_marginTop="4dp"
                     android:text="@string/text_temp"
                     android:textColor="@color/colorBlack" />
             </RelativeLayout>
@@ -67,6 +68,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/sb_device_dmx"
                     android:layout_centerHorizontal="true"
+                    android:layout_marginTop="4dp"
                     android:text="@string/text_dmx"
                     android:textColor="@color/colorBlack" />
             </RelativeLayout>
@@ -94,6 +96,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/sb_device_time"
                     android:layout_centerHorizontal="true"
+                    android:layout_marginTop="4dp"
                     android:text="@string/text_time"
                     android:textColor="@color/colorBlack" />
             </RelativeLayout>
@@ -101,15 +104,27 @@
         </LinearLayout>
     </RelativeLayout>
 
-    <ImageView
-        android:id="@+id/img_add_device"
+    <RelativeLayout
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginStart="25dp"
-        android:layout_marginTop="25dp"
-        android:src="@drawable/ic_device_id"
-        tools:ignore="ContentDescription" />
+        android:layout_marginTop="25dp">
 
+        <ImageView
+            android:id="@+id/img_device_id"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_device_id"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/tv_device_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textColor="@color/colorWhite"
+            android:textSize="12sp" />
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/tv_connected"

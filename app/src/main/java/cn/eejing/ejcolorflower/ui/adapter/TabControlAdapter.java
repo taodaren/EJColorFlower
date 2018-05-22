@@ -28,13 +28,12 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import cn.eejing.ejcolorflower.LoginSession;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
+import cn.eejing.ejcolorflower.app.LoginSession;
 import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
 import cn.eejing.ejcolorflower.model.request.RmGroup;
-import cn.eejing.ejcolorflower.presenter.ItemTouchHelperAdapter;
 import cn.eejing.ejcolorflower.ui.activity.CoDeviceActivity;
 import cn.eejing.ejcolorflower.util.Settings;
 
@@ -42,7 +41,8 @@ import cn.eejing.ejcolorflower.util.Settings;
  * @创建者 Taodaren
  * @描述 控制模块适配器
  */
-public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements ItemTouchHelperAdapter {
+
+public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_ITEM = 0;
     private static final int TYPE_FOOTER = 1;
 
@@ -114,14 +114,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         notifyDataSetChanged();
     }
 
-    @Override
-    public void onItemDismiss(int position) {
-        getDataWithDelGroup(position);
-        // 移除数据
-        mList.remove(position);
-        notifyItemRemoved(position);
-    }
-
     class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.bubble_seek_bar)
         BubbleSeekBar sbControl;
@@ -141,7 +133,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         ImageView imgGroupName;
         @BindView(R.id.sb_ctrl_group_time)
         SuperButton sbTime;
-
 
         public ItemViewHolder(View itemView) {
             super(itemView);

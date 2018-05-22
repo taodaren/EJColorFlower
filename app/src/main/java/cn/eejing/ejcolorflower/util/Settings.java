@@ -3,7 +3,7 @@ package cn.eejing.ejcolorflower.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import cn.eejing.ejcolorflower.LoginSession;
+import cn.eejing.ejcolorflower.app.LoginSession;
 
 /**
  * 配置
