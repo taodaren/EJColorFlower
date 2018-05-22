@@ -1,7 +1,9 @@
 package cn.eejing.ejcolorflower.ui.fragment;
 
+import android.content.Intent;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
@@ -18,6 +20,7 @@ import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.LoginSession;
 import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
+import cn.eejing.ejcolorflower.ui.activity.LoginActivity;
 import cn.eejing.ejcolorflower.ui.adapter.TabDeviceAdapter;
 import cn.eejing.ejcolorflower.ui.base.BaseFragment;
 import cn.eejing.ejcolorflower.util.Settings;
@@ -111,12 +114,22 @@ public class TabDeviceFragment extends BaseFragment {
                         Log.e(AppConstant.TAG, "device list request succeeded--->" + body);
 
                         DeviceListBean bean = mGson.fromJson(body, DeviceListBean.class);
-                        mList = bean.getData().getList();
-                        Log.e(AppConstant.TAG, "onSuccess: get device group list--->" + mList.size());
-                        // 刷新数据
-                        mAdapter.refreshList(mList);
-                        // 刷新结束
-                        rvTabDevice.setPullLoadMoreCompleted();
+                        switch (bean.getCode()) {
+                            case 101:
+                            case 102:
+                                Toast.makeText(getActivity().getBaseContext(), "登录失效，请重新登录", Toast.LENGTH_LONG).show();
+                                startActivity(new Intent(getActivity(), LoginActivity.class));
+                                getActivity().finish();
+                                break;
+                            default:
+                                mList = bean.getData().getList();
+                                Log.e(AppConstant.TAG, "onSuccess: get device group list--->" + mList.size());
+                                // 刷新数据
+                                mAdapter.refreshList(mList);
+                                // 刷新结束
+                                rvTabDevice.setPullLoadMoreCompleted();
+                                break;
+                        }
                     }
                 });
     }
