@@ -3,7 +3,9 @@ package cn.eejing.ejcolorflower.ui.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,14 +14,20 @@ import android.widget.TextView;
 
 import com.allen.library.SuperButton;
 import com.google.gson.Gson;
+import com.lzy.okgo.OkGo;
+import com.lzy.okgo.callback.StringCallback;
+import com.lzy.okgo.model.Response;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
+import cn.eejing.ejcolorflower.app.AppConstant;
+import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
 import cn.eejing.ejcolorflower.ui.activity.QRCodeActivity;
+import cn.eejing.ejcolorflower.ui.fragment.TabDeviceFragment;
 
 /**
  * @创建者 Taodaren
@@ -34,14 +42,15 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private List<DeviceListBean.DataBean.ListBean> mList;
     private LayoutInflater mLayoutInflater;
     private Gson mGson;
-    private String mMemberId;
+    private String mMemberId, mToken;
 
-    public TabDeviceAdapter(Context context, List<DeviceListBean.DataBean.ListBean> list, String memberId) {
+    public TabDeviceAdapter(Context context, List<DeviceListBean.DataBean.ListBean> list, String memberId, String token) {
         this.mContext = context;
         this.mList = list;
         this.mLayoutInflater = LayoutInflater.from(mContext);
         this.mGson = new Gson();
         this.mMemberId = memberId;
+        this.mToken = token;
     }
 
     @NonNull
@@ -67,7 +76,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE_ITEM) {
-            ((ItemViewHolder) holder).setData(mList.get(position));
+            ((ItemViewHolder) holder).setData(mList.get(position), position);
         }
     }
 
@@ -110,19 +119,40 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         SuperButton sbDmx;
         @BindView(R.id.sb_device_time)
         SuperButton sbTime;
+        View outView;
 
         public ItemViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            outView = itemView;
         }
 
-        public void setData(DeviceListBean.DataBean.ListBean bean) {
+        public void setData(DeviceListBean.DataBean.ListBean bean, int position) {
             tvDeviceId.setText(bean.getId());
+            setClickListener(position);
+        }
+
+        private void setClickListener(final int position) {
+            outView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    Snackbar.make(view, "确定要删除设备吗？", Snackbar.LENGTH_SHORT)
+                            .setAction("确定", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    getDataWithDelGroup(position);
+                                }
+                            })
+                            .show();
+                    return true;
+                }
+            });
         }
 
     }
 
     class FootViewHolder extends RecyclerView.ViewHolder {
+
         @BindView(R.id.img_add_device)
         ImageView imgAddDevice;
 
@@ -141,6 +171,23 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 }
             });
         }
+
+    }
+
+    private void getDataWithDelGroup(int position) {
+        OkGo.<String>post(Urls.RM_DEVICE)
+                .tag(this)
+                .params("member_id", mMemberId)
+                .params("device_id", mList.get(position).getId())
+                .params("token", mToken)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        String body = response.body();
+                        Log.e(AppConstant.TAG, "rm device request succeeded--->" + body);
+                        refreshList(mList);
+                    }
+                });
     }
 
 }

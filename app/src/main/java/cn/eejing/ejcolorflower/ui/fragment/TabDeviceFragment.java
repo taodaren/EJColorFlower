@@ -78,7 +78,7 @@ public class TabDeviceFragment extends BaseFragment {
         // 设置布局
         rvTabDevice.setLinearLayout();
         // 绑定适配器
-        mAdapter = new TabDeviceAdapter(getContext(), mList, mMemberId);
+        mAdapter = new TabDeviceAdapter(getContext(), mList, mMemberId, mToken);
         rvTabDevice.setAdapter(mAdapter);
 
         // 不需要上拉刷新

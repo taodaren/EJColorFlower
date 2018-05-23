@@ -172,6 +172,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     intent.putExtra("member_id", mMemberId);
                     intent.putExtra("group_id", group_id);
                     intent.putExtra("group_name", group_name);
+                    intent.putExtra("token", mToken);
                     mContext.startActivity(intent);
                 }
             });
@@ -326,7 +327,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 }
             }
 
-
         }
     }
 
@@ -411,6 +411,5 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     }
                 });
     }
-
 
 }

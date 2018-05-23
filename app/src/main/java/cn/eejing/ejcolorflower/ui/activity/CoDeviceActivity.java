@@ -50,7 +50,8 @@ public class CoDeviceActivity extends BaseActivity implements
     private LinearLayoutManager mManager;
     private CoDeviceLeftAdapter leftAdapter;
     private CoDeviceRightAdapter rightAdapter;
-    private int mGroupId, mMemberId;
+    private int mGroupId;
+    private String mMemberId, mToken;
     private Gson mGson;
     private String mNewPossess;
 
@@ -65,7 +66,8 @@ public class CoDeviceActivity extends BaseActivity implements
 
         mList = new ArrayList<>();
         mPossess = new ArrayList<>();
-        mMemberId = getIntent().getIntExtra("member_id", 0);
+        mMemberId = getIntent().getStringExtra("member_id");
+        mToken = getIntent().getStringExtra("token");
         mGroupId = getIntent().getIntExtra("group_id", 0);
     }
 
@@ -109,6 +111,7 @@ public class CoDeviceActivity extends BaseActivity implements
                 .tag(this)
                 .params("member_id", mMemberId)
                 .params("group_id", mGroupId)
+                .params("token", mToken)
                 .execute(new StringCallback() {
 
                     @Override
@@ -132,6 +135,7 @@ public class CoDeviceActivity extends BaseActivity implements
                 .params("member_id", mMemberId)
                 .params("group_id", mGroupId)
                 .params("device_id", "")
+                .params("token", mToken)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
