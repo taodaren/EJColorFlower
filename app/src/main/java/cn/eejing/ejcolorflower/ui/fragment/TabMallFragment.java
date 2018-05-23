@@ -64,7 +64,7 @@ public class TabMallFragment extends BaseFragment {
     }
 
     private void getDataWithGoodsList() {
-        OkGo.<String>get(Urls.Mall.GOODS_LIST)
+        OkGo.<String>get(Urls.GOODS_LIST)
                 .tag(this)
                 .execute(new StringCallback() {
                     @Override

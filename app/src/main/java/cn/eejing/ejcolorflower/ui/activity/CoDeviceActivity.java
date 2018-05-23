@@ -20,7 +20,6 @@ import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.Urls;
-import cn.eejing.ejcolorflower.model.request.AddDeviceToGroupBean;
 import cn.eejing.ejcolorflower.model.request.EditDeviceToGroupBean;
 import cn.eejing.ejcolorflower.ui.adapter.CoDeviceLeftAdapter;
 import cn.eejing.ejcolorflower.ui.adapter.CoDeviceRightAdapter;
@@ -64,6 +63,7 @@ public class CoDeviceActivity extends BaseActivity implements
     public void initView() {
         setToolbar(getIntent().getStringExtra("group_name"), View.VISIBLE);
 
+        mGson = new Gson();
         mList = new ArrayList<>();
         mPossess = new ArrayList<>();
         mMemberId = getIntent().getStringExtra("member_id");
@@ -80,6 +80,61 @@ public class CoDeviceActivity extends BaseActivity implements
     public void initListener() {
         imgTitleBack.setOnClickListener(this);
         btnDeviceSave.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClickLeft(View view, int position) {
+        if (mList.size() > 0 && mPossess.size() == 0) {
+            tvAddedCan.setVisibility(View.GONE);
+            tvAddedAlready.setVisibility(View.GONE);
+        } else if (mList.size() == 1 && mPossess.size() > 0) {
+            tvAddedCan.setVisibility(View.VISIBLE);
+            tvAddedAlready.setVisibility(View.GONE);
+        }
+
+        String data = mList.get(position);
+
+        leftAdapter.removeData(position);
+        rightAdapter.addData(data);
+        mPossess.add(data);
+        mList.remove(position);
+
+        mNewPossess = mGson.toJson(mPossess);
+        Log.i(AppConstant.TAG, "onClickLeft mNewPossess: " + mNewPossess);
+    }
+
+    @Override
+    public void onClickRight(View view, int position) {
+        if (mPossess.size() > 0 && mList.size() == 0) {
+            tvAddedCan.setVisibility(View.GONE);
+            tvAddedAlready.setVisibility(View.GONE);
+        } else if (mPossess.size() == 1 && mList.size() > 0) {
+            tvAddedCan.setVisibility(View.GONE);
+            tvAddedAlready.setVisibility(View.VISIBLE);
+        }
+
+        String data = mPossess.get(position);
+
+        rightAdapter.removeData(position);
+        leftAdapter.addData(data);
+        mPossess.remove(position);
+        mList.add(data);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.img_title_back:
+                finish();
+                break;
+            case R.id.btn_device_save:
+                Log.i(AppConstant.TAG, "onClickSave mNewPossess: " + mNewPossess);
+
+                getDataWithAddDeviceToGroup();
+                break;
+            default:
+                break;
+        }
     }
 
     private void initRvAddedCan() {
@@ -117,6 +172,7 @@ public class CoDeviceActivity extends BaseActivity implements
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
+                        Log.e(AppConstant.TAG, "go_edit_device_to_group request succeeded！！！" + body);
 
                         mGson = new Gson();
                         EditDeviceToGroupBean bean = mGson.fromJson(body, EditDeviceToGroupBean.class);
@@ -127,6 +183,7 @@ public class CoDeviceActivity extends BaseActivity implements
                         initRvAddedReady();
                     }
                 });
+
     }
 
     private void getDataWithAddDeviceToGroup() {
@@ -134,71 +191,16 @@ public class CoDeviceActivity extends BaseActivity implements
                 .tag(this)
                 .params("member_id", mMemberId)
                 .params("group_id", mGroupId)
-                .params("device_id", "")
+                .params("device_id", mNewPossess)
                 .params("token", mToken)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-
-                        mGson = new Gson();
-                        mGson.fromJson(body, AddDeviceToGroupBean.class);
+                        Log.e(AppConstant.TAG, "add_device_to_group request succeeded！！！" + body);
+                        finish();
                     }
                 });
-    }
-
-    @Override
-    public void onClickLeft(View view, int position) {
-        if (mList.size() > 0 && mPossess.size() == 0) {
-            tvAddedCan.setVisibility(View.GONE);
-            tvAddedAlready.setVisibility(View.GONE);
-        } else if (mList.size() == 1 && mPossess.size() > 0) {
-            tvAddedCan.setVisibility(View.VISIBLE);
-            tvAddedAlready.setVisibility(View.GONE);
-        }
-
-        String data = mList.get(position);
-
-        leftAdapter.removeData(position);
-        rightAdapter.addData(data);
-        mPossess.add(data);
-        mList.remove(position);
-
-        mNewPossess = mGson.toJson(mPossess);
-        Log.e(AppConstant.TAG, "onClickLeft mNewPossess: " + mNewPossess);
-    }
-
-    @Override
-    public void onClickRight(View view, int position) {
-        if (mPossess.size() > 0 && mList.size() == 0) {
-            tvAddedCan.setVisibility(View.GONE);
-            tvAddedAlready.setVisibility(View.GONE);
-        } else if (mPossess.size() == 1 && mList.size() > 0) {
-            tvAddedCan.setVisibility(View.GONE);
-            tvAddedAlready.setVisibility(View.VISIBLE);
-        }
-
-        String data = mPossess.get(position);
-
-        rightAdapter.removeData(position);
-        leftAdapter.addData(data);
-        mPossess.remove(position);
-        mList.add(data);
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.img_title_back:
-                finish();
-                break;
-            case R.id.btn_device_save:
-                // TODO: 18/5/20 未完成
-//                getDataWithAddDeviceToGroup();
-                break;
-            default:
-                break;
-        }
     }
 
 }

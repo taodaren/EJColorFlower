@@ -24,8 +24,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
+import cn.eejing.ejcolorflower.app.MainActivity;
 import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
+import cn.eejing.ejcolorflower.ui.activity.DeviceDetailsActivity;
 import cn.eejing.ejcolorflower.ui.activity.QRCodeActivity;
 import cn.eejing.ejcolorflower.ui.fragment.TabDeviceFragment;
 
@@ -145,6 +147,13 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                             })
                             .show();
                     return true;
+                }
+            });
+
+            imgDeviceId.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ((MainActivity) mContext).jumpToActivity(DeviceDetailsActivity.class);
                 }
             });
         }

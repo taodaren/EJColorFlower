@@ -45,7 +45,6 @@
     <string name="jet">喷射</string>
     <string name="jet_stop">停止喷射</string>
     <string name="rest_time">剩余时间</string>
-    <string name="add_material">加料</string>
     <string name="gualiao_time">刮料时间</string>
     <string name="register_success">注册成功</string>
     <string name="operation_success">操作成功</string>
@@ -103,4 +102,6 @@
     <string name="text_temp">温度</string>
     <string name="text_dmx">DMX地址</string>
     <string name="text_time">剩余时间</string>
+    <string name="add_material">加料</string>
+    <string name="remove_device">移除设备</string>
 </resources>
