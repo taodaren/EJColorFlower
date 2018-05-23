@@ -18,6 +18,7 @@ import cn.bingoogolapple.qrcode.zxing.ZXingView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.LoginSession;
+import cn.eejing.ejcolorflower.app.MainActivity;
 import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.model.request.AddDeviceBean;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
@@ -112,12 +113,14 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
     private void scanResults(String result) {
         // 处理扫描结果
         Log.i(AppConstant.TAG, "扫描结果:" + result);
+        String deviceId = result.substring(result.length() - 6);
+
         vibrate();
         // 延迟1.5秒后开始识别
         mQRCodeView.startSpot();
         OkGo.<String>post(Urls.ADD_DEVICE)
                 .params("member_id", mMemberId)
-                .params("device_id", result)
+                .params("device_id", deviceId)
                 .params("token", mToken)
                 .execute(new StringCallback() {
                     @Override
@@ -134,6 +137,7 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
                                 break;
                             case 1:
                                 Toast.makeText(QRCodeActivity.this, "设备添加成功", Toast.LENGTH_SHORT).show();
+                                jumpToActivity(MainActivity.class);
                                 finish();
                                 break;
                             case 2:

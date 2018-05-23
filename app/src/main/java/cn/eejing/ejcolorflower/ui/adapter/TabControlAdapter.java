@@ -17,7 +17,6 @@ import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.allen.library.SuperButton;
 import com.google.gson.Gson;
@@ -32,10 +31,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.app.LoginSession;
 import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
-import cn.eejing.ejcolorflower.model.request.RmGroup;
 import cn.eejing.ejcolorflower.ui.activity.CoDeviceActivity;
 import cn.eejing.ejcolorflower.util.Settings;
 
@@ -60,7 +57,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         this.mList = mList;
         this.mGson = new Gson();
         this.mMemberId = mMemberId;
-//        this.mToken = Settings.getLoginSessionInfo(mContext).getToken();
+        this.mToken = Settings.getLoginSessionInfo(mContext).getToken();
     }
 
     @NonNull
@@ -206,6 +203,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 public void getProgressOnActionUp(BubbleSeekBar bubbleSeekBar, int progress, float progressFloat) {
                     super.getProgressOnActionUp(bubbleSeekBar, progress, progressFloat);
                     Log.e(AppConstant.TAG, "getProgressOnActionUp: " + progressFloat);
+                    getDataWithEditHigh(progressFloat, group_id);
                 }
             });
 
@@ -244,6 +242,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
 
     class FootViewHolder extends RecyclerView.ViewHolder {
+
         @BindView(R.id.img_add_group)
         ImageView imgAddGroup;
 
@@ -283,9 +282,11 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     })
                     .show();
         }
+
     }
 
     public class GroupListAdapter extends RecyclerView.Adapter<GroupListAdapter.DeviceHolder> {
+
         List<String> devices;
 
         public GroupListAdapter(List<String> devices) {
@@ -309,6 +310,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         public class DeviceHolder extends RecyclerView.ViewHolder {
+
             @BindView(R.id.sb_device_add_list)
             SuperButton sbDevice;
 
@@ -323,10 +325,10 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     sbDevice.setText(devices.get(getAdapterPosition()));
                 }
             }
+
+
         }
-
     }
-
 
     private void getDataWithDelGroup(int position) {
         int groupId = mList.get(position).getGroup_id();
@@ -334,7 +336,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 .tag(this)
                 .params("member_id", mMemberId)
                 .params("group_id", groupId)
-//                .params("token", mToken)
+                .params("token", mToken)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -347,7 +349,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         OkGo.<String>post(Urls.GET_DEVICE_GROUP_LIST)
                 .tag(this)
                 .params("member_id", mMemberId)
-//                .params("token", mToken)
+                .params("token", mToken)
                 .execute(new StringCallback() {
                              @Override
                              public void onSuccess(Response<String> response) {
@@ -369,7 +371,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 .tag(this)
                 .params("member_id", mMemberId)
                 .params("group_name", groupName)
-//                .params("token", mToken)
+                .params("token", mToken)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -393,5 +395,22 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 });
 
     }
+
+    private void getDataWithEditHigh(float high, int group_id) {
+        OkGo.<String>post(Urls.EDIT_HIGH)
+                .tag(this)
+                .params("member_id", mMemberId)
+                .params("high", high)
+                .params("group_id", group_id)
+                .params("token", mToken)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        String body = response.body();
+                        Log.e(AppConstant.TAG, "edit high request succeeded！！！" + body);
+                    }
+                });
+    }
+
 
 }
