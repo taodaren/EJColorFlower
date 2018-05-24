@@ -3,12 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="cn.eejing.ejcolorflower">
 
-    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.CAMERA" />
 
-    <uses-feature android:name="android.hardware.camera" /> <!-- 使用照相机权限 -->
-    <uses-feature android:name="android.hardware.camera.autofocus" /><!-- 自动聚焦权限 -->
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <application
         android:name=".app.GApp"
@@ -40,6 +44,7 @@
         <activity android:name=".ui.activity.MiUserInfoActivity" />
         <activity android:name=".ui.activity.MiModifyPwdActivity" />
         <activity android:name=".ui.activity.MiOrderActivity" />
+        <activity android:name=".app.BLEManagerActivity" />
     </application>
 
 </manifest>

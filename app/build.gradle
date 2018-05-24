@@ -4,7 +4,7 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "cn.eejing.ejcolorflower"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
@@ -54,6 +54,10 @@ dependencies {
     // FlycoTabLayout
     implementation 'com.android.support:support-v4:27.1.1'
     implementation 'com.flyco.tablayout:FlycoTabLayout_Lib:2.1.2@aar'
+    // AndPermission 权限框架
+    implementation 'com.yanzhenjie:permission:2.0.0-rc2'
+    // 蓝牙
+    implementation 'com.clj.fastble:FastBleLib:2.3.2'
 
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     testImplementation 'junit:junit:4.12'
