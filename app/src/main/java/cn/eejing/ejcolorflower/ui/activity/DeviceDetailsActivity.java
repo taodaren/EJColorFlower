@@ -29,6 +29,11 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
 
     private List<Fragment> mFragments;
     private DePagerAdapter mAdapter;
+    private ViewPager mVPager;
+    private int mPageType;
+
+    public DeviceDetailsActivity() {
+    }
 
 
     @Override
@@ -49,6 +54,7 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
 
         mDecorView = getWindow().getDecorView();
         mTabLayout = ViewFindUtils.find(mDecorView, R.id.tl_device_del);
+        mPageType = getIntent().getIntExtra("page", 0);
 
         initTLVP();
 
@@ -69,9 +75,10 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
     }
 
     private void initTLVP() {
-        final ViewPager vp = ViewFindUtils.find(mDecorView, R.id.vp_device);
+        mVPager = ViewFindUtils.find(mDecorView, R.id.vp_device);
         mAdapter = new DePagerAdapter(getSupportFragmentManager(), mFragments, mTitles);
-        vp.setAdapter(mAdapter);
+        mVPager.setAdapter(mAdapter);
+
 
         // 设置 TabLayout 数据
         mTabLayout.setTabData(mTitles);
@@ -79,7 +86,7 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
         mTabLayout.setOnTabSelectListener(new OnTabSelectListener() {
             @Override
             public void onTabSelect(int position) {
-                vp.setCurrentItem(position);
+                mVPager.setCurrentItem(position);
             }
 
             @Override
@@ -88,7 +95,7 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
         });
 
         // 添加页面更改侦听器
-        vp.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        mVPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             // 在滚动页
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -110,7 +117,7 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
         });
 
         // 设置默认选中页面
-        vp.setCurrentItem(0);
+        mVPager.setCurrentItem(mPageType);
     }
 
 }

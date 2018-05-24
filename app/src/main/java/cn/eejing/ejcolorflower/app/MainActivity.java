@@ -11,13 +11,14 @@ import com.jaeger.library.StatusBarUtil;
 import java.util.ArrayList;
 
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.ui.base.BaseActivity;
 import cn.eejing.ejcolorflower.ui.fragment.TabControlFragment;
 import cn.eejing.ejcolorflower.ui.fragment.TabDeviceFragment;
 import cn.eejing.ejcolorflower.ui.fragment.TabMallFragment;
 import cn.eejing.ejcolorflower.ui.fragment.TabMineFragment;
 
-public class MainActivity extends BaseActivity implements BottomNavigationBar.OnTabSelectedListener {
+import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_SERVICE;
+
+public class MainActivity extends BLEManagerActivity implements BottomNavigationBar.OnTabSelectedListener {
     private ArrayList<Fragment> mFragments;
 
     @Override
@@ -30,6 +31,9 @@ public class MainActivity extends BaseActivity implements BottomNavigationBar.On
         initBtnNavBar();
         mFragments = getFragments();
         setDefFragment();
+
+        addScanFilter(UUID_GATT_SERVICE);
+
     }
 
     /**

@@ -156,6 +156,35 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     ((MainActivity) mContext).jumpToActivity(DeviceDetailsActivity.class);
                 }
             });
+
+
+            sbTemp.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
+                    intent.putExtra("page", 0);
+                    mContext.startActivity(intent);
+                }
+            });
+
+            sbDmx.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
+                    intent.putExtra("page", 1);
+                    mContext.startActivity(intent);
+                }
+            });
+
+            sbTime.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
+                    intent.putExtra("page", 2);
+                    mContext.startActivity(intent);
+                }
+            });
+
         }
 
     }
