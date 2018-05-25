@@ -15,9 +15,9 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
 import butterknife.BindView;
-import cn.eejing.ejcolorflower.app.LoginSession;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
+import cn.eejing.ejcolorflower.app.LoginSession;
 import cn.eejing.ejcolorflower.app.MainActivity;
 import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.model.request.LoginBean;
@@ -138,20 +138,28 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                         Gson gson = new Gson();
                         LoginBean bean = gson.fromJson(body, LoginBean.class);
 
-                        if (bean.getCode() == 4) {
-                            // 如果帐号或密码输入错误（返回码为4）重新输入
-                            onInputError();
-                            dialog.dismiss();
-                        } else {
-                            Settings.storeSessionInfo(LoginActivity.this, new LoginSession(
-                                    etLoginPhone.getText().toString(),
-                                    etLoginPwd.getText().toString(),
-                                    bean.getData().getMember_id(),
-                                    bean.getData().getToken()
-                            ));
-                            jumpToActivity(MainActivity.class);
-                            onLoginSuccess();
-                            dialog.dismiss();
+                        switch (bean.getCode()) {
+                            case 0:
+                                onLoginFailed();
+                                dialog.dismiss();
+                                break;
+                            case 1:
+                                Settings.storeSessionInfo(LoginActivity.this, new LoginSession(
+                                        etLoginPhone.getText().toString(),
+                                        etLoginPwd.getText().toString(),
+                                        bean.getData().getMember_id(),
+                                        bean.getData().getToken()
+                                ));
+                                jumpToActivity(MainActivity.class);
+                                onLoginSuccess();
+                                dialog.dismiss();
+                                break;
+                            case 4:
+                                // 如果帐号或密码输入错误（返回码为4）重新输入
+                                onInputError();
+                                dialog.dismiss();
+                                break;
+                            default:
                         }
                     }
 
