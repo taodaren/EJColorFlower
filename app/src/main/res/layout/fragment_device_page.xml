@@ -1,0 +1,40 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/tv_dmx_address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:background="@drawable/shape_dmx"
+        android:paddingBottom="6dp"
+        android:paddingEnd="70dp"
+        android:paddingStart="70dp"
+        android:paddingTop="6dp"
+        android:shadowColor="@color/colorPrimary"
+        android:shadowDx="5"
+        android:shadowDy="5"
+        android:shadowRadius="8"
+        android:textColor="@color/colorPrimary"
+        android:textSize="32sp"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/img_temp_threshold"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_centerInParent="true"
+        android:src="@drawable/lv_temp_one"
+        android:visibility="gone"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/tv_time_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:textSize="28sp"
+        android:visibility="gone" />
+</RelativeLayout>

@@ -35,7 +35,7 @@ public class TabControlFragment extends BaseFragment {
     private Gson mGson;
     private List<DeviceGroupListBean.DataBean> mList;
     private TabControlAdapter mAdapter;
-    private String mMemberId;
+    private String mMemberId, mToken;
 
     public static TabControlFragment newInstance() {
         return new TabControlFragment();
@@ -59,6 +59,7 @@ public class TabControlFragment extends BaseFragment {
         mGson = new Gson();
         mList = new ArrayList<>();
         mMemberId = String.valueOf(Settings.getLoginSessionInfo(getActivity()).getMember_id());
+        mToken = Settings.getLoginSessionInfo(getActivity()).getToken();
 
         initRecyclerView();
     }
@@ -72,6 +73,7 @@ public class TabControlFragment extends BaseFragment {
         OkGo.<String>post(Urls.GET_DEVICE_GROUP_LIST)
                 .tag(this)
                 .params("member_id", mMemberId)
+                .params("token", mToken)
                 .execute(new StringCallback() {
                              @Override
                              public void onSuccess(Response<String> response) {

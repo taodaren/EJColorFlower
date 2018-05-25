@@ -31,6 +31,7 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
     private DePagerAdapter mAdapter;
     private ViewPager mVPager;
     private int mPageType;
+    private int mTempThreshold, mDmxAddress, mTimeLeft;
 
     public DeviceDetailsActivity() {
     }
@@ -42,12 +43,16 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
 
     @Override
     public void initView() {
-        mFragments = new ArrayList<>();
         setToolbar(getIntent().getStringExtra("device_id"), View.VISIBLE);
+        // TODO: 18/5/26 假数据
+        mTempThreshold = 500;
+        mDmxAddress = 18;
+        mTimeLeft = 300;
 
-        for (String title : mTitles) {
-            mFragments.add(DevicePageFragment.getInstance(title));
-        }
+        mFragments = new ArrayList<>();
+        mFragments.add(DevicePageFragment.newInstance(mTempThreshold));
+        mFragments.add(DevicePageFragment.newInstance(mDmxAddress));
+        mFragments.add(DevicePageFragment.newInstance(mTimeLeft));
 
         mDecorView = getWindow().getDecorView();
         mTabLayout = ViewFindUtils.find(mDecorView, R.id.tl_device_del);
