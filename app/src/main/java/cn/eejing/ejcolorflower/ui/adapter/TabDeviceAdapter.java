@@ -13,7 +13,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.allen.library.SuperButton;
-import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
@@ -29,7 +28,6 @@ import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
 import cn.eejing.ejcolorflower.ui.activity.DeviceDetailsActivity;
 import cn.eejing.ejcolorflower.ui.activity.QRCodeActivity;
-import cn.eejing.ejcolorflower.ui.fragment.TabDeviceFragment;
 
 /**
  * @创建者 Taodaren
@@ -43,14 +41,12 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private Context mContext;
     private List<DeviceListBean.DataBean.ListBean> mList;
     private LayoutInflater mLayoutInflater;
-    private Gson mGson;
     private String mMemberId, mToken;
 
     public TabDeviceAdapter(Context context, List<DeviceListBean.DataBean.ListBean> list, String memberId, String token) {
         this.mContext = context;
         this.mList = list;
         this.mLayoutInflater = LayoutInflater.from(mContext);
-        this.mGson = new Gson();
         this.mMemberId = memberId;
         this.mToken = token;
     }
@@ -131,10 +127,10 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         public void setData(DeviceListBean.DataBean.ListBean bean, int position) {
             tvDeviceId.setText(bean.getId());
-            setClickListener(position);
+            setClickListener(position, bean.getId());
         }
 
-        private void setClickListener(final int position) {
+        private void setClickListener(final int position, final String deviceId) {
             outView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
@@ -153,7 +149,9 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             imgDeviceId.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ((MainActivity) mContext).jumpToActivity(DeviceDetailsActivity.class);
+                    Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
+                    intent.putExtra("device_id", deviceId);
+                    mContext.startActivity(intent);
                 }
             });
 
@@ -162,6 +160,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
+                    intent.putExtra("device_id", deviceId);
                     intent.putExtra("page", 0);
                     mContext.startActivity(intent);
                 }
@@ -171,6 +170,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
+                    intent.putExtra("device_id", deviceId);
                     intent.putExtra("page", 1);
                     mContext.startActivity(intent);
                 }
@@ -180,6 +180,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
+                    intent.putExtra("device_id", deviceId);
                     intent.putExtra("page", 2);
                     mContext.startActivity(intent);
                 }
