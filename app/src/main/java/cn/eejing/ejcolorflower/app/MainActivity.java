@@ -33,7 +33,6 @@ public class MainActivity extends BLEManagerActivity implements BottomNavigation
         setDefFragment();
 
         addScanFilter(UUID_GATT_SERVICE);
-
     }
 
     /**

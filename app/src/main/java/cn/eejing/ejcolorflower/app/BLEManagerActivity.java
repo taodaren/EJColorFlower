@@ -385,6 +385,16 @@ public class BLEManagerActivity extends BaseActivity {
         addDevice(device);
     }
 
+    void addDevice(String mac) {
+        mac = mac.toUpperCase();
+        Log.i(TAG, "addDevice by " + mac);
+        if (BluetoothAdapter.checkBluetoothAddress(mac)) {
+            addDevice(mBluetoothAdapter.getRemoteDevice(mac));
+        } else {
+            throw new IllegalArgumentException("无效的蓝牙地址 : " + mac);
+        }
+    }
+
     private void addDevice(BluetoothDevice device) {
         final DeviceManager mgr;
         String mac = device.getAddress();
@@ -397,16 +407,6 @@ public class BLEManagerActivity extends BaseActivity {
 
         if (mgr.gatt == null && !mShutdown) {
             mgr.gatt = mgr.device.connectGatt(this, true, mBluetoothGattCallback);
-        }
-    }
-
-    void addDevice(String mac) {
-        mac = mac.toUpperCase();
-        Log.i(TAG, "addDevice by " + mac);
-        if (BluetoothAdapter.checkBluetoothAddress(mac)) {
-            addDevice(mBluetoothAdapter.getRemoteDevice(mac));
-        } else {
-            throw new IllegalArgumentException("无效的蓝牙地址 : " + mac);
         }
     }
 

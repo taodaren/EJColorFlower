@@ -9,14 +9,14 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.ui.base.BaseFragment;
 
 @SuppressLint("ValidFragment")
-public class SimpleCardFragment extends BaseFragment {
+public class DevicePageFragment extends BaseFragment {
     private String mTitle;
 
-    @BindView(R.id.card_title_tv)
+    @BindView(R.id.tv_device_info)
     TextView cardTitleTv;
 
-    public static SimpleCardFragment getInstance(String title) {
-        SimpleCardFragment sf = new SimpleCardFragment();
+    public static DevicePageFragment getInstance(String title) {
+        DevicePageFragment sf = new DevicePageFragment();
         sf.mTitle = title;
         return sf;
     }

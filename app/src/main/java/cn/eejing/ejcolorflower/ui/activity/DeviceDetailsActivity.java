@@ -15,7 +15,7 @@ import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.ui.adapter.DePagerAdapter;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
-import cn.eejing.ejcolorflower.ui.fragment.SimpleCardFragment;
+import cn.eejing.ejcolorflower.ui.fragment.DevicePageFragment;
 import cn.eejing.ejcolorflower.util.ViewFindUtils;
 
 public class DeviceDetailsActivity extends BaseActivity implements View.OnClickListener {
@@ -35,7 +35,6 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
     public DeviceDetailsActivity() {
     }
 
-
     @Override
     protected int layoutViewId() {
         return R.layout.activity_device_details;
@@ -44,12 +43,10 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
     @Override
     public void initView() {
         mFragments = new ArrayList<>();
-        // TODO: 2018/5/23 暂时写死
-        setToolbar("888888", View.VISIBLE);
-//        setToolbar(getIntent().getStringExtra("device_id"), View.VISIBLE);
+        setToolbar(getIntent().getStringExtra("device_id"), View.VISIBLE);
 
         for (String title : mTitles) {
-            mFragments.add(SimpleCardFragment.getInstance(title));
+            mFragments.add(DevicePageFragment.getInstance(title));
         }
 
         mDecorView = getWindow().getDecorView();
@@ -57,7 +54,6 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
         mPageType = getIntent().getIntExtra("page", 0);
 
         initTLVP();
-
     }
 
     @Override
@@ -78,7 +74,6 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
         mVPager = ViewFindUtils.find(mDecorView, R.id.vp_device);
         mAdapter = new DePagerAdapter(getSupportFragmentManager(), mFragments, mTitles);
         mVPager.setAdapter(mAdapter);
-
 
         // 设置 TabLayout 数据
         mTabLayout.setTabData(mTitles);
