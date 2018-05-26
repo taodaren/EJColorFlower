@@ -1,5 +1,6 @@
 package cn.eejing.ejcolorflower.ui.fragment;
 
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.View;
@@ -40,8 +41,16 @@ public class TabDeviceFragment extends BaseFragment {
     private TabDeviceAdapter mAdapter;
     private String mMemberId, mToken;
 
+    private OnFragmentInteractionListener mListener;
+
     public static TabDeviceFragment newInstance() {
         return new TabDeviceFragment();
+    }
+
+    public interface OnFragmentInteractionListener {
+        void scanDevice();
+
+        void setRegisterDevice(List<DeviceListBean.DataBean.ListBean> list);
     }
 
     public TabDeviceFragment() {
@@ -74,6 +83,26 @@ public class TabDeviceFragment extends BaseFragment {
         getDataWithDeviceList();
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString() + "必须实现 OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    @Override
+    public void initListener() {
+    }
+
     private void initRecyclerView() {
         // 设置布局
         rvTabDevice.setLinearLayout();
@@ -86,6 +115,7 @@ public class TabDeviceFragment extends BaseFragment {
         rvTabDevice.setOnPullLoadMoreListener(new PullLoadMoreRecyclerView.PullLoadMoreListener() {
             @Override
             public void onRefresh() {
+                mListener.scanDevice();
                 getDataWithDeviceList();
             }
 
@@ -96,10 +126,6 @@ public class TabDeviceFragment extends BaseFragment {
         });
         // 刷新结束
         rvTabDevice.setPullLoadMoreCompleted();
-    }
-
-    @Override
-    public void initListener() {
     }
 
     private void getDataWithDeviceList() {
@@ -128,6 +154,8 @@ public class TabDeviceFragment extends BaseFragment {
                             case 1:
                                 mList = bean.getData().getList();
                                 Log.e(AppConstant.TAG, "onSuccess: get device group list--->" + mList.size());
+                                // 注册设备
+                                mListener.setRegisterDevice(mList);
                                 // 刷新数据
                                 mAdapter.refreshList(mList);
                                 // 刷新结束
