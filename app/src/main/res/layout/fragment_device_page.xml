@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -23,18 +24,47 @@
 
     <ImageView
         android:id="@+id/img_temp_threshold"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="230dp"
+        android:layout_height="230dp"
         android:layout_centerInParent="true"
         android:src="@drawable/lv_temp_one"
         android:visibility="gone"
         tools:ignore="ContentDescription" />
 
-    <TextView
-        android:id="@+id/tv_time_left"
+    <RelativeLayout
+        android:id="@+id/layout_device_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:textSize="28sp"
-        android:visibility="gone" />
+        android:visibility="gone">
+
+        <com.sdsmdg.harjot.crollerTest.Croller
+            android:id="@+id/croller"
+            android:layout_width="230dp"
+            android:layout_height="230dp"
+            android:layout_centerInParent="true"
+            app:back_circle_color="@color/colorGray"
+            app:indicator_color="@color/colorPrimary"
+            app:indicator_width="10"
+            app:is_continuous="false"
+            app:label="5.4 %"
+            app:label_color="@color/colorBlack"
+            app:label_size="68"
+            app:main_circle_color="@color/colorBgGray"
+            app:max="50"
+            app:progress_primary_circle_size="10"
+            app:progress_primary_color="@color/colorPrimary"
+            app:progress_secondary_color="@color/colorGray"
+            app:start_offset="45" />
+
+        <Chronometer
+            android:id="@+id/ch_time_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="300"
+            android:textColor="@color/colorBlack"
+            android:textSize="20sp" />
+    </RelativeLayout>
+
 </RelativeLayout>

@@ -55,7 +55,7 @@ import cn.eejing.ejcolorflower.util.Util;
  */
 
 public class BLEManagerActivity extends BaseActivity {
-    private static final String TAG = "BLEManagerActivity";
+    private static final String TAG = "BLE";
     private static final int MAX_BLUETOOTH_SEND_PKG_LEN = 18;
     private static final int REQUEST_ENABLE_BT = 38192;
     private static final int REFRESHING_PERIOD = 60 * 1000;
@@ -518,10 +518,10 @@ public class BLEManagerActivity extends BaseActivity {
             final DeviceManager mgr = getMatchedDeviceManager(gatt);
             if (mgr != null) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    Log.i(TAG, "连接的 " + mgr.mac);
+                    Log.i(TAG, "状态连接 " + mgr.mac);
                     mgr.connected = true;
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                    Log.i(TAG, "断开的 " + mgr.mac);
+                    Log.i(TAG, "状态已断开 " + mgr.mac);
                     mgr.connected = false;
                     mgr.discovering = false;
                     runOnUiThread(new Runnable() {
@@ -541,7 +541,7 @@ public class BLEManagerActivity extends BaseActivity {
             if (mgr != null) {
                 mgr.discovering = false;
                 if (status == BluetoothGatt.GATT_SUCCESS) {
-                    Log.i(TAG, "服务发现成功 " + mgr.mac);
+                    Log.i(TAG, "服务发现成功--->" + mgr.mac);
                     mgr.characteristic = new LinkedList<>();
                     for (BluetoothGattService service : gatt.getServices()) {
                         mgr.characteristic.addAll(service.getCharacteristics());

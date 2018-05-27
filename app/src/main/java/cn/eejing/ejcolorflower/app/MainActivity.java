@@ -14,11 +14,12 @@ import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
 import com.jaeger.library.StatusBarUtil;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.device.Device;
@@ -34,21 +35,19 @@ import cn.eejing.ejcolorflower.ui.fragment.TabMallFragment;
 import cn.eejing.ejcolorflower.ui.fragment.TabMineFragment;
 import cn.eejing.ejcolorflower.util.Util;
 
+import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_CHARACTERISTIC_WRITE;
+import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_SERVICE;
+
 public class MainActivity extends BLEManagerActivity implements ISendCommand,
         BottomNavigationBar.OnTabSelectedListener,
         TabDeviceFragment.OnFragmentInteractionListener {
     private static final String TAG = "MainActivity";
 
-    private final static ParcelUuid UUID_GATT_SERVICE
-            = ParcelUuid.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
-    private final static UUID UUID_GATT_CHARACTERISTIC_WRITE
-            = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
-
     private ArrayList<Fragment> mFragments;
-    private Map<String, ProtocolWithDevice> mProtocolList = new ArrayMap<>();
-    private List<Device> mDeviceList = new LinkedList<>();
-    private List<String> mFoundDeviceAddressList = new LinkedList<>();
-
+    private List<Device> mDeviceList;
+    private List<String> mFoundDeviceAddressList;
+    private Map<String, ProtocolWithDevice> mProtocolList;
+    private LinkedList<PackageNeedAck> mPackageNeedAckList;
 
     @Override
     protected int layoutViewId() {
@@ -60,6 +59,11 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
         initBtnNavBar();
         mFragments = getFragments();
         setDefFragment();
+
+        mDeviceList = new LinkedList<>();
+        mFoundDeviceAddressList = new LinkedList<>();
+        mProtocolList = new ArrayMap<>();
+        mPackageNeedAckList = new LinkedList<>();
 
         addScanFilter(UUID_GATT_SERVICE);
     }
@@ -165,6 +169,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
         StatusBarUtil.setColorNoTranslucent(this, getResources().getColor(R.color.colorPrimary));
     }
 
+
     @Override
     public void scanDevice() {
         refresh();
@@ -175,43 +180,70 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
 
     }
 
-    @Override
-    public void setRegisterDevice(List<DeviceListBean.DataBean.ListBean> list) {
+    private static boolean contain(List<DeviceListBean.DataBean.ListBean> list, String mac) {
+        for (DeviceListBean.DataBean.ListBean d : list) {
+            if (d.getMac().equals(mac)) {
+                return true;
+            }
+        }
+        return false;
     }
 
+    @Override
+    public void setRegisterDevice(List<DeviceListBean.DataBean.ListBean> list) {
+        List<String> rmMac = new LinkedList<>();
+        List<Device> rmDevice = new LinkedList<>();
+        for (String mac : mProtocolList.keySet()) {
+            if (!contain(list, mac)) {
+                rmMac.add(mac);
+                rmDevice.add(getDevice(mac));
+            }
+        }
+        for (String mac : rmMac) {
+            mProtocolList.remove(mac);
+        }
+        for (Device d : rmDevice) {
+            mDeviceList.remove(d);
+        }
+
+        for (DeviceListBean.DataBean.ListBean d : list) {
+//            add_device(d.getMac(), d.getId());
+            add_device(d.getMac(), Long.parseLong(d.getId()));
+        }
+    }
+
+
+    private void add_device(final String mac, long id) {
+        Log.e(TAG, "add_device: MAC--->" + mac);
+
+        if (!mProtocolList.containsKey(mac)) {
+            final Device d = new Device(mac);
+            d.setId(id);
+            mDeviceList.add(d);
+
+//            mTabDeviceAdapter.notifyDataSetChanged();
+            addDevice(mac);
+            mProtocolList.put(mac, new ProtocolWithDevice(d));
+        }
+    }
 
     @Override
     void onFoundDevice(BluetoothDevice device, @Nullable List<ParcelUuid> serviceUuids) {
 
         String name = device.getName();
-        // TODO: 2018/5/26  服务器获取的 MAC
-        String mac = "E9:E0:87:E1:3A:5B";
+        String mac = device.getAddress();
+
+        Log.i(TAG, "onFoundDevice: mac = " + mac + "  name = " + name);
 
         if (name.indexOf("EEJING-CHJ") != 0) {
             return;
         }
 
-//        if (mFoundDeviceAddressListAdapter != null) {
         if (!mFoundDeviceAddressList.contains(mac)) {
             mFoundDeviceAddressList.add(mac);
 //                mFoundDeviceAddressListAdapter.notifyDataSetChanged();
         }
 
-        Log.e(TAG, "onFoundDevice: mac = " + mac + "  name = " + name);
-        add_deivice(mac, 0);
-
-//        }
-    }
-
-    private void add_deivice(final String mac, long id) {
-        if (!mProtocolList.containsKey(mac)) {
-            final Device d = new Device(mac);
-            d.setId(id);
-            mDeviceList.add(d);
-//            mDeviceListAdapter.notifyDataSetChanged();
-            addDevice(mac);
-            mProtocolList.put(mac, new ProtocolWithDevice(d));
-        }
     }
 
     @Override
@@ -238,13 +270,14 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
 
         @Override
         protected void onReceivePackage(@NonNull DeviceState state) {
-            Log.e(TAG, "onReceivePackage: state = " + state.mTemperature);
-            Log.e(TAG, "onReceivePackage: state = " + state.mRestTime);
+            Log.i(TAG, "onReceivePackage: Temperature--->" + state.mTemperature);
+            Log.i(TAG, "onReceivePackage: RestTime--->" + state.mRestTime);
             device.setState(state);
+            EventBus.getDefault().post(device);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-//                    mDeviceListAdapter.notifyDataSetChanged();
+//                    mTabDeviceAdapter.notifyDataSetChanged();
                 }
             });
         }
@@ -252,17 +285,14 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
         @Override
         protected void onReceivePackage(@NonNull DeviceConfig config) {
             // TODO: 2018/5/26 mDMXAddress
-            Log.e(TAG, "onReceivePackage: config = " + config.mDMXAddress);
-//            Log.e(TAG, "onReceivePackage: config = " + config.mGualiaoTime);
-//            Log.e(TAG, "onReceivePackage: config = " + config.mTemperatureThresholdHigh);
-//            Log.e(TAG, "onReceivePackage: config = " + config.mTemperatureThresholdLow);
-
+            Log.i(TAG, "onReceivePackage: DMXAddress --->" + config.mDMXAddress);
 
             device.setConfig(config);
+            EventBus.getDefault().post(device);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-//                    mDeviceListAdapter.notifyDataSetChanged();
+//                    mTabDeviceAdapter.notifyDataSetChanged();
                 }
             });
         }
@@ -278,8 +308,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
         }
     }
 
-
-    private final LinkedList<PackageNeedAck> mPackageNeedAckList = new LinkedList<>();
 
     private void doMatch(String mac, byte[] ack_pkg) {
         Log.i(TAG, "doMatch " + Util.hex(ack_pkg, ack_pkg.length) + " from " + mPackageNeedAckList.size());
@@ -301,7 +329,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
         Device device = getDevice(mac);
         if (device != null) {
             device.setConnected(false);
-//            mDeviceListAdapter.notifyDataSetChanged();
+//            mTabDeviceAdapter.notifyDataSetChanged();
         }
     }
 
@@ -318,14 +346,13 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
 
     @Override
     void onDeviceReady(final String mac) {
-        Log.e(TAG, "onDeviceReady: mac = " + mac);
+        Log.i(TAG, "onDeviceReady: mac = " + mac);
         if (setSendDefaultChannel(mac, UUID_GATT_CHARACTERISTIC_WRITE)) {
             Device device = getDevice(mac);
             if (device != null) {
                 device.setConnected(true);
-//                mDeviceListAdapter.notifyDataSetChanged();
+//                mTabDeviceAdapter.notifyDataSetChanged();
             }
-
 
             registerPeriod(mac + "-status", new Runnable() {
                         @Override
@@ -391,4 +418,5 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
         super.poll();
         doTimeoutCheck();
     }
+
 }

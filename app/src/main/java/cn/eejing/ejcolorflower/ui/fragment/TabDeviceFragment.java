@@ -12,6 +12,10 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +24,7 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.LoginSession;
 import cn.eejing.ejcolorflower.app.Urls;
+import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
 import cn.eejing.ejcolorflower.ui.activity.LoginActivity;
 import cn.eejing.ejcolorflower.ui.adapter.TabDeviceAdapter;
@@ -68,6 +73,8 @@ public class TabDeviceFragment extends BaseFragment {
 
     @Override
     public void initView(View rootView) {
+        EventBus.getDefault().register(this);
+
         mGson = new Gson();
         mList = new ArrayList<>();
 
@@ -100,7 +107,9 @@ public class TabDeviceFragment extends BaseFragment {
     }
 
     @Override
-    public void initListener() {
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
     private void initRecyclerView() {
@@ -137,7 +146,7 @@ public class TabDeviceFragment extends BaseFragment {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.e(AppConstant.TAG, "device list request succeeded--->" + body);
+                        Log.i(AppConstant.TAG, "device list request succeeded--->" + body);
 
                         DeviceListBean bean = mGson.fromJson(body, DeviceListBean.class);
                         switch (bean.getCode()) {
@@ -153,7 +162,7 @@ public class TabDeviceFragment extends BaseFragment {
                                 return;
                             case 1:
                                 mList = bean.getData().getList();
-                                Log.e(AppConstant.TAG, "onSuccess: get device group list--->" + mList.size());
+                                Log.i(AppConstant.TAG, "onSuccess: get device group list--->" + mList.size());
                                 // 注册设备
                                 mListener.setRegisterDevice(mList);
                                 // 刷新数据
@@ -165,6 +174,13 @@ public class TabDeviceFragment extends BaseFragment {
                         }
                     }
                 });
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void getDeviceInfo(Device device) {
+        Log.e(AppConstant.TAG, "getDeviceInfo: " + device.getConfig().mDMXAddress);
+        Log.e(AppConstant.TAG, "getDeviceInfo: " + device.getState().mTemperature);
+//        mAdapter.refreshDevice(device);
     }
 
 }

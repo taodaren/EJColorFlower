@@ -23,8 +23,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.app.MainActivity;
 import cn.eejing.ejcolorflower.app.Urls;
+import cn.eejing.ejcolorflower.device.Device;
+import cn.eejing.ejcolorflower.device.DeviceConfig;
+import cn.eejing.ejcolorflower.device.DeviceState;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
 import cn.eejing.ejcolorflower.ui.activity.DeviceDetailsActivity;
 import cn.eejing.ejcolorflower.ui.activity.QRCodeActivity;
@@ -40,6 +42,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     private Context mContext;
     private List<DeviceListBean.DataBean.ListBean> mList;
+    private List<Device> mDeviceList;
     private LayoutInflater mLayoutInflater;
     private String mMemberId, mToken;
 
@@ -92,6 +95,14 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
 
+    public void refreshDevice(List<Device> list) {
+        if (list != null) {
+            mDeviceList.clear();
+            mDeviceList.addAll(list);
+            notifyDataSetChanged();
+        }
+    }
+
     public void refreshList(List<DeviceListBean.DataBean.ListBean> list) {
         if (list != null) {
             mList.clear();
@@ -126,6 +137,13 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
 
         public void setData(DeviceListBean.DataBean.ListBean bean, int position) {
+//            DeviceConfig config = device.getConfig();
+//            DeviceState state = device.getState();
+//            Log.e(AppConstant.TAG, "setData mDMXAddress: " + config.mDMXAddress);
+//            Log.e(AppConstant.TAG, "setData mDMXAddress: " + state.mTemperature);
+//            Log.e(AppConstant.TAG, "setData mDMXAddress: " + state.mRestTime);
+
+
             tvDeviceId.setText(bean.getId());
             setClickListener(position, bean.getId());
         }
