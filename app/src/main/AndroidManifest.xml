@@ -24,8 +24,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <!--<activity android:name=".ui.activity.LoginActivity">-->
-        <activity android:name=".ui.activity.DeviceDetailsActivity">
+        <activity android:name=".ui.activity.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -36,8 +35,7 @@
         <activity android:name=".ui.activity.QRCodeActivity" />
         <activity android:name=".ui.activity.RegisterActivity" />
         <activity android:name=".ui.activity.ForgetPwdActivity" />
-        <activity android:name=".ui.activity.LoginActivity" />
-        <!--<activity android:name=".ui.activity.DeviceDetailsActivity" />-->
+        <activity android:name=".ui.activity.DeviceDetailsActivity" />
         <activity android:name=".ui.activity.CoDeviceActivity" />
         <activity android:name=".ui.activity.MaGoodsDetailsActivity" />
         <activity android:name=".ui.activity.MiOpinionActivity" />

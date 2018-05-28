@@ -12,10 +12,6 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +20,8 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.LoginSession;
 import cn.eejing.ejcolorflower.app.Urls;
-import cn.eejing.ejcolorflower.device.Device;
+import cn.eejing.ejcolorflower.device.DeviceConfig;
+import cn.eejing.ejcolorflower.device.DeviceState;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
 import cn.eejing.ejcolorflower.ui.activity.LoginActivity;
 import cn.eejing.ejcolorflower.ui.adapter.TabDeviceAdapter;
@@ -45,6 +42,8 @@ public class TabDeviceFragment extends BaseFragment {
     private List<DeviceListBean.DataBean.ListBean> mList;
     private TabDeviceAdapter mAdapter;
     private String mMemberId, mToken;
+    private DeviceState mState;
+    private DeviceConfig mConfig;
 
     private OnFragmentInteractionListener mListener;
 
@@ -52,10 +51,32 @@ public class TabDeviceFragment extends BaseFragment {
         return new TabDeviceFragment();
     }
 
+    public interface OnRecvHandler {
+        void onState(DeviceState state);
+
+        void onConfig(DeviceConfig config);
+    }
+
+    private final OnRecvHandler mOnRecvHandler = new OnRecvHandler() {
+        @Override
+        public void onState(DeviceState state) {
+            mState = state;
+            mAdapter.setDeviceState(mState);
+        }
+
+        @Override
+        public void onConfig(DeviceConfig config) {
+            mConfig = config;
+            mAdapter.setDeviceConfig(mConfig);
+        }
+    };
+
     public interface OnFragmentInteractionListener {
         void scanDevice();
 
         void setRegisterDevice(List<DeviceListBean.DataBean.ListBean> list);
+
+        void setRecvHandler(OnRecvHandler handler);
     }
 
     public TabDeviceFragment() {
@@ -73,7 +94,6 @@ public class TabDeviceFragment extends BaseFragment {
 
     @Override
     public void initView(View rootView) {
-        EventBus.getDefault().register(this);
 
         mGson = new Gson();
         mList = new ArrayList<>();
@@ -94,7 +114,10 @@ public class TabDeviceFragment extends BaseFragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
+            mState = new DeviceState();
+            mConfig = new DeviceConfig();
             mListener = (OnFragmentInteractionListener) context;
+            mListener.setRecvHandler(mOnRecvHandler);
         } else {
             throw new RuntimeException(context.toString() + "必须实现 OnFragmentInteractionListener");
         }
@@ -109,10 +132,11 @@ public class TabDeviceFragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        EventBus.getDefault().unregister(this);
     }
 
     private void initRecyclerView() {
+        Log.i(AppConstant.TAG, "initRecyclerView State : " + mState.mRestTime);
+        Log.i(AppConstant.TAG, "initRecyclerView Config : " + mConfig.mDMXAddress);
         // 设置布局
         rvTabDevice.setLinearLayout();
         // 绑定适配器
@@ -174,13 +198,6 @@ public class TabDeviceFragment extends BaseFragment {
                         }
                     }
                 });
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void getDeviceInfo(Device device) {
-        Log.e(AppConstant.TAG, "getDeviceInfo: " + device.getConfig().mDMXAddress);
-        Log.e(AppConstant.TAG, "getDeviceInfo: " + device.getState().mTemperature);
-//        mAdapter.refreshDevice(device);
     }
 
 }

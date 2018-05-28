@@ -7,7 +7,7 @@ import android.os.Parcelable;
  * DeviceState information
  */
 
-public class DeviceState /*implements Parcelable*/ {
+public class DeviceState implements Parcelable {
     public int mTemperature = 20;
     public float mSupplyVoltage = 12;
     public int[] mMotorSpeed = new int[]{20, 10, 15, 200};
@@ -19,21 +19,33 @@ public class DeviceState /*implements Parcelable*/ {
     public DeviceState() {
     }
 
-//    @Override
-//    public int describeContents() {
-//        return 0;
-//    }
-//
-//    @Override
-//    public void writeToParcel(Parcel dest, int flags) {
-//        dest.writeInt(this.mTemperature);
-//        dest.writeFloat(this.mSupplyVoltage);
-//        dest.writeIntArray(this.mMotorSpeed);
-//        dest.writeInt(this.mPitch);
-//        dest.writeInt(this.mUltrasonicDistance);
-//        dest.writeInt(this.mInfraredDistance);
-//        dest.writeInt(this.mRestTime);
-//    }
+    public static final Creator<DeviceState> CREATOR = new Creator<DeviceState>() {
+        @Override
+        public DeviceState createFromParcel(Parcel in) {
+            return new DeviceState(in);
+        }
+
+        @Override
+        public DeviceState[] newArray(int size) {
+            return new DeviceState[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.mTemperature);
+        dest.writeFloat(this.mSupplyVoltage);
+        dest.writeIntArray(this.mMotorSpeed);
+        dest.writeInt(this.mPitch);
+        dest.writeInt(this.mUltrasonicDistance);
+        dest.writeInt(this.mInfraredDistance);
+        dest.writeInt(this.mRestTime);
+    }
 
     public String strOfRestTime() {
         int sec = mRestTime % 60;

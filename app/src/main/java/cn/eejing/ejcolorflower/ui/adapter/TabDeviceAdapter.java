@@ -24,7 +24,6 @@ import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.Urls;
-import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceState;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
@@ -42,9 +41,10 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     private Context mContext;
     private List<DeviceListBean.DataBean.ListBean> mList;
-    private List<Device> mDeviceList;
     private LayoutInflater mLayoutInflater;
     private String mMemberId, mToken;
+    private DeviceState mState;
+    private DeviceConfig mConfig;
 
     public TabDeviceAdapter(Context context, List<DeviceListBean.DataBean.ListBean> list, String memberId, String token) {
         this.mContext = context;
@@ -52,6 +52,8 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         this.mLayoutInflater = LayoutInflater.from(mContext);
         this.mMemberId = memberId;
         this.mToken = token;
+        Log.i(AppConstant.TAG, "Adapter State : " + mState.mRestTime);
+        Log.i(AppConstant.TAG, "Adapter Config : " + mConfig.mDMXAddress);
     }
 
     @NonNull
@@ -77,6 +79,8 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE_ITEM) {
+            Log.i(AppConstant.TAG, "onBind State : " + mState.mRestTime);
+            Log.i(AppConstant.TAG, "onBind Config : " + mConfig.mDMXAddress);
             ((ItemViewHolder) holder).setData(mList.get(position), position);
         }
     }
@@ -95,14 +99,6 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
 
-    public void refreshDevice(List<Device> list) {
-        if (list != null) {
-            mDeviceList.clear();
-            mDeviceList.addAll(list);
-            notifyDataSetChanged();
-        }
-    }
-
     public void refreshList(List<DeviceListBean.DataBean.ListBean> list) {
         if (list != null) {
             mList.clear();
@@ -113,6 +109,18 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void addList(List<DeviceListBean.DataBean.ListBean> list) {
         mList.addAll(list);
         notifyDataSetChanged();
+    }
+
+    public void setDeviceState(DeviceState state) {
+        this.mState = state;
+        notifyDataSetChanged();
+        Log.i(AppConstant.TAG, "setDevice State : " + mState.mRestTime);
+    }
+
+    public void setDeviceConfig(DeviceConfig config) {
+        this.mConfig = config;
+        notifyDataSetChanged();
+        Log.i(AppConstant.TAG, "setDevice Config : " + mConfig.mDMXAddress);
     }
 
     class ItemViewHolder extends RecyclerView.ViewHolder {
@@ -137,13 +145,11 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
 
         public void setData(DeviceListBean.DataBean.ListBean bean, int position) {
-//            DeviceConfig config = device.getConfig();
-//            DeviceState state = device.getState();
-//            Log.e(AppConstant.TAG, "setData mDMXAddress: " + config.mDMXAddress);
-//            Log.e(AppConstant.TAG, "setData mDMXAddress: " + state.mTemperature);
-//            Log.e(AppConstant.TAG, "setData mDMXAddress: " + state.mRestTime);
+            Log.i(AppConstant.TAG, "setData State : " + mState.mRestTime);
+            Log.i(AppConstant.TAG, "setData Config : " + mConfig.mDMXAddress);
 
-
+//            sbDmx.setText(String.valueOf(mConfig.mDMXAddress));
+//            sbTime.setText(String.valueOf(mState.mRestTime));
             tvDeviceId.setText(bean.getId());
             setClickListener(position, bean.getId());
         }

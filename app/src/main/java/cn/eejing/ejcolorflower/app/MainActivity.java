@@ -14,8 +14,6 @@ import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
 import com.jaeger.library.StatusBarUtil;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,6 +27,7 @@ import cn.eejing.ejcolorflower.device.ISendCommand;
 import cn.eejing.ejcolorflower.device.OnReceivePackage;
 import cn.eejing.ejcolorflower.device.Protocol;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
+import cn.eejing.ejcolorflower.ui.adapter.TabDeviceAdapter;
 import cn.eejing.ejcolorflower.ui.fragment.TabControlFragment;
 import cn.eejing.ejcolorflower.ui.fragment.TabDeviceFragment;
 import cn.eejing.ejcolorflower.ui.fragment.TabMallFragment;
@@ -48,6 +47,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
     private List<String> mFoundDeviceAddressList;
     private Map<String, ProtocolWithDevice> mProtocolList;
     private LinkedList<PackageNeedAck> mPackageNeedAckList;
+    private TabDeviceAdapter mTabDeviceAdapter;
 
     @Override
     protected int layoutViewId() {
@@ -66,6 +66,9 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
         mPackageNeedAckList = new LinkedList<>();
 
         addScanFilter(UUID_GATT_SERVICE);
+
+//        mTabDeviceAdapter = new TabDeviceAdapter(this, mDeviceList);
+//        mTabDeviceAdapter.setSendCommand(this);
     }
 
     /**
@@ -177,7 +180,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
 
     @Override
     void onStopScan() {
-
     }
 
     private static boolean contain(List<DeviceListBean.DataBean.ListBean> list, String mac) {
@@ -206,26 +208,15 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
             mDeviceList.remove(d);
         }
 
-        for (DeviceListBean.DataBean.ListBean d : list) {
-//            add_device(d.getMac(), d.getId());
-            add_device(d.getMac(), Long.parseLong(d.getId()));
-        }
     }
 
+    private TabDeviceFragment.OnRecvHandler mTabDeviceOnRecvHandler;
 
-    private void add_device(final String mac, long id) {
-        Log.e(TAG, "add_device: MAC--->" + mac);
-
-        if (!mProtocolList.containsKey(mac)) {
-            final Device d = new Device(mac);
-            d.setId(id);
-            mDeviceList.add(d);
-
-//            mTabDeviceAdapter.notifyDataSetChanged();
-            addDevice(mac);
-            mProtocolList.put(mac, new ProtocolWithDevice(d));
-        }
+    @Override
+    public void setRecvHandler(TabDeviceFragment.OnRecvHandler handler) {
+        mTabDeviceOnRecvHandler = handler;
     }
+
 
     @Override
     void onFoundDevice(BluetoothDevice device, @Nullable List<ParcelUuid> serviceUuids) {
@@ -241,9 +232,27 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
 
         if (!mFoundDeviceAddressList.contains(mac)) {
             mFoundDeviceAddressList.add(mac);
-//                mFoundDeviceAddressListAdapter.notifyDataSetChanged();
         }
 
+        Log.e(TAG, "onFoundDevice: mac = " + mac + "  name = " + name);
+        add_device(mac, 0);
+
+    }
+
+    private void add_device(final String mac, long id) {
+        Log.e(TAG, "add_device: MAC--->" + mac);
+
+        if (!mProtocolList.containsKey(mac)) {
+            final Device d = new Device(mac);
+            d.setId(id);
+            mDeviceList.add(d);
+
+            Log.e(TAG, "add_device: mDeviceList--->" + mDeviceList.size());
+
+//            mTabDeviceAdapter.notifyDataSetChanged();
+            addDevice(mac);
+            mProtocolList.put(mac, new ProtocolWithDevice(d));
+        }
     }
 
     @Override
@@ -269,29 +278,35 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
         }
 
         @Override
-        protected void onReceivePackage(@NonNull DeviceState state) {
+        protected void onReceivePackage(@NonNull final DeviceState state) {
             Log.i(TAG, "onReceivePackage: Temperature--->" + state.mTemperature);
             Log.i(TAG, "onReceivePackage: RestTime--->" + state.mRestTime);
             device.setState(state);
-            EventBus.getDefault().post(device);
+//            EventBus.getDefault().post(device);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    if (mTabDeviceOnRecvHandler != null) {
+                        mTabDeviceOnRecvHandler.onState(state);
+                    }
 //                    mTabDeviceAdapter.notifyDataSetChanged();
                 }
             });
         }
 
         @Override
-        protected void onReceivePackage(@NonNull DeviceConfig config) {
+        protected void onReceivePackage(@NonNull final DeviceConfig config) {
             // TODO: 2018/5/26 mDMXAddress
             Log.i(TAG, "onReceivePackage: DMXAddress --->" + config.mDMXAddress);
 
             device.setConfig(config);
-            EventBus.getDefault().post(device);
+//            EventBus.getDefault().post(device);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    if (mTabDeviceOnRecvHandler != null) {
+                        mTabDeviceOnRecvHandler.onConfig(config);
+                    }
 //                    mTabDeviceAdapter.notifyDataSetChanged();
                 }
             });
