@@ -1,5 +1,6 @@
 package cn.eejing.ejcolorflower.ui.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -17,6 +18,8 @@ import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import butterknife.BindView;
@@ -52,8 +55,6 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         this.mLayoutInflater = LayoutInflater.from(mContext);
         this.mMemberId = memberId;
         this.mToken = token;
-        Log.i(AppConstant.TAG, "Adapter State : " + mState.mRestTime);
-        Log.i(AppConstant.TAG, "Adapter Config : " + mConfig.mDMXAddress);
     }
 
     @NonNull
@@ -79,8 +80,8 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE_ITEM) {
-            Log.i(AppConstant.TAG, "onBind State : " + mState.mRestTime);
-            Log.i(AppConstant.TAG, "onBind Config : " + mConfig.mDMXAddress);
+//            Log.i(AppConstant.TAG, "onBind State : " + mState.mRestTime);
+//            Log.i(AppConstant.TAG, "onBind Config : " + mConfig.mDMXAddress);
             ((ItemViewHolder) holder).setData(mList.get(position), position);
         }
     }
@@ -145,16 +146,26 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
 
         public void setData(DeviceListBean.DataBean.ListBean bean, int position) {
-            Log.i(AppConstant.TAG, "setData State : " + mState.mRestTime);
-            Log.i(AppConstant.TAG, "setData Config : " + mConfig.mDMXAddress);
+//            Log.i(AppConstant.TAG, "setData State : " + mState.mRestTime);
+//            Log.i(AppConstant.TAG, "setData Config : " + mConfig.mDMXAddress);
+            int temp = 20, dmx = 17, time = 48;
+            // 将获取到的 int 类型剩余时间转换成 String 类型显示
+            long nowTimeLong = (long) time * 1000;
+            @SuppressLint("SimpleDateFormat") DateFormat ymdhmsFormat = new SimpleDateFormat("mm:ss");
+            String nowTimeStr = ymdhmsFormat.format(nowTimeLong);
+            sbTime.setText(nowTimeStr);
+
+            sbTemp.setText(String.valueOf(temp));
+            sbDmx.setText(String.valueOf(dmx));
+
 
 //            sbDmx.setText(String.valueOf(mConfig.mDMXAddress));
 //            sbTime.setText(String.valueOf(mState.mRestTime));
             tvDeviceId.setText(bean.getId());
-            setClickListener(position, bean.getId());
+            setClickListener(position, bean.getId(), temp, dmx, time);
         }
 
-        private void setClickListener(final int position, final String deviceId) {
+        private void setClickListener(final int position, final String deviceId, final int temp, final int dmx, final int time) {
             outView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
@@ -175,6 +186,9 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 public void onClick(View view) {
                     Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
                     intent.putExtra("device_id", deviceId);
+                    intent.putExtra("device_temp", temp);
+                    intent.putExtra("device_dmx", dmx);
+                    intent.putExtra("device_time", time);
                     mContext.startActivity(intent);
                 }
             });
@@ -185,6 +199,9 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 public void onClick(View v) {
                     Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
                     intent.putExtra("device_id", deviceId);
+                    intent.putExtra("device_temp", temp);
+                    intent.putExtra("device_dmx", dmx);
+                    intent.putExtra("device_time", time);
                     intent.putExtra("page", 0);
                     mContext.startActivity(intent);
                 }
@@ -195,6 +212,9 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 public void onClick(View v) {
                     Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
                     intent.putExtra("device_id", deviceId);
+                    intent.putExtra("device_temp", temp);
+                    intent.putExtra("device_dmx", dmx);
+                    intent.putExtra("device_time", time);
                     intent.putExtra("page", 1);
                     mContext.startActivity(intent);
                 }
@@ -205,6 +225,9 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 public void onClick(View v) {
                     Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
                     intent.putExtra("device_id", deviceId);
+                    intent.putExtra("device_temp", temp);
+                    intent.putExtra("device_dmx", dmx);
+                    intent.putExtra("device_time", time);
                     intent.putExtra("page", 2);
                     mContext.startActivity(intent);
                 }

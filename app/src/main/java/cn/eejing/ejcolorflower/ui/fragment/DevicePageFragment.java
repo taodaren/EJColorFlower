@@ -33,6 +33,7 @@ public class DevicePageFragment extends BaseFragment {
     private boolean mRunning;
 
     public static DevicePageFragment newInstance(int info) {
+        Log.i("TAG", "newInstance: "+info);
         DevicePageFragment fragment = new DevicePageFragment();
         fragment.mDeviceInfo = info;
         return fragment;

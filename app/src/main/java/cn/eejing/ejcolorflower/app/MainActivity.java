@@ -27,7 +27,6 @@ import cn.eejing.ejcolorflower.device.ISendCommand;
 import cn.eejing.ejcolorflower.device.OnReceivePackage;
 import cn.eejing.ejcolorflower.device.Protocol;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
-import cn.eejing.ejcolorflower.ui.adapter.TabDeviceAdapter;
 import cn.eejing.ejcolorflower.ui.fragment.TabControlFragment;
 import cn.eejing.ejcolorflower.ui.fragment.TabDeviceFragment;
 import cn.eejing.ejcolorflower.ui.fragment.TabMallFragment;
@@ -47,7 +46,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
     private List<String> mFoundDeviceAddressList;
     private Map<String, ProtocolWithDevice> mProtocolList;
     private LinkedList<PackageNeedAck> mPackageNeedAckList;
-    private TabDeviceAdapter mTabDeviceAdapter;
 
     @Override
     protected int layoutViewId() {
@@ -66,9 +64,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
         mPackageNeedAckList = new LinkedList<>();
 
         addScanFilter(UUID_GATT_SERVICE);
-
-//        mTabDeviceAdapter = new TabDeviceAdapter(this, mDeviceList);
-//        mTabDeviceAdapter.setSendCommand(this);
     }
 
     /**
@@ -282,7 +277,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
             Log.i(TAG, "onReceivePackage: Temperature--->" + state.mTemperature);
             Log.i(TAG, "onReceivePackage: RestTime--->" + state.mRestTime);
             device.setState(state);
-//            EventBus.getDefault().post(device);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -300,7 +294,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
             Log.i(TAG, "onReceivePackage: DMXAddress --->" + config.mDMXAddress);
 
             device.setConfig(config);
-//            EventBus.getDefault().post(device);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

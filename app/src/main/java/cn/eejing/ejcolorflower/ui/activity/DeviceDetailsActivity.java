@@ -44,10 +44,13 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
     @Override
     public void initView() {
         setToolbar(getIntent().getStringExtra("device_id"), View.VISIBLE);
-        // TODO: 18/5/26 假数据
-        mTempThreshold = 500;
-        mDmxAddress = 18;
-        mTimeLeft = 300;
+//         TODO: 18/5/26 假数据
+//        mTempThreshold = 500;
+//        mDmxAddress = 18;
+//        mTimeLeft = 300;
+        mTempThreshold = getIntent().getIntExtra("device_temp", 0);
+        mDmxAddress = getIntent().getIntExtra("device_dmx", 0);
+        mTimeLeft = getIntent().getIntExtra("device_time", 0);
 
         mFragments = new ArrayList<>();
         mFragments.add(DevicePageFragment.newInstance(mTempThreshold));
