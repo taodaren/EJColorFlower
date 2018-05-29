@@ -32,22 +32,26 @@ public class DevicePageFragment extends BaseFragment {
     Chronometer chTimeLeft;
 
     private int mDeviceInfo;
+    private static int mDeviceTemp, mDeviceDmx, mDevicetime;
     private boolean mRunning;
 
     public static DevicePageFragment newInstance(int info, int type) {
         Log.i("TAG", "newInstance: " + info);
+        DevicePageFragment fragment = new DevicePageFragment();
+        fragment.mDeviceInfo = info;
 
         switch (type) {
             case AppConstant.TYPE_TEMP:
+                mDeviceTemp = fragment.mDeviceInfo;
                 break;
             case AppConstant.TYPE_DMX:
+                mDeviceDmx = fragment.mDeviceInfo;
                 break;
             case AppConstant.TYPE_TIME:
+                mDevicetime = fragment.mDeviceInfo;
                 break;
             default:
         }
-        DevicePageFragment fragment = new DevicePageFragment();
-        fragment.mDeviceInfo = info;
         return fragment;
     }
 
@@ -66,14 +70,13 @@ public class DevicePageFragment extends BaseFragment {
         String nowTimeStr = ymdhmsFormat.format(nowTimeLong);
         chTimeLeft.setText(nowTimeStr);
 
-        // TODO: 18/5/26 写死 假数据
-        if (mDeviceInfo == 20) {
+        if (mDeviceInfo == mDeviceTemp) {
             imgTempThreshold.setVisibility(View.VISIBLE);
         }
-        if (mDeviceInfo == 17) {
+        if (mDeviceInfo == mDeviceDmx) {
             tvDmxAddress.setVisibility(View.VISIBLE);
         }
-        if (mDeviceInfo == 48) {
+        if (mDeviceInfo == mDevicetime) {
             layoutDeviceTime.setVisibility(View.VISIBLE);
         }
     }

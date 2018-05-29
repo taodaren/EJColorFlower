@@ -4,7 +4,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import com.allen.library.SuperButton;
 import com.flyco.tablayout.SegmentTabLayout;
 import com.flyco.tablayout.listener.OnTabSelectListener;
 
@@ -23,6 +25,10 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
 
     @BindView(R.id.img_title_back)
     ImageView imgTitleBack;
+    @BindView(R.id.btn_add_material)
+    SuperButton btnAddMaterial;
+    @BindView(R.id.btn_remove_device)
+    SuperButton btnRemoveDevice;
 
     private String[] mTitles = {"温度", "DMX地址", "剩余时间"};
     private SegmentTabLayout mTabLayout;
@@ -51,8 +57,8 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
 
         mFragments = new ArrayList<>();
         mFragments.add(DevicePageFragment.newInstance(mTempThreshold, AppConstant.TYPE_TEMP));
-        mFragments.add(DevicePageFragment.newInstance(mDmxAddress,AppConstant.TYPE_DMX));
-        mFragments.add(DevicePageFragment.newInstance(mTimeLeft,AppConstant.TYPE_TIME));
+        mFragments.add(DevicePageFragment.newInstance(mDmxAddress, AppConstant.TYPE_DMX));
+        mFragments.add(DevicePageFragment.newInstance(mTimeLeft, AppConstant.TYPE_TIME));
 
         mDecorView = getWindow().getDecorView();
         mTabLayout = ViewFindUtils.find(mDecorView, R.id.tl_device_del);
@@ -64,6 +70,8 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
     @Override
     public void initListener() {
         imgTitleBack.setOnClickListener(this);
+        btnAddMaterial.setOnClickListener(this);
+        btnRemoveDevice.setOnClickListener(this);
     }
 
     @Override
@@ -71,6 +79,12 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
         switch (view.getId()) {
             case R.id.img_title_back:
                 finish();
+                break;
+            case R.id.btn_add_material:
+                jumpToActivity(QRCodeActivity.class);
+                break;
+            case R.id.btn_remove_device:
+                Toast.makeText(this, "click_remove_device", Toast.LENGTH_SHORT).show();
                 break;
         }
     }
