@@ -38,7 +38,7 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
     private DePagerAdapter mAdapter;
     private ViewPager mVPager;
     private int mPageType;
-    private int mTempThreshold, mDmxAddress, mTimeLeft;
+    private int mTemp, mDmx, mTime, mTempThresholdHigh;
 
     public DeviceDetailsActivity() {
     }
@@ -51,14 +51,15 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
     @Override
     public void initView() {
         setToolbar(getIntent().getStringExtra("device_id"), View.VISIBLE);
-        mTempThreshold = getIntent().getIntExtra("device_temp", 0);
-        mDmxAddress = getIntent().getIntExtra("device_dmx", 0);
-        mTimeLeft = getIntent().getIntExtra("device_time", 0);
+        mTemp = getIntent().getIntExtra("device_temp", 0);
+        mDmx = getIntent().getIntExtra("device_dmx", 0);
+        mTime = getIntent().getIntExtra("device_time", 0);
+        mTempThresholdHigh = getIntent().getIntExtra("device_threshold", 0);
 
         mFragments = new ArrayList<>();
-        mFragments.add(DevicePageFragment.newInstance(mTempThreshold, AppConstant.TYPE_TEMP));
-        mFragments.add(DevicePageFragment.newInstance(mDmxAddress, AppConstant.TYPE_DMX));
-        mFragments.add(DevicePageFragment.newInstance(mTimeLeft, AppConstant.TYPE_TIME));
+        mFragments.add(DevicePageFragment.newInstance(mTemp, mTempThresholdHigh, AppConstant.TYPE_TEMP));
+        mFragments.add(DevicePageFragment.newInstance(mDmx, mTempThresholdHigh, AppConstant.TYPE_DMX));
+        mFragments.add(DevicePageFragment.newInstance(mTime, mTempThresholdHigh, AppConstant.TYPE_TIME));
 
         mDecorView = getWindow().getDecorView();
         mTabLayout = ViewFindUtils.find(mDecorView, R.id.tl_device_del);

@@ -153,8 +153,42 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             setClickListener(position, bean.getId(), null, null);
         }
 
-        public void setDataHasDevice(DeviceListBean.DataBean.ListBean bean, int position, DeviceState mState, DeviceConfig mConfig) {
-            int temp = mState.mTemperature, dmx = mConfig.mDMXAddress, time = mState.mRestTime;
+        public void setDataHasDevice(DeviceListBean.DataBean.ListBean bean, int position, DeviceState state, DeviceConfig config) {
+            int temp, dmx, time, thresholdHigh;
+            double tempLvOne, tempLvTwo, tempLvThree, tempLvFour, tempLvFive;
+
+            temp = state.mTemperature;
+            dmx = config.mDMXAddress;
+            time = state.mRestTime;
+            thresholdHigh = config.mTemperatureThresholdHigh;
+
+            tempLvOne = thresholdHigh * (0.2);
+            tempLvTwo = thresholdHigh * (0.4);
+            tempLvThree = thresholdHigh * (0.6);
+            tempLvFour = thresholdHigh * (0.8);
+            tempLvFive = thresholdHigh;
+
+            if (temp <= tempLvOne) {
+                sbTemp.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTempLvOne));
+                sbTemp.setText(String.valueOf(temp));
+                sbTemp.setUseShape();
+            } else if (tempLvOne < temp && temp <= tempLvTwo) {
+                sbTemp.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTempLvTwo));
+                sbTemp.setText(String.valueOf(temp));
+                sbTemp.setUseShape();
+            } else if (tempLvTwo < temp && temp <= tempLvThree) {
+                sbTemp.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTempLvThree));
+                sbTemp.setText(String.valueOf(temp));
+                sbTemp.setUseShape();
+            } else if (tempLvThree < temp && temp <= tempLvFour) {
+                sbTemp.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTempLvFour));
+                sbTemp.setText(String.valueOf(temp));
+                sbTemp.setUseShape();
+            } else if (tempLvFour < temp && temp <= tempLvFive) {
+                sbTemp.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTempLvFive));
+                sbTemp.setText(String.valueOf(temp));
+                sbTemp.setUseShape();
+            }
 
             // 将获取到的 int 类型剩余时间转换成 String 类型显示
             long nowTimeLong = (long) time * 1000;
@@ -162,7 +196,6 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             String nowTimeStr = ymdhmsFormat.format(nowTimeLong);
             sbTime.setText(nowTimeStr);
 
-            sbTemp.setText(String.valueOf(temp));
             sbDmx.setText(String.valueOf(dmx));
 
             tvDeviceId.setText(bean.getId());
@@ -171,7 +204,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
             // TODO: 2018/5/29 一直连接 bug
 //            Toast.makeText(mContext, "设备连接成功", Toast.LENGTH_SHORT).show();
-            setClickListener(position, bean.getId(), mState, mConfig);
+            setClickListener(position, bean.getId(), state, config);
         }
 
         private void setClickListener(final int position, final String deviceId, final DeviceState state, final DeviceConfig config) {
@@ -199,6 +232,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                         intent.putExtra("device_temp", state.mTemperature);
                         intent.putExtra("device_dmx", config.mDMXAddress);
                         intent.putExtra("device_time", state.mRestTime);
+                        intent.putExtra("device_threshold", config.mTemperatureThresholdHigh);
                         mContext.startActivity(intent);
                     } else {
                         Toast.makeText(mContext, "此设备尚未连接", Toast.LENGTH_SHORT).show();
@@ -216,6 +250,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                         intent.putExtra("device_temp", state.mTemperature);
                         intent.putExtra("device_dmx", config.mDMXAddress);
                         intent.putExtra("device_time", state.mRestTime);
+                        intent.putExtra("device_threshold", config.mTemperatureThresholdHigh);
                         intent.putExtra("page", 0);
                         mContext.startActivity(intent);
                     } else {
@@ -233,6 +268,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                         intent.putExtra("device_temp", state.mTemperature);
                         intent.putExtra("device_dmx", config.mDMXAddress);
                         intent.putExtra("device_time", state.mRestTime);
+                        intent.putExtra("device_threshold", config.mTemperatureThresholdHigh);
                         intent.putExtra("page", 1);
                         mContext.startActivity(intent);
                     } else {
@@ -250,6 +286,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                         intent.putExtra("device_temp", state.mTemperature);
                         intent.putExtra("device_dmx", config.mDMXAddress);
                         intent.putExtra("device_time", state.mRestTime);
+                        intent.putExtra("device_threshold", config.mTemperatureThresholdHigh);
                         intent.putExtra("page", 2);
                         mContext.startActivity(intent);
                     } else {
