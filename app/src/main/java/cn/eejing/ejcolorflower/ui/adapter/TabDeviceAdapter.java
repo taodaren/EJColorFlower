@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.allen.library.SuperButton;
 import com.lzy.okgo.OkGo;
@@ -80,9 +81,11 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE_ITEM) {
-//            Log.i(AppConstant.TAG, "onBind State : " + mState.mRestTime);
-//            Log.i(AppConstant.TAG, "onBind Config : " + mConfig.mDMXAddress);
-            ((ItemViewHolder) holder).setData(mList.get(position), position);
+            if (mState != null && mConfig != null) {
+                ((ItemViewHolder) holder).setDataHasDevice(mList.get(position), position, mState, mConfig);
+            } else {
+                ((ItemViewHolder) holder).setDataOnlyServer(mList.get(position), position);
+            }
         }
     }
 
@@ -145,10 +148,14 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             outView = itemView;
         }
 
-        public void setData(DeviceListBean.DataBean.ListBean bean, int position) {
-//            Log.i(AppConstant.TAG, "setData State : " + mState.mRestTime);
-//            Log.i(AppConstant.TAG, "setData Config : " + mConfig.mDMXAddress);
-            int temp = 20, dmx = 17, time = 48;
+        public void setDataOnlyServer(DeviceListBean.DataBean.ListBean bean, int position) {
+            tvDeviceId.setText(bean.getId());
+            setClickListener(position, bean.getId(), null, null);
+        }
+
+        public void setDataHasDevice(DeviceListBean.DataBean.ListBean bean, int position, DeviceState mState, DeviceConfig mConfig) {
+            int temp = mState.mTemperature, dmx = mConfig.mDMXAddress, time = mState.mRestTime;
+
             // 将获取到的 int 类型剩余时间转换成 String 类型显示
             long nowTimeLong = (long) time * 1000;
             @SuppressLint("SimpleDateFormat") DateFormat ymdhmsFormat = new SimpleDateFormat("mm:ss");
@@ -158,14 +165,16 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             sbTemp.setText(String.valueOf(temp));
             sbDmx.setText(String.valueOf(dmx));
 
-
-//            sbDmx.setText(String.valueOf(mConfig.mDMXAddress));
-//            sbTime.setText(String.valueOf(mState.mRestTime));
             tvDeviceId.setText(bean.getId());
-            setClickListener(position, bean.getId(), temp, dmx, time);
+            tvConnected.setText("已连接");
+            tvConnected.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
+
+            // TODO: 2018/5/29 一直连接 bug
+//            Toast.makeText(mContext, "设备连接成功", Toast.LENGTH_SHORT).show();
+            setClickListener(position, bean.getId(), mState, mConfig);
         }
 
-        private void setClickListener(final int position, final String deviceId, final int temp, final int dmx, final int time) {
+        private void setClickListener(final int position, final String deviceId, final DeviceState state, final DeviceConfig config) {
             outView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
@@ -184,12 +193,16 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             imgDeviceId.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
-                    intent.putExtra("device_id", deviceId);
-                    intent.putExtra("device_temp", temp);
-                    intent.putExtra("device_dmx", dmx);
-                    intent.putExtra("device_time", time);
-                    mContext.startActivity(intent);
+                    if (state != null && config != null) {
+                        Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
+                        intent.putExtra("device_id", deviceId);
+                        intent.putExtra("device_temp", state.mTemperature);
+                        intent.putExtra("device_dmx", config.mDMXAddress);
+                        intent.putExtra("device_time", state.mRestTime);
+                        mContext.startActivity(intent);
+                    } else {
+                        Toast.makeText(mContext, "此设备尚未连接", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
 
@@ -197,39 +210,51 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             sbTemp.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
-                    intent.putExtra("device_id", deviceId);
-                    intent.putExtra("device_temp", temp);
-                    intent.putExtra("device_dmx", dmx);
-                    intent.putExtra("device_time", time);
-                    intent.putExtra("page", 0);
-                    mContext.startActivity(intent);
+                    if (state != null && config != null) {
+                        Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
+                        intent.putExtra("device_id", deviceId);
+                        intent.putExtra("device_temp", state.mTemperature);
+                        intent.putExtra("device_dmx", config.mDMXAddress);
+                        intent.putExtra("device_time", state.mRestTime);
+                        intent.putExtra("page", 0);
+                        mContext.startActivity(intent);
+                    } else {
+                        Toast.makeText(mContext, "此设备尚未连接", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
 
             sbDmx.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
-                    intent.putExtra("device_id", deviceId);
-                    intent.putExtra("device_temp", temp);
-                    intent.putExtra("device_dmx", dmx);
-                    intent.putExtra("device_time", time);
-                    intent.putExtra("page", 1);
-                    mContext.startActivity(intent);
+                    if (state != null && config != null) {
+                        Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
+                        intent.putExtra("device_id", deviceId);
+                        intent.putExtra("device_temp", state.mTemperature);
+                        intent.putExtra("device_dmx", config.mDMXAddress);
+                        intent.putExtra("device_time", state.mRestTime);
+                        intent.putExtra("page", 1);
+                        mContext.startActivity(intent);
+                    } else {
+                        Toast.makeText(mContext, "此设备尚未连接", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
 
             sbTime.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
-                    intent.putExtra("device_id", deviceId);
-                    intent.putExtra("device_temp", temp);
-                    intent.putExtra("device_dmx", dmx);
-                    intent.putExtra("device_time", time);
-                    intent.putExtra("page", 2);
-                    mContext.startActivity(intent);
+                    if (state != null && config != null) {
+                        Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
+                        intent.putExtra("device_id", deviceId);
+                        intent.putExtra("device_temp", state.mTemperature);
+                        intent.putExtra("device_dmx", config.mDMXAddress);
+                        intent.putExtra("device_time", state.mRestTime);
+                        intent.putExtra("page", 2);
+                        mContext.startActivity(intent);
+                    } else {
+                        Toast.makeText(mContext, "此设备尚未连接", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
 

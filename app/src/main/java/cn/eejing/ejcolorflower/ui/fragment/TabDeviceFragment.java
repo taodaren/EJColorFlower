@@ -117,7 +117,6 @@ public class TabDeviceFragment extends BaseFragment {
             mState = new DeviceState();
             mConfig = new DeviceConfig();
             mListener = (OnFragmentInteractionListener) context;
-            mListener.setRecvHandler(mOnRecvHandler);
         } else {
             throw new RuntimeException(context.toString() + "必须实现 OnFragmentInteractionListener");
         }
@@ -141,6 +140,7 @@ public class TabDeviceFragment extends BaseFragment {
         rvTabDevice.setLinearLayout();
         // 绑定适配器
         mAdapter = new TabDeviceAdapter(getContext(), mList, mMemberId, mToken);
+        mListener.setRecvHandler(mOnRecvHandler);
         rvTabDevice.setAdapter(mAdapter);
 
         // 不需要上拉刷新

@@ -17,4 +17,8 @@ public class AppConstant {
             = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
     public static final int ACK_TIMEOUT = 1000;
 
+    public static final int TYPE_TEMP = 1;
+    public static final int TYPE_DMX = 2;
+    public static final int TYPE_TIME = 3;
+
 }
