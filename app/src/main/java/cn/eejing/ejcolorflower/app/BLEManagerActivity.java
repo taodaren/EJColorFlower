@@ -66,46 +66,19 @@ public class BLEManagerActivity extends BaseActivity {
     private boolean mUserDenied = false;
     private boolean mDoNextRefresh = true;
     private long mNextRefreshingTime;
+
     private List<ScanFilter> mScanFilters = null;
-    private ScanSettings mScanSettings = null;
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothLeScanner mBluetoothLeScanner;
+    private ScanSettings mScanSettings = null;
     private Handler mHandler;
 
     private final Map<String, Pair<Runnable, Integer>> mPeriodRunnable = new ArrayMap<>();
-
-    private static class DeviceManager {
-        final String mac;
-        final BluetoothDevice device;
-        BluetoothGatt gatt = null;
-        List<BluetoothGattCharacteristic> characteristic = null;
-        BluetoothGattCharacteristic write_characteristic = null;
-        boolean connected = false;
-        boolean discovering = false;
-
-        DeviceManager(BluetoothDevice dev) {
-            mac = dev.getAddress();
-            device = dev;
-        }
-
-        boolean setWriteChannel(UUID uuid) {
-            if (characteristic != null) {
-                for (BluetoothGattCharacteristic c : characteristic) {
-                    if (c.getUuid().equals(uuid)) {
-                        write_characteristic = c;
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        BluetoothGattCharacteristic getWriteChannel() {
-            return write_characteristic;
-        }
-    }
-
     private final Map<String, DeviceManager> mDeviceManagerSet = new ArrayMap<>();
+
+    private final LinkedList<GattOperation> mGattOperations = new LinkedList<>();
+    private final Object mGattOperationLock = new Object();
+    private GattOperation mCurrentGattOperation = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,35 +115,19 @@ public class BLEManagerActivity extends BaseActivity {
         mHandler.post(mPoll);
     }
 
-    private final Runnable mPoll = new Runnable() {
-        @Override
-        public void run() {
-            poll();
-            if (!mShutdown) {
-                mHandler.postDelayed(mPoll, 100);
-
-                if (mDoNextRefresh && (System.currentTimeMillis() - mNextRefreshingTime) > 0) {
-                    mDoNextRefresh = false;
-                    startScan();
-                }
-            }
+    @Override
+    protected void onDestroy() {
+        for (Pair<Runnable, Integer> s : mPeriodRunnable.values()) {
+            mHandler.removeCallbacks(s.first);
         }
-    };
+        mPeriodRunnable.clear();
 
-    // 轮询
-    void poll() {
-        peekDeviceToDiscovering();
-    }
-
-    private void startScan() {
-        if (mBluetoothAdapter != null) {
-            if (!mBluetoothAdapter.isEnabled()) {
-                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-            } else {
-                onBluetoothEnabled();
-            }
+        if (mScanning) {
+            mHandler.removeCallbacks(mStopScan);
+            mStopScan.run();
         }
+        disconnectAll();
+        super.onDestroy();
     }
 
     @Override
@@ -185,36 +142,20 @@ public class BLEManagerActivity extends BaseActivity {
         }
     }
 
-    // 蓝牙已启用
-    private void onBluetoothEnabled() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            AndPermission.with(this)
-                    .permission(Manifest.permission.ACCESS_COARSE_LOCATION)
-                    .rationale(mDefaultRationale)
-                    .onDenied(new Action() {
-                        @Override
-                        public void onAction(List<String> permissions) {
-                            if (AndPermission.hasAlwaysDeniedPermission(BLEManagerActivity.this, permissions)) {
-                                showSetting(permissions);
-                            }
-                        }
-                    })
-                    .onGranted(new Action() {
-                        @Override
-                        public void onAction(List<String> permissions) {
-                            startLeScanNoBug();
-                        }
-                    })
-                    .start();
-        } else {
-            startLeScanNoBug();
-        }
-    }
+    private final Runnable mPoll = new Runnable() {
+        @Override
+        public void run() {
+            poll();
+            if (!mShutdown) {
+                mHandler.postDelayed(mPoll, 100);
 
-    // 用户被拒绝
-    private void onUserDenied() {
-        Toast.makeText(this, "无法使用蓝牙功能", Toast.LENGTH_SHORT).show();
-    }
+                if (mDoNextRefresh && (System.currentTimeMillis() - mNextRefreshingTime) > 0) {
+                    mDoNextRefresh = false;
+                    startScan();
+                }
+            }
+        }
+    };
 
     private final Rationale mDefaultRationale = new Rationale() {
         @Override
@@ -241,98 +182,6 @@ public class BLEManagerActivity extends BaseActivity {
                     .show();
         }
     };
-
-    // 显示设置
-    private void showSetting(final List<String> permissions) {
-        List<String> permissionNames = Permission.transformText(this, permissions);
-        String message = this.getString(R.string.message_permission_always_failed, TextUtils.join("\n", permissionNames));
-
-        final SettingService settingService = AndPermission.permissionSetting(this);
-        new AlertDialog.Builder(this)
-                .setCancelable(false)
-                .setTitle(R.string.tip)
-                .setMessage(message)
-                .setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        settingService.execute();
-                    }
-                })
-                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        settingService.cancel();
-                    }
-                })
-                .show();
-    }
-
-    // 添加扫描过滤器
-    void addScanFilter(ParcelUuid uuid) {
-        ScanFilter filter = new ScanFilter.Builder()
-                .setServiceUuid(uuid)
-                .build();
-        if (mScanFilters == null) {
-            mScanFilters = new LinkedList<>();
-        }
-        mScanFilters.add(filter);
-    }
-
-    // 如果在 onBluetoothEnabled 中直接调用 startLeScan， 将出现 android.os.DeadObjectException
-    private void startLeScanNoBug() {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                startLeScan();
-            }
-        });
-    }
-
-    // 启动扫描
-    private void startLeScan() {
-        Log.v(TAG, "startLeScan");
-        mBluetoothLeScanner = (mBluetoothAdapter == null) ? null : mBluetoothAdapter.getBluetoothLeScanner();
-        if (mBluetoothLeScanner != null) {
-            mScanning = true;
-            if (mScanFilters == null) {
-                mBluetoothLeScanner.startScan(mScanCallback);
-            } else {
-                if (mScanSettings == null) {
-                    mScanSettings = new ScanSettings.Builder()
-                            .setReportDelay(0)
-                            .setScanMode(ScanSettings.SCAN_MODE_BALANCED)
-                            .build();
-                }
-                mBluetoothLeScanner.startScan(mScanFilters, mScanSettings, mScanCallback);
-            }
-            mHandler.postDelayed(mStopScan, SCANNING_TIME);
-        }
-    }
-
-    private final Runnable mStopScan = new Runnable() {
-        @Override
-        public void run() {
-            mScanning = false;
-            mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
-            mBluetoothLeScanner.stopScan(mScanCallback);
-            onStopScan();
-            if (!mUserDenied) {
-                mDoNextRefresh = true;
-                mNextRefreshingTime = System.currentTimeMillis() + REFRESHING_PERIOD;
-            }
-        }
-    };
-
-    void onStopScan() {
-    }
-
-    void refresh() {
-        if (mScanning) {
-            return;
-        }
-        mDoNextRefresh = true;
-        mNextRefreshingTime = System.currentTimeMillis();
-    }
 
     private final ScanCallback mScanCallback = new ScanCallback() {
         @Override
@@ -373,143 +222,19 @@ public class BLEManagerActivity extends BaseActivity {
         }
     };
 
-    // 找到设备
-    void onFoundDevice(BluetoothDevice device, @Nullable List<ParcelUuid> serviceUuids) {
-        Log.i(TAG, "找到设备--->" + device.toString() + " | " + device.getName());
-        if (serviceUuids != null) {
-            for (ParcelUuid uuid : serviceUuids) {
-                Log.i(TAG, "   ==> service--->" + uuid.toString());
+    private final Runnable mStopScan = new Runnable() {
+        @Override
+        public void run() {
+            mScanning = false;
+            mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
+            mBluetoothLeScanner.stopScan(mScanCallback);
+            onStopScan();
+            if (!mUserDenied) {
+                mDoNextRefresh = true;
+                mNextRefreshingTime = System.currentTimeMillis() + REFRESHING_PERIOD;
             }
         }
-        // 添加设备
-        addDevice(device);
-    }
-
-    void addDevice(String mac) {
-        mac = mac.toUpperCase();
-        Log.i(TAG, "addDevice by " + mac);
-        if (BluetoothAdapter.checkBluetoothAddress(mac)) {
-            addDevice(mBluetoothAdapter.getRemoteDevice(mac));
-        } else {
-            throw new IllegalArgumentException("无效的蓝牙地址 : " + mac);
-        }
-    }
-
-    private void addDevice(BluetoothDevice device) {
-        final DeviceManager mgr;
-        String mac = device.getAddress();
-        if (!mDeviceManagerSet.containsKey(mac)) {
-            mgr = new DeviceManager(device);
-            mDeviceManagerSet.put(mac, mgr);
-        } else {
-            mgr = mDeviceManagerSet.get(mac);
-        }
-
-        if (mgr.gatt == null && !mShutdown) {
-            mgr.gatt = mgr.device.connectGatt(this, true, mBluetoothGattCallback);
-        }
-    }
-
-    private void peekDeviceToDiscovering() {
-        if (mShutdown) {
-            return;
-        }
-        for (DeviceManager mgr : mDeviceManagerSet.values()) {
-            if (mgr.connected && mgr.characteristic == null && !mgr.discovering) {
-                Log.i(TAG, "发现服务 " + mgr.mac);
-                mgr.discovering = mgr.gatt.discoverServices();
-                return;
-            }
-        }
-    }
-
-    private DeviceManager getMatchedDeviceManager(BluetoothGatt gatt) {
-        String mac = gatt.getDevice().getAddress();
-        return mDeviceManagerSet.get(mac);
-    }
-
-    private static class GattOperation {
-        final static int OP_CHARACTERISTIC_WRITE = 1;
-        final static int OP_DESCRIPTOR_WRITE = 2;
-
-        BluetoothGattCharacteristic characteristic;
-        BluetoothGattDescriptor descriptor;
-        BluetoothGatt gatt;
-        byte[] data = null;
-        int operation;
-
-        static GattOperation newWriteDescriptor(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, byte[] data) {
-            GattOperation r = new GattOperation();
-            r.characteristic = null;
-            r.descriptor = descriptor;
-            r.data = data;
-            r.operation = OP_DESCRIPTOR_WRITE;
-            r.gatt = gatt;
-            return r;
-        }
-
-        static GattOperation newWriteCharacteristic(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] data) {
-            GattOperation r = new GattOperation();
-            r.characteristic = characteristic;
-            r.descriptor = null;
-            r.data = data;
-            r.operation = OP_CHARACTERISTIC_WRITE;
-            r.gatt = gatt;
-            return r;
-        }
-
-        boolean run() {
-            switch (operation) {
-                case OP_CHARACTERISTIC_WRITE:
-                    Log.i(TAG, "write characteristic : " + characteristic.getUuid() + " : " + Util.hex(data, data.length));
-                    characteristic.setValue(data);
-                    return gatt.writeCharacteristic(characteristic);
-                case GattOperation.OP_DESCRIPTOR_WRITE:
-                    Log.i(TAG, "write descriptor " + descriptor.getUuid());
-                    descriptor.setValue(data);
-                    return gatt.writeDescriptor(descriptor);
-            }
-            return false;
-        }
-    }
-
-    private final LinkedList<GattOperation> mGattOperations = new LinkedList<>();
-    private GattOperation mCurrentGattOperation = null;
-    private final Object mGattOperationLock = new Object();
-
-    private void add(GattOperation op) {
-        synchronized (mGattOperationLock) {
-            if (mCurrentGattOperation == null) {
-                if (op.run()) {
-                    mCurrentGattOperation = op;
-                }
-            } else {
-                mGattOperations.push(op);
-            }
-        }
-    }
-
-    private void removeCurrentGattOperation(BluetoothGatt gatt) {
-        synchronized (mGattOperationLock) {
-            if (mCurrentGattOperation != null && gatt.equals(mCurrentGattOperation.gatt)) {
-                remove();
-            }
-        }
-    }
-
-    private void remove() {
-        synchronized (mGattOperationLock) {
-            mCurrentGattOperation = null;
-            while (!mGattOperations.isEmpty()) {
-                mCurrentGattOperation = mGattOperations.pop();
-                if (mCurrentGattOperation.run()) {
-                    break;
-                } else {
-                    mCurrentGattOperation = null;
-                }
-            }
-        }
-    }
+    };
 
     private final BluetoothGattCallback mBluetoothGattCallback = new BluetoothGattCallback() {
         @Override
@@ -599,14 +324,176 @@ public class BLEManagerActivity extends BaseActivity {
         }
     };
 
-    void onReceive(String mac, byte[] data) {
-        Log.i(TAG, "recv from " + mac + "  : " + Util.hex(data, data.length));
+    private void startScan() {
+        if (mBluetoothAdapter != null) {
+            if (!mBluetoothAdapter.isEnabled()) {
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+            } else {
+                onBluetoothEnabled();
+            }
+        }
     }
 
-    void onDeviceReady(String mac) {
+    // 蓝牙已启用
+    private void onBluetoothEnabled() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            AndPermission.with(this)
+                    .permission(Manifest.permission.ACCESS_COARSE_LOCATION)
+                    .rationale(mDefaultRationale)
+                    .onDenied(new Action() {
+                        @Override
+                        public void onAction(List<String> permissions) {
+                            if (AndPermission.hasAlwaysDeniedPermission(BLEManagerActivity.this, permissions)) {
+                                showSetting(permissions);
+                            }
+                        }
+                    })
+                    .onGranted(new Action() {
+                        @Override
+                        public void onAction(List<String> permissions) {
+                            startLeScanNoBug();
+                        }
+                    })
+                    .start();
+        } else {
+            startLeScanNoBug();
+        }
     }
 
-    void onDeviceDisconnect(String mac) {
+    // 用户被拒绝
+    private void onUserDenied() {
+        Toast.makeText(this, "无法使用蓝牙功能", Toast.LENGTH_SHORT).show();
+    }
+
+    // 显示设置
+    private void showSetting(final List<String> permissions) {
+        List<String> permissionNames = Permission.transformText(this, permissions);
+        String message = this.getString(R.string.message_permission_always_failed, TextUtils.join("\n", permissionNames));
+
+        final SettingService settingService = AndPermission.permissionSetting(this);
+        new AlertDialog.Builder(this)
+                .setCancelable(false)
+                .setTitle(R.string.tip)
+                .setMessage(message)
+                .setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        settingService.execute();
+                    }
+                })
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        settingService.cancel();
+                    }
+                })
+                .show();
+    }
+
+    // 如果在 onBluetoothEnabled 中直接调用 startLeScan， 将出现 android.os.DeadObjectException
+    private void startLeScanNoBug() {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                startLeScan();
+            }
+        });
+    }
+
+    // 启动扫描
+    private void startLeScan() {
+        Log.v(TAG, "startLeScan");
+        mBluetoothLeScanner = (mBluetoothAdapter == null) ? null : mBluetoothAdapter.getBluetoothLeScanner();
+        if (mBluetoothLeScanner != null) {
+            mScanning = true;
+            if (mScanFilters == null) {
+                mBluetoothLeScanner.startScan(mScanCallback);
+            } else {
+                if (mScanSettings == null) {
+                    mScanSettings = new ScanSettings.Builder()
+                            .setReportDelay(0)
+                            .setScanMode(ScanSettings.SCAN_MODE_BALANCED)
+                            .build();
+                }
+                mBluetoothLeScanner.startScan(mScanFilters, mScanSettings, mScanCallback);
+            }
+            mHandler.postDelayed(mStopScan, SCANNING_TIME);
+        }
+    }
+
+    private void addDevice(BluetoothDevice device) {
+        final DeviceManager mgr;
+        String mac = device.getAddress();
+        if (!mDeviceManagerSet.containsKey(mac)) {
+            mgr = new DeviceManager(device);
+            mDeviceManagerSet.put(mac, mgr);
+        } else {
+            mgr = mDeviceManagerSet.get(mac);
+        }
+
+        if (mgr.gatt == null && !mShutdown) {
+            mgr.gatt = mgr.device.connectGatt(this, true, mBluetoothGattCallback);
+        }
+    }
+
+    private void remove() {
+        synchronized (mGattOperationLock) {
+            mCurrentGattOperation = null;
+            while (!mGattOperations.isEmpty()) {
+                mCurrentGattOperation = mGattOperations.pop();
+                if (mCurrentGattOperation.run()) {
+                    break;
+                } else {
+                    mCurrentGattOperation = null;
+                }
+            }
+        }
+    }
+
+    private void peekDeviceToDiscovering() {
+        if (mShutdown) {
+            return;
+        }
+        for (DeviceManager mgr : mDeviceManagerSet.values()) {
+            if (mgr.connected && mgr.characteristic == null && !mgr.discovering) {
+                Log.i(TAG, "发现服务 " + mgr.mac);
+                mgr.discovering = mgr.gatt.discoverServices();
+                return;
+            }
+        }
+    }
+
+    private void add(GattOperation op) {
+        synchronized (mGattOperationLock) {
+            if (mCurrentGattOperation == null) {
+                if (op.run()) {
+                    mCurrentGattOperation = op;
+                }
+            } else {
+                mGattOperations.push(op);
+            }
+        }
+    }
+
+    private void removeCurrentGattOperation(BluetoothGatt gatt) {
+        synchronized (mGattOperationLock) {
+            if (mCurrentGattOperation != null && gatt.equals(mCurrentGattOperation.gatt)) {
+                remove();
+            }
+        }
+    }
+
+    private void disconnectAll() {
+        mShutdown = true;
+        synchronized (mGattOperationLock) {
+            mGattOperations.clear();
+        }
+        for (DeviceManager mgr : mDeviceManagerSet.values()) {
+            if (mgr.gatt != null && mgr.connected) {
+                mgr.gatt.disconnect();
+            }
+        }
     }
 
     // 设置发送默认渠道
@@ -639,33 +526,6 @@ public class BLEManagerActivity extends BaseActivity {
         return false;
     }
 
-    @Override
-    protected void onDestroy() {
-        for (Pair<Runnable, Integer> s : mPeriodRunnable.values()) {
-            mHandler.removeCallbacks(s.first);
-        }
-        mPeriodRunnable.clear();
-
-        if (mScanning) {
-            mHandler.removeCallbacks(mStopScan);
-            mStopScan.run();
-        }
-        disconnectAll();
-        super.onDestroy();
-    }
-
-    private void disconnectAll() {
-        mShutdown = true;
-        synchronized (mGattOperationLock) {
-            mGattOperations.clear();
-        }
-        for (DeviceManager mgr : mDeviceManagerSet.values()) {
-            if (mgr.gatt != null && mgr.connected) {
-                mgr.gatt.disconnect();
-            }
-        }
-    }
-
     private class WrappedRunnable implements Runnable {
         private final Runnable runnable;
         private final Handler handler;
@@ -684,7 +544,166 @@ public class BLEManagerActivity extends BaseActivity {
         }
     }
 
-    // 注册期
+    private static class DeviceManager {
+        final String mac;
+        final BluetoothDevice device;
+        BluetoothGatt gatt = null;
+        List<BluetoothGattCharacteristic> characteristic = null;
+        BluetoothGattCharacteristic write_characteristic = null;
+        boolean connected = false;
+        boolean discovering = false;
+
+        DeviceManager(BluetoothDevice dev) {
+            mac = dev.getAddress();
+            device = dev;
+        }
+
+        boolean setWriteChannel(UUID uuid) {
+            if (characteristic != null) {
+                for (BluetoothGattCharacteristic c : characteristic) {
+                    if (c.getUuid().equals(uuid)) {
+                        write_characteristic = c;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        BluetoothGattCharacteristic getWriteChannel() {
+            return write_characteristic;
+        }
+    }
+
+    private static class GattOperation {
+        final static int OP_CHARACTERISTIC_WRITE = 1;
+        final static int OP_DESCRIPTOR_WRITE = 2;
+
+        BluetoothGattCharacteristic characteristic;
+        BluetoothGattDescriptor descriptor;
+        BluetoothGatt gatt;
+        byte[] data = null;
+        int operation;
+
+        static GattOperation newWriteDescriptor(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, byte[] data) {
+            GattOperation r = new GattOperation();
+            r.characteristic = null;
+            r.descriptor = descriptor;
+            r.data = data;
+            r.operation = OP_DESCRIPTOR_WRITE;
+            r.gatt = gatt;
+            return r;
+        }
+
+        static GattOperation newWriteCharacteristic(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] data) {
+            GattOperation r = new GattOperation();
+            r.characteristic = characteristic;
+            r.descriptor = null;
+            r.data = data;
+            r.operation = OP_CHARACTERISTIC_WRITE;
+            r.gatt = gatt;
+            return r;
+        }
+
+        boolean run() {
+            switch (operation) {
+                case OP_CHARACTERISTIC_WRITE:
+                    Log.i(TAG, "write characteristic : " + characteristic.getUuid() + " : " + Util.hex(data, data.length));
+                    characteristic.setValue(data);
+                    return gatt.writeCharacteristic(characteristic);
+                case GattOperation.OP_DESCRIPTOR_WRITE:
+                    Log.i(TAG, "write descriptor " + descriptor.getUuid());
+                    descriptor.setValue(data);
+                    return gatt.writeDescriptor(descriptor);
+            }
+            return false;
+        }
+    }
+
+    private DeviceManager getMatchedDeviceManager(BluetoothGatt gatt) {
+        String mac = gatt.getDevice().getAddress();
+        return mDeviceManagerSet.get(mac);
+    }
+
+    /**
+     * 添加扫描过滤器
+     */
+    void addScanFilter(ParcelUuid uuid) {
+        ScanFilter filter = new ScanFilter.Builder()
+                .setServiceUuid(uuid)
+                .build();
+        if (mScanFilters == null) {
+            mScanFilters = new LinkedList<>();
+        }
+        mScanFilters.add(filter);
+    }
+
+    /**
+     * 找到设备
+     */
+    void onFoundDevice(BluetoothDevice device, @Nullable List<ParcelUuid> serviceUuids) {
+        Log.i(TAG, "找到设备--->" + device.toString() + " | " + device.getName());
+        if (serviceUuids != null) {
+            for (ParcelUuid uuid : serviceUuids) {
+                Log.i(TAG, "   ==> service--->" + uuid.toString());
+            }
+        }
+        // 添加设备
+        addDevice(device);
+    }
+
+    /**
+     * 停止扫描
+     */
+    void onStopScan() {
+    }
+
+    /**
+     * 刷新
+     */
+    void refresh() {
+        if (mScanning) {
+            return;
+        }
+        mDoNextRefresh = true;
+        mNextRefreshingTime = System.currentTimeMillis();
+    }
+
+    /**
+     * 添加设备
+     */
+    void addDevice(String mac) {
+        mac = mac.toUpperCase();
+        Log.i(TAG, "Add device by mac--->" + mac);
+        if (BluetoothAdapter.checkBluetoothAddress(mac)) {
+            addDevice(mBluetoothAdapter.getRemoteDevice(mac));
+        } else {
+            throw new IllegalArgumentException("无效的蓝牙地址 : " + mac);
+        }
+    }
+
+    /**
+     * 接收 mac and data
+     */
+    void onReceive(String mac, byte[] data) {
+        Log.i(TAG, "recv from " + mac + "  : " + Util.hex(data, data.length));
+    }
+
+    /**
+     * 设备就绪
+     */
+    void onDeviceReady(String mac) {
+    }
+
+    /**
+     * 设备断开
+     */
+    void onDeviceDisconnect(String mac) {
+    }
+
+    /**
+     * 注册期
+     */
     void registerPeriod(@NonNull String tag, @NonNull Runnable runnable, int period) {
         if (mPeriodRunnable.containsKey(tag)) {
             Runnable old = mPeriodRunnable.get(tag).first;
@@ -695,13 +714,22 @@ public class BLEManagerActivity extends BaseActivity {
         mHandler.postDelayed(wrapped_runnable, period);
     }
 
-    // 取消注册期限
+    /**
+     * 取消注册期限
+     */
     void unregisterPeriod(@NonNull String tag) {
         if (mPeriodRunnable.containsKey(tag)) {
             Runnable old = mPeriodRunnable.get(tag).first;
             mHandler.removeCallbacks(old);
             mPeriodRunnable.remove(tag);
         }
+    }
+
+    /**
+     * 轮询
+     */
+    void poll() {
+        peekDeviceToDiscovering();
     }
 
 }

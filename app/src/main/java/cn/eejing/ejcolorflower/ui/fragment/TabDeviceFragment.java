@@ -20,6 +20,7 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.LoginSession;
 import cn.eejing.ejcolorflower.app.Urls;
+import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceState;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
@@ -42,6 +43,7 @@ public class TabDeviceFragment extends BaseFragment {
     private List<DeviceListBean.DataBean.ListBean> mList;
     private TabDeviceAdapter mAdapter;
     private String mMemberId, mToken;
+    private Device mDevice;
     private DeviceState mState;
     private DeviceConfig mConfig;
 
@@ -52,23 +54,36 @@ public class TabDeviceFragment extends BaseFragment {
     }
 
     public interface OnRecvHandler {
-        void onState(DeviceState state);
+        void onState(Device device, DeviceState state);
 
         void onConfig(DeviceConfig config);
     }
 
     private final OnRecvHandler mOnRecvHandler = new OnRecvHandler() {
         @Override
-        public void onState(DeviceState state) {
+        public void onState(Device device, DeviceState state) {
+            mDevice = device;
             mState = state;
-            mAdapter.setDeviceState(mState);
+            mAdapter.setDeviceState(mDevice, mState);
         }
 
         @Override
         public void onConfig(DeviceConfig config) {
             mConfig = config;
-            mAdapter.setDeviceConfig(mConfig);
+            mAdapter.setDeviceConfig( mConfig);
         }
+
+//        @Override
+//        public void onState(DeviceState state) {
+//            mState = state;
+//            mAdapter.setDeviceState(mState);
+//        }
+//
+//        @Override
+//        public void onConfig(DeviceConfig config) {
+//            mConfig = config;
+//            mAdapter.setDeviceConfig(mConfig);
+//        }
     };
 
     public interface OnFragmentInteractionListener {
@@ -94,7 +109,6 @@ public class TabDeviceFragment extends BaseFragment {
 
     @Override
     public void initView(View rootView) {
-
         mGson = new Gson();
         mList = new ArrayList<>();
 

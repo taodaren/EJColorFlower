@@ -30,6 +30,7 @@ import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.Urls;
+import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceState;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
@@ -53,6 +54,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private List<DeviceListBean.DataBean.ListBean> mList;
     private LayoutInflater mLayoutInflater;
     private String mMemberId, mToken;
+    private Device mDevice;
     private DeviceState mState;
     private DeviceConfig mConfig;
 
@@ -89,7 +91,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE_ITEM) {
             if (mState != null && mConfig != null) {
-                ((ItemViewHolder) holder).setDataHasDevice(mList.get(position), position, mState, mConfig);
+                ((ItemViewHolder) holder).setDataHasDevice(mList.get(position), position, mState, mConfig, mDevice);
             } else {
                 ((ItemViewHolder) holder).setDataOnlyServer(mList.get(position), position);
             }
@@ -122,16 +124,19 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         notifyDataSetChanged();
     }
 
-    public void setDeviceState(DeviceState state) {
+    public void setDeviceState(Device device, DeviceState state) {
+        this.mDevice = device;
         this.mState = state;
         notifyDataSetChanged();
-        Log.i(AppConstant.TAG, "setDevice State : " + mState.mRestTime);
+        Log.i(AppConstant.TAG, "setDevice State TIME--->" + mState.mRestTime);
+        Log.i(AppConstant.TAG, "setDevice State TEMP--->" + mState.mTemperature);
+        Log.i(AppConstant.TAG, "setDevice device ADDRESS--->" + mDevice.getAddress());
     }
 
     public void setDeviceConfig(DeviceConfig config) {
         this.mConfig = config;
         notifyDataSetChanged();
-        Log.i(AppConstant.TAG, "setDevice Config : " + mConfig.mDMXAddress);
+        Log.i(AppConstant.TAG, "setDevice Config DMX--->" + mConfig.mDMXAddress);
     }
 
     class ItemViewHolder extends RecyclerView.ViewHolder {
@@ -160,58 +165,65 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             setClickListener(position, bean.getId(), null, null);
         }
 
-        public void setDataHasDevice(DeviceListBean.DataBean.ListBean bean, int position, DeviceState state, DeviceConfig config) {
-            int temp, dmx, time, thresholdHigh;
-            double tempLvOne, tempLvTwo, tempLvThree, tempLvFour, tempLvFive;
+        public void setDataHasDevice(DeviceListBean.DataBean.ListBean bean, int position, DeviceState state, DeviceConfig config, Device device) {
+            if (bean.getMac().equals(device.getAddress())) {
+                Log.i(AppConstant.TAG, "setDataHasDevice: " + state.mTemperature);
+                // 如果设备中的 MAC 地址与添加的一致
+                int temp, dmx, time, thresholdHigh;
+                double tempLvOne, tempLvTwo, tempLvThree, tempLvFour, tempLvFive;
 
-            temp = state.mTemperature;
-            dmx = config.mDMXAddress;
-            time = state.mRestTime;
-            thresholdHigh = config.mTemperatureThresholdHigh;
+                temp = state.mTemperature;
+                dmx = config.mDMXAddress;
+                time = state.mRestTime;
+                thresholdHigh = config.mTemperatureThresholdHigh;
 
-            tempLvOne = thresholdHigh * (0.2);
-            tempLvTwo = thresholdHigh * (0.4);
-            tempLvThree = thresholdHigh * (0.6);
-            tempLvFour = thresholdHigh * (0.8);
-            tempLvFive = thresholdHigh;
+                tempLvOne = thresholdHigh * (0.2);
+                tempLvTwo = thresholdHigh * (0.4);
+                tempLvThree = thresholdHigh * (0.6);
+                tempLvFour = thresholdHigh * (0.8);
+                tempLvFive = thresholdHigh;
 
-            if (temp <= tempLvOne) {
-                sbTemp.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTempLvOne));
-                sbTemp.setText(String.valueOf(temp));
-                sbTemp.setUseShape();
-            } else if (tempLvOne < temp && temp <= tempLvTwo) {
-                sbTemp.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTempLvTwo));
-                sbTemp.setText(String.valueOf(temp));
-                sbTemp.setUseShape();
-            } else if (tempLvTwo < temp && temp <= tempLvThree) {
-                sbTemp.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTempLvThree));
-                sbTemp.setText(String.valueOf(temp));
-                sbTemp.setUseShape();
-            } else if (tempLvThree < temp && temp <= tempLvFour) {
-                sbTemp.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTempLvFour));
-                sbTemp.setText(String.valueOf(temp));
-                sbTemp.setUseShape();
-            } else if (tempLvFour < temp && temp <= tempLvFive) {
-                sbTemp.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTempLvFive));
-                sbTemp.setText(String.valueOf(temp));
-                sbTemp.setUseShape();
+                if (temp <= tempLvOne) {
+                    sbTemp.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTempLvOne));
+                    sbTemp.setText(String.valueOf(temp));
+                    sbTemp.setUseShape();
+                } else if (tempLvOne < temp && temp <= tempLvTwo) {
+                    sbTemp.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTempLvTwo));
+                    sbTemp.setText(String.valueOf(temp));
+                    sbTemp.setUseShape();
+                } else if (tempLvTwo < temp && temp <= tempLvThree) {
+                    sbTemp.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTempLvThree));
+                    sbTemp.setText(String.valueOf(temp));
+                    sbTemp.setUseShape();
+                } else if (tempLvThree < temp && temp <= tempLvFour) {
+                    sbTemp.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTempLvFour));
+                    sbTemp.setText(String.valueOf(temp));
+                    sbTemp.setUseShape();
+                } else if (tempLvFour < temp && temp <= tempLvFive) {
+                    sbTemp.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTempLvFive));
+                    sbTemp.setText(String.valueOf(temp));
+                    sbTemp.setUseShape();
+                } else {
+                    sbTemp.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTempLvFive));
+                    sbTemp.setText(String.valueOf(temp));
+                    sbTemp.setUseShape();
+                }
+
+                // 将获取到的 int 类型剩余时间转换成 String 类型显示
+                long nowTimeLong = (long) time * 1000;
+                @SuppressLint("SimpleDateFormat") DateFormat ymdhmsFormat = new SimpleDateFormat("mm:ss");
+                String nowTimeStr = ymdhmsFormat.format(nowTimeLong);
+                sbTime.setText(nowTimeStr);
+
+                sbDmx.setText(String.valueOf(dmx));
+
+                tvDeviceId.setText(bean.getId());
+                tvConnected.setText("已连接");
+                tvConnected.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
+
+//                Toast.makeText(mContext, bean.getId() + "连接成功", Toast.LENGTH_SHORT).show();
+                setClickListener(position, bean.getId(), state, config);
             }
-
-            // 将获取到的 int 类型剩余时间转换成 String 类型显示
-            long nowTimeLong = (long) time * 1000;
-            @SuppressLint("SimpleDateFormat") DateFormat ymdhmsFormat = new SimpleDateFormat("mm:ss");
-            String nowTimeStr = ymdhmsFormat.format(nowTimeLong);
-            sbTime.setText(nowTimeStr);
-
-            sbDmx.setText(String.valueOf(dmx));
-
-            tvDeviceId.setText(bean.getId());
-            tvConnected.setText("已连接");
-            tvConnected.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
-
-            // TODO: 2018/5/29 一直连接 bug
-//            Toast.makeText(mContext, "设备连接成功", Toast.LENGTH_SHORT).show();
-            setClickListener(position, bean.getId(), state, config);
         }
 
         private void setClickListener(final int position, final String deviceId, final DeviceState state, final DeviceConfig config) {
@@ -345,15 +357,12 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 });
     }
 
-
     @Override
     public void onPermissionsGranted(int requestCode, List<String> perms) {
-
     }
 
     @Override
     public void onPermissionsDenied(int requestCode, List<String> perms) {
-
     }
 
     @Override
