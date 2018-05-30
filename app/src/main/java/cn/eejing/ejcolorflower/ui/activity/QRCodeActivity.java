@@ -71,17 +71,17 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     protected void onStop() {
-        super.onStop();
         // 关闭摄像头预览，并且隐藏扫描框
         mQRCodeView.stopCamera();
+        super.onStop();
     }
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         // 在 onDestroy 方法中调用 mQRCodeView.onDestroy()
         // 在 onStop 方法中调用 mQRCodeView.stopCamera()，否则会出现黑屏
         mQRCodeView.onDestroy();
+        super.onDestroy();
     }
 
     @Override
