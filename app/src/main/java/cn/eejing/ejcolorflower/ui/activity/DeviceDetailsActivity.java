@@ -94,7 +94,7 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
                 finish();
                 break;
             case R.id.btn_add_material:
-                jumpToActivity(QRCodeActivity.class);
+                jumpToActivity(QRAddMaterialActivity.class);
                 break;
             case R.id.btn_remove_device:
                 Toast.makeText(this, "click_remove_device", Toast.LENGTH_SHORT).show();

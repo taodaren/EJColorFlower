@@ -17,38 +17,29 @@ import cn.bingoogolapple.qrcode.core.QRCodeView;
 import cn.bingoogolapple.qrcode.zxing.ZXingView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.app.LoginSession;
-import cn.eejing.ejcolorflower.app.MainActivity;
 import cn.eejing.ejcolorflower.app.Urls;
-import cn.eejing.ejcolorflower.model.request.AddDeviceBean;
+import cn.eejing.ejcolorflower.model.request.MaterialInfoBean;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
-import cn.eejing.ejcolorflower.util.Settings;
 
-
-public class QRCodeActivity extends BaseActivity implements View.OnClickListener, QRCodeView.Delegate {
+public class QRAddMaterialActivity extends BaseActivity implements View.OnClickListener, QRCodeView.Delegate {
 
     @BindView(R.id.img_title_back)
     ImageView imgTitleBack;
-    @BindView(R.id.zxingview)
+    @BindView(R.id.zxingview_add_material)
     ZXingView mQRCodeView;
-    @BindView(R.id.tv_light_switch)
+    @BindView(R.id.tv_light_switch_add_material)
     TextView tvLightSwitch;
 
     private int mFlag;
-    private String mMemberId, mToken;
 
     @Override
     protected int layoutViewId() {
-        return R.layout.activity_qr_code;
+        return R.layout.activity_qradd_material;
     }
 
     @Override
     public void initView() {
         setToolbar("二维码扫描", View.VISIBLE);
-
-        LoginSession session = Settings.getLoginSessionInfo(this);
-        mToken = session.getToken();
-        mMemberId = getIntent().getStringExtra("member_id");
 
         // 设置扫描二维码的代理
         mQRCodeView.setDelegate(this);
@@ -101,7 +92,7 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
             case R.id.img_title_back:
                 finish();
                 break;
-            case R.id.tv_light_switch:
+            case R.id.tv_light_switch_add_material:
                 switchFlashlight();
                 break;
             default:
@@ -112,54 +103,39 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
     private void scanResults(String result) {
         // 处理扫描结果
         Log.i(AppConstant.TAG, "扫描结果:" + result);
-        String deviceId = result.substring(result.length() - 6);
+        String materialId = result.substring(result.length() - 14);
+        Log.i("TAG", "scanResults: " + materialId);
 
         vibrate();
         // 延迟1.5秒后开始识别
         mQRCodeView.startSpot();
-        OkGo.<String>post(Urls.ADD_DEVICE)
-                .params("member_id", mMemberId)
-                .params("device_id", deviceId)
-                .params("token", mToken)
+
+        OkGo.<String>post(Urls.MATERIAL_INFO)
+                .params("material_id", materialId)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.e(AppConstant.TAG, "add device request succeeded--->" + body);
+                        Log.e(AppConstant.TAG, "material_info request succeeded--->" + body);
 
                         Gson gson = new Gson();
-                        AddDeviceBean bean = gson.fromJson(body, AddDeviceBean.class);
+                        MaterialInfoBean bean = gson.fromJson(body, MaterialInfoBean.class);
 
                         switch (bean.getCode()) {
                             case 0:
-                                Toast.makeText(QRCodeActivity.this, "暂无此设备", Toast.LENGTH_SHORT).show();
-                                break;
-                            case 1:
-                                Toast.makeText(QRCodeActivity.this, "设备添加成功", Toast.LENGTH_SHORT).show();
-                                jumpToActivity(MainActivity.class);
+                                Toast.makeText(QRAddMaterialActivity.this, "获取信息失败", Toast.LENGTH_SHORT).show();
                                 finish();
                                 break;
-                            case 2:
-                                Log.e(AppConstant.TAG, "QR code please pass in member id.");
-                                break;
-                            case 3:
-                                Log.e(AppConstant.TAG, "QR code please pass in device id.");
-                                break;
-                            case 4:
-                                Toast.makeText(QRCodeActivity.this, "设备重复添加了", Toast.LENGTH_SHORT).show();
-                                break;
-                            case 5:
-                                Toast.makeText(QRCodeActivity.this, "该设备不存在", Toast.LENGTH_SHORT).show();
-                                break;
-                            case 6:
-                                Toast.makeText(QRCodeActivity.this, "此设备已绑定", Toast.LENGTH_SHORT).show();
+                            case 1:
+                                Toast.makeText(QRAddMaterialActivity.this, "料包添加成功", Toast.LENGTH_SHORT).show();
+                                finish();
                                 break;
                             default:
                                 break;
                         }
+
                     }
                 });
-
     }
 
     /**
@@ -198,5 +174,4 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
         tvLightSwitch.setText("开启照明");
         mQRCodeView.closeFlashlight();
     }
-
 }

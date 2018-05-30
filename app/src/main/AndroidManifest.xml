@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.CAMERA" />
+
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
@@ -44,6 +45,7 @@
         <activity android:name=".ui.activity.MiModifyPwdActivity" />
         <activity android:name=".ui.activity.MiOrderActivity" />
         <activity android:name=".app.BLEManagerActivity" />
+        <activity android:name=".ui.activity.QRAddMaterialActivity"></activity>
     </application>
 
 </manifest>
