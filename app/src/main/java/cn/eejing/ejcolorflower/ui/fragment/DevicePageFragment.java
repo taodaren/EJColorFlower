@@ -12,6 +12,8 @@ import android.widget.TextView;
 import com.sdsmdg.harjot.crollerTest.Croller;
 
 import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 
 import butterknife.BindView;
@@ -89,10 +91,11 @@ public class DevicePageFragment extends BaseFragment {
         croller.setMax(7200);
         // 当前剩余时间进度
         croller.setProgress(mDeviceInfo);
-        // 设置当前物料占比
-        double percent = mDeviceInfo / 7200 * 100;
-//        @SuppressLint("DefaultLocale") String strPercent = String.format("%.2f", percent);
-        croller.setLabel(percent + "%");
+        // 设置剩余时间占比
+        double conversion = (double) mDeviceInfo / 7200;
+        NumberFormat instance = NumberFormat.getPercentInstance();
+        instance.setMaximumFractionDigits(1);
+        croller.setLabel(instance.format(conversion));
     }
 
     private void setDmxAddress() {
@@ -117,6 +120,8 @@ public class DevicePageFragment extends BaseFragment {
         } else if (tempLvThree < mDeviceInfo && mDeviceInfo <= tempLvFour) {
             imgTempThreshold.setImageDrawable(getContext().getDrawable(R.drawable.lv_temp_four));
         } else if (tempLvFour < mDeviceInfo && mDeviceInfo <= tempLvFive) {
+            imgTempThreshold.setImageDrawable(getContext().getDrawable(R.drawable.lv_temp_five));
+        } else {
             imgTempThreshold.setImageDrawable(getContext().getDrawable(R.drawable.lv_temp_five));
         }
     }

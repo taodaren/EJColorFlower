@@ -49,7 +49,7 @@
             app:is_continuous="true"
             app:label="5.4 %"
             app:label_color="@color/colorBlack"
-            app:label_size="60"
+            app:label_size="40"
             app:main_circle_color="@color/colorBgGray"
             app:min="0"
             app:progress_primary_circle_size="10"

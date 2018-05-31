@@ -166,9 +166,8 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
 
         public void setDataHasDevice(DeviceListBean.DataBean.ListBean bean, int position, DeviceState state, DeviceConfig config, Device device) {
-            if (bean.getMac().equals(device.getAddress())) {
-                Log.i(AppConstant.TAG, "setDataHasDevice: " + state.mTemperature);
-                // 如果设备中的 MAC 地址与添加的一致
+            if (bean.getMac().equals(device.getAddress()) && String.valueOf(config.mID).equals(bean.getId())) {
+                // 如果设备中的 MAC 地址与设备 ID 跟添加的一致，执行以下操作
                 int temp, dmx, time, thresholdHigh;
                 double tempLvOne, tempLvTwo, tempLvThree, tempLvFour, tempLvFive;
 
