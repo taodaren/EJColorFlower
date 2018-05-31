@@ -134,6 +134,8 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         SuperButton sbTime;
         View outItem;
 
+        boolean flagSwitch = true;
+
         public ItemViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
@@ -205,6 +207,19 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     super.getProgressOnActionUp(bubbleSeekBar, progress, progressFloat);
                     Log.e(AppConstant.TAG, "getProgressOnActionUp: " + progressFloat);
                     getDataWithEditHigh(progressFloat, group_id);
+                }
+            });
+
+            imgSwitch.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (flagSwitch) {
+                        imgSwitch.setImageDrawable(mContext.getDrawable(R.drawable.ic_switch_off));
+                        flagSwitch = false;
+                    } else if (!flagSwitch) {
+                        imgSwitch.setImageDrawable(mContext.getDrawable(R.drawable.ic_switch_on));
+                        flagSwitch = true;
+                    }
                 }
             });
 
