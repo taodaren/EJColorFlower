@@ -119,6 +119,9 @@ public class CoDeviceActivity extends BaseActivity implements
         leftAdapter.addData(data);
         mPossess.remove(position);
         mList.add(data);
+
+        mNewPossess = mGson.toJson(mPossess);
+        Log.i(AppConstant.TAG, "onClickRight mNewPossess: " + mNewPossess);
     }
 
     @Override
@@ -129,7 +132,6 @@ public class CoDeviceActivity extends BaseActivity implements
                 break;
             case R.id.btn_device_save:
                 Log.i(AppConstant.TAG, "onClickSave mNewPossess: " + mNewPossess);
-
                 getDataWithAddDeviceToGroup();
                 break;
             default:

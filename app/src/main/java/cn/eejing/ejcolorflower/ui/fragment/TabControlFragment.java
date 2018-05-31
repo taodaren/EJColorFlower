@@ -15,7 +15,6 @@ import java.util.List;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.app.LoginSession;
 import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
 import cn.eejing.ejcolorflower.ui.adapter.TabControlAdapter;
@@ -66,6 +65,12 @@ public class TabControlFragment extends BaseFragment {
 
     @Override
     public void initData() {
+        getDataWithDeviceGroupList();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         getDataWithDeviceGroupList();
     }
 

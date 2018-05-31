@@ -149,6 +149,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 initGroupList(bean.getGroup_list());
             } else {
                 tvInfo.setVisibility(View.VISIBLE);
+                rvGroup.setVisibility(View.INVISIBLE);
             }
 
             tvName.setText(bean.getGroup_name());
