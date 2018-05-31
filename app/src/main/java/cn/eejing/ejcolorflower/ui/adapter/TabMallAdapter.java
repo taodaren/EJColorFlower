@@ -101,9 +101,12 @@ public class TabMallAdapter extends RecyclerView.Adapter<TabMallAdapter.MallView
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    int goods_id = mList.get(getAdapterPosition()).getGoods_id();
+                    int goodsId = mList.get(getAdapterPosition()).getGoods_id();
+                    String name = mList.get(getAdapterPosition()).getName();
+
                     Intent intent = new Intent(mContext, MaGoodsDetailsActivity.class);
-                    intent.putExtra("goods_id", goods_id);
+                    intent.putExtra("goods_id", goodsId);
+                    intent.putExtra("name", name);
                     ((MainActivity) mContext).jumpToActivity(intent);
                 }
             });

@@ -7,7 +7,7 @@ import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
 
-public class MaGoodsDetailsActivity extends BaseActivity {
+public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClickListener {
 
     @BindView(R.id.img_title_back)
     ImageView imgTitleBack;
@@ -19,14 +19,25 @@ public class MaGoodsDetailsActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        int goods_id = getIntent().getIntExtra("goods_id", 0);
-        setToolbar(goods_id + "", View.VISIBLE);
-        imgTitleBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        setToolbar(getIntent().getStringExtra("name"), View.VISIBLE);
+
+        int goodsId = getIntent().getIntExtra("goods_id", 0);
+    }
+
+    @Override
+    public void initListener() {
+        imgTitleBack.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.img_title_back:
                 finish();
-            }
-        });
+                break;
+            default:
+                break;
+        }
     }
 
 }
