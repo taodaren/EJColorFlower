@@ -173,6 +173,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
     }
 
 
+    // TODO: /**<-------------------- 以下硬件交互相关 -------------------->**/
     @Override
     public void scanDevice() {
         refresh();
@@ -207,8 +208,12 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
     }
 
     @Override
-    void onFoundDevice(BluetoothDevice device, @Nullable List<ParcelUuid> serviceUuids) {
+    public void addMeterial(Device device, long material_id) {
 
+    }
+
+    @Override
+    void onFoundDevice(BluetoothDevice device, @Nullable List<ParcelUuid> serviceUuids) {
         String name = device.getName();
         String mac = device.getAddress();
 
@@ -238,27 +243,15 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
     }
 
     @Override
-    void onDeviceDisconnect(String mac) {
-        unregisterPeriod(mac + "- 设备断开 status");
-
-        Device device = getDevice(mac);
-        if (device != null) {
-            device.setConnected(false);
-//            mTabDeviceAdapter.notifyDataSetChanged();
-        }
-    }
-
-    @Override
     void onDeviceReady(final String mac) {
         Log.i(TAG, "设备就绪 onDeviceReady: mac = " + mac);
         if (setSendDefaultChannel(mac, UUID_GATT_CHARACTERISTIC_WRITE)) {
             Device device = getDevice(mac);
+
             if (device != null) {
                 device.setConnected(true);
-//                mTabDeviceAdapter.notifyDataSetChanged();
             }
 
-            // 注册期
             registerPeriod(mac + "- 注册期 status", new Runnable() {
                         @Override
                         public void run() {
@@ -289,14 +282,47 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
     }
 
     @Override
+    void onDeviceDisconnect(String mac) {
+        unregisterPeriod(mac + "- 设备断开 status");
+
+        Device device = getDevice(mac);
+        if (device != null) {
+            device.setConnected(false);
+        }
+    }
+
+    @Override
     void poll() {
         super.poll();
         doTimeoutCheck();
     }
 
-    /**
-     * 做超时检查
-     */
+    private Device getDevice(String mac) {
+        for (Device device : mDeviceList) {
+            if (device.getAddress().equals(mac)) {
+                return device;
+            }
+        }
+        return null;
+    }
+
+    private void add_device(final String mac, long id) {
+        Log.e(TAG, "add_device: MAC--->" + mac);
+
+        if (!mProtocolList.containsKey(mac)) {
+            final Device device = new Device(mac);
+            device.setId(id);
+            mDeviceList.add(device);
+
+            Log.e(TAG, "add_device: mDeviceList--->" + mDeviceList.size());
+
+//            mTabDeviceAdapter.notifyDataSetChanged();
+            addDevice(mac);
+            mProtocolList.put(mac, new ProtocolWithDevice(device));
+        }
+    }
+
+    // 做超时检查
     private void doTimeoutCheck() {
         for (PackageNeedAck p : mPackageNeedAckList) {
             if (p.isTimeout()) {
@@ -307,9 +333,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
         }
     }
 
-    /**
-     * 做匹配
-     */
+    // 做匹配
     private void doMatch(String mac, byte[] ack_pkg) {
         Log.i(TAG, "doMatch " + Util.hex(ack_pkg, ack_pkg.length) + " from " + mPackageNeedAckList.size());
         for (PackageNeedAck p : mPackageNeedAckList) {
@@ -323,9 +347,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
         }
     }
 
-    /**
-     * 设备与协议处理
-     */
+    // 设备与协议处理
     private class ProtocolWithDevice extends Protocol {
         final Device device;
 
@@ -335,8 +357,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
 
         @Override
         protected void onReceivePackage(@NonNull final DeviceState state) {
-            Log.i(TAG, "onReceivePackage: Temperature--->" + state.mTemperature);
-            Log.i(TAG, "onReceivePackage: RestTime--->" + state.mRestTime);
             device.setState(state);
             runOnUiThread(new Runnable() {
                 @Override
@@ -344,16 +364,12 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
                     if (mTabDeviceOnRecvHandler != null) {
                         mTabDeviceOnRecvHandler.onState(device, state);
                     }
-//                    mTabDeviceAdapter.notifyDataSetChanged();
                 }
             });
         }
 
         @Override
         protected void onReceivePackage(@NonNull final DeviceConfig config) {
-            // TODO: 2018/5/26 mDMXAddress
-            Log.i(TAG, "onReceivePackage: DMXAddress --->" + config.mDMXAddress);
-
             device.setConfig(config);
             runOnUiThread(new Runnable() {
                 @Override
@@ -361,7 +377,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
                     if (mTabDeviceOnRecvHandler != null) {
                         mTabDeviceOnRecvHandler.onConfig(config);
                     }
-//                    mTabDeviceAdapter.notifyDataSetChanged();
                 }
             });
         }
@@ -392,31 +407,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
 
         boolean isTimeout() {
             return (System.currentTimeMillis() - send_time) > ACK_TIMEOUT;
-        }
-    }
-
-    private Device getDevice(String mac) {
-        for (Device device : mDeviceList) {
-            if (device.getAddress().equals(mac)) {
-                return device;
-            }
-        }
-        return null;
-    }
-
-    private void add_device(final String mac, long id) {
-        Log.e(TAG, "add_device: MAC--->" + mac);
-
-        if (!mProtocolList.containsKey(mac)) {
-            final Device device = new Device(mac);
-            device.setId(id);
-            mDeviceList.add(device);
-
-            Log.e(TAG, "add_device: mDeviceList--->" + mDeviceList.size());
-
-//            mTabDeviceAdapter.notifyDataSetChanged();
-            addDevice(mac);
-            mProtocolList.put(mac, new ProtocolWithDevice(device));
         }
     }
 

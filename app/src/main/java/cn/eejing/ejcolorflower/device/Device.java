@@ -6,6 +6,8 @@ import android.support.annotation.NonNull;
 public class Device {
     DeviceConfig config = null;
     DeviceState state = null;
+    DeviceMaterialStatus materialStatus = null;
+
     private final String address;
     private long id = 0; // from server
     private boolean connected = false;
@@ -18,6 +20,7 @@ public class Device {
         return address;
     }
 
+
     public DeviceConfig getConfig() {
         return config;
     }
@@ -26,13 +29,23 @@ public class Device {
         return state;
     }
 
-    public void setState(DeviceState mState) {
-        this.state = mState;
+    public DeviceMaterialStatus getMaterialStatus() {
+        return materialStatus;
     }
+
 
     public void setConfig(DeviceConfig config) {
         this.config = config;
     }
+
+    public void setState(DeviceState mState) {
+        this.state = mState;
+    }
+
+    public void setMaterialStatus(DeviceMaterialStatus mMaterialStatus) {
+        this.materialStatus = mMaterialStatus;
+    }
+
 
     public boolean isConnected() {
         return connected;

@@ -128,15 +128,11 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         this.mDevice = device;
         this.mState = state;
         notifyDataSetChanged();
-        Log.i(AppConstant.TAG, "setDevice State TIME--->" + mState.mRestTime);
-        Log.i(AppConstant.TAG, "setDevice State TEMP--->" + mState.mTemperature);
-        Log.i(AppConstant.TAG, "setDevice device ADDRESS--->" + mDevice.getAddress());
     }
 
     public void setDeviceConfig(DeviceConfig config) {
         this.mConfig = config;
         notifyDataSetChanged();
-        Log.i(AppConstant.TAG, "setDevice Config DMX--->" + mConfig.mDMXAddress);
     }
 
     class ItemViewHolder extends RecyclerView.ViewHolder {

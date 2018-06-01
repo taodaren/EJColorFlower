@@ -14,7 +14,7 @@
         android:id="@+id/zxingview_add_material"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/toolbar_qr_code"
+        android:layout_below="@id/toolbar_qr_add_material_code"
         app:qrcv_animTime="1000"
         app:qrcv_borderColor="@android:color/white"
         app:qrcv_borderSize="1dp"

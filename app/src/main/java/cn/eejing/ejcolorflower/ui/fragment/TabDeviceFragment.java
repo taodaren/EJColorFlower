@@ -22,6 +22,7 @@ import cn.eejing.ejcolorflower.app.LoginSession;
 import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
+import cn.eejing.ejcolorflower.device.DeviceMaterialStatus;
 import cn.eejing.ejcolorflower.device.DeviceState;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
 import cn.eejing.ejcolorflower.ui.activity.LoginActivity;
@@ -43,15 +44,11 @@ public class TabDeviceFragment extends BaseFragment {
     private List<DeviceListBean.DataBean.ListBean> mList;
     private TabDeviceAdapter mAdapter;
     private String mMemberId, mToken;
-    private Device mDevice;
+
     private DeviceState mState;
     private DeviceConfig mConfig;
 
     private OnFragmentInteractionListener mListener;
-
-    public static TabDeviceFragment newInstance() {
-        return new TabDeviceFragment();
-    }
 
     public interface OnRecvHandler {
         void onState(Device device, DeviceState state);
@@ -59,39 +56,18 @@ public class TabDeviceFragment extends BaseFragment {
         void onConfig(DeviceConfig config);
     }
 
-    private final OnRecvHandler mOnRecvHandler = new OnRecvHandler() {
-        @Override
-        public void onState(Device device, DeviceState state) {
-            mDevice = device;
-            mState = state;
-            mAdapter.setDeviceState(mDevice, mState);
-        }
-
-        @Override
-        public void onConfig(DeviceConfig config) {
-            mConfig = config;
-            mAdapter.setDeviceConfig( mConfig);
-        }
-
-//        @Override
-//        public void onState(DeviceState state) {
-//            mState = state;
-//            mAdapter.setDeviceState(mState);
-//        }
-//
-//        @Override
-//        public void onConfig(DeviceConfig config) {
-//            mConfig = config;
-//            mAdapter.setDeviceConfig(mConfig);
-//        }
-    };
-
     public interface OnFragmentInteractionListener {
         void scanDevice();
 
         void setRegisterDevice(List<DeviceListBean.DataBean.ListBean> list);
 
         void setRecvHandler(OnRecvHandler handler);
+
+        void addMeterial(Device device, long material_id);
+    }
+
+    public static TabDeviceFragment newInstance() {
+        return new TabDeviceFragment();
     }
 
     public TabDeviceFragment() {
@@ -146,6 +122,20 @@ public class TabDeviceFragment extends BaseFragment {
     public void onDestroy() {
         super.onDestroy();
     }
+
+    private final OnRecvHandler mOnRecvHandler = new OnRecvHandler() {
+        @Override
+        public void onState(Device device, DeviceState state) {
+            mState = state;
+            mAdapter.setDeviceState(device, mState);
+        }
+
+        @Override
+        public void onConfig(DeviceConfig config) {
+            mConfig = config;
+            mAdapter.setDeviceConfig(mConfig);
+        }
+    };
 
     private void initRecyclerView() {
         Log.i(AppConstant.TAG, "initRecyclerView State : " + mState.mRestTime);

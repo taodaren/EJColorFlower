@@ -31,6 +31,8 @@ public class Protocol {
     private final static int CMD_GET_TIMESTAMP = 9;
     private final static int CMD_STOP_JET = 10;
     private final static int CMD_SET_GUALIAO_TIME = 11;
+    private final static int CMD_GET_MATERIAL_STATUS = 12;
+    private final static int CMD_CLEAR_MATERIAL_INFO = 13;
 
     private final static int HEADER_LEN = 7;
     private final byte[] pkg = new byte[MAX_PKG_LEN];
@@ -40,7 +42,7 @@ public class Protocol {
     public void onReceive(byte[] data) {
         for (byte b : data) {
             onByte(b);
-            //onByteLevel2(b,false);
+//            onByteLevel2(b, false);
         }
     }
 
@@ -142,7 +144,7 @@ public class Protocol {
 
     private void onAckPackage() {
         int cmd = pkg[2] & 0x7F;
-        // long id = parseID(pkg, pkg_len);
+//        long id = parseID(pkg, pkg_len);
         switch (cmd) {
             case CMD_STATUS:
                 DeviceState ds = parseStatus(pkg, pkg_len);
@@ -258,16 +260,20 @@ public class Protocol {
         return translate(encrypt_package(data));
     }
 
+    // TODO: /**<-------------------- 以下发送数据（打包） -------------------->**/
+    // 获取内部状态
     @NonNull
     public static byte[] get_status_package(long id) {
         return command_package(CMD_STATUS, id, null);
     }
 
+    // 获取配置
     @NonNull
     public static byte[] get_config_package(long id) {
         return command_package(CMD_CONFIG, id, null);
     }
 
+    // 设置温度阈值
     @NonNull
     public static byte[] set_temperature_threshold_package(long id, int low, int height) {
         byte[] data = new byte[4];
@@ -278,6 +284,7 @@ public class Protocol {
         return command_package(CMD_SET_TEMP_THRESHOLD, id, data);
     }
 
+    // 设置电机默认速度
     @NonNull
     public static byte[] set_motor_default_speed_package(long id, int[] speeds) {
         byte[] data = new byte[4];
@@ -288,6 +295,7 @@ public class Protocol {
         return command_package(CMD_SET_MOTOR_SPEED, id, data);
     }
 
+    // 设置设备ID
     @NonNull
     public static byte[] set_id_package(long id, long new_id) {
         byte[] data = new byte[4];
@@ -298,6 +306,7 @@ public class Protocol {
         return command_package(CMD_SET_ID, id, data);
     }
 
+    // 设置DMX地址
     @NonNull
     public static byte[] set_dmx_address_package(long id, int dmx_address) {
         byte[] data = new byte[2];
@@ -306,6 +315,7 @@ public class Protocol {
         return command_package(CMD_SET_DMX_ADDRESS, id, data);
     }
 
+    // 开始喷射
     @NonNull
     public static byte[] jet_package(long id, int delay, int duration, int high) {
         byte[] data = new byte[5];
@@ -317,23 +327,7 @@ public class Protocol {
         return command_package(CMD_JET, id, data);
     }
 
-    @NonNull
-    public static byte[] jet_stop_package(long id) {
-        return command_package(CMD_STOP_JET, id, null);
-    }
-
-    @NonNull
-    public static byte[] set_gualiao_time_package(long id, int time) {
-        byte[] data = new byte[1];
-        data[0] = (byte) (time & 0xff);
-        return command_package(CMD_SET_GUALIAO_TIME, id, data);
-    }
-
-    @NonNull
-    public static byte[] get_timestamp_package(long id) {
-        return command_package(CMD_GET_TIMESTAMP, id, null);
-    }
-
+    // 加料
     @NonNull
     public static byte[] add_material(long id, int time, long stamp) {
         byte[] data = new byte[6];
@@ -346,16 +340,40 @@ public class Protocol {
         return command_package(CMD_ADD_MATERIAL, id, data);
     }
 
-    public static long parseTimestamp(@NonNull byte[] pkg, int pkg_len) {
-        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkg_len));
-        try {
-            reader.skip(HEADER_LEN);
-            return reader.readUnsignedIntLSB();
-        } catch (IOException e) {
-            return -1;
-        }
+    // 获取一个时间戳
+    @NonNull
+    public static byte[] get_timestamp_package(long id) {
+        return command_package(CMD_GET_TIMESTAMP, id, null);
     }
 
+    // 停止喷射
+    @NonNull
+    public static byte[] jet_stop_package(long id) {
+        return command_package(CMD_STOP_JET, id, null);
+    }
+
+    // 设置刮料时间
+    @NonNull
+    public static byte[] set_gualiao_time_package(long id, int time) {
+        byte[] data = new byte[1];
+        data[0] = (byte) (time & 0xff);
+        return command_package(CMD_SET_GUALIAO_TIME, id, data);
+    }
+
+    // 获取加料状态
+    @NonNull
+    public static byte[] get_material_status(long id) {
+        return command_package(CMD_GET_MATERIAL_STATUS, id, null);
+    }
+
+    // 清除加料信息
+    @NonNull
+    public static byte[] clear_material_info(long id) {
+        return command_package(CMD_CLEAR_MATERIAL_INFO, id, null);
+    }
+
+
+    // TODO: /**<-------------------- 以下蓝牙接收数据（解析） -------------------->**/
     @Nullable
     public static DeviceState parseStatus(@NonNull byte[] pkg, int pkg_len) {
         DeviceState ds = new DeviceState();
@@ -406,6 +424,31 @@ public class Protocol {
             return reader.readUnsignedIntLSB();
         } catch (IOException e) {
             return 0;
+        }
+    }
+
+    public static long parseTimestamp(@NonNull byte[] pkg, int pkg_len) {
+        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkg_len));
+        try {
+            reader.skip(HEADER_LEN);
+            return reader.readUnsignedIntLSB();
+        } catch (IOException e) {
+            return -1;
+        }
+    }
+
+    @Nullable
+    public static DeviceMaterialStatus parseMaterialStatus(@NonNull byte[] pkg, int pkg_len) {
+        DeviceMaterialStatus status = new DeviceMaterialStatus();
+        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkg_len));
+        try {
+            reader.skip(HEADER_LEN);
+            status.exist = reader.readUnsignedChar() != 0;
+            status.userId = reader.readUnsignedIntLSB();
+            status.materialId = reader.readUnsignedIntLSB();
+            return status;
+        } catch (IOException e) {
+            return null;
         }
     }
 

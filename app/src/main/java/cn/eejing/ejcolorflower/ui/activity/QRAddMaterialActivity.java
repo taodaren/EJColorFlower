@@ -34,7 +34,7 @@ public class QRAddMaterialActivity extends BaseActivity implements View.OnClickL
 
     @Override
     protected int layoutViewId() {
-        return R.layout.activity_qradd_material;
+        return R.layout.activity_qr_add_material;
     }
 
     @Override
@@ -101,8 +101,8 @@ public class QRAddMaterialActivity extends BaseActivity implements View.OnClickL
     }
 
     private void scanResults(String result) {
-        // 处理扫描结果
-        Log.i(AppConstant.TAG, "扫描结果:" + result);
+        // 处理二维码扫描结果
+        Log.i(AppConstant.TAG, "二维码扫描结果:" + result);
         String materialId = result.substring(result.length() - 14);
         Log.i("TAG", "scanResults: " + materialId);
 
@@ -127,7 +127,8 @@ public class QRAddMaterialActivity extends BaseActivity implements View.OnClickL
                                 finish();
                                 break;
                             case 1:
-                                Toast.makeText(QRAddMaterialActivity.this, "料包添加成功", Toast.LENGTH_SHORT).show();
+//                                Toast.makeText(QRAddMaterialActivity.this, "料包添加成功", Toast.LENGTH_SHORT).show();
+
                                 finish();
                                 break;
                             default:
