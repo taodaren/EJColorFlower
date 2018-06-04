@@ -26,4 +26,8 @@ public class AppConstant {
     public static final int TYPE_DMX = 2;
     public static final int TYPE_TIME = 3;
 
+    public static final int TYPE_UN_USED = 0;
+    public static final int TYPE_TO_BE_USED = 1;
+    public static final int TYPE_ALREADY_USED = 2;
+
 }

@@ -22,6 +22,7 @@ import java.util.Map;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
+import cn.eejing.ejcolorflower.device.DeviceMaterialStatus;
 import cn.eejing.ejcolorflower.device.DeviceState;
 import cn.eejing.ejcolorflower.device.ISendCommand;
 import cn.eejing.ejcolorflower.device.OnReceivePackage;
@@ -50,7 +51,8 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
 
     private boolean mRequestConfig = false;
     private TabDeviceFragment.OnRecvHandler mTabDeviceOnRecvHandler;
-
+    // 设备控制
+    private static FireworksDeviceControl mFireworksDeviceControl;
 
     @Override
     protected int layoutViewId() {
@@ -67,6 +69,8 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
         mFoundDeviceAddressList = new LinkedList<>();
         mProtocolList = new ArrayMap<>();
         mPackageNeedAckList = new LinkedList<>();
+
+        mFireworksDeviceControl = mFireworksDeviceControlImpl;
 
         addScanFilter(UUID_GATT_SERVICE);
     }
@@ -199,7 +203,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
         for (Device d : rmDevice) {
             mDeviceList.remove(d);
         }
-
     }
 
     @Override
@@ -230,6 +233,43 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
         add_device(mac, 0);
     }
 
+    public interface FireworksDeviceControl {
+        void sendCommand(long device_id, @NonNull byte[] pkg);
+
+        void sendCommand(long device_id, @NonNull byte[] pkg, OnReceivePackage callback);
+    }
+
+    private Device findDeviceById(long deviceId) {
+        for (Device device : mDeviceList) {
+            if (device.getId() == deviceId) {
+                return device;
+            }
+        }
+        return null;
+    }
+
+    private final FireworksDeviceControl mFireworksDeviceControlImpl = new FireworksDeviceControl() {
+        @Override
+        public void sendCommand(long device_id, @NonNull byte[] pkg) {
+            Device device = findDeviceById(device_id);
+            if (device != null) {
+                MainActivity.this.sendCommand(device, pkg);
+            }
+        }
+
+        @Override
+        public void sendCommand(long device_id, @NonNull byte[] pkg, OnReceivePackage callback) {
+            Device device = findDeviceById(device_id);
+            if (device != null) {
+                MainActivity.this.sendCommand(device, pkg, callback);
+            }
+        }
+    };
+
+    public static FireworksDeviceControl getFireworksDeviceControl() {
+        return mFireworksDeviceControl;
+    }
+
     @Override
     public void sendCommand(@NonNull Device device, @NonNull byte[] pkg) {
         send(device.getAddress(), pkg);
@@ -255,7 +295,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
             registerPeriod(mac + "- 注册期 status", new Runnable() {
                         @Override
                         public void run() {
-                            Device device = getDevice(mac);
+                            final Device device = getDevice(mac);
                             if (device != null) {
                                 DeviceConfig config = device.getConfig();
 //                                Log.e(TAG, "run: onDeviceReady = " + config.mDMXAddress);
@@ -264,6 +304,9 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
                                     mRequestConfig = !send(mac, Protocol.get_config_package(id));
                                 }
                                 send(mac, Protocol.get_status_package(id));
+
+                                // 获取加料状态
+                                send(mac, Protocol.get_material_status(id));
                             }
                         }
                     },
@@ -316,7 +359,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
 
             Log.e(TAG, "add_device: mDeviceList--->" + mDeviceList.size());
 
-//            mTabDeviceAdapter.notifyDataSetChanged();
             addDevice(mac);
             mProtocolList.put(mac, new ProtocolWithDevice(device));
         }
@@ -376,6 +418,19 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
                 public void run() {
                     if (mTabDeviceOnRecvHandler != null) {
                         mTabDeviceOnRecvHandler.onConfig(config);
+                    }
+                }
+            });
+        }
+
+        @Override
+        protected void onReceivePackage(@NonNull final DeviceMaterialStatus materialStatus) {
+            device.setMaterialStatus(materialStatus);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (mTabDeviceOnRecvHandler != null) {
+                        mTabDeviceOnRecvHandler.onMaterialStatus(device, materialStatus);
                     }
                 }
             });

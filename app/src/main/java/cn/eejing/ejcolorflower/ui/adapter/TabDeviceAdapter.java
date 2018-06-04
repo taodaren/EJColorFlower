@@ -21,18 +21,24 @@ import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cn.eejing.ejcolorflower.DeviceEvent;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
+import cn.eejing.ejcolorflower.device.DeviceMaterialStatus;
 import cn.eejing.ejcolorflower.device.DeviceState;
+import cn.eejing.ejcolorflower.device.ISendCommand;
+import cn.eejing.ejcolorflower.device.Protocol;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
 import cn.eejing.ejcolorflower.ui.activity.DeviceDetailsActivity;
 import cn.eejing.ejcolorflower.ui.activity.QRCodeActivity;
@@ -90,6 +96,10 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE_ITEM) {
+            // 通过 EventBus 将 deviceId 传到首页
+            DeviceEvent event = new DeviceEvent(mList.get(position).getId());
+            EventBus.getDefault().post(event);
+
             if (mState != null && mConfig != null) {
                 ((ItemViewHolder) holder).setDataHasDevice(mList.get(position), position, mState, mConfig, mDevice);
             } else {

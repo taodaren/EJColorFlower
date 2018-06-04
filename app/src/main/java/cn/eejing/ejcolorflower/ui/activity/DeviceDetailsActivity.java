@@ -1,6 +1,7 @@
 package cn.eejing.ejcolorflower.ui.activity;
 
 import android.Manifest;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -21,6 +22,7 @@ import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.ui.adapter.DePagerAdapter;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
 import cn.eejing.ejcolorflower.ui.fragment.DevicePageFragment;
+import cn.eejing.ejcolorflower.util.Settings;
 import cn.eejing.ejcolorflower.util.ViewFindUtils;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -45,6 +47,7 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
     private ViewPager mVPager;
     private int mPageType;
     private int mTemp, mDmx, mTime, mTempThresholdHigh;
+    private String mDeviceId;
 
     public DeviceDetailsActivity() {
     }
@@ -62,7 +65,9 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
 
     @Override
     public void initView() {
-        setToolbar(getIntent().getStringExtra("device_id"), View.VISIBLE);
+        mDeviceId = getIntent().getStringExtra("device_id");
+
+        setToolbar(mDeviceId, View.VISIBLE);
         mTemp = getIntent().getIntExtra("device_temp", 0);
         mDmx = getIntent().getIntExtra("device_dmx", 0);
         mTime = getIntent().getIntExtra("device_time", 0);
@@ -94,7 +99,9 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
                 finish();
                 break;
             case R.id.btn_add_material:
-                jumpToActivity(QRAddMaterialActivity.class);
+                Intent intent = new Intent(this, QRAddMaterialActivity.class);
+                intent.putExtra("device_id", mDeviceId);
+                jumpToActivity(intent);
                 break;
             case R.id.btn_remove_device:
                 Toast.makeText(this, "click_remove_device", Toast.LENGTH_SHORT).show();

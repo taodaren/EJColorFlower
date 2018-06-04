@@ -12,14 +12,25 @@ import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
+import org.greenrobot.eventbus.EventBus;
+
 import butterknife.BindView;
 import cn.bingoogolapple.qrcode.core.QRCodeView;
 import cn.bingoogolapple.qrcode.zxing.ZXingView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.Urls;
+import cn.eejing.ejcolorflower.device.Device;
+import cn.eejing.ejcolorflower.device.DeviceMaterialStatus;
+import cn.eejing.ejcolorflower.device.Protocol;
+import cn.eejing.ejcolorflower.model.request.AddMaterialBean;
 import cn.eejing.ejcolorflower.model.request.MaterialInfoBean;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
+import cn.eejing.ejcolorflower.util.Settings;
+
+import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_ALREADY_USED;
+import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_TO_BE_USED;
+import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_UN_USED;
 
 public class QRAddMaterialActivity extends BaseActivity implements View.OnClickListener, QRCodeView.Delegate {
 
@@ -103,40 +114,14 @@ public class QRAddMaterialActivity extends BaseActivity implements View.OnClickL
     private void scanResults(String result) {
         // 处理二维码扫描结果
         Log.i(AppConstant.TAG, "二维码扫描结果:" + result);
-        String materialId = result.substring(result.length() - 14);
-        Log.i("TAG", "scanResults: " + materialId);
-
+        // 震动
         vibrate();
         // 延迟1.5秒后开始识别
         mQRCodeView.startSpot();
-
-        OkGo.<String>post(Urls.MATERIAL_INFO)
-                .params("material_id", materialId)
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        Log.e(AppConstant.TAG, "material_info request succeeded--->" + body);
-
-                        Gson gson = new Gson();
-                        MaterialInfoBean bean = gson.fromJson(body, MaterialInfoBean.class);
-
-                        switch (bean.getCode()) {
-                            case 0:
-                                Toast.makeText(QRAddMaterialActivity.this, "获取信息失败", Toast.LENGTH_SHORT).show();
-                                finish();
-                                break;
-                            case 1:
-//                                Toast.makeText(QRAddMaterialActivity.this, "料包添加成功", Toast.LENGTH_SHORT).show();
-
-                                finish();
-                                break;
-                            default:
-                                break;
-                        }
-
-                    }
-                });
+        // 获取料包 ID
+        String materialId = result.substring(result.length() - 14);
+        // 通过 EventBus 将 materialId 传到首页
+        EventBus.getDefault().post(materialId);
     }
 
     /**
@@ -175,4 +160,5 @@ public class QRAddMaterialActivity extends BaseActivity implements View.OnClickL
         tvLightSwitch.setText("开启照明");
         mQRCodeView.closeFlashlight();
     }
+
 }
