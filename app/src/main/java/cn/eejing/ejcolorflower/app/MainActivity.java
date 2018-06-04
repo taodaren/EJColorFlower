@@ -211,11 +211,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
     }
 
     @Override
-    public void addMeterial(Device device, long material_id) {
-
-    }
-
-    @Override
     void onFoundDevice(BluetoothDevice device, @Nullable List<ParcelUuid> serviceUuids) {
         String name = device.getName();
         String mac = device.getAddress();

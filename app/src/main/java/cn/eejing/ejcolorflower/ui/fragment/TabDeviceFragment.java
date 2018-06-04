@@ -66,6 +66,7 @@ public class TabDeviceFragment extends BaseFragment {
     private DeviceMaterialStatus mMaterialStatus;
 
     private OnFragmentInteractionListener mListener;
+    private MainActivity.FireworksDeviceControl mDeviceControl;
 
     public interface OnRecvHandler {
         void onState(Device device, DeviceState state);
@@ -81,8 +82,6 @@ public class TabDeviceFragment extends BaseFragment {
         void setRegisterDevice(List<DeviceListBean.DataBean.ListBean> list);
 
         void setRecvHandler(OnRecvHandler handler);
-
-        void addMeterial(Device device, long material_id);
     }
 
     public static TabDeviceFragment newInstance() {
@@ -107,6 +106,7 @@ public class TabDeviceFragment extends BaseFragment {
         EventBus.getDefault().register(this);
         mGson = new Gson();
         mList = new ArrayList<>();
+        mDeviceControl = MainActivity.getFireworksDeviceControl();
 
         LoginSession session = Settings.getLoginSessionInfo(getActivity());
         mMemberId = String.valueOf(session.getMember_id());
@@ -173,20 +173,13 @@ public class TabDeviceFragment extends BaseFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void getMaterialId(String materialId) {
         // 在此处理加料逻辑
-
-        // 获取设备端加料状态
-        switch (mMaterialStatus.exist) {
-            case 0:
-                // 如果设备端获取加料状态为无记录
-                getDataWithMaterialInfo(materialId);
-                break;
-            case 1:
-                // 如果设备端获取加料状态为已添加
-
-                break;
-            default:
-                break;
+        Log.i("TAG", "加料状态: " + mMaterialStatus.exist);
+        if (mMaterialStatus.exist == 0) {
+            // 如果设备端获取加料状态为无记录
+            getDataWithMaterialInfo(materialId);
         }
+        // 如果设备端获取加料状态为已添加
+
     }
 
     private void initRecyclerView() {
@@ -267,6 +260,7 @@ public class TabDeviceFragment extends BaseFragment {
                         Log.e(AppConstant.TAG, "material_info request succeeded--->" + body);
 
                         MaterialInfoBean bean = mGson.fromJson(body, MaterialInfoBean.class);
+                        int addTime = Integer.parseInt(bean.getData().getDuration());
 
                         switch (bean.getCode()) {
                             case 0:
@@ -280,14 +274,13 @@ public class TabDeviceFragment extends BaseFragment {
                                     // 判断当前服务端状态
                                     case TYPE_UN_USED:// 未使用
                                         // 标记为待使用
-                                        getDataWithAddMaterial(materialId);
-
+                                        getDataWithAddMaterial(materialId, addTime);
                                         break;
                                     case TYPE_TO_BE_USED:// 待使用
-
+                                        Log.e(AppConstant.TAG, "待使用状态");
                                         break;
                                     case TYPE_ALREADY_USED:// 已使用
-
+                                        Log.e(AppConstant.TAG, "已使用状态");
                                         break;
                                     default:
                                         break;
@@ -301,7 +294,7 @@ public class TabDeviceFragment extends BaseFragment {
                 });
     }
 
-    private void getDataWithAddMaterial(String materialId) {
+    private void getDataWithAddMaterial(final String materialId, final int addTime) {
         OkGo.<String>post(Urls.ADD_MATERIAL)
                 .params("member_id", mMemberId)
                 .params("material_id", materialId)
@@ -323,7 +316,8 @@ public class TabDeviceFragment extends BaseFragment {
                             case 1:
                                 // 料包已绑定,并已进入锁定状态
                                 // 获取时间戳
-                                getTimestamps();
+                                Log.e("TAG", "开始获取时间戳...");
+                                setDeviceWithgetTimestamps(materialId, addTime);
                                 break;
                             case 5:
                                 Toast.makeText(getContext(), "您无权对该设备进行操作", Toast.LENGTH_SHORT).show();
@@ -336,25 +330,32 @@ public class TabDeviceFragment extends BaseFragment {
                 });
     }
 
-    private void getTimestamps() {
-        Log.i(TAG, "getTimestamps: " + "11111111111111");
-        // 获取时间戳
-        long deviceId = Long.parseLong(mDeviceId);
-        Log.i(TAG, "getTimestamps: deviceId--->" + deviceId);
+    private void setDeviceWithgetTimestamps(final String materialId, final int addTime) {
+        final long deviceId = Long.parseLong(mDeviceId);
         byte[] pkg = Protocol.get_timestamp_package(deviceId);
-        Log.i(TAG, "getTimestamps: pkg--->" + pkg);
-        MainActivity.FireworksDeviceControl ctrl = MainActivity.getFireworksDeviceControl();
-        ctrl.sendCommand(deviceId, pkg, new OnReceivePackage() {
+
+        mDeviceControl.sendCommand(deviceId, pkg, new OnReceivePackage() {
             @Override
             public void ack(@NonNull byte[] pkg) {
                 long timestamp = Protocol.parseTimestamp(pkg, pkg.length);
-                Log.i("TAG", "getTimestamps: timestamp--->" + timestamp);
+                Log.e("TAG", "开始加料...");
+
+                // 加料（设备端）
+                setDeviceWithAddMaterial(timestamp, deviceId, addTime, materialId);
             }
 
             @Override
             public void timeout() {
             }
         });
+    }
+
+    private void setDeviceWithAddMaterial(long timestamp, long deviceId, int addTime, String materialId) {
+        Log.i(TAG, "\n时间戳--->" + timestamp + "\n设备id--->" + deviceId + "\n加料时间--->" + addTime + "\n料包ID--->" + materialId);
+
+        byte[] pkgAddMaterial = Protocol.add_material(deviceId, addTime, timestamp, Long.parseLong(mMemberId), Long.parseLong(materialId));
+        mDeviceControl.sendCommand(deviceId, pkgAddMaterial);
+        Log.i(TAG, "发送命令结束");
     }
 
 }
