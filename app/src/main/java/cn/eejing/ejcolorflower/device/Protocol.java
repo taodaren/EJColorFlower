@@ -486,9 +486,6 @@ public class Protocol {
     }
 
     /**
-     *
-     * @param pkg
-     * @param pkg_len
      * @return 错误代码，-1表示非法数据
      */
     @Nullable

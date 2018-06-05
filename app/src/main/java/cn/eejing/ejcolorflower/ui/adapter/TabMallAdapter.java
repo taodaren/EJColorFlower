@@ -18,9 +18,9 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
+import cn.eejing.ejcolorflower.app.MainActivity;
 import cn.eejing.ejcolorflower.model.request.GoodsListBean;
 import cn.eejing.ejcolorflower.ui.activity.MaGoodsDetailsActivity;
-import cn.eejing.ejcolorflower.app.MainActivity;
 
 /**
  * @创建者 Taodaren

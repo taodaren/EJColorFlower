@@ -219,7 +219,7 @@ public class TabDeviceFragment extends BaseFragment {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.i(AppConstant.TAG, "device list request succeeded--->" + body);
+                        Log.e(AppConstant.TAG, "device list request succeeded--->" + body);
 
                         DeviceListBean bean = mGson.fromJson(body, DeviceListBean.class);
                         switch (bean.getCode()) {

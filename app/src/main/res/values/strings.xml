@@ -78,6 +78,7 @@
     <string name="reset_psd_hint">请输入新密码</string>
     <string name="add_device">添加设备</string>
     <string name="rmb">￥ </string>
+    <string name="yuan">元</string>
     <string name="sold">已售</string>
     <string name="stock_have">有货</string>
     <string name="stock_no">无货</string>
@@ -104,4 +105,9 @@
     <string name="text_time">剩余时间</string>
     <string name="add_material">加料</string>
     <string name="remove_device">移除设备</string>
+    <string name="customer_service">客服</string>
+    <string name="buy_now">立即购买</string>
+    <string name="basic_postage">基础邮费：</string>
+    <string name="postage_before">（满</string>
+    <string name="postage_after">元免邮）</string>
 </resources>

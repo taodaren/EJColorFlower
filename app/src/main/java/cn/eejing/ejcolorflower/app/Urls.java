@@ -28,6 +28,23 @@ public interface Urls {
     String RENAME_GROUP = BASE_URL + "renameGroup";                                    // 设备组重命名
 
     String GOODS_LIST = BASE_URL + "goodsList";                                        // 商品列表
+    String GOODS_DETAILS = BASE_URL + "goodsDetails";                                  // 商品详情
+    String ORDER_NUM = BASE_URL + "orderNum";                                          // 生成订单
+    String CONFIRM_ORDER = BASE_URL + "confirmOrder";                                  // 确认订单
+    String WAIT_GOODS = BASE_URL + "waitGoods";                                        // 待发货
+    String ALREADY_GOODS = BASE_URL + "alreadyGoods";                                  // 已发货
+    String COMPLETED = BASE_URL + "Completed";                                         // 已完成
+    String ORDER_DETAILS = BASE_URL + "orderDetails";                                  // 订单详情
+    String COLLECT_GOODS = BASE_URL + "collectGoods";                                  // 确认收货
+    String DEL_COMPLETED = BASE_URL + "delCompleted";                                  // 删除已完成订单
+    String ADDRESS_LIST = BASE_URL + "addressList";                                    // 用户地址列表
+    String ADDRESS_ADD = BASE_URL + "addressAdd";                                      // 用户地址填加
+    String PROVINCES = BASE_URL + "provinces";                                         // 省接口
+    String CITYS = BASE_URL + "citys";                                                 // 市接口
+    String AREAS = BASE_URL + "areas";                                                 // 县接口
+    String ADDRESS_UPDATE = BASE_URL + "addressUpdate";                                // 用户地址更改
+    String ADDRESS_DEF = BASE_URL + "addressDef";                                      // 用户设置默认地址
+    String ADDRESS_DEL = BASE_URL + "addressDel";                                      // 用户地址删除
 
     String PWD_UPDATE = BASE_URL + "pwdUpdate";                                        // 修改密码
     String FEED_BACK = BASE_URL + "feedBack";                                          // 意见反馈
