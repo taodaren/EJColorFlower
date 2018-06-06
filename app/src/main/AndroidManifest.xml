@@ -46,7 +46,7 @@
         <activity android:name=".ui.activity.MiModifyPwdActivity" />
         <activity android:name=".ui.activity.MiOrderActivity" />
         <activity android:name=".app.BLEManagerActivity" />
-        <activity android:name=".ui.activity.QRAddMaterialActivity"></activity>
+        <activity android:name=".ui.activity.QRAddMaterialActivity" />
     </application>
 
 </manifest>

@@ -5,12 +5,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -18,19 +12,9 @@ import butterknife.BindView;
 import cn.bingoogolapple.qrcode.core.QRCodeView;
 import cn.bingoogolapple.qrcode.zxing.ZXingView;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.app.Urls;
-import cn.eejing.ejcolorflower.device.Device;
-import cn.eejing.ejcolorflower.device.DeviceMaterialStatus;
-import cn.eejing.ejcolorflower.device.Protocol;
-import cn.eejing.ejcolorflower.model.request.AddMaterialBean;
-import cn.eejing.ejcolorflower.model.request.MaterialInfoBean;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
-import cn.eejing.ejcolorflower.util.Settings;
 
-import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_ALREADY_USED;
-import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_TO_BE_USED;
-import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_UN_USED;
+import static cn.eejing.ejcolorflower.app.AppConstant.TAG;
 
 public class QRAddMaterialActivity extends BaseActivity implements View.OnClickListener, QRCodeView.Delegate {
 
@@ -94,7 +78,7 @@ public class QRAddMaterialActivity extends BaseActivity implements View.OnClickL
     @Override
     public void onScanQRCodeOpenCameraError() {
         // 处理打开相机出错
-        Log.e(AppConstant.TAG, "打开相机出错");
+        Log.e(TAG, "打开相机出错");
     }
 
     @Override
@@ -113,7 +97,7 @@ public class QRAddMaterialActivity extends BaseActivity implements View.OnClickL
 
     private void scanResults(String result) {
         // 处理二维码扫描结果
-        Log.i(AppConstant.TAG, "二维码扫描结果:" + result);
+        Log.i(TAG, "二维码扫描结果:" + result);
         // 震动
         vibrate();
         // 延迟1.5秒后开始识别
@@ -122,6 +106,7 @@ public class QRAddMaterialActivity extends BaseActivity implements View.OnClickL
         String materialId = result.substring(result.length() - 14);
         // 通过 EventBus 将 materialId 传到首页
         EventBus.getDefault().post(materialId);
+        finish();
     }
 
     /**

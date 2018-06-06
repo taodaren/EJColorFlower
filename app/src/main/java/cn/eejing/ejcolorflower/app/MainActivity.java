@@ -419,19 +419,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
         }
 
         @Override
-        protected void onReceivePackage(@NonNull final DeviceMaterialStatus materialStatus) {
-            device.setMaterialStatus(materialStatus);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (mTabDeviceOnRecvHandler != null) {
-                        mTabDeviceOnRecvHandler.onMaterialStatus(device, materialStatus);
-                    }
-                }
-            });
-        }
-
-        @Override
         protected void onReceivePackage(@NonNull final byte[] pkg, int pkg_len) {
             runOnUiThread(new Runnable() {
                 @Override

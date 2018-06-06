@@ -26,7 +26,6 @@ import cn.eejing.ejcolorflower.ui.base.BaseActivity;
  */
 
 public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClickListener {
-    private static final String TAG = "MaGoodsDetailsActivity";
 
     @BindView(R.id.img_title_back)
     ImageView imgTitleBack;
@@ -35,7 +34,6 @@ public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClick
 
     private Gson mGson;
     private List<GoodsDetailsBean.DataBean> mList;
-    private GoodsDetailsAdapter mAdapter;
     private int mGoodsId;
 
     @Override
@@ -77,8 +75,7 @@ public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClick
         // 设置布局
         rvGoodsDetails.setLinearLayout();
         // 绑定适配器
-        mAdapter = new GoodsDetailsAdapter(this, mList);
-        rvGoodsDetails.setAdapter(mAdapter);
+        rvGoodsDetails.setAdapter(new GoodsDetailsAdapter(this, mList));
 
         // 不需要上拉刷新
         rvGoodsDetails.setPushRefreshEnable(false);

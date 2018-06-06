@@ -35,10 +35,7 @@ import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
-import cn.eejing.ejcolorflower.device.DeviceMaterialStatus;
 import cn.eejing.ejcolorflower.device.DeviceState;
-import cn.eejing.ejcolorflower.device.ISendCommand;
-import cn.eejing.ejcolorflower.device.Protocol;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
 import cn.eejing.ejcolorflower.ui.activity.DeviceDetailsActivity;
 import cn.eejing.ejcolorflower.ui.activity.QRCodeActivity;
@@ -96,9 +93,9 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE_ITEM) {
-            // 通过 EventBus 将 deviceId 传到首页
-            DeviceEvent event = new DeviceEvent(mList.get(position).getId());
-            EventBus.getDefault().post(event);
+//             通过 EventBus 将 deviceId 传到首页
+//            DeviceEvent event = new DeviceEvent(mList.get(position).getId());
+//            EventBus.getDefault().post(event);
 
             if (mState != null && mConfig != null) {
                 ((ItemViewHolder) holder).setDataHasDevice(mList.get(position), position, mState, mConfig, mDevice);
@@ -251,6 +248,8 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 @Override
                 public void onClick(View view) {
                     if (state != null && config != null) {
+                        postDeviceId(position);
+
                         Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
                         intent.putExtra("device_id", deviceId);
                         intent.putExtra("device_temp", state.mTemperature);
@@ -269,6 +268,8 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 @Override
                 public void onClick(View v) {
                     if (state != null && config != null) {
+                        postDeviceId(position);
+
                         Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
                         intent.putExtra("device_id", deviceId);
                         intent.putExtra("device_temp", state.mTemperature);
@@ -287,6 +288,8 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 @Override
                 public void onClick(View v) {
                     if (state != null && config != null) {
+                        postDeviceId(position);
+
                         Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
                         intent.putExtra("device_id", deviceId);
                         intent.putExtra("device_temp", state.mTemperature);
@@ -305,6 +308,8 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 @Override
                 public void onClick(View v) {
                     if (state != null && config != null) {
+                        postDeviceId(position);
+
                         Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
                         intent.putExtra("device_id", deviceId);
                         intent.putExtra("device_temp", state.mTemperature);
@@ -319,6 +324,12 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 }
             });
 
+        }
+
+        // 通过 EventBus 将 deviceId 传到首页
+        private void postDeviceId(int position) {
+            DeviceEvent event = new DeviceEvent(mList.get(position).getId());
+            EventBus.getDefault().post(event);
         }
 
     }

@@ -158,12 +158,6 @@ public class Protocol {
                     onReceivePackage(config);
                 }
                 break;
-            case CMD_GET_MATERIAL_STATUS:
-                DeviceMaterialStatus status = parseMaterialStatus(pkg, pkg_len);
-                if (status != null) {
-                    onReceivePackage(status);
-                }
-                break;
             default:
                 onReceivePackage(pkg, pkg_len);
                 break;
@@ -476,7 +470,7 @@ public class Protocol {
         BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkg_len));
         try {
             reader.skip(HEADER_LEN);
-            status.exist = reader.readSignedShortLSB();
+            status.exist = reader.readUnsignedChar();
             status.userId = reader.readUnsignedIntLSB();
             status.materialId = reader.readUnsignedIntLSB();
             return status;
