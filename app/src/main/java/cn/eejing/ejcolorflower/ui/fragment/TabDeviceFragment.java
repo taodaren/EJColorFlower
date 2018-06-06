@@ -3,6 +3,7 @@ package cn.eejing.ejcolorflower.ui.fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -64,7 +65,6 @@ public class TabDeviceFragment extends BaseFragment {
 
     private DeviceState mState;
     private DeviceConfig mConfig;
-    private DeviceMaterialStatus mMaterialStatus;
 
     private OnFragmentInteractionListener mListener;
     private MainActivity.FireworksDeviceControl mDeviceControl;
@@ -89,6 +89,20 @@ public class TabDeviceFragment extends BaseFragment {
 
     public TabDeviceFragment() {
     }
+
+    private final OnRecvHandler mOnRecvHandler = new OnRecvHandler() {
+        @Override
+        public void onState(Device device, DeviceState state) {
+            mState = state;
+            mAdapter.setDeviceState(device, mState);
+        }
+
+        @Override
+        public void onConfig(DeviceConfig config) {
+            mConfig = config;
+            mAdapter.setDeviceConfig(mConfig);
+        }
+    };
 
     @Override
     protected int layoutViewId() {
@@ -143,20 +157,6 @@ public class TabDeviceFragment extends BaseFragment {
         EventBus.getDefault().unregister(this);
     }
 
-    private final OnRecvHandler mOnRecvHandler = new OnRecvHandler() {
-        @Override
-        public void onState(Device device, DeviceState state) {
-            mState = state;
-            mAdapter.setDeviceState(device, mState);
-        }
-
-        @Override
-        public void onConfig(DeviceConfig config) {
-            mConfig = config;
-            mAdapter.setDeviceConfig(mConfig);
-        }
-    };
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void getDeviceId(DeviceEvent deviceId) {
         mDeviceId = deviceId.getId();
@@ -173,7 +173,7 @@ public class TabDeviceFragment extends BaseFragment {
             @Override
             public void ack(@NonNull byte[] pkg) {
                 DeviceMaterialStatus materialStatus = Protocol.parseMaterialStatus(pkg, pkg.length);
-                Log.i(JL, "扫码时加料状态: " + materialStatus.exist);
+                Log.e(JL, "【设备端】加料状态: " + materialStatus.exist);
                 switch (materialStatus.exist) {
                     // 如果设备端获取加料状态为无记录
                     case 0:
@@ -226,6 +226,10 @@ public class TabDeviceFragment extends BaseFragment {
         rvTabDevice.setPullLoadMoreCompleted();
     }
 
+    private void information(String info) {
+        Toast.makeText(getContext(), info, Toast.LENGTH_LONG).show();
+    }
+
     private void getDataWithDeviceList() {
         OkGo.<String>post(Urls.DEVICE_LIST)
                 .tag(this)
@@ -241,7 +245,7 @@ public class TabDeviceFragment extends BaseFragment {
                         switch (bean.getCode()) {
                             case 101:
                             case 102:
-                                Toast.makeText(getActivity().getBaseContext(), "登录失效，请重新登录", Toast.LENGTH_LONG).show();
+                                information(getString(R.string.toast_login_fail));
                                 startActivity(new Intent(getActivity(), LoginActivity.class));
                                 getActivity().finish();
                                 break;
@@ -265,106 +269,6 @@ public class TabDeviceFragment extends BaseFragment {
                 });
     }
 
-    private void getDataWithMaterialInfoAdded(final String materialId) {
-        OkGo.<String>post(Urls.MATERIAL_INFO)
-                .params("material_id", materialId)
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        Log.e(AppConstant.TAG, "added material_info request succeeded--->" + body);
-
-                        MaterialInfoBean bean = mGson.fromJson(body, MaterialInfoBean.class);
-                        int addTime = Integer.parseInt(bean.getData().getDuration());
-
-                        switch (bean.getCode()) {
-                            case 0:
-                                Toast.makeText(getContext(), "获取信息失败", Toast.LENGTH_SHORT).show();
-                                getActivity().finish();
-                                break;
-                            case 1:
-                                Toast.makeText(getContext(), "获取信息成功", Toast.LENGTH_SHORT).show();
-                                Log.i(JL, "成功: 物料使用状态--->" + bean.getData().getUse_status());
-                                switch (bean.getData().getUse_status()) {
-                                    // 判断当前服务端状态
-                                    case TYPE_TO_BE_USED:// 待使用
-                                        Log.e(JL, "待使用状态→标记为待使用");
-                                        // 料包标记为已使用状态（服务器）
-                                        getDataWithChangMaterialStatus(materialId);
-                                        break;
-                                    case TYPE_ALREADY_USED:// 已使用
-                                        Log.e(JL, "已使用状态→清除加料信息");
-                                        // 清除加料信息（设备端）
-                                        setDeviceWithClearInfo(materialId);
-                                        break;
-                                    default:
-                                        break;
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                });
-    }
-
-    private void getDataWithChangMaterialStatus(final String materialId) {
-        Log.i(JL, "getDataWithChangMaterialStatus: mMemberId--->" + mMemberId);
-        Log.i(JL, "getDataWithChangMaterialStatus: materialId--->" + materialId);
-        Log.i(JL, "getDataWithChangMaterialStatus: mDeviceId--->" + mDeviceId);
-        Log.i(JL, "getDataWithChangMaterialStatus: mToken--->" + mToken);
-        OkGo.<String>post(Urls.CHANGE_MATERIAL_STATUS)
-                .params("member_id", mMemberId)
-                .params("material_id", materialId)
-                .params("device_id", mDeviceId)
-                .params("token", mToken)
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        Log.e(AppConstant.TAG, "change_material_status request succeeded--->" + body);
-
-                        ChangeMaterialStatusBean bean = mGson.fromJson(body, ChangeMaterialStatusBean.class);
-                        switch (bean.getCode()) {
-                            case 1:
-                                // 状态修改成功，清除加料信息
-                                setDeviceWithClearInfo(materialId);
-                                getActivity().finish();
-                                break;
-                            case 0:
-                                Toast.makeText(getContext(), "状态修改失败", Toast.LENGTH_SHORT).show();
-                                getActivity().finish();
-                                break;
-                            case 5:
-                                Toast.makeText(getContext(), "您无权对该设备进行操作", Toast.LENGTH_SHORT).show();
-                                getActivity().finish();
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                });
-
-    }
-
-    private void setDeviceWithClearInfo(String materialId) {
-        byte[] pkg = Protocol.clear_material_info(Long.parseLong(mDeviceId), Long.parseLong(mMemberId), Long.parseLong(materialId));
-        mDeviceControl.sendCommand(Long.parseLong(mDeviceId), pkg, new OnReceivePackage() {
-            @Override
-            public void ack(@NonNull byte[] pkg) {
-                int info = Protocol.parseClearMaterialInfo(pkg, pkg.length);
-                Log.e(JL, "清除加料信息返回值-->" + info);
-                if (info == -1) {
-                    Log.e(JL, "清除加料出错！！！");
-                }
-            }
-
-            @Override
-            public void timeout() {
-            }
-        });
-    }
-
     private void getDataWithMaterialInfo(final String materialId) {
         OkGo.<String>post(Urls.MATERIAL_INFO)
                 .params("material_id", materialId)
@@ -383,22 +287,23 @@ public class TabDeviceFragment extends BaseFragment {
                                 getActivity().finish();
                                 break;
                             case 1:
-                                Log.i(JL, "服务器获取信息成功，物料使用状态--->" + bean.getData().getUse_status());
+                                Log.i(JL, "获取信息成功（设备无记录情况）！！！" + bean.getData().getUse_status());
+                                Log.e(JL, "【服务器】物料使用状态（设备无记录情况）：" + bean.getData().getUse_status());
                                 switch (bean.getData().getUse_status()) {
                                     // 判断当前服务端状态
-                                    case TYPE_UN_USED:// 未使用
+                                    case TYPE_UN_USED:
+                                        Log.e(JL, "未使用状态");
                                         // 标记为待使用
                                         getDataWithAddMaterial(materialId, addTime);
                                         break;
-                                    case TYPE_TO_BE_USED:// 待使用
+                                    case TYPE_TO_BE_USED:
                                         Log.e(JL, "待使用状态");
                                         // 提示被哪个设备绑定
-                                        // TODO: 2018/6/6  add material completed half
                                         Log.i(JL, "被哪个设备绑定: " + bean.getData().getUse_device());
                                         break;
-                                    case TYPE_ALREADY_USED:// 已使用
+                                    case TYPE_ALREADY_USED:
                                         Log.e(JL, "已使用状态");
-                                        Toast.makeText(getContext(), "该料包已被使用，请添加其它料包", Toast.LENGTH_LONG).show();
+                                        information(getString(R.string.toast_already_used));
                                         break;
                                     default:
                                         break;
@@ -408,6 +313,58 @@ public class TabDeviceFragment extends BaseFragment {
                                 break;
                         }
 
+                    }
+                });
+    }
+
+
+    private void getDataWithMaterialInfoAdded(final String materialId) {
+        OkGo.<String>post(Urls.MATERIAL_INFO)
+                .params("material_id", materialId)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        String body = response.body();
+                        Log.e(AppConstant.TAG, "added material_info request succeeded--->" + body);
+
+                        MaterialInfoBean bean = mGson.fromJson(body, MaterialInfoBean.class);
+
+                        switch (bean.getCode()) {
+                            case 0:
+                                Toast.makeText(getContext(), "获取信息失败", Toast.LENGTH_SHORT).show();
+                                break;
+                            case 1:
+                                Log.i(JL, "获取信息成功（设备有记录情况）！！！" + bean.getData().getUse_status());
+                                Log.e(JL, "【服务器】物料使用状态（设备有记录情况）：" + bean.getData().getUse_status());
+                                switch (bean.getData().getUse_status()) {
+                                    // 判断当前服务端状态
+                                    case TYPE_UN_USED:
+                                        Log.e(JL, "未使用状态");
+                                        Log.e(JL, "不应该存在该状态，若出现，检查代码逻辑或设备");
+                                        // TODO: 18/6/7 标记为待使用 检查逻辑 不应该存在该状态
+                                        getDataWithAddMaterial(materialId, Integer.parseInt(bean.getData().getDuration()));
+                                        break;
+                                    case TYPE_TO_BE_USED:
+                                        Log.e(JL, "待使用状态");
+                                        // 料包标记为已使用状态（服务器）
+                                        getDataWithChangMaterialStatus(materialId);
+                                        // 获取此次料包信息
+                                        getDataWithMaterialInfo(materialId);
+                                        break;
+                                    case TYPE_ALREADY_USED:// 已使用
+                                        Log.e(JL, "已使用状态");
+                                        // 清除加料信息（设备端）
+                                        setDeviceWithClearInfo(materialId);
+                                        // 获取此次料包信息
+                                        getDataWithMaterialInfo(materialId);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 });
     }
@@ -428,18 +385,16 @@ public class TabDeviceFragment extends BaseFragment {
 
                         switch (bean.getCode()) {
                             case 0:
-                                Toast.makeText(getContext(), "设备添料失败", Toast.LENGTH_LONG).show();
-                                getActivity().finish();
+                                information(getString(R.string.toast_add_material_failed));
                                 break;
                             case 1:
                                 // 料包已绑定,并已进入锁定状态
                                 // 获取时间戳
-                                Log.e(JL, "开始获取时间戳...");
-                                setDeviceWithgetTimestamps(materialId, addTime);
+                                Log.i(JL, "开始获取时间戳...");
+                                setDeviceWithGetTimestamps(materialId, addTime);
                                 break;
                             case 5:
-                                Toast.makeText(getContext(), "您无权对该设备进行操作", Toast.LENGTH_LONG).show();
-                                getActivity().finish();
+                                information(getString(R.string.toast_no_right_operation));
                                 break;
                             default:
                                 break;
@@ -448,7 +403,75 @@ public class TabDeviceFragment extends BaseFragment {
                 });
     }
 
-    private void setDeviceWithgetTimestamps(final String materialId, final int addTime) {
+    private void getDataWithChangMaterialStatus(final String materialId) {
+        OkGo.<String>post(Urls.CHANGE_MATERIAL_STATUS)
+                .params("member_id", mMemberId)
+                .params("material_id", materialId)
+                .params("device_id", mDeviceId)
+                .params("token", mToken)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        String body = response.body();
+                        Log.e(AppConstant.TAG, "change_material_status request succeeded--->" + body);
+
+                        ChangeMaterialStatusBean bean = mGson.fromJson(body, ChangeMaterialStatusBean.class);
+                        switch (bean.getCode()) {
+                            case 1:
+                                // 状态修改成功
+                                Log.i(JL, "状态已修改为已使用！");
+                                // 清除加料信息
+                                setDeviceWithClearInfo(materialId);
+                                break;
+                            case 0:
+                                Snackbar.make(getView(), "状态修改失败", Snackbar.LENGTH_SHORT)
+                                        .setAction("确定", new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                            }
+                                        })
+                                        .show();
+//                                Toast.makeText(getContext(), "状态修改失败", Toast.LENGTH_SHORT).show();
+                                break;
+                            case 5:
+                                Snackbar.make(getView(), "您无权对该设备进行操作", Snackbar.LENGTH_SHORT)
+                                        .setAction("确定", new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                            }
+                                        })
+                                        .show();
+//                                Toast.makeText(getContext(), "您无权对该设备进行操作", Toast.LENGTH_SHORT).show();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
+
+    }
+
+    private void setDeviceWithClearInfo(String materialId) {
+        byte[] pkg = Protocol.clear_material_info(Long.parseLong(mDeviceId), Long.parseLong(mMemberId), Long.parseLong(materialId));
+        mDeviceControl.sendCommand(Long.parseLong(mDeviceId), pkg, new OnReceivePackage() {
+            @Override
+            public void ack(@NonNull byte[] pkg) {
+                int info = Protocol.parseClearMaterialInfo(pkg, pkg.length);
+                Log.e(JL, "清除加料信息返回值-->" + info);
+                if (info == -1) {
+                    Log.e(JL, "清除加料出错！！！");
+                } else {
+                    Log.i(JL, "已清理加料信息");
+                }
+            }
+
+            @Override
+            public void timeout() {
+            }
+        });
+    }
+
+    private void setDeviceWithGetTimestamps(final String materialId, final int addTime) {
         final long deviceId = Long.parseLong(mDeviceId);
         byte[] pkg = Protocol.get_timestamp_package(deviceId);
 
@@ -456,8 +479,8 @@ public class TabDeviceFragment extends BaseFragment {
             @Override
             public void ack(@NonNull byte[] pkg) {
                 long timestamp = Protocol.parseTimestamp(pkg, pkg.length);
-                Log.e(JL, "开始加料...");
 
+                Log.i(JL, "开始加料...");
                 // 加料（设备端）
                 setDeviceWithAddMaterial(timestamp, deviceId, addTime, materialId);
             }
@@ -468,37 +491,30 @@ public class TabDeviceFragment extends BaseFragment {
         });
     }
 
-    private void setDeviceWithAddMaterial(long timestamp, final long deviceId, int addTime, String materialId) {
-        Log.i(JL, "\n时间戳--->" + timestamp + "\n设备id--->" + deviceId + "\n加料时间--->" + addTime + "\n料包ID--->" + materialId);
+    private void setDeviceWithAddMaterial(long timestamp, final long deviceId, int addTime, final String materialId) {
+        Log.i(JL, "加料设备所需参数" + "\n时间戳--->" + timestamp + "\n设备 ID--->" + deviceId + "\n加料时间--->" + addTime + "\n料包 ID--->" + materialId);
+        final byte[] pkgAdd = Protocol.add_material(deviceId, addTime, timestamp, Long.parseLong(mMemberId), Long.parseLong(materialId));
 
-        final byte[] pkgAddMaterial = Protocol.add_material(deviceId, addTime, timestamp, Long.parseLong(mMemberId), Long.parseLong(materialId));
-        mDeviceControl.sendCommand(deviceId, pkgAddMaterial, new OnReceivePackage() {
+        mDeviceControl.sendCommand(deviceId, pkgAdd, new OnReceivePackage() {
             @Override
             public void ack(@NonNull byte[] pkg) {
-                DeviceMaterialStatus status = Protocol.parseMaterialStatus(pkg, pkg.length);
-                if (status.exist == 0) {
-                    Log.i(JL, "加料成功");
-                } else {
-                    Log.i(JL, "加料失败，返回码为--->" + status.exist);
-
-                    // 如果加料失败，重新添加3次
-                    for (int i = 0; i < 3; i++) {
-                        mDeviceControl.sendCommand(deviceId, pkgAddMaterial, new OnReceivePackage() {
-                            @Override
-                            public void ack(@NonNull byte[] pkg) {
-                                DeviceMaterialStatus status1 = Protocol.parseMaterialStatus(pkg, pkg.length);
-                                if (status1.exist == 0) {
-                                    Toast.makeText(getContext(), "加料成功", Toast.LENGTH_LONG).show();
-                                }
-                            }
-
-                            @Override
-                            public void timeout() {
-
-                            }
-                        });
-                    }
-
+                final int material = Protocol.parseAddMaterial(pkg, pkg.length);
+                Log.i(JL, "加料结果--->" + material);
+                switch (material) {
+                    case 0:
+                        // 加料成功，服务端标记为已使用
+                        getDataWithChangMaterialStatus(materialId);
+                        information(getString(R.string.toast_add_material_success));
+                        break;
+                    case 1:
+                        // 加料失败
+                        for (int i = 0; i < 3; i++) {
+                            // 重新发送三次
+                            resend(material);
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -506,8 +522,31 @@ public class TabDeviceFragment extends BaseFragment {
             public void timeout() {
 
             }
+
+            private void resend(final int material) {
+                mDeviceControl.sendCommand(deviceId, pkgAdd, new OnReceivePackage() {
+                    @Override
+                    public void ack(@NonNull byte[] pkg) {
+                        switch (material) {
+                            case 0:
+                                // 加料成功，服务端标记为已使用
+                                getDataWithChangMaterialStatus(materialId);
+                                information(getString(R.string.toast_add_material_success));
+                                break;
+                            case 1:
+                                // 再失败？我不信了！
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void timeout() {
+
+                    }
+                });
+            }
+
         });
-        Log.i(JL, "发送命令结束");
     }
 
 }

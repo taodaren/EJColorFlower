@@ -93,10 +93,6 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE_ITEM) {
-//             通过 EventBus 将 deviceId 传到首页
-//            DeviceEvent event = new DeviceEvent(mList.get(position).getId());
-//            EventBus.getDefault().post(event);
-
             if (mState != null && mConfig != null) {
                 ((ItemViewHolder) holder).setDataHasDevice(mList.get(position), position, mState, mConfig, mDevice);
             } else {

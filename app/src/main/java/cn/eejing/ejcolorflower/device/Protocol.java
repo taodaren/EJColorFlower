@@ -479,6 +479,17 @@ public class Protocol {
         }
     }
 
+    @Nullable
+    public static int parseAddMaterial(@NonNull byte[] pkg, int pkg_len) {
+        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkg_len));
+        try {
+            reader.skip(HEADER_LEN);
+            return reader.readUnsignedChar();
+        } catch (IOException e) {
+            return -1;
+        }
+    }
+
     /**
      * @return 错误代码，-1表示非法数据
      */
