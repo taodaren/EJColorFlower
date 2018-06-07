@@ -170,9 +170,6 @@ public class Protocol {
     protected void onReceivePackage(@NonNull DeviceConfig config) {
     }
 
-    protected void onReceivePackage(@NonNull DeviceMaterialStatus materialStatus) {
-    }
-
     protected void onReceivePackage(@NonNull byte[] pkg, int pkg_len) {
         Log.e(TAG, "receive package " + Util.hex(pkg, pkg_len));
     }
@@ -332,7 +329,7 @@ public class Protocol {
 
     // 加料
     @NonNull
-    public static byte[] add_material(long id, int time, long stamp, long user_id, long meterial_id) {
+    public static byte[] add_material(long id, int time, long stamp, long user_id, long material_id) {
         byte[] data = new byte[14];
         data[0] = (byte) (time & 0xff);
         data[1] = (byte) ((time >> 8) & 0xff);
@@ -347,10 +344,10 @@ public class Protocol {
         data[9] = (byte) ((user_id >> 24) & 0xff);
 
 
-        data[10] = (byte) (meterial_id & 0xff);
-        data[11] = (byte) ((meterial_id >> 8) & 0xff);
-        data[12] = (byte) ((meterial_id >> 16) & 0xff);
-        data[13] = (byte) ((meterial_id >> 24) & 0xff);
+        data[10] = (byte) (material_id & 0xff);
+        data[11] = (byte) ((material_id >> 8) & 0xff);
+        data[12] = (byte) ((material_id >> 16) & 0xff);
+        data[13] = (byte) ((material_id >> 24) & 0xff);
 
         return command_package(CMD_ADD_MATERIAL, id, data);
     }
@@ -383,7 +380,7 @@ public class Protocol {
 
     // 清除加料信息
     @NonNull
-    public static byte[] clear_material_info(long id, long user_id, long meterial_id) {
+    public static byte[] clear_material_info(long id, long user_id, long material_id) {
         byte[] data = new byte[8];
 
         data[0] = (byte) (user_id & 0xff);
@@ -391,10 +388,10 @@ public class Protocol {
         data[2] = (byte) ((user_id >> 16) & 0xff);
         data[3] = (byte) ((user_id >> 24) & 0xff);
 
-        data[4] = (byte) (meterial_id & 0xff);
-        data[5] = (byte) ((meterial_id >> 8) & 0xff);
-        data[6] = (byte) ((meterial_id >> 16) & 0xff);
-        data[7] = (byte) ((meterial_id >> 24) & 0xff);
+        data[4] = (byte) (material_id & 0xff);
+        data[5] = (byte) ((material_id >> 8) & 0xff);
+        data[6] = (byte) ((material_id >> 16) & 0xff);
+        data[7] = (byte) ((material_id >> 24) & 0xff);
 
         return command_package(CMD_CLEAR_MATERIAL_INFO, id, data);
     }
@@ -493,13 +490,13 @@ public class Protocol {
     /**
      * @return 错误代码，-1表示非法数据
      */
-    @Nullable
     public static int parseClearMaterialInfo(@NonNull byte[] pkg, int pkg_len) {
         BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkg_len));
         try {
             reader.skip(HEADER_LEN);
             return reader.readUnsignedChar();
         } catch (IOException e) {
+            e.printStackTrace();
             return -1;
         }
     }

@@ -16,9 +16,9 @@ public interface Urls {
     String ADD_DEVICE = BASE_URL + "add_device";                                       // 用户添加设备
     String RM_DEVICE = BASE_URL + "rm_device";                                         // 用户删除设备
     String MATERIAL_INFO = BASE_URL + "materialInfo";                                  // 扫码获取料包信息
-    String ADD_MATERIAL = BASE_URL + "addMaterial";                                    // 加料——标记为待使用状态
-    String CHANGE_MATERIAL_STATUS = BASE_URL + "changeMaterialStatus";                 // 加料——标记为已使用状态
-    String CANCEL_MATERIAL_STATUS = BASE_URL + "cancel_Mstatus";                       // 加料——标记为未使用状态
+    String WAIT_USE_STATUS = BASE_URL + "addMaterial";                                 // 加料——标记为待使用状态
+    String END_USE_STATUS = BASE_URL + "changeMaterialStatus";                         // 加料——标记为已使用状态
+    String NO_USE_STATUS = BASE_URL + "cancel_Mstatus";                                // 加料——标记为未使用状态
 
     String ADD_GROUP = BASE_URL + "add_group";                                         // 用户新建设备组
     String GET_DEVICE_GROUP_LIST = BASE_URL + "getDeviceGroupList";                    // 获取设备用户组

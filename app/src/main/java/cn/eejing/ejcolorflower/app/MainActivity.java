@@ -299,9 +299,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
                                     mRequestConfig = !send(mac, Protocol.get_config_package(id));
                                 }
                                 send(mac, Protocol.get_status_package(id));
-
-                                // 获取加料状态
-                                send(mac, Protocol.get_material_status(id));
                             }
                         }
                     },
