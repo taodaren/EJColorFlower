@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#4ab991</color>
+    <color name="colorPrimary">#49bf98</color>
     <color name="colorPrimaryDark">#4ab991</color>
     <color name="colorAccent">#FF4081</color>
 
@@ -23,6 +23,10 @@
     <color name="colorGray">#d9d9d9</color>
     <color name="colorBgGray">#EEEEEE</color>
     <color name="colorBgDevice">#cccccc</color>
+
+    <color name="colorGroupName">#666666</color>
+    <color name="colorGroupLine">#e5e5e5</color>
+
 
     <color name="colorHighlightTempLow">#619ee4</color>
     <color name="colorHighlightTempHigh">#f75e5e</color>

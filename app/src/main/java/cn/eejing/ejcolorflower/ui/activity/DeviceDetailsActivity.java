@@ -102,6 +102,7 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
                 Intent intent = new Intent(this, QRAddMaterialActivity.class);
                 intent.putExtra("device_id", mDeviceId);
                 jumpToActivity(intent);
+                finish();
                 break;
             case R.id.btn_remove_device:
                 Toast.makeText(this, "click_remove_device", Toast.LENGTH_SHORT).show();

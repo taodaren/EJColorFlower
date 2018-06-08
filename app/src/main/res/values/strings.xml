@@ -114,7 +114,10 @@
     <string name="toast_login_fail">登录失效，请重新登录</string>
     <string name="toast_already_used">该料包已被使用，请添加其它料包</string>
     <string name="toast_add_material_failed">设备添料失败</string>
+    <string name="toast_cancel_bind_success">取消绑定成功</string>
+    <string name="toast_cancel_bind_failed">取消绑定失败</string>
     <string name="toast_get_info_failed">获取信息失败</string>
     <string name="toast_no_right_operation">您无权对该设备进行操作</string>
+    <string name="toast_no_right_operation_pkg">您无权限对该料包进行操作</string>
     <string name="toast_add_material_success">恭喜您，料包添加成功</string>
 </resources>

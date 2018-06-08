@@ -1,6 +1,8 @@
 package cn.eejing.ejcolorflower.ui.fragment;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -34,6 +36,7 @@ import cn.eejing.ejcolorflower.device.DeviceState;
 import cn.eejing.ejcolorflower.device.OnReceivePackage;
 import cn.eejing.ejcolorflower.device.Protocol;
 import cn.eejing.ejcolorflower.model.request.AddMaterialBean;
+import cn.eejing.ejcolorflower.model.request.CancelMaterialStatusBean;
 import cn.eejing.ejcolorflower.model.request.ChangeMaterialStatusBean;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
 import cn.eejing.ejcolorflower.model.request.MaterialInfoBean;
@@ -43,8 +46,8 @@ import cn.eejing.ejcolorflower.ui.base.BaseFragment;
 import cn.eejing.ejcolorflower.util.Settings;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_END_USED;
-import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_WAIT_USED;
 import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_NO_USED;
+import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_WAIT_USED;
 
 /**
  * @创建者 Taodaren
@@ -283,7 +286,7 @@ public class TabDeviceFragment extends BaseFragment {
                         Log.e(AppConstant.TAG, "material_info request succeeded--->" + body);
 
                         MaterialInfoBean bean = mGson.fromJson(body, MaterialInfoBean.class);
-                        int addTime = Integer.parseInt(bean.getData().getDuration());
+                        final int addTime = Integer.parseInt(bean.getData().getDuration());
 
                         switch (bean.getCode()) {
                             case 0:
@@ -303,8 +306,34 @@ public class TabDeviceFragment extends BaseFragment {
                                     case TYPE_WAIT_USED:
                                         Log.e(JL, "待使用状态_D");
                                         // 提示被哪个设备绑定
-                                        Log.i(JL, "被哪个设备绑定: " + bean.getData().getUse_device());
+                                        final String useDevice = bean.getData().getUse_device();
+                                        Log.i(JL, "绑定设备: " + useDevice);
                                         Log.i(JL, "mDeviceId: " + mDeviceId);
+                                        // 提示被哪个设备绑定
+                                        if (useDevice.equals(mDeviceId)) {
+                                            // 如果被本设备绑定
+                                            Log.i(JL, "如果被本设备绑定，走到此处");
+
+                                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                                            builder.setTitle("料包已被本设备绑定")
+                                                    .setMessage("继续添加或取消绑定返回")
+                                                    .setPositiveButton("继续添加", new DialogInterface.OnClickListener() {
+                                                        public void onClick(DialogInterface dialog, int id) {
+                                                            // 获取时间戳
+                                                            Log.i(JL, "开始获取时间戳...");
+                                                            byDeviceGetTimestamps(materialId, addTime);
+                                                        }
+                                                    })
+                                                    .setNegativeButton("取消绑定", new DialogInterface.OnClickListener() {
+                                                        public void onClick(DialogInterface dialog, int id) {
+                                                            // 标记为未使用
+                                                            byServerNoUseStatus(materialId);
+                                                        }
+                                                    }).show();
+                                        } else {
+                                            // 如果是其它设备，提示已被 ** 设备绑定不可使用
+                                            information("料包已被 " + useDevice + " 绑定，不可使用！");
+                                        }
                                         break;
                                     case TYPE_END_USED:
                                         Log.e(JL, "已使用状态_D");
@@ -318,6 +347,36 @@ public class TabDeviceFragment extends BaseFragment {
                                 break;
                         }
 
+                    }
+                });
+    }
+
+    private void byServerNoUseStatus(String materialId) {
+        OkGo.<String>post(Urls.NO_USE_STATUS)
+                .params("member_id", mMemberId)
+                .params("material_id", materialId)
+                .params("device_id", mDeviceId)
+                .params("token", mToken)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        String body = response.body();
+                        Log.e(AppConstant.TAG, "no_use_status request succeeded--->" + body);
+
+                        CancelMaterialStatusBean bean = mGson.fromJson(body, CancelMaterialStatusBean.class);
+                        switch (bean.getCode()) {
+                            case 0:
+                                information(getString(R.string.toast_cancel_bind_failed));
+                                break;
+                            case 1:
+                                information(getString(R.string.toast_cancel_bind_success));
+                                break;
+                            case 6:
+                                information(getString(R.string.toast_no_right_operation_pkg));
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 });
     }
@@ -337,6 +396,24 @@ public class TabDeviceFragment extends BaseFragment {
                             case 0:
                                 Log.i(JL, "获取信息失败_E ！");
                                 information(getString(R.string.toast_get_info_failed));
+                                // TODO: 2018/6/8  
+                                // 清除加料信息（设备端）
+                                byte[] info = Protocol.clear_material_info(Long.parseLong(mDeviceId), Long.parseLong(mMemberId), 274652232);
+                                mDeviceControl.sendCommand(Long.parseLong(mDeviceId), info, new OnReceivePackage() {
+                                    @Override
+                                    public void ack(@NonNull byte[] pkg) {
+                                        int info = Protocol.parseClearMaterialInfo(pkg, pkg.length);
+                                        if (info == 0) {
+                                            Log.e(JL, "ack: ");
+                                        }
+                                    }
+
+                                    @Override
+                                    public void timeout() {
+
+                                    }
+                                });
+                                // TODO: 2018/6/8
                                 break;
                             case 1:
                                 Log.i(JL, "获取信息成功_E ！");
@@ -484,7 +561,7 @@ public class TabDeviceFragment extends BaseFragment {
             @Override
             public void ack(@NonNull byte[] pkg) {
                 int info = Protocol.parseClearMaterialInfo(pkg, pkg.length);
-                Log.e(JL, "清除加料信息返回值-->" + info + "  " + pkg.length);
+                Log.e(JL, "清除加料信息返回值-->" + info);
                 switch (info) {
                     case 0:
                         Log.i(JL, "已清理加料信息");

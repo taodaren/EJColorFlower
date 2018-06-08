@@ -6,24 +6,22 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.allen.library.SuperButton;
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
-import com.xw.repo.BubbleSeekBar;
 
 import java.util.List;
 
@@ -63,21 +61,15 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        RecyclerView.ViewHolder holder = null;
-        View inflate;
         switch (viewType) {
             case TYPE_ITEM:
-                inflate = mLayoutInflater.inflate(R.layout.item_unit_control, parent, false);
-                holder = new ItemViewHolder(inflate);
-                break;
+                return new ItemViewHolder(mLayoutInflater.inflate(R.layout.item_ctrl_card, parent, false));
             case TYPE_FOOTER:
-                inflate = mLayoutInflater.inflate(R.layout.item_footer_control, parent, false);
-                holder = new FootViewHolder(inflate);
-                ((FootViewHolder) holder).setClickListener();
-                break;
+                return new FootViewHolder(mLayoutInflater.inflate(R.layout.item_footer_control, parent, false));
             default:
+                Log.e(AppConstant.TAG, "onCreateViewHolder: is null");
+                return null;
         }
-        return holder;
     }
 
     @Override
@@ -113,28 +105,20 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         notifyDataSetChanged();
     }
 
-    class ItemViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.bubble_seek_bar)
-        BubbleSeekBar sbControl;
+    class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        @BindView(R.id.tv_ctrl_group_name)
+        TextView tvName;
+        @BindView(R.id.img_ctrl_group_switch)
+        ImageView imgSwitch;
         @BindView(R.id.rv_control_group)
         RecyclerView rvGroup;
         @BindView(R.id.tv_ctrl_group_info)
         TextView tvInfo;
-        @BindView(R.id.tv_ctrl_group_name)
-        TextView tvName;
-        @BindView(R.id.ch_ctrl_group_time)
-        Chronometer itemTime;// 这是一个可以倒计时和计时的控件
         @BindView(R.id.img_ctrl_group_add)
         ImageView imgAdd;
-        @BindView(R.id.img_ctrl_group_switch)
-        ImageView imgSwitch;
-        @BindView(R.id.img_group_name)
-        ImageView imgGroupName;
-        @BindView(R.id.sb_ctrl_group_time)
-        SuperButton sbTime;
+
         View outItem;
 
-        boolean flagSwitch = true;
 
         public ItemViewHolder(View itemView) {
             super(itemView);
@@ -154,17 +138,18 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
             tvName.setText(bean.getGroup_name());
 
-            sbControl.getConfigBuilder()
-                    .min(0)
-                    .max(10f)
-                    .floatType()
-                    .sectionCount(5)
-                    .secondTrackColor(ContextCompat.getColor(mContext, R.color.colorPrimary))
-                    .showThumbText()
-                    .build();
-            sbControl.setProgress((float) bean.getHigh());
+//            setClickListener(bean.getGroup_name(), bean.getGroup_id(), position);
+        }
 
-            setClickListener(bean.getGroup_name(), bean.getGroup_id(), position);
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()) {
+                case R.id.img_ctrl_group_switch:
+                    Toast.makeText(mContext, "img_ctrl_group_switch", Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    break;
+            }
         }
 
         public void setClickListener(final String group_name, final int group_id, final int position) {
@@ -180,12 +165,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 }
             });
 
-            imgGroupName.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    renameGroup(group_id);
-                }
-            });
 
             outItem.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
@@ -202,25 +181,11 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 }
             });
 
-            sbControl.setOnProgressChangedListener(new BubbleSeekBar.OnProgressChangedListenerAdapter() {
-                @Override
-                public void getProgressOnActionUp(BubbleSeekBar bubbleSeekBar, int progress, float progressFloat) {
-                    super.getProgressOnActionUp(bubbleSeekBar, progress, progressFloat);
-                    Log.e(AppConstant.TAG, "getProgressOnActionUp: " + progressFloat);
-                    getDataWithEditHigh(progressFloat, group_id);
-                }
-            });
 
             imgSwitch.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (flagSwitch) {
-                        imgSwitch.setImageDrawable(mContext.getDrawable(R.drawable.ic_switch_off));
-                        flagSwitch = false;
-                    } else if (!flagSwitch) {
-                        imgSwitch.setImageDrawable(mContext.getDrawable(R.drawable.ic_switch_on));
-                        flagSwitch = true;
-                    }
+
                 }
             });
 
@@ -254,11 +219,10 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             rvGroup.setLayoutManager(manager);
             rvGroup.setAdapter(new GroupListAdapter(list));
         }
-
     }
 
 
-    class FootViewHolder extends RecyclerView.ViewHolder {
+    class FootViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         @BindView(R.id.img_add_group)
         ImageView imgAddGroup;
@@ -266,15 +230,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         public FootViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, itemView);
-        }
-
-        public void setClickListener() {
-            imgAddGroup.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    addGroup();
-                }
-            });
         }
 
         private void addGroup() {
@@ -300,6 +255,15 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     .show();
         }
 
+        @Override
+        public void onClick(View view) {
+            imgAddGroup.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    addGroup();
+                }
+            });
+        }
     }
 
     public class GroupListAdapter extends RecyclerView.Adapter<GroupListAdapter.DeviceHolder> {

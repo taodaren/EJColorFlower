@@ -14,5 +14,7 @@
         android:id="@+id/rv_tab_control"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/toolbar_control" />
+        android:layout_below="@id/toolbar_control"
+        android:layout_marginTop="1.67dp"
+        android:padding="8.33dp" />
 </RelativeLayout>

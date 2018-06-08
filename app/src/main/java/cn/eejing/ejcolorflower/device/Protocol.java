@@ -330,7 +330,7 @@ public class Protocol {
     // 加料
     @NonNull
     public static byte[] add_material(long id, int time, long stamp, long user_id, long material_id) {
-        byte[] data = new byte[14];
+        byte[] data = new byte[16];
         data[0] = (byte) (time & 0xff);
         data[1] = (byte) ((time >> 8) & 0xff);
         data[2] = (byte) (stamp & 0xff);
@@ -348,6 +348,8 @@ public class Protocol {
         data[11] = (byte) ((material_id >> 8) & 0xff);
         data[12] = (byte) ((material_id >> 16) & 0xff);
         data[13] = (byte) ((material_id >> 24) & 0xff);
+        data[13] = (byte) ((material_id >> 32) & 0xff);
+        data[13] = (byte) ((material_id >> 40) & 0xff);
 
         return command_package(CMD_ADD_MATERIAL, id, data);
     }
@@ -381,7 +383,7 @@ public class Protocol {
     // 清除加料信息
     @NonNull
     public static byte[] clear_material_info(long id, long user_id, long material_id) {
-        byte[] data = new byte[8];
+        byte[] data = new byte[10];
 
         data[0] = (byte) (user_id & 0xff);
         data[1] = (byte) ((user_id >> 8) & 0xff);
@@ -392,6 +394,8 @@ public class Protocol {
         data[5] = (byte) ((material_id >> 8) & 0xff);
         data[6] = (byte) ((material_id >> 16) & 0xff);
         data[7] = (byte) ((material_id >> 24) & 0xff);
+        data[7] = (byte) ((material_id >> 32) & 0xff);
+        data[7] = (byte) ((material_id >> 40) & 0xff);
 
         return command_package(CMD_CLEAR_MATERIAL_INFO, id, data);
     }
