@@ -26,6 +26,7 @@
 
     <color name="colorGroupName">#666666</color>
     <color name="colorGroupLine">#e5e5e5</color>
+    <color name="colorFrame">#d2d2d2</color>
 
 
     <color name="colorHighlightTempLow">#619ee4</color>

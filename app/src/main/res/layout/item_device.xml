@@ -8,14 +8,15 @@
 
     <com.allen.library.SuperButton
         android:id="@+id/sb_device_add_list"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="7dp"
+        android:layout_width="43dp"
+        android:layout_height="17dp"
+        android:layout_marginEnd="10dp"
+        android:textColor="@color/colorGroupName"
         android:textSize="10sp"
-        stv:sShapeType="oval"
-        stv:sSolidColor="@color/colorWhite"
-        stv:sStrokeColor="@color/colorPrimary"
-        stv:sStrokeWidth="0.5dp"
+        stv:sCornersRadius="2.5dp"
+        stv:sShapeType="rectangle"
+        stv:sSolidColor="@color/colorTransparent"
+        stv:sStrokeColor="@color/colorFrame"
+        stv:sStrokeWidth="1dp"
         tools:ignore="SmallSp" />
 </RelativeLayout>

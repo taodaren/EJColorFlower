@@ -2,8 +2,11 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:stv="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="92.67dp"
-    android:layout_margin="3.33dp">
+    android:layout_height="139dp"
+    android:layout_marginEnd="10dp"
+    android:layout_marginStart="10dp"
+    android:layout_marginTop="20dp"
+    stv:cardCornerRadius="5dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,92 +16,97 @@
         <TextView
             android:id="@+id/tv_ctrl_group_name"
             android:layout_width="wrap_content"
-            android:layout_height="23.33dp"
-            android:layout_marginStart="16.67dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="25dp"
             android:gravity="center_vertical"
-            android:textStyle="bold"
             android:text="第一组"
             android:textColor="@color/colorGroupName"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            android:textStyle="bold" />
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="0.33dp"
+            android:layout_height="0.5dp"
             android:background="@color/colorGroupLine" />
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="69.33dp">
+            android:layout_height="104dp">
 
             <ImageView
                 android:id="@+id/img_ctrl_group_switch"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="66dp"
+                android:layout_height="66dp"
                 android:layout_alignParentBottom="true"
-                android:layout_marginBottom="12.67dp"
-                android:layout_marginStart="16.67dp"
+                android:layout_marginBottom="19dp"
+                android:layout_marginStart="25dp"
                 android:src="@drawable/ic_switch" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginStart="16.67dp"
+                android:layout_marginStart="25dp"
                 android:layout_toEndOf="@id/img_ctrl_group_switch"
                 android:orientation="vertical">
 
-                <LinearLayout
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="35.33dp"
+                    android:layout_height="53dp"
                     android:gravity="center_vertical"
-                    android:paddingTop="4dp">
+                    android:paddingTop="6dp">
 
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/rv_control_group"
-                        android:layout_width="0dp"
+                        android:layout_width="150dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:layout_centerVertical="true"
                         android:visibility="gone" />
 
                     <TextView
                         android:id="@+id/tv_ctrl_group_info"
-                        android:layout_width="0dp"
+                        android:layout_width="150dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="请添加设备到分组"
+                        android:layout_centerVertical="true"
+                        android:maxLines="1"
+                        android:text="@string/please_add_device"
                         android:textColor="@color/colorGroupName"
                         android:textSize="12sp" />
 
                     <ImageView
                         android:id="@+id/img_ctrl_group_add"
-                        android:layout_width="16.67dp"
-                        android:layout_height="16.67dp"
-                        android:layout_marginEnd="20dp"
-                        android:layout_marginStart="13.33dp"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="10dp"
+                        android:padding="5dp"
                         android:src="@drawable/ic_ctrl_add" />
-                </LinearLayout>
+                </RelativeLayout>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="17.33dp"
+                    android:layout_height="26dp"
                     android:background="@drawable/shape_config_btn"
                     android:padding="0.5dp">
 
                     <com.allen.library.SuperButton
-                        android:layout_width="41.67dp"
+                        android:id="@+id/sb_type_puff"
+                        android:layout_width="62.5dp"
                         android:layout_height="match_parent"
                         android:text="流水灯"
                         android:textColor="@color/colorPrimary"
-                        android:textSize="10sp"
+                        android:textSize="12sp"
                         stv:sSelectorDisableColor="@color/colorPrimary"
                         stv:sSelectorNormalColor="@color/colorWhite"
                         stv:sUseSelector="true" />
 
                     <com.allen.library.SuperButton
-                        android:layout_width="33.33dp"
+                        android:id="@+id/sb_config_puff"
+                        android:layout_width="50dp"
                         android:layout_height="match_parent"
                         android:text="配置"
                         android:textColor="@color/colorWhite"
-                        android:textSize="10sp"
+                        android:textSize="15sp"
                         stv:sSelectorDisableColor="@color/colorPrimary"
                         stv:sSelectorNormalColor="@color/colorPrimary"
                         stv:sUseSelector="true" />

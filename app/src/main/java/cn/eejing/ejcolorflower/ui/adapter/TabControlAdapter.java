@@ -44,9 +44,9 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private static final int TYPE_FOOTER = 1;
 
     private Context mContext;
-    private List<DeviceGroupListBean.DataBean> mList;
     private LayoutInflater mLayoutInflater;
     private Gson mGson;
+    private List<DeviceGroupListBean.DataBean> mList;
     private String mMemberId, mToken;
 
     public TabControlAdapter(Context mContext, List<DeviceGroupListBean.DataBean> mList, String mMemberId) {
@@ -100,7 +100,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
     }
 
-    public void addList(List<DeviceGroupListBean.DataBean> list) {
+    private void addList(List<DeviceGroupListBean.DataBean> list) {
         mList.addAll(list);
         notifyDataSetChanged();
     }
@@ -116,18 +116,31 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         TextView tvInfo;
         @BindView(R.id.img_ctrl_group_add)
         ImageView imgAdd;
+        @BindView(R.id.sb_type_puff)
+        SuperButton sbType;
+        @BindView(R.id.sb_config_puff)
+        SuperButton sbConfig;
 
         View outItem;
+        int groupId;
+        String groupName;
 
 
-        public ItemViewHolder(View itemView) {
+        ItemViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
             outItem = itemView;
+
+            tvName.setOnClickListener(this);
+            imgSwitch.setOnClickListener(this);
+            imgAdd.setOnClickListener(this);
+            sbType.setOnClickListener(this);
+            sbConfig.setOnClickListener(this);
         }
 
-        public void setData(DeviceGroupListBean.DataBean bean, int position) {
+        public void setData(DeviceGroupListBean.DataBean bean, final int position) {
             if (bean.getGroup_list() != null && bean.getGroup_list().size() > 0) {
+                // 如果有设备，显示设备，隐藏提示文字
                 tvInfo.setVisibility(View.GONE);
                 rvGroup.setVisibility(View.VISIBLE);
                 initGroupList(bean.getGroup_list());
@@ -138,33 +151,8 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
             tvName.setText(bean.getGroup_name());
 
-//            setClickListener(bean.getGroup_name(), bean.getGroup_id(), position);
-        }
-
-        @Override
-        public void onClick(View view) {
-            switch (view.getId()) {
-                case R.id.img_ctrl_group_switch:
-                    Toast.makeText(mContext, "img_ctrl_group_switch", Toast.LENGTH_SHORT).show();
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        public void setClickListener(final String group_name, final int group_id, final int position) {
-            imgAdd.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(mContext, CoDeviceActivity.class);
-                    intent.putExtra("member_id", mMemberId);
-                    intent.putExtra("group_id", group_id);
-                    intent.putExtra("group_name", group_name);
-                    intent.putExtra("token", mToken);
-                    mContext.startActivity(intent);
-                }
-            });
-
+            groupId = bean.getGroup_id();
+            groupName = bean.getGroup_name();
 
             outItem.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
@@ -180,15 +168,34 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     return true;
                 }
             });
+        }
 
-
-            imgSwitch.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                }
-            });
-
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()) {
+                case R.id.tv_ctrl_group_name:
+                    renameGroup(groupId);
+                    break;
+                case R.id.img_ctrl_group_switch:
+                    Toast.makeText(mContext, "img_ctrl_group_switch", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.img_ctrl_group_add:
+                    Intent intent = new Intent(mContext, CoDeviceActivity.class);
+                    intent.putExtra("member_id", mMemberId);
+                    intent.putExtra("group_id", groupId);
+                    intent.putExtra("group_name", groupName);
+                    intent.putExtra("token", mToken);
+                    mContext.startActivity(intent);
+                    break;
+                case R.id.sb_type_puff:
+                    Toast.makeText(mContext, "sb_type_puff", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.sb_config_puff:
+                    Toast.makeText(mContext, "sb_config_puff", Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void renameGroup(final int group_id) {
@@ -221,15 +228,14 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
     }
 
-
     class FootViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
         @BindView(R.id.img_add_group)
         ImageView imgAddGroup;
 
-        public FootViewHolder(View view) {
+        FootViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, itemView);
+            imgAddGroup.setOnClickListener(this);
         }
 
         private void addGroup() {
@@ -257,20 +263,20 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         @Override
         public void onClick(View view) {
-            imgAddGroup.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+            switch (view.getId()) {
+                case R.id.img_add_group:
                     addGroup();
-                }
-            });
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
     public class GroupListAdapter extends RecyclerView.Adapter<GroupListAdapter.DeviceHolder> {
-
         List<String> devices;
 
-        public GroupListAdapter(List<String> devices) {
+        GroupListAdapter(List<String> devices) {
             this.devices = devices;
         }
 
@@ -291,11 +297,10 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         public class DeviceHolder extends RecyclerView.ViewHolder {
-
             @BindView(R.id.sb_device_add_list)
             SuperButton sbDevice;
 
-            public DeviceHolder(View itemView) {
+            DeviceHolder(View itemView) {
                 super(itemView);
                 ButterKnife.bind(this, itemView);
             }
@@ -306,7 +311,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     sbDevice.setText(devices.get(getAdapterPosition()));
                 }
             }
-
         }
     }
 
@@ -374,22 +378,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     }
                 });
 
-    }
-
-    private void getDataWithEditHigh(float high, int group_id) {
-        OkGo.<String>post(Urls.EDIT_HIGH)
-                .tag(this)
-                .params("member_id", mMemberId)
-                .params("high", high)
-                .params("group_id", group_id)
-                .params("token", mToken)
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        Log.e(AppConstant.TAG, "edit high request succeeded！！！" + body);
-                    }
-                });
     }
 
 }
