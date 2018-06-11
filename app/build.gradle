@@ -64,6 +64,8 @@ dependencies {
     implementation 'org.greenrobot:eventbus:3.0.0'
     // BGABanner
     implementation 'cn.bingoogolapple:bga-banner:2.2.4@aar'
+    // CustomPopWindow
+    implementation 'com.github.pinguo-zhouwei:CustomPopwindow:2.1.1'
 
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     testImplementation 'junit:junit:4.12'

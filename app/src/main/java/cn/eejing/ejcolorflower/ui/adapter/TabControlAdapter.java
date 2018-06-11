@@ -14,10 +14,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.allen.library.SuperButton;
+import com.example.zhouwei.library.CustomPopWindow;
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
@@ -48,6 +50,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private Gson mGson;
     private List<DeviceGroupListBean.DataBean> mList;
     private String mMemberId, mToken;
+    private CustomPopWindow mCustomPopWindow;
 
     public TabControlAdapter(Context mContext, List<DeviceGroupListBean.DataBean> mList, String mMemberId) {
         this.mContext = mContext;
@@ -191,11 +194,67 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     Toast.makeText(mContext, "sb_type_puff", Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.sb_config_puff:
-                    Toast.makeText(mContext, "sb_config_puff", Toast.LENGTH_SHORT).show();
+                    showPopTopWithDarkBg();
                     break;
                 default:
                     break;
             }
+        }
+
+        // 显示 PopupWindow 同时背景变暗
+        private void showPopTopWithDarkBg() {
+            View contentView = LayoutInflater.from(mContext).inflate(R.layout.layout_pop_menu, null);
+            // 处理 popWindow 显示内容
+            handleLogic(contentView);
+            // 创建并显示 popWindow
+            mCustomPopWindow = new CustomPopWindow.PopupWindowBuilder(mContext)
+                    .setView(contentView)
+                    // 弹出 popWindow 时，背景是否变暗
+                    .enableBackgroundDark(true)
+                    // 控制亮度
+                    .setBgDarkAlpha(0.7f)
+                    .setOnDissmissListener(new PopupWindow.OnDismissListener() {
+                        @Override
+                        public void onDismiss() {
+                            Log.e("TAG", "onDismiss");
+                        }
+                    })
+                    .create()
+                    .showAsDropDown(sbConfig, 0, 20);
+        }
+
+        // 处理弹出显示内容、点击事件等逻辑
+        private void handleLogic(View contentView) {
+            View.OnClickListener listener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mCustomPopWindow != null) {
+                        mCustomPopWindow.dissmiss();
+                    }
+                    String showContent = "";
+                    switch (v.getId()) {
+                        case R.id.pop_config_stream:
+                            showContent = "pop_config_stream";
+                            break;
+                        case R.id.pop_config_ride:
+                            showContent = "pop_config_ride";
+                            break;
+                        case R.id.pop_config_interval:
+                            showContent = "pop_config_interval";
+                            break;
+                        case R.id.pop_config_together:
+                            showContent = "pop_config_together";
+                            break;
+                        default:
+                            break;
+                    }
+                    Toast.makeText(mContext, showContent, Toast.LENGTH_SHORT).show();
+                }
+            };
+            contentView.findViewById(R.id.pop_config_stream).setOnClickListener(listener);
+            contentView.findViewById(R.id.pop_config_ride).setOnClickListener(listener);
+            contentView.findViewById(R.id.pop_config_interval).setOnClickListener(listener);
+            contentView.findViewById(R.id.pop_config_together).setOnClickListener(listener);
         }
 
         private void renameGroup(final int group_id) {
