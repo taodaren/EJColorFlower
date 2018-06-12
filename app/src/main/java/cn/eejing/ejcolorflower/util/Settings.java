@@ -1,5 +1,6 @@
 package cn.eejing.ejcolorflower.util;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -28,6 +29,12 @@ public class Settings {
         editor.putLong("member_id", session.getMember_id());
         editor.putString("token", session.getToken());
         editor.apply();
+    }
+
+    @SuppressLint("ApplySharedPref")
+    public static void clearInfo(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences("setting", Context.MODE_PRIVATE);
+        preferences.edit().clear().commit();
     }
 
 }

@@ -1,5 +1,6 @@
 package cn.eejing.ejcolorflower.ui.base;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,6 +13,9 @@ import android.widget.TextView;
 
 import com.jaeger.library.StatusBarUtil;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 
@@ -21,6 +25,7 @@ import cn.eejing.ejcolorflower.R;
  */
 
 public abstract class BaseActivity extends AppCompatActivity {
+    private static Map<String, Activity> activityMap = new HashMap<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -102,6 +107,24 @@ public abstract class BaseActivity extends AppCompatActivity {
     public void jumpToActivity(Class activity) {
         Intent intent = new Intent(this, activity);
         startActivity(intent);
+    }
+
+    public static void addActivity(String key, Activity activity) {
+        if (activityMap.get(key) == null) {
+            activityMap.put(key, activity);
+        }
+    }
+
+    public static void delActivity(String key) {
+        Activity activity = activityMap.get(key);
+        if (activity != null) {
+            if (activity.isDestroyed() || activity.isFinishing()) {
+                activityMap.remove(key);
+                return;
+            }
+            activity.finish();
+            activityMap.remove(key);
+        }
     }
 
 }

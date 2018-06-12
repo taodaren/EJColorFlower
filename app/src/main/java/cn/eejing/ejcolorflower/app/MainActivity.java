@@ -22,7 +22,6 @@ import java.util.Map;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
-import cn.eejing.ejcolorflower.device.DeviceMaterialStatus;
 import cn.eejing.ejcolorflower.device.DeviceState;
 import cn.eejing.ejcolorflower.device.ISendCommand;
 import cn.eejing.ejcolorflower.device.OnReceivePackage;
@@ -35,6 +34,7 @@ import cn.eejing.ejcolorflower.ui.fragment.TabMineFragment;
 import cn.eejing.ejcolorflower.util.Util;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.ACK_TIMEOUT;
+import static cn.eejing.ejcolorflower.app.AppConstant.EXIT_LOGIN;
 import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_CHARACTERISTIC_WRITE;
 import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_SERVICE;
 
@@ -61,6 +61,8 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
 
     @Override
     public void initView() {
+        addActivity(EXIT_LOGIN, this);
+
         initBtnNavBar();
         mFragments = getFragments();
         setDefFragment();

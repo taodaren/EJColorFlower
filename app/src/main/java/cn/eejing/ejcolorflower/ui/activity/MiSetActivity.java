@@ -1,15 +1,18 @@
 package cn.eejing.ejcolorflower.ui.activity;
 
+import android.content.Intent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.allen.library.SuperTextView;
 
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
+import cn.eejing.ejcolorflower.util.Settings;
+
+import static cn.eejing.ejcolorflower.app.AppConstant.EXIT_LOGIN;
 
 /**
  * @创建者 Taodaren
@@ -53,7 +56,8 @@ public class MiSetActivity extends BaseActivity {
         btnExitLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MiSetActivity.this, "btnExitLogin", Toast.LENGTH_SHORT).show();
+                // 退出登陆
+                logout();
             }
         });
         imgTitleBack.setOnClickListener(new View.OnClickListener() {
@@ -62,6 +66,16 @@ public class MiSetActivity extends BaseActivity {
                 finish();
             }
         });
+    }
+
+    private void logout() {
+        // 清空缓存
+        Settings.clearInfo(getBaseContext());
+        // 退出登陆回到登陆界面
+        startActivity(new Intent(MiSetActivity.this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        finish();
+        // 结束 MainActivity
+        delActivity(EXIT_LOGIN);
     }
 
 }

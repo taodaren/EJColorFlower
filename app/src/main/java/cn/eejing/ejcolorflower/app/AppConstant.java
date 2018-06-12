@@ -12,6 +12,8 @@ import java.util.UUID;
 public class AppConstant {
     public static final String TAG = "taodaren";
 
+    public static final String EXIT_LOGIN = "exit_login";
+
     public static final ParcelUuid UUID_GATT_SERVICE
             = ParcelUuid.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
     public static final UUID UUID_GATT_CHARACTERISTIC_WRITE
