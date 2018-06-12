@@ -120,4 +120,14 @@
     <string name="toast_no_right_operation">您无权对该设备进行操作</string>
     <string name="toast_no_right_operation_pkg">您无权限对该料包进行操作</string>
     <string name="toast_add_material_success">恭喜您，料包添加成功</string>
+
+    <string name="config_stream">流水灯</string>
+    <string name="config_ride">跑马灯</string>
+    <string name="config_interval">间隔高低</string>
+    <string name="config_together">齐喷</string>
+    <string name="text_left_to_right">从左到右</string>
+    <string name="text_right_to_left">从右到左</string>
+    <string name="text_border_to_center">从两端到中间</string>
+    <string name="text_center_to_border">从中间到两端</string>
+    <string name="text_s">S</string>
 </resources>

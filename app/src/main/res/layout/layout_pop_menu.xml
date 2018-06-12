@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="130dp"
     android:layout_height="179dp"
     android:background="@drawable/ic_config_bg"
@@ -18,13 +19,14 @@
         <ImageView
             android:layout_width="28dp"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_config_stream" />
+            android:src="@drawable/ic_config_stream"
+            tools:ignore="ContentDescription" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
-            android:text="流水灯"
+            android:text="@string/config_stream"
             android:textColor="@color/colorConfig"
             android:textSize="15sp" />
     </RelativeLayout>
@@ -39,13 +41,14 @@
         <ImageView
             android:layout_width="28dp"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_config_ride" />
+            android:src="@drawable/ic_config_ride"
+            tools:ignore="ContentDescription" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
-            android:text="跑马灯"
+            android:text="@string/config_ride"
             android:textColor="@color/colorConfig"
             android:textSize="15sp" />
     </RelativeLayout>
@@ -60,13 +63,14 @@
         <ImageView
             android:layout_width="28dp"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_config_interval" />
+            android:src="@drawable/ic_config_interval"
+            tools:ignore="ContentDescription" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
-            android:text="间隔高低"
+            android:text="@string/config_interval"
             android:textColor="@color/colorConfig"
             android:textSize="15sp" />
     </RelativeLayout>
@@ -81,13 +85,14 @@
         <ImageView
             android:layout_width="28dp"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_config_together" />
+            android:src="@drawable/ic_config_together"
+            tools:ignore="ContentDescription" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
-            android:text="齐喷"
+            android:text="@string/config_together"
             android:textColor="@color/colorConfig"
             android:textSize="15sp" />
     </RelativeLayout>

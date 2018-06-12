@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorWhite"
+        android:orientation="vertical">
+
+        <include
+            android:id="@+id/toolbar_config_stream"
+            layout="@layout/layout_toolbar" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="30dp"
+            android:text="方向"
+            android:textColor="@color/colorBlack"
+            android:textSize="15sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioGroup
+                android:id="@+id/radio_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="15dp">
+
+                <RadioButton
+                    android:id="@+id/rbtn_left_to_right"
+                    android:layout_width="104dp"
+                    android:layout_height="31dp"
+                    android:background="@drawable/shape_btn_on_click"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="@string/text_left_to_right"
+                    android:textColor="@color/white"
+                    android:textSize="15sp" />
+
+                <RadioButton
+                    android:id="@+id/rbtn_border_to_center"
+                    android:layout_width="104dp"
+                    android:layout_height="31dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/shape_btn_no_click"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="@string/text_border_to_center"
+                    android:textColor="@color/colorNoClick"
+                    android:textSize="15sp" />
+
+            </RadioGroup>
+
+            <RadioGroup
+                android:id="@+id/radio_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="15dp">
+
+                <RadioButton
+                    android:id="@+id/rbtn_right_to_left"
+                    android:layout_width="104dp"
+                    android:layout_height="31dp"
+                    android:background="@drawable/shape_btn_no_click"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="@string/text_right_to_left"
+                    android:textColor="@color/colorNoClick"
+                    android:textSize="15sp" />
+
+                <RadioButton
+                    android:id="@+id/rbtn_center_to_border"
+                    android:layout_width="104dp"
+                    android:layout_height="31dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/shape_btn_no_click"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:text="@string/text_center_to_border"
+                    android:textColor="@color/colorNoClick"
+                    android:textSize="15sp" />
+            </RadioGroup>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="45dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="84dp"
+                    android:layout_height="wrap_content"
+                    android:text="间隔时间"
+                    android:textColor="@color/colorConfig"
+                    android:textSize="15sp" />
+
+                <EditText
+                    android:layout_width="124dp"
+                    android:layout_height="30dp"
+                    android:background="@drawable/shape_edit_bg"
+                    android:padding="6dp"
+                    android:textCursorDrawable="@null" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/text_s"
+                    android:textColor="@color/colorNoClick" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="15dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="84dp"
+                    android:layout_height="wrap_content"
+                    android:text="持续时间"
+                    android:textColor="@color/colorConfig"
+                    android:textSize="15sp" />
+
+                <EditText
+                    android:layout_width="124dp"
+                    android:layout_height="30dp"
+                    android:background="@drawable/shape_edit_bg"
+                    android:padding="6dp"
+                    android:textCursorDrawable="@null" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/text_s"
+                    android:textColor="@color/colorNoClick" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="15dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="84dp"
+                    android:layout_height="wrap_content"
+                    android:text="大间隔时间"
+                    android:textColor="@color/colorConfig"
+                    android:textSize="15sp" />
+
+                <EditText
+                    android:layout_width="124dp"
+                    android:layout_height="30dp"
+                    android:background="@drawable/shape_edit_bg"
+                    android:padding="6dp"
+                    android:textCursorDrawable="@null" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/text_s"
+                    android:textColor="@color/colorNoClick" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="15dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="84dp"
+                    android:layout_height="wrap_content"
+                    android:text="循环次数"
+                    android:textColor="@color/colorConfig"
+                    android:textSize="15sp" />
+
+                <EditText
+                    android:layout_width="124dp"
+                    android:layout_height="30dp"
+                    android:background="@drawable/shape_edit_bg"
+                    android:padding="6dp"
+                    android:textCursorDrawable="@null" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/btn_config_verify"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="35dp"
+            android:layout_marginTop="45dp"
+            android:background="@drawable/ic_btn_confirm" />
+    </LinearLayout>
+</RelativeLayout>

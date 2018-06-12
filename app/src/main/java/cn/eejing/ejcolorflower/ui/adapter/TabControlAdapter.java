@@ -34,6 +34,10 @@ import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
 import cn.eejing.ejcolorflower.ui.activity.CoDeviceActivity;
+import cn.eejing.ejcolorflower.ui.activity.ConfigIntervalActivity;
+import cn.eejing.ejcolorflower.ui.activity.ConfigRideActivity;
+import cn.eejing.ejcolorflower.ui.activity.ConfigStreamActivity;
+import cn.eejing.ejcolorflower.ui.activity.ConfigTogetherActivity;
 import cn.eejing.ejcolorflower.util.Settings;
 
 /**
@@ -128,7 +132,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         int groupId;
         String groupName;
 
-
         ItemViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
@@ -137,7 +140,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             tvName.setOnClickListener(this);
             imgSwitch.setOnClickListener(this);
             imgAdd.setOnClickListener(this);
-            sbType.setOnClickListener(this);
             sbConfig.setOnClickListener(this);
         }
 
@@ -190,9 +192,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     intent.putExtra("token", mToken);
                     mContext.startActivity(intent);
                     break;
-                case R.id.sb_type_puff:
-                    Toast.makeText(mContext, "sb_type_puff", Toast.LENGTH_SHORT).show();
-                    break;
                 case R.id.sb_config_puff:
                     showPopTopWithDarkBg();
                     break;
@@ -231,24 +230,22 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     if (mCustomPopWindow != null) {
                         mCustomPopWindow.dissmiss();
                     }
-                    String showContent = "";
                     switch (v.getId()) {
                         case R.id.pop_config_stream:
-                            showContent = "pop_config_stream";
+                            mContext.startActivity(new Intent(mContext, ConfigStreamActivity.class));
                             break;
                         case R.id.pop_config_ride:
-                            showContent = "pop_config_ride";
+                            mContext.startActivity(new Intent(mContext, ConfigRideActivity.class));
                             break;
                         case R.id.pop_config_interval:
-                            showContent = "pop_config_interval";
+                            mContext.startActivity(new Intent(mContext, ConfigIntervalActivity.class));
                             break;
                         case R.id.pop_config_together:
-                            showContent = "pop_config_together";
+                            mContext.startActivity(new Intent(mContext, ConfigTogetherActivity.class));
                             break;
                         default:
                             break;
                     }
-                    Toast.makeText(mContext, showContent, Toast.LENGTH_SHORT).show();
                 }
             };
             contentView.findViewById(R.id.pop_config_stream).setOnClickListener(listener);

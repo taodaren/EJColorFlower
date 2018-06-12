@@ -47,6 +47,10 @@
         <activity android:name=".ui.activity.MiOrderActivity" />
         <activity android:name=".app.BLEManagerActivity" />
         <activity android:name=".ui.activity.QRAddMaterialActivity" />
+        <activity android:name=".ui.activity.ConfigStreamActivity" />
+        <activity android:name=".ui.activity.ConfigRideActivity" />
+        <activity android:name=".ui.activity.ConfigIntervalActivity" />
+        <activity android:name=".ui.activity.ConfigTogetherActivity"></activity>
     </application>
 
 </manifest>
