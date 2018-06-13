@@ -16,6 +16,7 @@
         android:layout_alignParentBottom="true">
 
         <Button
+            android:id="@+id/btn_customer_service"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/colorWhite"
@@ -24,6 +25,7 @@
             tools:ignore="ButtonStyle" />
 
         <Button
+            android:id="@+id/btn_buy_now"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

@@ -1,7 +1,10 @@
 package cn.eejing.ejcolorflower.ui.activity;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import com.google.gson.Gson;
@@ -20,6 +23,8 @@ import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.model.request.GoodsDetailsBean;
 import cn.eejing.ejcolorflower.ui.adapter.GoodsDetailsAdapter;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
+import cn.eejing.ejcolorflower.util.SelfDialog;
+import cn.eejing.ejcolorflower.util.SelfDialogBase;
 
 /**
  * 商品详情
@@ -31,10 +36,16 @@ public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClick
     ImageView imgTitleBack;
     @BindView(R.id.rv_goods_details)
     PullLoadMoreRecyclerView rvGoodsDetails;
+    @BindView(R.id.btn_customer_service)
+    Button btnCustomerService;
+    @BindView(R.id.btn_buy_now)
+    Button btnBuyNow;
 
     private Gson mGson;
     private List<GoodsDetailsBean.DataBean> mList;
     private int mGoodsId;
+    private String mPhone;
+    private SelfDialogBase mDialog;
 
     @Override
     protected int layoutViewId() {
@@ -58,6 +69,8 @@ public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClick
     @Override
     public void initListener() {
         imgTitleBack.setOnClickListener(this);
+        btnCustomerService.setOnClickListener(this);
+        btnBuyNow.setOnClickListener(this);
     }
 
     @Override
@@ -65,6 +78,11 @@ public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClick
         switch (view.getId()) {
             case R.id.img_title_back:
                 finish();
+                break;
+            case R.id.btn_customer_service:
+                showDialog();
+                break;
+            case R.id.btn_buy_now:
                 break;
             default:
                 break;
@@ -95,6 +113,28 @@ public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClick
         rvGoodsDetails.setPullLoadMoreCompleted();
     }
 
+    private void showDialog() {
+        mDialog = new SelfDialogBase(this);
+        mDialog.setTitle(mPhone);
+        mDialog.setYesOnclickListener("呼叫", new SelfDialogBase.onYesOnclickListener() {
+            @Override
+            public void onYesClick() {
+                // 拨打客服电话
+                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + mPhone));
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                mDialog.dismiss();
+            }
+        });
+        mDialog.setNoOnclickListener("取消", new SelfDialogBase.onNoOnclickListener() {
+            @Override
+            public void onNoClick() {
+                mDialog.dismiss();
+            }
+        });
+        mDialog.show();
+    }
+
     private void getDataWithGoodsDetails() {
         OkGo.<String>post(Urls.GOODS_DETAILS)
                 .tag(this)
@@ -106,6 +146,7 @@ public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClick
                                  Log.e(AppConstant.TAG, "goods_details request succeeded--->" + body);
 
                                  GoodsDetailsBean bean = mGson.fromJson(body, GoodsDetailsBean.class);
+                                 mPhone = bean.getData().getPhone();
                                  mList.add(bean.getData());
                                  initRecyclerView();
                                  // 刷新结束
@@ -118,7 +159,6 @@ public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClick
                              }
                          }
                 );
-
     }
 
 }

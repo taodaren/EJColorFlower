@@ -38,6 +38,7 @@ import cn.eejing.ejcolorflower.ui.activity.ConfigIntervalActivity;
 import cn.eejing.ejcolorflower.ui.activity.ConfigRideActivity;
 import cn.eejing.ejcolorflower.ui.activity.ConfigStreamActivity;
 import cn.eejing.ejcolorflower.ui.activity.ConfigTogetherActivity;
+import cn.eejing.ejcolorflower.util.SelfDialog;
 import cn.eejing.ejcolorflower.util.Settings;
 
 /**
@@ -256,24 +257,27 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         private void renameGroup(final int group_id) {
             final EditText editText = new EditText(mContext);
+            final SelfDialog selfDialog;
+
             // 重命名组 Dialog
-            new AlertDialog.Builder(mContext, R.style.BtnDialogColor)
-                    .setTitle("请重新输入组名称")
-                    .setMessage("名字长度不能超过6个字符")
-                    .setView(editText)
-                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            getDataWithRenameGroup(editText, group_id);
-                        }
-                    })
-                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            dialogInterface.dismiss();
-                        }
-                    })
-                    .show();
+            selfDialog = new SelfDialog(mContext);
+            selfDialog.setTitle("请重新输入组名称");
+            selfDialog.setMessage("名字长度不能超过6个字符");
+            selfDialog.setView(editText.getText().toString());
+            selfDialog.setYesOnclickListener("确定", new SelfDialog.onYesOnclickListener() {
+                @Override
+                public void onYesClick() {
+                    getDataWithRenameGroup(editText, group_id);
+                    selfDialog.dismiss();
+                }
+            });
+            selfDialog.setNoOnclickListener("取消", new SelfDialog.onNoOnclickListener() {
+                @Override
+                public void onNoClick() {
+                    selfDialog.dismiss();
+                }
+            });
+            selfDialog.show();
         }
 
         private void initGroupList(List<String> list) {
