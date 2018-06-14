@@ -39,7 +39,8 @@
             android:layout_marginTop="8dp"
             android:background="@drawable/shape_edit_bg"
             android:padding="6dp"
-            android:textCursorDrawable="@null" />
+            android:textCursorDrawable="@null"
+            android:textSize="14sp" />
 
         <View
             android:layout_width="match_parent"

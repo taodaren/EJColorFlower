@@ -1,8 +1,6 @@
 package cn.eejing.ejcolorflower.ui.adapter;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -12,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -56,6 +53,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private List<DeviceGroupListBean.DataBean> mList;
     private String mMemberId, mToken;
     private CustomPopWindow mCustomPopWindow;
+    private SelfDialog mDialog;
 
     public TabControlAdapter(Context mContext, List<DeviceGroupListBean.DataBean> mList, String mMemberId) {
         this.mContext = mContext;
@@ -256,28 +254,24 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         private void renameGroup(final int group_id) {
-            final EditText editText = new EditText(mContext);
-            final SelfDialog selfDialog;
-
             // 重命名组 Dialog
-            selfDialog = new SelfDialog(mContext);
-            selfDialog.setTitle("请重新输入组名称");
-            selfDialog.setMessage("名字长度不能超过6个字符");
-            selfDialog.setView(editText.getText().toString());
-            selfDialog.setYesOnclickListener("确定", new SelfDialog.onYesOnclickListener() {
+            mDialog = new SelfDialog(mContext);
+            mDialog.setTitle("请重新输入组名称");
+            mDialog.setMessage("名字长度不能超过6个字符");
+            mDialog.setYesOnclickListener("确定", new SelfDialog.onYesOnclickListener() {
                 @Override
                 public void onYesClick() {
-                    getDataWithRenameGroup(editText, group_id);
-                    selfDialog.dismiss();
+                    getDataWithRenameGroup(mDialog.getEditTextStr(), group_id);
+                    mDialog.dismiss();
                 }
             });
-            selfDialog.setNoOnclickListener("取消", new SelfDialog.onNoOnclickListener() {
+            mDialog.setNoOnclickListener("取消", new SelfDialog.onNoOnclickListener() {
                 @Override
                 public void onNoClick() {
-                    selfDialog.dismiss();
+                    mDialog.dismiss();
                 }
             });
-            selfDialog.show();
+            mDialog.show();
         }
 
         private void initGroupList(List<String> list) {
@@ -299,26 +293,24 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         private void addGroup() {
-            final EditText editText = new EditText(mContext);
-            // 弹出新建组 Dialog
-            new AlertDialog.Builder(mContext, R.style.BtnDialogColor)
-                    .setTitle("请输入新建组名称")
-                    .setMessage("名字长度不能超过6个字符")
-                    .setView(editText)
-                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            // 新建组
-                            getDataWithAddGroup(editText);
-                        }
-                    })
-                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            dialogInterface.dismiss();
-                        }
-                    })
-                    .show();
+            mDialog = new SelfDialog(mContext);
+            mDialog.setTitle("请输入新建组名称");
+            mDialog.setMessage("名字长度不能超过6个字符");
+            mDialog.setYesOnclickListener("确定", new SelfDialog.onYesOnclickListener() {
+                @Override
+                public void onYesClick() {
+                    // 新建组
+                    getDataWithAddGroup(mDialog.getEditTextStr());
+                    mDialog.dismiss();
+                }
+            });
+            mDialog.setNoOnclickListener("取消", new SelfDialog.onNoOnclickListener() {
+                @Override
+                public void onNoClick() {
+                    mDialog.dismiss();
+                }
+            });
+            mDialog.show();
         }
 
         @Override
@@ -408,13 +400,11 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 );
     }
 
-    private void getDataWithAddGroup(EditText editText) {
-        String groupName = editText.getText().toString();
-
+    private void getDataWithAddGroup(String groupName) {
         OkGo.<String>post(Urls.ADD_GROUP)
                 .tag(this)
                 .params("member_id", mMemberId)
-                .params("group_name", groupName)
+                .params("group_name", groupName.substring(0, 6))
                 .params("token", mToken)
                 .execute(new StringCallback() {
                     @Override
@@ -424,12 +414,10 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 });
     }
 
-    private void getDataWithRenameGroup(EditText editText, int group_id) {
-        String groupName = editText.getText().toString();
-        Log.e(AppConstant.TAG, "getDataWithRenameGroup: " + groupName + "===" + group_id);
+    private void getDataWithRenameGroup(String groupName, int group_id) {
         OkGo.<String>post(Urls.RENAME_GROUP)
                 .tag(this)
-                .params("group_name", groupName)
+                .params("group_name", groupName.substring(0, 6))
                 .params("group_id", group_id)
                 .execute(new StringCallback() {
                     @Override
@@ -437,7 +425,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                         getDataWithDeviceGroupList();
                     }
                 });
-
     }
 
 }

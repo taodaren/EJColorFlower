@@ -11,16 +11,18 @@ import android.widget.TextView;
 import cn.eejing.ejcolorflower.R;
 
 /**
- * 创建自定义的 dialog，主要学习其实现原理
+ * 自定义 dialog
  */
+
 public class SelfDialog extends Dialog {
-    private Button yes, no;
-    private TextView titleTv, messageTv;
-    private EditText enterEt;
+    private Button btnYes, btnNo;
+    private TextView tvTitle, tvMessage;
+    private EditText etEnter;
+
     // 从外界设置的 title 文本及消息文本
-    private String titleStr, messageStr, enterStr;
+    private String strTitle, strMessage;
     // 确定文本和取消文本的显示内容
-    private String yesStr, noStr;
+    private String strYes, strNo;
 
     // 取消按钮被点击了的监听器
     private onNoOnclickListener noOnclickListener;
@@ -32,7 +34,7 @@ public class SelfDialog extends Dialog {
      */
     public void setNoOnclickListener(String str, onNoOnclickListener onNoOnclickListener) {
         if (str != null) {
-            noStr = str;
+            strNo = str;
         }
         this.noOnclickListener = onNoOnclickListener;
     }
@@ -42,7 +44,7 @@ public class SelfDialog extends Dialog {
      */
     public void setYesOnclickListener(String str, onYesOnclickListener onYesOnclickListener) {
         if (str != null) {
-            yesStr = str;
+            strYes = str;
         }
         this.yesOnclickListener = onYesOnclickListener;
     }
@@ -68,11 +70,47 @@ public class SelfDialog extends Dialog {
     }
 
     /**
+     * 初始化界面控件
+     */
+    private void initView() {
+        btnYes = findViewById(R.id.yes);
+        btnNo = findViewById(R.id.no);
+        tvTitle = findViewById(R.id.title);
+        tvMessage = findViewById(R.id.message);
+        etEnter = findViewById(R.id.edit_dialog);
+    }
+
+    /**
+     * 初始化界面控件的显示数据
+     */
+    private void initData() {
+        // 如果用户自定了 title 和 message
+        if (strTitle != null) {
+            tvTitle.setText(strTitle);
+        }
+        if (strMessage != null) {
+            tvMessage.setText(strMessage);
+        }
+
+        // 如果设置按钮的文字
+        if (strYes != null) {
+            btnYes.setText(strYes);
+        }
+        if (strNo != null) {
+            btnNo.setText(strNo);
+        }
+    }
+
+    public String getEditTextStr() {
+        return etEnter.getText().toString().trim();
+    }
+
+    /**
      * 初始化界面的确定和取消监听器
      */
     private void initEvent() {
         // 设置确定按钮被点击后，向外界提供监听
-        yes.setOnClickListener(new View.OnClickListener() {
+        btnYes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (yesOnclickListener != null) {
@@ -81,7 +119,7 @@ public class SelfDialog extends Dialog {
             }
         });
         // 设置取消按钮被点击后，向外界提供监听
-        no.setOnClickListener(new View.OnClickListener() {
+        btnNo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (noOnclickListener != null) {
@@ -92,55 +130,17 @@ public class SelfDialog extends Dialog {
     }
 
     /**
-     * 初始化界面控件的显示数据
-     */
-    private void initData() {
-        // 如果用户自定了 title 和 message
-        if (titleStr != null) {
-            titleTv.setText(titleStr);
-        }
-        if (messageStr != null) {
-            messageTv.setText(messageStr);
-        }
-        if (enterStr != null) {
-            enterEt.setText(enterStr);
-        }
-        // 如果设置按钮的文字
-        if (yesStr != null) {
-            yes.setText(yesStr);
-        }
-        if (noStr != null) {
-            no.setText(noStr);
-        }
-    }
-
-    /**
-     * 初始化界面控件
-     */
-    private void initView() {
-        yes = findViewById(R.id.yes);
-        no = findViewById(R.id.no);
-        titleTv = findViewById(R.id.title);
-        messageTv = findViewById(R.id.message);
-        enterEt = findViewById(R.id.edit_dialog);
-    }
-
-    /**
      * 从外界 Activity 为 Dialog 设置标题
      */
     public void setTitle(String title) {
-        titleStr = title;
+        strTitle = title;
     }
 
     /**
      * 从外界 Activity 为 Dialog 设置 dialog 的 message
      */
     public void setMessage(String message) {
-        messageStr = message;
-    }
-
-    public void setView(String enter) {
-        enterStr = enter;
+        strMessage = message;
     }
 
     /**
@@ -153,4 +153,5 @@ public class SelfDialog extends Dialog {
     public interface onNoOnclickListener {
         void onNoClick();
     }
+
 }
