@@ -66,9 +66,9 @@ dependencies {
     implementation 'cn.bingoogolapple:bga-banner:2.2.4@aar'
     // CustomPopWindow
     implementation 'com.github.pinguo-zhouwei:CustomPopwindow:2.1.1'
-
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    implementation files('lib/alipaySdk-20180601.jar')
 }
