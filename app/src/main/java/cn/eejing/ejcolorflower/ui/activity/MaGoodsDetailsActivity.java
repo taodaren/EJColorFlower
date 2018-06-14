@@ -83,6 +83,7 @@ public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClick
                 showDialog();
                 break;
             case R.id.btn_buy_now:
+                jumpToActivity(ConfirmOrderActivity.class);
                 break;
             default:
                 break;

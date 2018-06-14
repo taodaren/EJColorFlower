@@ -51,7 +51,9 @@
         <activity android:name=".ui.activity.ConfigStreamActivity" />
         <activity android:name=".ui.activity.ConfigRideActivity" />
         <activity android:name=".ui.activity.ConfigIntervalActivity" />
-        <activity android:name=".ui.activity.ConfigTogetherActivity"></activity>
+        <activity android:name=".ui.activity.ConfigTogetherActivity" />
+        <activity android:name=".ui.activity.ConfirmOrderActivity" />
+        <activity android:name=".ui.activity.PaymentOrderActivity"></activity>
     </application>
 
 </manifest>
