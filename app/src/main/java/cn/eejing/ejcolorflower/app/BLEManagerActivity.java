@@ -84,10 +84,12 @@ public class BLEManagerActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        MyLifecycleHandler.addListener(mOnForegroundStateChangeListener);
+
         mHandler = new Handler();
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = (bluetoothManager == null) ? null : bluetoothManager.getAdapter();
-        mHandler.post(mPoll);
+//        mHandler.post(mPoll);
     }
 
     @Override
@@ -95,28 +97,54 @@ public class BLEManagerActivity extends BaseActivity {
         return 0;
     }
 
+    private final MyLifecycleHandler.OnForegroundStateChangeListener mOnForegroundStateChangeListener =
+            new MyLifecycleHandler.OnForegroundStateChangeListener() {
+                @Override
+                public void onStateChanged(boolean foreground) {
+                    Log.i(TAG, "OnForegroundStateChangeListener "+foreground);
+                    if(foreground){
+                        for(Pair<Runnable, Integer> s : mPeriodRunnable.values()){
+                            mHandler.postDelayed(s.first, s.second);
+                        }
+                        mHandler.post(mPoll);
+                    }
+                    else{
+                        mHandler.removeCallbacks(mPoll);
+                        for(Pair<Runnable, Integer> s : mPeriodRunnable.values()){
+                            mHandler.removeCallbacks(s.first);
+                        }
+                    }
+                }
+            };
+
     @Override
-    protected void onPause() {
+    protected void onPause(){
         super.onPause();
+        /*
         mHandler.removeCallbacks(mPoll);
-        for (Pair<Runnable, Integer> s : mPeriodRunnable.values()) {
+        for(Pair<Runnable, Integer> s : mPeriodRunnable.values()){
             mHandler.removeCallbacks(s.first);
         }
+        */
         Log.i(TAG, "onPause");
     }
 
     @Override
-    protected void onResume() {
+    protected void onResume(){
         super.onResume();
         Log.i(TAG, "onResume");
-        for (Pair<Runnable, Integer> s : mPeriodRunnable.values()) {
+        /*
+        for(Pair<Runnable, Integer> s : mPeriodRunnable.values()){
             mHandler.postDelayed(s.first, s.second);
         }
         mHandler.post(mPoll);
+        */
     }
 
     @Override
     protected void onDestroy() {
+        MyLifecycleHandler.removeListener(mOnForegroundStateChangeListener);
+
         for (Pair<Runnable, Integer> s : mPeriodRunnable.values()) {
             mHandler.removeCallbacks(s.first);
         }
