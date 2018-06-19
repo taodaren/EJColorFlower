@@ -1,5 +1,6 @@
 package cn.eejing.ejcolorflower.ui.fragment;
 
+import android.content.Context;
 import android.util.Log;
 import android.view.View;
 
@@ -15,11 +16,16 @@ import java.util.List;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
+import cn.eejing.ejcolorflower.app.MainActivity;
 import cn.eejing.ejcolorflower.app.Urls;
+import cn.eejing.ejcolorflower.device.Device;
+import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
 import cn.eejing.ejcolorflower.ui.adapter.TabControlAdapter;
 import cn.eejing.ejcolorflower.ui.base.BaseFragment;
 import cn.eejing.ejcolorflower.util.Settings;
+
+import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_SERVICE;
 
 /**
  * @创建者 Taodaren
@@ -35,6 +41,32 @@ public class TabControlFragment extends BaseFragment {
     private List<DeviceGroupListBean.DataBean> mList;
     private TabControlAdapter mAdapter;
     private String mMemberId, mToken;
+
+    private DeviceConfig mConfig;
+
+    private OnFragmentInteractionListener mListener;
+    private MainActivity.FireworksDeviceControl mDeviceControl;
+
+    public interface OnRecvHandler {
+        void onConfig(Device device, DeviceConfig config);
+    }
+
+    public interface OnFragmentInteractionListener {
+        void scanDevice();
+
+        void setRecvHandler(OnRecvHandler handler);
+    }
+
+    private final OnRecvHandler mOnRecvHandler = new OnRecvHandler() {
+        @Override
+        public void onConfig(Device device, DeviceConfig config) {
+            Log.i("TCF", "onConfig device: " + device.getAddress());
+            Log.i("TCF", "onConfig mID: " + config.mID);
+            Log.i("TCF", "onConfig mDMXAddress: " + config.mDMXAddress);
+            mConfig = config;
+            mAdapter.setDeviceConfig(device,mConfig);
+        }
+    };
 
     public static TabControlFragment newInstance() {
         return new TabControlFragment();
@@ -57,6 +89,8 @@ public class TabControlFragment extends BaseFragment {
     public void initView(View rootView) {
         mGson = new Gson();
         mList = new ArrayList<>();
+        mDeviceControl = MainActivity.getFireworksDeviceControl();
+
         mMemberId = String.valueOf(Settings.getLoginSessionInfo(getActivity()).getMember_id());
         mToken = Settings.getLoginSessionInfo(getActivity()).getToken();
 
@@ -66,6 +100,23 @@ public class TabControlFragment extends BaseFragment {
     @Override
     public void initData() {
         getDataWithDeviceGroupList();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mConfig = new DeviceConfig();
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString() + "必须实现 OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
     }
 
     @Override
@@ -104,7 +155,6 @@ public class TabControlFragment extends BaseFragment {
                              }
                          }
                 );
-
     }
 
     private void initRecyclerView() {
@@ -112,6 +162,7 @@ public class TabControlFragment extends BaseFragment {
         rvTabControl.setLinearLayout();
         // 绑定适配器
         mAdapter = new TabControlAdapter(getContext(), mList, mMemberId);
+        mListener.setRecvHandler(mOnRecvHandler);
         rvTabControl.setAdapter(mAdapter);
 
         // 不需要上拉刷新
@@ -119,6 +170,7 @@ public class TabControlFragment extends BaseFragment {
         rvTabControl.setOnPullLoadMoreListener(new PullLoadMoreRecyclerView.PullLoadMoreListener() {
             @Override
             public void onRefresh() {
+                mListener.scanDevice();
                 getDataWithDeviceGroupList();
             }
 

@@ -42,7 +42,8 @@ import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_SERVICE;
 
 public class MainActivity extends BLEManagerActivity implements ISendCommand,
         BottomNavigationBar.OnTabSelectedListener,
-        TabDeviceFragment.OnFragmentInteractionListener {
+        TabDeviceFragment.OnFragmentInteractionListener,
+        TabControlFragment.OnFragmentInteractionListener {
     private static final String TAG = "MainActivity";
 
     private ArrayList<Fragment> mFragments;
@@ -55,6 +56,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
 
     private boolean mRequestConfig = false;
     private TabDeviceFragment.OnRecvHandler mTabDeviceOnRecvHandler;
+    private TabControlFragment.OnRecvHandler mTabControlOnRecvHandler;
     // 设备控制
     private static FireworksDeviceControl mFireworksDeviceControl;
 
@@ -244,6 +246,11 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
     }
 
     @Override
+    public void setRecvHandler(TabControlFragment.OnRecvHandler handler) {
+        mTabControlOnRecvHandler = handler;
+    }
+
+    @Override
     void onFoundDevice(BluetoothDevice device, @Nullable List<ParcelUuid> serviceUuids) {
         String name = device.getName();
         String mac = device.getAddress();
@@ -321,21 +328,22 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
             }
 
             registerPeriod(mac + "- 注册期 status", new Runnable() {
-                        @Override
-                        public void run() {
-                            final Device device = getDevice(mac);
-                            if (device != null) {
-                                DeviceConfig config = device.getConfig();
-//                                Log.e(TAG, "run: onDeviceReady = " + config.mDMXAddress);
-                                long id = (config == null) ? 0 : config.mID;
-                                if (config == null || mRequestConfig) {
-                                    mRequestConfig = !send(mac, Protocol.get_config_package(id));
-                                }
-                                send(mac, Protocol.get_status_package(id));
-                            }
+                @Override
+                public void run() {
+                    final Device device = getDevice(mac);
+                    if (device != null) {
+                        DeviceConfig config = device.getConfig();
+                        long id = (config == null) ? 0 : config.mID;
+                        if (config == null || mRequestConfig) {
+                            mRequestConfig = !send(mac, Protocol.get_config_package(id));
                         }
-                    },
-                    2000);
+                        send(mac, Protocol.get_status_package(id));
+                        if (mTabControlOnRecvHandler != null) {
+                            mTabControlOnRecvHandler.onConfig(device,config);
+                        }
+                    }
+                }
+            }, 2000);
         }
 
     }

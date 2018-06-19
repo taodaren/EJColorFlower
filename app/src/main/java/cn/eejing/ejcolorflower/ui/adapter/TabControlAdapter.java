@@ -1,5 +1,6 @@
 package cn.eejing.ejcolorflower.ui.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -29,6 +30,8 @@ import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.Urls;
+import cn.eejing.ejcolorflower.device.Device;
+import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
 import cn.eejing.ejcolorflower.ui.activity.CoDeviceActivity;
 import cn.eejing.ejcolorflower.ui.activity.ConfigIntervalActivity;
@@ -54,6 +57,10 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private String mMemberId, mToken;
     private CustomPopWindow mCustomPopWindow;
     private SelfDialog mDialog;
+
+    private Device mDevice;
+    private DeviceConfig mConfig;
+
 
     public TabControlAdapter(Context mContext, List<DeviceGroupListBean.DataBean> mList, String mMemberId) {
         this.mContext = mContext;
@@ -81,7 +88,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE_ITEM) {
-            ((ItemViewHolder) holder).setData(mList.get(position), position);
+            ((ItemViewHolder) holder).setData(mList.get(position), position, mConfig, mDevice);
         }
     }
 
@@ -108,6 +115,16 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     private void addList(List<DeviceGroupListBean.DataBean> list) {
         mList.addAll(list);
+        notifyDataSetChanged();
+    }
+
+    public void setDeviceConfig(Device device, DeviceConfig config) {
+        Log.i("TCF", "setDeviceConfig: isConnected--->" + device.isConnected());
+        Log.i("TCF", "setDeviceConfig: mID--->" + config.mID);
+        Log.i("TCF", "setDeviceConfig: mDMXAddress--->" + config.mDMXAddress);
+
+        this.mDevice = device;
+        this.mConfig = config;
         notifyDataSetChanged();
     }
 
@@ -142,12 +159,21 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             sbConfig.setOnClickListener(this);
         }
 
-        public void setData(DeviceGroupListBean.DataBean bean, final int position) {
+        @SuppressLint("ResourceAsColor")
+        public void setData(DeviceGroupListBean.DataBean bean, final int position, DeviceConfig config, Device device) {
             if (bean.getGroup_list() != null && bean.getGroup_list().size() > 0) {
+                Log.i("TCF", "setData: isConnected--->" + device.isConnected());
+                Log.i("TCF", "setData: mDMXAddress--->" + config.mDMXAddress);
+                Log.i("TCF", "setData: mID--->" + config.mID);
                 // 如果有设备，显示设备，隐藏提示文字
                 tvInfo.setVisibility(View.GONE);
                 rvGroup.setVisibility(View.VISIBLE);
                 initGroupList(bean.getGroup_list());
+
+                if (device.isConnected()) {
+                    // TODO: 2018/6/19 连接成功
+                } else {
+                }
             } else {
                 tvInfo.setVisibility(View.VISIBLE);
                 rvGroup.setVisibility(View.INVISIBLE);
