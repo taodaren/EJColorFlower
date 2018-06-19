@@ -1,14 +1,16 @@
 package cn.eejing.ejcolorflower.app;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.os.ParcelUuid;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.ArrayMap;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.widget.Toast;
 
 import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
@@ -44,6 +46,8 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
     private static final String TAG = "MainActivity";
 
     private ArrayList<Fragment> mFragments;
+    private Fragment currentFragment;
+
     private List<Device> mDeviceList;
     private List<String> mFoundDeviceAddressList;
     private Map<String, ProtocolWithDevice> mProtocolList;
@@ -112,16 +116,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
     }
 
     /**
-     * 设置默认 fragment
-     */
-    private void setDefFragment() {
-        FragmentManager manager = getSupportFragmentManager();
-        FragmentTransaction transaction = manager.beginTransaction();
-        transaction.replace(R.id.main_content, TabDeviceFragment.newInstance());
-        transaction.commit();
-    }
-
-    /**
      * 将 Fragment 加入 fragments 里面
      */
     private ArrayList<Fragment> getFragments() {
@@ -134,20 +128,74 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
     }
 
     /**
+     * 设置默认 fragment
+     */
+    private void setDefFragment() {
+        Fragment defFragment = mFragments.get(0);
+        if (!defFragment.isAdded()) {
+            addFragment(R.id.main_content, defFragment);
+            currentFragment = defFragment;
+        }
+    }
+
+    /**
+     * 添加 Fragment 到 Activity 的布局
+     */
+    protected void addFragment(int containerViewId, Fragment fragment) {
+        final FragmentTransaction fragmentTransaction = this.getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.add(containerViewId, fragment);
+        fragmentTransaction.commit();
+    }
+
+    /**
+     * 切换 fragment
+     */
+    @SuppressLint("CommitTransaction")
+    private void replaceFragment(Fragment fragment) {
+        addOrShowFragment(getSupportFragmentManager().beginTransaction(), fragment);
+    }
+
+    /**
+     * 添加或者显示 fragment
+     */
+    private void addOrShowFragment(FragmentTransaction transaction, Fragment fragment) {
+        if (currentFragment == fragment)
+            return;
+        if (!fragment.isAdded()) {
+            // 如果当前 fragment 未被添加，则添加到 Fragment 管理器中
+            transaction.hide(currentFragment).add(R.id.main_content, fragment).commit();
+        } else {
+            // 如果当前 fragment 已添加，则添加到 Fragment 管理器中
+            transaction.hide(currentFragment).show(fragment).commit();
+        }
+        currentFragment = fragment;
+    }
+
+    /**
      * Tab 被选中
      */
     @Override
     public void onTabSelected(int position) {
-        // 点击时加载对应的 fragment
-        if (mFragments != null) {
-            if (position < mFragments.size()) {
-                FragmentManager manager = getSupportFragmentManager();
-                FragmentTransaction transaction = manager.beginTransaction();
-                Fragment fragment = mFragments.get(position);
-                transaction.replace(R.id.main_content, fragment);
-                transaction.commitAllowingStateLoss();
+        Fragment fragment = mFragments.get(position);
+        if (fragment == null) {
+            switch (position) {
+                case 0:
+                    TabDeviceFragment.newInstance();
+                    break;
+                case 1:
+                    TabControlFragment.newInstance();
+                    break;
+                case 2:
+                    TabMallFragment.newInstance();
+                    break;
+                case 3:
+                    TabMineFragment.newInstance();
+                    break;
+                default:
+                    break;
             }
         }
+        replaceFragment(fragment);
     }
 
     /**
@@ -155,15 +203,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
      */
     @Override
     public void onTabUnselected(int position) {
-        if (mFragments != null) {
-            if (position < mFragments.size()) {
-                FragmentManager manager = getSupportFragmentManager();
-                FragmentTransaction transaction = manager.beginTransaction();
-                Fragment fragment = mFragments.get(position);
-                transaction.remove(fragment);
-                transaction.commitAllowingStateLoss();
-            }
-        }
     }
 
     /**
@@ -178,6 +217,22 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
         StatusBarUtil.setColorNoTranslucent(this, getResources().getColor(R.color.colorPrimary));
     }
 
+    private long exitTime = 0;
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+            if ((System.currentTimeMillis() - exitTime) > 2000) {
+                Toast.makeText(getApplicationContext(), "再按一次退出程序", Toast.LENGTH_SHORT).show();
+                exitTime = System.currentTimeMillis();
+            } else {
+                finish();
+                System.exit(0);
+            }
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
 
     // TODO: /**<-------------------- 以下硬件交互相关 -------------------->**/
     @Override
