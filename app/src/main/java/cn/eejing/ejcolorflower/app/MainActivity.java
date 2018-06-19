@@ -152,13 +152,8 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
      */
     @SuppressLint("CommitTransaction")
     private void replaceFragment(Fragment fragment) {
-        addOrShowFragment(getSupportFragmentManager().beginTransaction(), fragment);
-    }
-
-    /**
-     * 添加或者显示 fragment
-     */
-    private void addOrShowFragment(FragmentTransaction transaction, Fragment fragment) {
+        // 添加或者显示 fragment
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         if (currentFragment == fragment)
             return;
         if (!fragment.isAdded()) {
@@ -176,26 +171,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand,
      */
     @Override
     public void onTabSelected(int position) {
-        Fragment fragment = mFragments.get(position);
-        if (fragment == null) {
-            switch (position) {
-                case 0:
-                    TabDeviceFragment.newInstance();
-                    break;
-                case 1:
-                    TabControlFragment.newInstance();
-                    break;
-                case 2:
-                    TabMallFragment.newInstance();
-                    break;
-                case 3:
-                    TabMineFragment.newInstance();
-                    break;
-                default:
-                    break;
-            }
-        }
-        replaceFragment(fragment);
+        replaceFragment(mFragments.get(position));
     }
 
     /**
