@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">异景炫彩</string>
 
+    <string name="text_company_name">北京异景科技有限公司</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="device_name">设备</string>
     <string name="control_name">控制</string>
@@ -131,4 +132,8 @@
     <string name="text_border_to_center">从两端到中间</string>
     <string name="text_center_to_border">从中间到两端</string>
     <string name="text_s">S</string>
+    <string name="text_total_money">合计金额：</string>
+    <string name="text_shipping_address">收货地址：</string>
+    <string name="text_consignee">收货人：</string>
+    <string name="text_manage">管理</string>
 </resources>

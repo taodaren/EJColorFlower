@@ -83,7 +83,10 @@ public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClick
                 showDialog();
                 break;
             case R.id.btn_buy_now:
-                jumpToActivity(ConfirmOrderActivity.class);
+                Intent intent = new Intent(this, ConfirmOrderActivity.class);
+                intent.putExtra("goods_id", mGoodsId);
+                jumpToActivity(intent);
+//                jumpToActivity(ConfirmOrderActivity.class);
                 break;
             default:
                 break;
