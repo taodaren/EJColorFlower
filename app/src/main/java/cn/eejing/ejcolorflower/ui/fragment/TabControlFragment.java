@@ -45,7 +45,6 @@ public class TabControlFragment extends BaseFragment {
     private DeviceConfig mConfig;
 
     private OnFragmentInteractionListener mListener;
-    private MainActivity.FireworksDeviceControl mDeviceControl;
 
     public interface OnRecvHandler {
         void onConfig(Device device, DeviceConfig config);
@@ -60,9 +59,6 @@ public class TabControlFragment extends BaseFragment {
     private final OnRecvHandler mOnRecvHandler = new OnRecvHandler() {
         @Override
         public void onConfig(Device device, DeviceConfig config) {
-            Log.i("TCF", "onConfig device: " + device.getAddress());
-            Log.i("TCF", "onConfig mID: " + config.mID);
-            Log.i("TCF", "onConfig mDMXAddress: " + config.mDMXAddress);
             mConfig = config;
             mAdapter.setDeviceConfig(device,mConfig);
         }
@@ -89,8 +85,6 @@ public class TabControlFragment extends BaseFragment {
     public void initView(View rootView) {
         mGson = new Gson();
         mList = new ArrayList<>();
-        mDeviceControl = MainActivity.getFireworksDeviceControl();
-
         mMemberId = String.valueOf(Settings.getLoginSessionInfo(getActivity()).getMember_id());
         mToken = Settings.getLoginSessionInfo(getActivity()).getToken();
 

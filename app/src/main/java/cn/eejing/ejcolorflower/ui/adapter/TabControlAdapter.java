@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.allen.library.SuperButton;
 import com.example.zhouwei.library.CustomPopWindow;
@@ -29,9 +28,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
+import cn.eejing.ejcolorflower.app.MainActivity;
 import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
+import cn.eejing.ejcolorflower.device.OnReceivePackage;
+import cn.eejing.ejcolorflower.device.Protocol;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
 import cn.eejing.ejcolorflower.ui.activity.CoDeviceActivity;
 import cn.eejing.ejcolorflower.ui.activity.ConfigIntervalActivity;
@@ -60,6 +62,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     private Device mDevice;
     private DeviceConfig mConfig;
+    private MainActivity.FireworksDeviceControl mDeviceControl;
 
 
     public TabControlAdapter(Context mContext, List<DeviceGroupListBean.DataBean> mList, String mMemberId) {
@@ -69,6 +72,8 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         this.mGson = new Gson();
         this.mMemberId = mMemberId;
         this.mToken = Settings.getLoginSessionInfo(mContext).getToken();
+
+        this.mDeviceControl = MainActivity.getFireworksDeviceControl();
     }
 
     @NonNull
@@ -88,7 +93,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE_ITEM) {
-            ((ItemViewHolder) holder).setData(mList.get(position), position, mConfig, mDevice);
+            ((ItemViewHolder) holder).setData(mList.get(position), position);
         }
     }
 
@@ -119,10 +124,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     public void setDeviceConfig(Device device, DeviceConfig config) {
-        Log.i("TCF", "setDeviceConfig: isConnected--->" + device.isConnected());
-        Log.i("TCF", "setDeviceConfig: mID--->" + config.mID);
-        Log.i("TCF", "setDeviceConfig: mDMXAddress--->" + config.mDMXAddress);
-
         this.mDevice = device;
         this.mConfig = config;
         notifyDataSetChanged();
@@ -160,20 +161,12 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         @SuppressLint("ResourceAsColor")
-        public void setData(DeviceGroupListBean.DataBean bean, final int position, DeviceConfig config, Device device) {
+        public void setData(DeviceGroupListBean.DataBean bean, final int position) {
             if (bean.getGroup_list() != null && bean.getGroup_list().size() > 0) {
-                Log.i("TCF", "setData: isConnected--->" + device.isConnected());
-                Log.i("TCF", "setData: mDMXAddress--->" + config.mDMXAddress);
-                Log.i("TCF", "setData: mID--->" + config.mID);
                 // 如果有设备，显示设备，隐藏提示文字
                 tvInfo.setVisibility(View.GONE);
                 rvGroup.setVisibility(View.VISIBLE);
                 initGroupList(bean.getGroup_list());
-
-                if (device.isConnected()) {
-                    // TODO: 2018/6/19 连接成功
-                } else {
-                }
             } else {
                 tvInfo.setVisibility(View.VISIBLE);
                 rvGroup.setVisibility(View.INVISIBLE);
@@ -207,7 +200,26 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     renameGroup(groupId);
                     break;
                 case R.id.img_ctrl_group_switch:
-                    Toast.makeText(mContext, "img_ctrl_group_switch", Toast.LENGTH_SHORT).show();
+//                    Log.i("JET", "onClick: ID--->" + mDevice.getId());
+                    final byte[] pkg303 = Protocol.jet_start_package(810303L, 0, 10, 50);
+                    final byte[] pkg316 = Protocol.jet_start_package(810316L, 3000, 20, 50);
+                    Log.i("JET", "onClick: PKG_303--->" + pkg303.length);
+                    Log.i("JET", "onClick: PKG_316--->" + pkg316.length);
+                    mDeviceControl.sendCommand(810303L, pkg303, new OnReceivePackage() {
+                        @Override
+                        public void ack(@NonNull byte[] pkg) {
+                            Log.i("JET", "喷射ACK--->" + pkg.length + "===" + pkg);
+                            int jet = Protocol.parseStartJet(pkg, pkg.length);
+                            Log.i("JET", "喷射解析--->" + jet);
+                        }
+
+                        @Override
+                        public void timeout() {
+                            Log.i("JET", "解析超时");
+
+//                            mDeviceControl.sendCommand(810303L, pkg303);
+                        }
+                    });
                     break;
                 case R.id.img_ctrl_group_add:
                     Intent intent = new Intent(mContext, CoDeviceActivity.class);
@@ -366,7 +378,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         @Override
         public void onBindViewHolder(@NonNull DeviceHolder holder, int position) {
-            holder.setData();
+            holder.setData(mConfig, mDevice);
         }
 
         @Override
@@ -383,11 +395,18 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 ButterKnife.bind(this, itemView);
             }
 
-            public void setData() {
+            public void setData(DeviceConfig config, Device device) {
                 Log.e(AppConstant.TAG, "devices: " + devices.toString());
-                for (int i = 0; i < devices.size(); i++) {
-                    sbDevice.setText(devices.get(getAdapterPosition()));
-                }
+                sbDevice.setText(devices.get(getAdapterPosition()));
+                // TODO: 2018/6/20  未连接显示不正常
+//                if (device != null && config != null) {
+//                    if (!device.isConnected()) {
+//                        Log.e("TCF", "未连接!");
+//                        sbDevice.setShapeSolidColor(mContext.getResources().getColor(R.color.colorNoClick));
+//                        sbDevice.setShapeStrokeColor(mContext.getResources().getColor(R.color.colorNoClick));
+//                        sbDevice.setUseShape();
+//                    }
+//                }
             }
         }
     }

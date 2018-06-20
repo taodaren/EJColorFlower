@@ -317,7 +317,7 @@ public class Protocol {
 
     // 开始喷射
     @NonNull
-    public static byte[] jet_package(long id, int delay, int duration, int high) {
+    public static byte[] jet_start_package(long id, int delay, int duration, int high) {
         byte[] data = new byte[5];
         data[0] = (byte) (delay & 0xff);
         data[1] = (byte) ((delay >> 8) & 0xff);
@@ -482,6 +482,16 @@ public class Protocol {
 
     @Nullable
     public static int parseAddMaterial(@NonNull byte[] pkg, int pkg_len) {
+        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkg_len));
+        try {
+            reader.skip(HEADER_LEN);
+            return reader.readUnsignedChar();
+        } catch (IOException e) {
+            return -1;
+        }
+    }
+
+    public static int parseStartJet(@NonNull byte[] pkg, int pkg_len) {
         BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkg_len));
         try {
             reader.skip(HEADER_LEN);
