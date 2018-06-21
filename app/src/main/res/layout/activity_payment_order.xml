@@ -25,12 +25,12 @@
             android:textSize="16sp" />
 
         <TextView
+            android:id="@+id/tv_pay_money"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:padding="8dp"
-            android:text="￥60.00"
             android:textColor="@color/colorRed"
             android:textSize="14sp" />
     </RelativeLayout>

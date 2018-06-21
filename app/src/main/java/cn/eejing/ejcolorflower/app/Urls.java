@@ -22,7 +22,7 @@ public interface Urls {
 
     String ADD_GROUP = BASE_URL + "add_group";                                         // 用户新建设备组
     String GET_DEVICE_GROUP_LIST = BASE_URL + "getDeviceGroupList";                    // 获取设备用户组
-    String EDIT_HIGH = BASE_URL + "editHigh";                                          // 编辑控制高度上传
+//    String EDIT_HIGH = BASE_URL + "editHigh";                                        // 编辑控制高度上传
     String GO_EDIT_DEVICE_TO_GROUP = BASE_URL + "goEditDeviceToGroup";                 // 修改设备组内设备——获取设备页面
     String ADD_DEVICE_TO_GROUP = BASE_URL + "addDeviceToGroup";                        // 添加设备到用户组
     String RM_GROUP = BASE_URL + "rm_group";                                           // 删除用户组
@@ -30,14 +30,14 @@ public interface Urls {
 
     String GOODS_LIST = BASE_URL + "goodsList";                                        // 商品列表
     String GOODS_DETAILS = BASE_URL + "goodsDetails";                                  // 商品详情
-    String ORDER_NUM = BASE_URL + "orderNum";                                          // 生成订单
+//    String ORDER_NUM = BASE_URL + "orderNum";                                        // 生成订单
     String CONFIRM_ORDER = BASE_URL + "confirmOrder";                                  // 确认订单
     String WAIT_GOODS = BASE_URL + "waitGoods";                                        // 待发货
     String ALREADY_GOODS = BASE_URL + "alreadyGoods";                                  // 已发货
     String COMPLETED = BASE_URL + "Completed";                                         // 已完成
     String ORDER_DETAILS = BASE_URL + "orderDetails";                                  // 订单详情
-    String COLLECT_GOODS = BASE_URL + "collectGoods";                                  // 确认收货
-    String DEL_COMPLETED = BASE_URL + "delCompleted";                                  // 删除已完成订单
+    String COLLECT_GOODS = BASE_URL + "collectGoods";                                  // 确认收货(待收货)
+    String DEL_COMPLETED = BASE_URL + "delCompleted";                                  // 删除已完成订单(已完成)
     String ADDRESS_LIST = BASE_URL + "addressList";                                    // 用户地址列表
     String ADDRESS_ADD = BASE_URL + "addressAdd";                                      // 用户地址填加
     String PROVINCES = BASE_URL + "provinces";                                         // 省接口
@@ -46,6 +46,8 @@ public interface Urls {
     String ADDRESS_UPDATE = BASE_URL + "addressUpdate";                                // 用户地址更改
     String ADDRESS_DEF = BASE_URL + "addressDef";                                      // 用户设置默认地址
     String ADDRESS_DEL = BASE_URL + "addressDel";                                      // 用户地址删除
+    String PAY = BASE_URL + "pay";                                                     // 支付
+    String CALL_BACK_CONFIRM = BASE_URL + "callBackConfirm";                           // 确认支付结果
 
     String PWD_UPDATE = BASE_URL + "pwdUpdate";                                        // 修改密码
     String FEED_BACK = BASE_URL + "feedBack";                                          // 意见反馈

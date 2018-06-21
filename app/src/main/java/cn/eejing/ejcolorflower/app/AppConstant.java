@@ -12,6 +12,7 @@ import java.util.UUID;
 public class AppConstant {
     public static final String TAG = "taodaren";
 
+    public static final String PAY_CODE = "alipay";
     public static final String EXIT_LOGIN = "exit_login";
 
     public static final ParcelUuid UUID_GATT_SERVICE
