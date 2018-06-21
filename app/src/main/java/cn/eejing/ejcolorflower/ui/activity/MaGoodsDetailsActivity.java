@@ -23,7 +23,6 @@ import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.model.request.GoodsDetailsBean;
 import cn.eejing.ejcolorflower.ui.adapter.GoodsDetailsAdapter;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
-import cn.eejing.ejcolorflower.util.SelfDialog;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
 
 /**
@@ -86,7 +85,6 @@ public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClick
                 Intent intent = new Intent(this, ConfirmOrderActivity.class);
                 intent.putExtra("goods_id", mGoodsId);
                 jumpToActivity(intent);
-//                jumpToActivity(ConfirmOrderActivity.class);
                 break;
             default:
                 break;

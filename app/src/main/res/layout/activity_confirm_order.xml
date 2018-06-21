@@ -132,7 +132,7 @@
             android:gravity="center_vertical">
 
             <Button
-                android:id="@+id/btn_confirm_order_add"
+                android:id="@+id/btn_confirm_order_sub"
                 android:layout_width="28dp"
                 android:layout_height="28dp"
                 android:background="@drawable/shape_edit_bg"
@@ -148,7 +148,7 @@
                 android:textSize="12sp" />
 
             <Button
-                android:id="@+id/btn_confirm_order_minus"
+                android:id="@+id/btn_confirm_order_add"
                 android:layout_width="28dp"
                 android:layout_height="28dp"
                 android:background="@drawable/shape_edit_bg"
@@ -215,7 +215,6 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toEndOf="@id/text_hj"
-            android:text="￥60.00"
             android:textColor="@color/colorRed"
             android:textSize="14sp" />
 

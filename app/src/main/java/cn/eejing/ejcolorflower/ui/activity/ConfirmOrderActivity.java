@@ -1,6 +1,7 @@
 package cn.eejing.ejcolorflower.ui.activity;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -48,12 +49,12 @@ public class ConfirmOrderActivity extends BaseActivity implements View.OnClickLi
     TextView tvMoney;
     @BindView(R.id.tv_confirm_order_num)
     TextView tvNum;
-    @BindView(R.id.btn_confirm_order_add)
-    Button btnAdd;
+    @BindView(R.id.btn_confirm_order_sub)
+    Button btnSub;
     @BindView(R.id.tv_confirm_order_num_buy)
     TextView tvNumBuy;
-    @BindView(R.id.btn_confirm_order_minus)
-    Button btnMinus;
+    @BindView(R.id.btn_confirm_order_add)
+    Button btnAdd;
     @BindView(R.id.tv_confirm_order_postage_full)
     TextView tvPostageFull;
     @BindView(R.id.tv_confirm_order_postage_basics)
@@ -64,7 +65,7 @@ public class ConfirmOrderActivity extends BaseActivity implements View.OnClickLi
     private ConfirmOrderBean.DataBean mBean;
     private Gson mGson;
     private String mMemberId, mToken;
-    private int mGoodsId;
+    private int mGoodsId, mNumber;
 
     @Override
     protected int layoutViewId() {
@@ -89,6 +90,8 @@ public class ConfirmOrderActivity extends BaseActivity implements View.OnClickLi
     @Override
     public void initListener() {
         imgTitleBack.setOnClickListener(this);
+        btnAdd.setOnClickListener(this);
+        btnSub.setOnClickListener(this);
         btnSubmitOrder.setOnClickListener(this);
         llAddress.setOnClickListener(this);
     }
@@ -100,13 +103,45 @@ public class ConfirmOrderActivity extends BaseActivity implements View.OnClickLi
                 finish();
                 break;
             case R.id.btn_submit_order:
-                jumpToActivity(PaymentOrderActivity.class);
+                Intent intent = new Intent(this, PaymentOrderActivity.class);
+                intent.putExtra("goods_id", mGoodsId);
+                intent.putExtra("quantity", mNumber);
+                intent.putExtra("address_id", mBean.getAddress().getId());
+                intent.putExtra("member_id", mMemberId);
+                intent.putExtra("token", mToken);
+                intent.putExtra("money", mBean.getGoods().getMoney());
+                jumpToActivity(intent);
+                break;
+            case R.id.btn_confirm_order_add:
+                mNumber = mNumber + 1;
+                display(mNumber);
+                break;
+            case R.id.btn_confirm_order_sub:
+                if (mNumber > 1) {
+                    mNumber = mNumber - 1;
+                    display(mNumber);
+                }
                 break;
             case R.id.ll_confirm_order_address:
                 jumpToActivity(ShippingAddressActivity.class);
                 break;
             default:
                 break;
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void display(int number) {
+        tvNum.setText("×" + number);
+        tvNumBuy.setText("" + number);
+
+        // 设置合计金额
+        double totalMoney = number * mBean.getGoods().getMoney();
+        double freightMoney = (number * mBean.getGoods().getMoney() + mBean.getGoods().getBasics_postage());
+        if (totalMoney < mBean.getGoods().getPostage()) {
+            tvTotalMoney.setText(getString(R.string.rmb) + freightMoney);
+        } else {
+            tvTotalMoney.setText(getString(R.string.rmb) + totalMoney);
         }
     }
 
@@ -152,6 +187,9 @@ public class ConfirmOrderActivity extends BaseActivity implements View.OnClickLi
         tvMoney.setText(getString(R.string.rmb) + mBean.getGoods().getMoney());
         tvPostageBasics.setText(getString(R.string.basic_postage) + mBean.getGoods().getBasics_postage());
         tvPostageFull.setText(getString(R.string.postage_before) + mBean.getGoods().getPostage() + getString(R.string.postage_after));
+
+        mNumber = 1;
+        display(mNumber);
     }
 
 }
