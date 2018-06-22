@@ -19,10 +19,9 @@ import java.util.List;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.ui.adapter.DePagerAdapter;
+import cn.eejing.ejcolorflower.ui.adapter.ViewPagerAdapter;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
 import cn.eejing.ejcolorflower.ui.fragment.DevicePageFragment;
-import cn.eejing.ejcolorflower.util.Settings;
 import cn.eejing.ejcolorflower.util.ViewFindUtils;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -43,7 +42,7 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
     private View mDecorView;
 
     private List<Fragment> mFragments;
-    private DePagerAdapter mAdapter;
+    private ViewPagerAdapter mAdapter;
     private ViewPager mVPager;
     private int mPageType;
     private int mTemp, mDmx, mTime, mTempThresholdHigh;
@@ -112,7 +111,7 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
 
     private void initTLVP() {
         mVPager = ViewFindUtils.find(mDecorView, R.id.vp_device);
-        mAdapter = new DePagerAdapter(getSupportFragmentManager(), mFragments, mTitles);
+        mAdapter = new ViewPagerAdapter(getSupportFragmentManager(), mFragments, mTitles);
         mVPager.setAdapter(mAdapter);
 
         // 设置 TabLayout 数据

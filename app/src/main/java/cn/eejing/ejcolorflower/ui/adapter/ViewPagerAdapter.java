@@ -3,15 +3,17 @@ package cn.eejing.ejcolorflower.ui.adapter;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.view.View;
+import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DePagerAdapter extends FragmentPagerAdapter {
+public class ViewPagerAdapter extends FragmentPagerAdapter {
     private List<Fragment> mFragments;
     private String[] mTitles;
 
-    public DePagerAdapter(FragmentManager manager, List<Fragment> fragments, String[] titles) {
+    public ViewPagerAdapter(FragmentManager manager, List<Fragment> fragments, String[] titles) {
         super(manager);
         this.mFragments = new ArrayList<>();
         this.mFragments.addAll(fragments);
@@ -24,13 +26,13 @@ public class DePagerAdapter extends FragmentPagerAdapter {
     }
 
     @Override
-    public CharSequence getPageTitle(int position) {
-        return mTitles[position];
+    public Fragment getItem(int position) {
+        return mFragments.get(position);
     }
 
     @Override
-    public Fragment getItem(int position) {
-        return mFragments.get(position);
+    public CharSequence getPageTitle(int position) {
+        return mTitles[position];
     }
 
 }
