@@ -189,7 +189,7 @@ public class GoodsDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             webGoodsDtl.loadUrl(bean.getUrl());
 
             WebSettings webSettings = webGoodsDtl.getSettings();
-            // 5.0以上开启混合模式加载
+            // 5.0 以上开启混合模式加载
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
             }
@@ -204,12 +204,12 @@ public class GoodsDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             webSettings.setBuiltInZoomControls(false);
             // 禁用文字缩放
             webSettings.setTextZoom(100);
-            // 10M缓存，api 18后，系统自动管理。
+            // 10M 缓存，api 18 后，系统自动管理。
             webSettings.setAppCacheMaxSize(10 * 1024 * 1024);
             // 允许缓存，设置缓存位置
             webSettings.setAppCacheEnabled(true);
             webSettings.setAppCachePath(mContext.getDir("appcache", 0).getPath());
-            //允许WebView使用File协议
+            // 允许 WebView 使用 File 协议
             webSettings.setAllowFileAccess(true);
             // 不保存密码
             webSettings.setSavePassword(false);

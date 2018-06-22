@@ -446,10 +446,13 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     private void getDataWithAddGroup(String groupName) {
+        if (groupName.length() > 6) {
+            groupName = groupName.substring(0, 6);
+        }
         OkGo.<String>post(Urls.ADD_GROUP)
                 .tag(this)
                 .params("member_id", mMemberId)
-                .params("group_name", groupName.substring(0, 6))
+                .params("group_name", groupName)
                 .params("token", mToken)
                 .execute(new StringCallback() {
                     @Override
@@ -460,9 +463,12 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     private void getDataWithRenameGroup(String groupName, int group_id) {
+        if (groupName.length() > 6) {
+            groupName = groupName.substring(0, 6);
+        }
         OkGo.<String>post(Urls.RENAME_GROUP)
                 .tag(this)
-                .params("group_name", groupName.substring(0, 6))
+                .params("group_name", groupName)
                 .params("group_id", group_id)
                 .execute(new StringCallback() {
                     @Override
