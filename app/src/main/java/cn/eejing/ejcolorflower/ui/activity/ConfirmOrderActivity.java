@@ -66,6 +66,7 @@ public class ConfirmOrderActivity extends BaseActivity implements View.OnClickLi
     private Gson mGson;
     private String mMemberId, mToken;
     private int mGoodsId, mNumber;
+    private double mTotalMoney;
 
     @Override
     protected int layoutViewId() {
@@ -109,7 +110,7 @@ public class ConfirmOrderActivity extends BaseActivity implements View.OnClickLi
                 intent.putExtra("address_id", mBean.getAddress().getId());
                 intent.putExtra("member_id", mMemberId);
                 intent.putExtra("token", mToken);
-                intent.putExtra("money", mBean.getGoods().getMoney());
+                intent.putExtra("money", mTotalMoney);
                 jumpToActivity(intent);
                 break;
             case R.id.btn_confirm_order_add:
@@ -136,13 +137,11 @@ public class ConfirmOrderActivity extends BaseActivity implements View.OnClickLi
         tvNumBuy.setText("" + number);
 
         // 设置合计金额
-        double totalMoney = number * mBean.getGoods().getMoney();
-        double freightMoney = (number * mBean.getGoods().getMoney() + mBean.getGoods().getBasics_postage());
-        if (totalMoney < mBean.getGoods().getPostage()) {
-            tvTotalMoney.setText(getString(R.string.rmb) + freightMoney);
-        } else {
-            tvTotalMoney.setText(getString(R.string.rmb) + totalMoney);
+        mTotalMoney = number * mBean.getGoods().getMoney();
+        if (mTotalMoney < mBean.getGoods().getPostage()) {
+            mTotalMoney = mTotalMoney + mBean.getGoods().getBasics_postage();
         }
+        tvTotalMoney.setText(getString(R.string.rmb) + mTotalMoney);
     }
 
     private void getDataWithConfirmOrder() {
