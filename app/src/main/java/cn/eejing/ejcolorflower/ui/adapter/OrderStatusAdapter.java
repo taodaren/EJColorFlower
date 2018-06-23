@@ -5,14 +5,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
+import com.lzy.okgo.OkGo;
+import com.lzy.okgo.callback.StringCallback;
+import com.lzy.okgo.model.Response;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +27,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
+import cn.eejing.ejcolorflower.app.Urls;
 import cn.eejing.ejcolorflower.model.request.OrderPagerBean;
+import cn.eejing.ejcolorflower.model.request.OrderStatusBean;
 import cn.eejing.ejcolorflower.ui.activity.OrderDetailsActivity;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
 
@@ -29,15 +37,19 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private Context mContext;
     private LayoutInflater mInflater;
     private List<OrderPagerBean.DataBean> mList;
-    private String mType;
+    private String mType, mMemberId, mToken;
     private SelfDialogBase mDialog;
+    private Gson mGson;
 
-    public OrderStatusAdapter(Context context, List<OrderPagerBean.DataBean> list, String type) {
+    public OrderStatusAdapter(Context context, List<OrderPagerBean.DataBean> list, String type, String memberId, String token) {
         this.mContext = context;
         this.mInflater = LayoutInflater.from(context);
         this.mList = new ArrayList<>();
         this.mList.addAll(list);
         this.mType = type;
+        this.mMemberId = memberId;
+        this.mToken = token;
+        this.mGson = new Gson();
     }
 
     @NonNull
@@ -70,7 +82,7 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         notifyDataSetChanged();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class ViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.img_order_status)
         ImageView imgGoods;
         @BindView(R.id.tv_order_status_name)
@@ -93,20 +105,18 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             super(itemView);
             ButterKnife.bind(this, itemView);
             outItem = itemView;
-
-            btnEdit.setOnClickListener(this);
         }
 
         @SuppressLint("SetTextI18n")
-        public void setData(OrderPagerBean.DataBean bean) {
+        public void setData(final OrderPagerBean.DataBean bean) {
             double money = bean.getMoney() * bean.getQuantity();
             Glide.with(mContext).load(bean.getImage()).into(imgGoods);
             tvName.setText(bean.getName());
             tvMoneyRmb.setText(mContext.getString(R.string.rmb) + money);
-            tvNum.setText("×" + bean.getQuantity());
-            tvQuantity.setText("共" + bean.getQuantity() + "件商品");
-            tvPostage.setText("邮费:" + bean.getPostage() + "元");
-            tvMoney.setText("合计:" + money + "元");
+            tvNum.setText(mContext.getString(R.string.text_multiply) + bean.getQuantity());
+            tvQuantity.setText(mContext.getString(R.string.text_common) + bean.getQuantity() + mContext.getString(R.string.text_items));
+            tvPostage.setText(mContext.getString(R.string.postage) + bean.getPostage() + mContext.getString(R.string.yuan));
+            tvMoney.setText(mContext.getString(R.string.text_total) + money + mContext.getString(R.string.yuan));
 
             switch (mType) {
                 case AppConstant.TYPE_WAIT_SHIP:
@@ -125,35 +135,33 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             outItem.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mContext.startActivity(new Intent(mContext, OrderDetailsActivity.class));
+                    mContext.startActivity(new Intent(mContext, OrderDetailsActivity.class)
+                            .putExtra("order_id", bean.getOrder_id())
+                            .putExtra("type",mType));
+                }
+            });
+
+            btnEdit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (mType.equals(AppConstant.TYPE_WAIT_RECEIPT)) {
+                        collectGoods(bean.getOrder_id());
+                    } else if (mType.equals(AppConstant.TYPE_COMPLETE_GOODS)) {
+                        delCompleted(bean.getOrder_id());
+                    }
                 }
             });
 
         }
-
-        @Override
-        public void onClick(View view) {
-            switch (view.getId()) {
-                case R.id.btn_order_status:
-                    if (mType.equals(AppConstant.TYPE_WAIT_RECEIPT)) {
-                        collectGoods();
-                    } else if (mType.equals(AppConstant.TYPE_COMPLETE_GOODS)) {
-                        delCompleted();
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
     }
 
-    private void collectGoods() {
+    private void collectGoods(final int orderId) {
         mDialog = new SelfDialogBase(mContext);
         mDialog.setTitle("您是否已收到该订单商品？");
         mDialog.setYesOnclickListener("已收货", new SelfDialogBase.onYesOnclickListener() {
             @Override
             public void onYesClick() {
-                getDataWithCollectGoods();
+                getDataWithCollectGoods(orderId);
                 mDialog.dismiss();
             }
         });
@@ -166,13 +174,13 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         mDialog.show();
     }
 
-    private void delCompleted() {
+    private void delCompleted(final int orderId) {
         mDialog = new SelfDialogBase(mContext);
         mDialog.setTitle("确认删除此订单？");
         mDialog.setYesOnclickListener("删除", new SelfDialogBase.onYesOnclickListener() {
             @Override
             public void onYesClick() {
-                getDataWithDelCompleted();
+                getDataWithDelCompleted(orderId);
                 mDialog.dismiss();
             }
         });
@@ -185,14 +193,72 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         mDialog.show();
     }
 
-    private void getDataWithCollectGoods() {
-        // 跳转到确认收货成功
+    private void getDataWithCollectGoods(int orderId) {
+        OkGo.<String>post(Urls.COLLECT_GOODS)
+                .tag(this)
+                .params("order_id", orderId)
+                .params("member_id", mMemberId)
+                .params("token", mToken)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        String body = response.body();
+                        Log.e(AppConstant.TAG, "collect_goods request succeeded --->" + body);
 
+                        OrderStatusBean bean = mGson.fromJson(body, OrderStatusBean.class);
+                        switch (bean.getCode()) {
+                            case 1:
+                                refreshList(mList);
+                                Toast.makeText(mContext, "确认收货成功", Toast.LENGTH_SHORT).show();
+                                break;
+                            case 0:
+                                Toast.makeText(mContext, "操作失败", Toast.LENGTH_SHORT).show();
+                                break;
+                            case 4:
+                                Toast.makeText(mContext, "该会员没有订单", Toast.LENGTH_SHORT).show();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
     }
 
-    private void getDataWithDelCompleted() {
-        // 删除并刷新列表
+    private void getDataWithDelCompleted(int orderId) {
+        OkGo.<String>post(Urls.DEL_COMPLETED)
+                .tag(this)
+                .params("order_id", orderId)
+                .params("member_id", mMemberId)
+                .params("token", mToken)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        String body = response.body();
+                        Log.e(AppConstant.TAG, "del_completed request succeeded --->" + body);
 
+                        OrderStatusBean bean = mGson.fromJson(body, OrderStatusBean.class);
+                        switch (bean.getCode()) {
+                            case 1:
+                                refreshList(mList);
+                                Toast.makeText(mContext, "删除订单成功", Toast.LENGTH_SHORT).show();
+                                break;
+                            case 0:
+                                Toast.makeText(mContext, "操作失败", Toast.LENGTH_SHORT).show();
+                                break;
+                            case 3:
+                                Toast.makeText(mContext, "该订单不存在", Toast.LENGTH_SHORT).show();
+                                break;
+                            case 4:
+                                Toast.makeText(mContext, "订单为完成,不能删除", Toast.LENGTH_SHORT).show();
+                                break;
+                            case 7:
+                                Toast.makeText(mContext, "该会员没有订单", Toast.LENGTH_SHORT).show();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
     }
 
 }

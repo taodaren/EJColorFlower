@@ -3,7 +3,11 @@ package cn.eejing.ejcolorflower.ui.fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
@@ -15,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.Urls;
@@ -31,6 +37,8 @@ public class MiOrderPageFragment extends BaseFragment {
 
     @BindView(R.id.rv_mi_order_status)
     PullLoadMoreRecyclerView rvOrderStatus;
+    @BindView(R.id.ll_no_order)
+    LinearLayout llNoOrder;
 
     private Gson mGson;
     private List<OrderPagerBean.DataBean> mList;
@@ -79,14 +87,49 @@ public class MiOrderPageFragment extends BaseFragment {
                 getDataWithWaitGoods();
                 break;
             case AppConstant.TYPE_WAIT_RECEIPT:
-                getDataWithWaitGoods();
+                getDataWithAlreadyGoods();
                 break;
             case AppConstant.TYPE_COMPLETE_GOODS:
-                getDataWithWaitGoods();
+                getDataWithCompleted();
                 break;
             default:
                 break;
         }
+    }
+
+    private void initRecyclerView() {
+        // 设置布局
+        rvOrderStatus.setLinearLayout();
+        // 绑定适配器
+        mAdapter = new OrderStatusAdapter(getContext(), mList, mType, mMemberId, mToken);
+        rvOrderStatus.setAdapter(mAdapter);
+        // 不需要上拉刷新
+        rvOrderStatus.setPushRefreshEnable(false);
+        // 调用下拉刷新和加载更多
+        rvOrderStatus.setOnPullLoadMoreListener(new PullLoadMoreRecyclerView.PullLoadMoreListener() {
+            @Override
+            public void onRefresh() {
+                switch (mType) {
+                    case AppConstant.TYPE_WAIT_SHIP:
+                        getDataWithWaitGoods();
+                        break;
+                    case AppConstant.TYPE_WAIT_RECEIPT:
+                        getDataWithAlreadyGoods();
+                        break;
+                    case AppConstant.TYPE_COMPLETE_GOODS:
+                        getDataWithCompleted();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            @Override
+            public void onLoadMore() {
+            }
+        });
+        // 刷新结束
+        rvOrderStatus.setPullLoadMoreCompleted();
     }
 
     private void getDataWithWaitGoods() {
@@ -101,11 +144,22 @@ public class MiOrderPageFragment extends BaseFragment {
                         Log.e(AppConstant.TAG, "wait_goods request succeeded --->" + body);
 
                         OrderPagerBean bean = mGson.fromJson(body, OrderPagerBean.class);
-                        mList = bean.getData();
-                        // 刷新数据
-                        mAdapter.refreshList(mList);
-                        // 刷新结束
-                        rvOrderStatus.setPullLoadMoreCompleted();
+                        switch (bean.getCode()) {
+                            case 1:
+                                mList = bean.getData();
+                                // 刷新数据
+                                mAdapter.refreshList(mList);
+                                // 刷新结束
+                                rvOrderStatus.setPullLoadMoreCompleted();
+                                break;
+                            case 4:
+                                llNoOrder.setVisibility(View.VISIBLE);
+                                // 刷新结束
+                                rvOrderStatus.setPullLoadMoreCompleted();
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 });
     }
@@ -122,11 +176,22 @@ public class MiOrderPageFragment extends BaseFragment {
                         Log.e(AppConstant.TAG, "already_goods request succeeded --->" + body);
 
                         OrderPagerBean bean = mGson.fromJson(body, OrderPagerBean.class);
-                        mList = bean.getData();
-                        // 刷新数据
-                        mAdapter.refreshList(mList);
-                        // 刷新结束
-                        rvOrderStatus.setPullLoadMoreCompleted();
+                        switch (bean.getCode()) {
+                            case 1:
+                                mList = bean.getData();
+                                // 刷新数据
+                                mAdapter.refreshList(mList);
+                                // 刷新结束
+                                rvOrderStatus.setPullLoadMoreCompleted();
+                                break;
+                            case 4:
+                                llNoOrder.setVisibility(View.VISIBLE);
+                                // 刷新结束
+                                rvOrderStatus.setPullLoadMoreCompleted();
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 });
     }
@@ -143,48 +208,24 @@ public class MiOrderPageFragment extends BaseFragment {
                         Log.e(AppConstant.TAG, "completed request succeeded --->" + body);
 
                         OrderPagerBean bean = mGson.fromJson(body, OrderPagerBean.class);
-                        mList = bean.getData();
-                        // 刷新数据
-                        mAdapter.refreshList(mList);
-                        // 刷新结束
-                        rvOrderStatus.setPullLoadMoreCompleted();
+                        switch (bean.getCode()) {
+                            case 1:
+                                mList = bean.getData();
+                                // 刷新数据
+                                mAdapter.refreshList(mList);
+                                // 刷新结束
+                                rvOrderStatus.setPullLoadMoreCompleted();
+                                break;
+                            case 4:
+                                llNoOrder.setVisibility(View.VISIBLE);
+                                // 刷新结束
+                                rvOrderStatus.setPullLoadMoreCompleted();
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 });
-    }
-
-    private void initRecyclerView() {
-        // 设置布局
-        rvOrderStatus.setLinearLayout();
-        // 绑定适配器
-        mAdapter = new OrderStatusAdapter(getContext(), mList, mType);
-        rvOrderStatus.setAdapter(mAdapter);
-        // 不需要上拉刷新
-        rvOrderStatus.setPushRefreshEnable(false);
-        // 调用下拉刷新和加载更多
-        rvOrderStatus.setOnPullLoadMoreListener(new PullLoadMoreRecyclerView.PullLoadMoreListener() {
-            @Override
-            public void onRefresh() {
-                switch (mType) {
-                    case AppConstant.TYPE_WAIT_SHIP:
-                        getDataWithWaitGoods();
-                        break;
-                    case AppConstant.TYPE_WAIT_RECEIPT:
-                        getDataWithWaitGoods();
-                        break;
-                    case AppConstant.TYPE_COMPLETE_GOODS:
-                        getDataWithWaitGoods();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            @Override
-            public void onLoadMore() {
-            }
-        });
-        // 刷新结束
-        rvOrderStatus.setPullLoadMoreCompleted();
     }
 
 }

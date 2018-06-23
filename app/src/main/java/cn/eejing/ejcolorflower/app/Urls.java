@@ -42,7 +42,7 @@ public interface Urls {
     String CALL_BACK_CONFIRM = BASE_URL + "callBackConfirm";                           // 确认支付结果
 
     String WAIT_GOODS = BASE_URL + "waitGoods";                                        // 待发货
-    String ALREADY_GOODS = BASE_URL + "alreadyGoods";                                  // 已发货
+    String ALREADY_GOODS = BASE_URL + "alreadyGodos";                                  // 已发货
     String COMPLETED = BASE_URL + "Completed";                                         // 已完成
     String ORDER_DETAILS = BASE_URL + "orderDetails";                                  // 订单详情
     String COLLECT_GOODS = BASE_URL + "collectGoods";                                  // 确认收货(待收货)

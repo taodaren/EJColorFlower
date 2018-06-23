@@ -110,6 +110,7 @@
     <string name="customer_service">客服</string>
     <string name="buy_now">立即购买</string>
     <string name="basic_postage">基础邮费：</string>
+    <string name="postage">邮费：</string>
     <string name="postage_before">（满</string>
     <string name="postage_after">元免邮）</string>
 
@@ -133,7 +134,16 @@
     <string name="text_center_to_border">从中间到两端</string>
     <string name="text_s">S</string>
     <string name="text_total_money">合计金额：</string>
+    <string name="text_total">合计：</string>
     <string name="text_shipping_address">收货地址：</string>
     <string name="text_consignee">收货人：</string>
     <string name="text_manage">管理</string>
+    <string name="text_order_num">订单编号：</string>
+    <string name="text_order_time">下单时间：</string>
+    <string name="text_multiply">×</string>
+    <string name="text_common">共</string>
+    <string name="text_items">件商品</string>
+    <string name="type_wait_ship">待发货</string>
+    <string name="type_wait_receipt">待收货</string>
+    <string name="type_complete_goods">已完成</string>
 </resources>
