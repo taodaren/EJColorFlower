@@ -7,9 +7,7 @@
     android:orientation="vertical"
     tools:context=".ui.activity.DeviceDetailsActivity">
 
-    <include
-        android:id="@+id/toolbar_device_dtl"
-        layout="@layout/layout_toolbar" />
+    <include layout="@layout/layout_toolbar" />
 
     <com.flyco.tablayout.SegmentTabLayout
         android:id="@+id/tl_device_del"

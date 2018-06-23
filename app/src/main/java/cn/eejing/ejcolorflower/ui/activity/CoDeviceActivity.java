@@ -32,8 +32,6 @@ import cn.eejing.ejcolorflower.ui.base.BaseActivity;
 public class CoDeviceActivity extends BaseActivity implements
         View.OnClickListener, CoDeviceLeftAdapter.LeftClickListener, CoDeviceRightAdapter.RightClickListener {
 
-    @BindView(R.id.img_title_back)
-    ImageView imgTitleBack;
     @BindView(R.id.btn_device_save)
     SuperButton btnDeviceSave;
     @BindView(R.id.tv_added_can)
@@ -78,7 +76,6 @@ public class CoDeviceActivity extends BaseActivity implements
 
     @Override
     public void initListener() {
-        imgTitleBack.setOnClickListener(this);
         btnDeviceSave.setOnClickListener(this);
     }
 
@@ -127,9 +124,6 @@ public class CoDeviceActivity extends BaseActivity implements
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.img_title_back:
-                finish();
-                break;
             case R.id.btn_device_save:
                 Log.i(AppConstant.TAG, "onClickSave mNewPossess: " + mNewPossess);
                 getDataWithAddDeviceToGroup();

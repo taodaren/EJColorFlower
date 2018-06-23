@@ -24,8 +24,6 @@ import cn.eejing.ejcolorflower.util.Encryption;
 
 public class ForgetPwdActivity extends BaseActivity implements View.OnClickListener {
 
-    @BindView(R.id.img_title_back)
-    ImageView imgTitleBack;
     @BindView(R.id.et_forget_phone)
     EditText etForgetPhone;
     @BindView(R.id.et_forget_set_pwd)
@@ -59,7 +57,6 @@ public class ForgetPwdActivity extends BaseActivity implements View.OnClickListe
 
     @Override
     public void initListener() {
-        imgTitleBack.setOnClickListener(this);
         btnForgetGetCode.setOnClickListener(this);
         btnResetPwd.setOnClickListener(this);
     }
@@ -165,9 +162,6 @@ public class ForgetPwdActivity extends BaseActivity implements View.OnClickListe
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.img_title_back:
-                finish();
-                break;
             case R.id.btn_forget_get_code:
                 getDateWithSendMsg();
                 break;

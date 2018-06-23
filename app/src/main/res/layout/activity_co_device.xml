@@ -10,7 +10,6 @@
         android:id="@+id/toolbar_co_device"
         layout="@layout/layout_toolbar" />
 
-
     <com.allen.library.SuperButton
         android:id="@+id/btn_device_save"
         android:layout_width="match_parent"

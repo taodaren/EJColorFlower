@@ -11,9 +11,7 @@
         android:background="@color/colorWhite"
         android:orientation="vertical">
 
-        <include
-            android:id="@+id/toolbar_config_together"
-            layout="@layout/layout_toolbar" />
+        <include layout="@layout/layout_toolbar" />
 
         <RelativeLayout
             android:layout_width="match_parent"

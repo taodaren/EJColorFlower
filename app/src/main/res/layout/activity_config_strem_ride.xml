@@ -9,9 +9,7 @@
         android:background="@color/colorWhite"
         android:orientation="vertical">
 
-        <include
-            android:id="@+id/toolbar_config_stream"
-            layout="@layout/layout_toolbar" />
+        <include layout="@layout/layout_toolbar" />
 
         <TextView
             android:layout_width="wrap_content"

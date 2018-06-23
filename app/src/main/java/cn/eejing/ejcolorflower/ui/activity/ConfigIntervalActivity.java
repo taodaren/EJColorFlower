@@ -14,8 +14,6 @@ import cn.eejing.ejcolorflower.ui.base.BaseActivity;
 
 public class ConfigIntervalActivity extends BaseActivity implements View.OnClickListener {
 
-    @BindView(R.id.img_title_back)
-    ImageView imgTitleBack;
     @BindView(R.id.btn_verify_interval)
     Button btnVerify;
 
@@ -31,16 +29,12 @@ public class ConfigIntervalActivity extends BaseActivity implements View.OnClick
 
     @Override
     public void initListener() {
-        imgTitleBack.setOnClickListener(this);
         btnVerify.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.img_title_back:
-                finish();
-                break;
             case R.id.btn_verify_interval:
                 finish();
                 break;

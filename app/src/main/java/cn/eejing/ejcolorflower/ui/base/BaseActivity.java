@@ -76,10 +76,8 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            // 显示 Toolbar 左侧导航按钮
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            // 设置导航按钮图标
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_left);
+            // 隐藏 Toolbar 左侧导航按钮
+            actionBar.setDisplayHomeAsUpEnabled(false);
             // 隐藏 Toolbar 自带标题栏
             actionBar.setDisplayShowTitleEnabled(false);
         }
@@ -91,6 +89,12 @@ public abstract class BaseActivity extends AppCompatActivity {
         // 设置返回按钮
         ImageView imgTitleBack = findViewById(R.id.img_title_back);
         imgTitleBack.setVisibility(View.VISIBLE);
+        imgTitleBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     /**

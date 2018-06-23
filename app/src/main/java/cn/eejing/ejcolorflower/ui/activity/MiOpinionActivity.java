@@ -30,8 +30,6 @@ public class MiOpinionActivity extends BaseActivity {
     EditText editOpinionContent;
     @BindView(R.id.tv_num_length)
     TextView tvNumLength;
-    @BindView(R.id.img_title_back)
-    ImageView imgTitleBack;
     @BindView(R.id.btn_opinion_submit)
     SuperButton btnOpinionSubmit;
 
@@ -42,14 +40,8 @@ public class MiOpinionActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        setEditEnter();
         setToolbar("意见反馈", View.VISIBLE);
-        imgTitleBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        setEditEnter();
     }
 
     private void setEditEnter() {

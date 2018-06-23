@@ -2,6 +2,7 @@ package cn.eejing.ejcolorflower.ui.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -21,7 +21,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.app.MainActivity;
 import cn.eejing.ejcolorflower.model.request.OrderPagerBean;
 import cn.eejing.ejcolorflower.ui.activity.OrderDetailsActivity;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
@@ -126,7 +125,7 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             outItem.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ((MainActivity) mContext).jumpToActivity(OrderDetailsActivity.class);
+                    mContext.startActivity(new Intent(mContext, OrderDetailsActivity.class));
                 }
             });
 

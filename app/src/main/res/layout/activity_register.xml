@@ -7,9 +7,7 @@
     android:orientation="vertical"
     tools:context=".ui.activity.RegisterActivity">
 
-    <include
-        android:id="@+id/toolbar_register"
-        layout="@layout/layout_toolbar" />
+    <include layout="@layout/layout_toolbar" />
 
     <LinearLayout
         android:layout_width="match_parent"

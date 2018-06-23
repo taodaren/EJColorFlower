@@ -7,9 +7,7 @@
     android:orientation="vertical"
     tools:context=".ui.activity.MiModifyPwdActivity">
 
-    <include
-        android:id="@+id/toolbar_change_pwd"
-        layout="@layout/layout_toolbar" />
+    <include layout="@layout/layout_toolbar" />
 
     <LinearLayout
         android:layout_width="match_parent"

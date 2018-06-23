@@ -7,9 +7,7 @@
     android:orientation="vertical"
     tools:context=".ui.activity.MiOpinionActivity">
 
-    <include
-        android:id="@+id/toolbar_mi_opinion"
-        layout="@layout/layout_toolbar" />
+    <include layout="@layout/layout_toolbar" />
 
     <com.allen.library.SuperTextView
         android:id="@+id/superTextView"

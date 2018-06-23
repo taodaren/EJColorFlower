@@ -14,8 +14,6 @@ import cn.eejing.ejcolorflower.ui.base.BaseActivity;
  */
 public class MiModifyPwdActivity extends BaseActivity {
 
-    @BindView(R.id.img_title_back)
-    ImageView imgTitleBack;
     @BindView(R.id.et_current_psd)
     EditText etCurrentPsd;
     @BindView(R.id.et_reset_psd)
@@ -31,12 +29,6 @@ public class MiModifyPwdActivity extends BaseActivity {
     @Override
     public void initView() {
         setToolbar("修改密码", View.VISIBLE);
-        imgTitleBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
     }
 
 }

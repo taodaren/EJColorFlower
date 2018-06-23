@@ -6,9 +6,7 @@
     android:orientation="vertical"
     tools:context=".ui.activity.ConfirmOrderActivity">
 
-    <include
-        android:id="@+id/toolbar_order_confirm"
-        layout="@layout/layout_toolbar" />
+    <include layout="@layout/layout_toolbar" />
 
     <LinearLayout
         android:id="@+id/ll_confirm_order_address"

@@ -26,8 +26,6 @@ public class MiSetActivity extends BaseActivity {
     SuperTextView stvSetModifyPwd;
     @BindView(R.id.btn_exit_login)
     Button btnExitLogin;
-    @BindView(R.id.img_title_back)
-    ImageView imgTitleBack;
 
     @Override
     protected int layoutViewId() {
@@ -58,12 +56,6 @@ public class MiSetActivity extends BaseActivity {
             public void onClick(View v) {
                 // 退出登陆
                 logout();
-            }
-        });
-        imgTitleBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
             }
         });
     }

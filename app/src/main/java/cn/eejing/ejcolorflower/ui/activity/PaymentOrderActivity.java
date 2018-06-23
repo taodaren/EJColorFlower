@@ -35,8 +35,6 @@ import cn.eejing.ejcolorflower.util.PayResult;
 
 public class PaymentOrderActivity extends BaseActivity implements View.OnClickListener {
 
-    @BindView(R.id.img_title_back)
-    ImageView imgTitleBack;
     @BindView(R.id.btn_pay)
     SuperButton btnPay;
     @BindView(R.id.tv_pay_money)
@@ -83,16 +81,12 @@ public class PaymentOrderActivity extends BaseActivity implements View.OnClickLi
 
     @Override
     public void initListener() {
-        imgTitleBack.setOnClickListener(this);
         btnPay.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.img_title_back:
-                finish();
-                break;
             case R.id.btn_pay:
                 getDataWithPay();
                 break;

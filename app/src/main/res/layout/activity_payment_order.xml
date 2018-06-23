@@ -7,9 +7,7 @@
     android:orientation="vertical"
     tools:context=".ui.activity.PaymentOrderActivity">
 
-    <include
-        android:id="@+id/toolbar_order_pay"
-        layout="@layout/layout_toolbar" />
+    <include layout="@layout/layout_toolbar" />
 
     <RelativeLayout
         android:layout_width="match_parent"

@@ -26,8 +26,6 @@ import cn.eejing.ejcolorflower.util.Encryption;
 public class RegisterActivity extends BaseActivity implements View.OnClickListener {
 
 
-    @BindView(R.id.img_title_back)
-    ImageView imgTitleBack;
     @BindView(R.id.et_register_phone)
     EditText mPhone;
     @BindView(R.id.et_register_set_pwd)
@@ -59,7 +57,6 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
 
     @Override
     public void initListener() {
-        imgTitleBack.setOnClickListener(this);
         btnGetCode.setOnClickListener(this);
         btnRegister.setOnClickListener(this);
     }
@@ -67,9 +64,6 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.img_title_back:
-                finish();
-                break;
             case R.id.btn_register_get_code:
                 getDateWithSendMsg();
                 break;

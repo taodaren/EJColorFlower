@@ -27,8 +27,6 @@ import cn.eejing.ejcolorflower.util.Settings;
 
 public class QRCodeActivity extends BaseActivity implements View.OnClickListener, QRCodeView.Delegate {
 
-    @BindView(R.id.img_title_back)
-    ImageView imgTitleBack;
     @BindView(R.id.zxingview)
     ZXingView mQRCodeView;
     @BindView(R.id.tv_light_switch)
@@ -56,7 +54,6 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void initListener() {
-        imgTitleBack.setOnClickListener(this);
         tvLightSwitch.setOnClickListener(this);
     }
 
@@ -98,9 +95,6 @@ public class QRCodeActivity extends BaseActivity implements View.OnClickListener
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.img_title_back:
-                finish();
-                break;
             case R.id.tv_light_switch:
                 switchFlashlight();
                 break;

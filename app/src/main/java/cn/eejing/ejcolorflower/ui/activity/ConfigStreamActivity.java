@@ -26,8 +26,6 @@ import static cn.eejing.ejcolorflower.app.AppConstant.RIGHT_TO_LEFT;
 
 public class ConfigStreamActivity extends BaseActivity implements View.OnClickListener {
 
-    @BindView(R.id.img_title_back)
-    ImageView imgTitleBack;
     @BindView(R.id.rbtn_left_to_right)
     RadioButton rbtnLeftToRight;
     @BindView(R.id.rbtn_border_to_center)
@@ -63,9 +61,7 @@ public class ConfigStreamActivity extends BaseActivity implements View.OnClickLi
 
     @Override
     public void initListener() {
-        imgTitleBack.setOnClickListener(this);
         btnVerify.setOnClickListener(this);
-
         rbtnLeftToRight.setOnClickListener(btnListener1);
         rbtnBorderToCenter.setOnClickListener(btnListener2);
         rbtnRightToLeft.setOnClickListener(btnListener3);
@@ -75,9 +71,6 @@ public class ConfigStreamActivity extends BaseActivity implements View.OnClickLi
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.img_title_back:
-                finish();
-                break;
             case R.id.btn_config_verify:
                 finish();
                 break;

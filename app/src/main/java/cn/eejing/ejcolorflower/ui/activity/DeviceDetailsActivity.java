@@ -30,8 +30,6 @@ import static cn.eejing.ejcolorflower.app.AppConstant.REQUEST_CODE_QRCODE_PERMIS
 
 public class DeviceDetailsActivity extends BaseActivity implements View.OnClickListener, EasyPermissions.PermissionCallbacks {
 
-    @BindView(R.id.img_title_back)
-    ImageView imgTitleBack;
     @BindView(R.id.btn_add_material)
     SuperButton btnAddMaterial;
     @BindView(R.id.btn_remove_device)
@@ -86,7 +84,6 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
 
     @Override
     public void initListener() {
-        imgTitleBack.setOnClickListener(this);
         btnAddMaterial.setOnClickListener(this);
         btnRemoveDevice.setOnClickListener(this);
     }
@@ -94,9 +91,6 @@ public class DeviceDetailsActivity extends BaseActivity implements View.OnClickL
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.img_title_back:
-                finish();
-                break;
             case R.id.btn_add_material:
                 Intent intent = new Intent(this, QRAddMaterialActivity.class);
                 intent.putExtra("device_id", mDeviceId);

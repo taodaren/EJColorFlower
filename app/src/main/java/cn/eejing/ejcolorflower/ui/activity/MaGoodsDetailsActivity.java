@@ -31,8 +31,6 @@ import cn.eejing.ejcolorflower.util.SelfDialogBase;
 
 public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClickListener {
 
-    @BindView(R.id.img_title_back)
-    ImageView imgTitleBack;
     @BindView(R.id.rv_goods_details)
     PullLoadMoreRecyclerView rvGoodsDetails;
     @BindView(R.id.btn_customer_service)
@@ -67,7 +65,6 @@ public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClick
 
     @Override
     public void initListener() {
-        imgTitleBack.setOnClickListener(this);
         btnCustomerService.setOnClickListener(this);
         btnBuyNow.setOnClickListener(this);
     }
@@ -75,9 +72,6 @@ public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClick
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.img_title_back:
-                finish();
-                break;
             case R.id.btn_customer_service:
                 showDialog();
                 break;

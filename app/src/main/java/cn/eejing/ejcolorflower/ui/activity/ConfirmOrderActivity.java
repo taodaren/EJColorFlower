@@ -29,8 +29,6 @@ import cn.eejing.ejcolorflower.util.Settings;
 
 public class ConfirmOrderActivity extends BaseActivity implements View.OnClickListener {
 
-    @BindView(R.id.img_title_back)
-    ImageView imgTitleBack;
     @BindView(R.id.btn_submit_order)
     Button btnSubmitOrder;
     @BindView(R.id.tv_confirm_order_consignee)
@@ -90,7 +88,6 @@ public class ConfirmOrderActivity extends BaseActivity implements View.OnClickLi
 
     @Override
     public void initListener() {
-        imgTitleBack.setOnClickListener(this);
         btnAdd.setOnClickListener(this);
         btnSub.setOnClickListener(this);
         btnSubmitOrder.setOnClickListener(this);
@@ -100,9 +97,6 @@ public class ConfirmOrderActivity extends BaseActivity implements View.OnClickLi
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.img_title_back:
-                finish();
-                break;
             case R.id.btn_submit_order:
                 Intent intent = new Intent(this, PaymentOrderActivity.class);
                 intent.putExtra("goods_id", mGoodsId);
