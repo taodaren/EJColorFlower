@@ -10,8 +10,7 @@ import cn.eejing.ejcolorflower.ui.base.BaseActivity;
 import cn.eejing.ejcolorflower.util.Settings;
 
 /**
- * @创建者 Taodaren
- * @描述 我的 → 设置 → 个人信息
+ * 个人信息
  */
 public class MiUserInfoActivity extends BaseActivity {
 

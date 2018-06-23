@@ -12,7 +12,7 @@ import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.ui.adapter.ViewPagerAdapter;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
-import cn.eejing.ejcolorflower.ui.fragment.MiOrderPageFragment;
+import cn.eejing.ejcolorflower.ui.fragment.PageOrderStatusFragment;
 
 /**
  * 我的订单
@@ -48,7 +48,7 @@ public class MiOrderActivity extends BaseActivity {
         // 添加 Fragment
         List<Fragment> fragments = new ArrayList<>();
         for (String mTitle : mTitles) {
-            fragments.add(MiOrderPageFragment.newInstance(mTitle));
+            fragments.add(PageOrderStatusFragment.newInstance(mTitle));
         }
 
         // 设置预加载页面数量

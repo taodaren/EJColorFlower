@@ -27,20 +27,20 @@ import cn.eejing.ejcolorflower.util.DeviceEvent;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.LoginSession;
-import cn.eejing.ejcolorflower.app.MainActivity;
-import cn.eejing.ejcolorflower.app.Urls;
+import cn.eejing.ejcolorflower.ui.activity.AppActivity;
+import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceMaterialStatus;
 import cn.eejing.ejcolorflower.device.DeviceState;
-import cn.eejing.ejcolorflower.device.OnReceivePackage;
+import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.device.Protocol;
 import cn.eejing.ejcolorflower.model.request.AddMaterialBean;
 import cn.eejing.ejcolorflower.model.request.CancelMaterialStatusBean;
 import cn.eejing.ejcolorflower.model.request.ChangeMaterialStatusBean;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
 import cn.eejing.ejcolorflower.model.request.MaterialInfoBean;
-import cn.eejing.ejcolorflower.ui.activity.LoginActivity;
+import cn.eejing.ejcolorflower.ui.activity.SignInActivity;
 import cn.eejing.ejcolorflower.ui.adapter.TabDeviceAdapter;
 import cn.eejing.ejcolorflower.ui.base.BaseFragment;
 import cn.eejing.ejcolorflower.util.Settings;
@@ -50,8 +50,7 @@ import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_NO_USED;
 import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_WAIT_USED;
 
 /**
- * @创建者 Taodaren
- * @描述 设备模块
+ * 设备模块
  */
 
 public class TabDeviceFragment extends BaseFragment {
@@ -69,7 +68,7 @@ public class TabDeviceFragment extends BaseFragment {
     private DeviceConfig mConfig;
 
     private OnFragmentInteractionListener mListener;
-    private MainActivity.FireworksDeviceControl mDeviceControl;
+    private AppActivity.FireworksDeviceControl mDeviceControl;
 
     public interface OnRecvHandler {
         void onState(Device device, DeviceState state);
@@ -121,7 +120,7 @@ public class TabDeviceFragment extends BaseFragment {
         EventBus.getDefault().register(this);
         mGson = new Gson();
         mList = new ArrayList<>();
-        mDeviceControl = MainActivity.getFireworksDeviceControl();
+        mDeviceControl = AppActivity.getFireworksDeviceControl();
 
         LoginSession session = Settings.getLoginSessionInfo(getActivity());
         mMemberId = String.valueOf(session.getMember_id());
@@ -253,7 +252,7 @@ public class TabDeviceFragment extends BaseFragment {
                             case 101:
                             case 102:
                                 information(getString(R.string.toast_login_fail));
-                                startActivity(new Intent(getActivity(), LoginActivity.class));
+                                startActivity(new Intent(getActivity(), SignInActivity.class));
                                 getActivity().finish();
                                 break;
                             case 0:

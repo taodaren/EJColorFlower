@@ -27,10 +27,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.app.Urls;
+import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.model.request.OrderPagerBean;
 import cn.eejing.ejcolorflower.model.request.OrderStatusBean;
-import cn.eejing.ejcolorflower.ui.activity.OrderDetailsActivity;
+import cn.eejing.ejcolorflower.ui.activity.MiOrderDetailsActivity;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
 
 public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -135,7 +135,7 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             outItem.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mContext.startActivity(new Intent(mContext, OrderDetailsActivity.class)
+                    mContext.startActivity(new Intent(mContext, MiOrderDetailsActivity.class)
                             .putExtra("order_id", bean.getOrder_id())
                             .putExtra("type",mType));
                 }

@@ -15,14 +15,13 @@ import java.util.List;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.app.Urls;
+import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.model.request.GoodsListBean;
 import cn.eejing.ejcolorflower.ui.adapter.TabMallAdapter;
 import cn.eejing.ejcolorflower.ui.base.BaseFragment;
 
 /**
- * @创建者 Taodaren
- * @描述 商城模块
+ * 商城模块
  */
 
 public class TabMallFragment extends BaseFragment {

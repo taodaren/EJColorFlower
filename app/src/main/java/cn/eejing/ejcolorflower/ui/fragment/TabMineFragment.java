@@ -4,7 +4,7 @@ import com.allen.library.SuperTextView;
 
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.app.MainActivity;
+import cn.eejing.ejcolorflower.ui.activity.AppActivity;
 import cn.eejing.ejcolorflower.ui.activity.MiAboutActivity;
 import cn.eejing.ejcolorflower.ui.activity.MiOpinionActivity;
 import cn.eejing.ejcolorflower.ui.activity.MiOrderActivity;
@@ -12,8 +12,7 @@ import cn.eejing.ejcolorflower.ui.activity.MiSetActivity;
 import cn.eejing.ejcolorflower.ui.base.BaseFragment;
 
 /**
- * @创建者 Taodaren
- * @描述 我的模块
+ * 我的模块
  */
 
 public class TabMineFragment extends BaseFragment {
@@ -44,28 +43,28 @@ public class TabMineFragment extends BaseFragment {
         stvMineOrder.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
             @Override
             public void onClickListener(SuperTextView superTextView) {
-                ((MainActivity) getActivity()).jumpToActivity(MiOrderActivity.class);
+                ((AppActivity) getActivity()).jumpToActivity(MiOrderActivity.class);
             }
         });
 
         stvMineOpinion.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
             @Override
             public void onClickListener(SuperTextView superTextView) {
-                ((MainActivity) getActivity()).jumpToActivity(MiOpinionActivity.class);
+                ((AppActivity) getActivity()).jumpToActivity(MiOpinionActivity.class);
             }
         });
 
         stvMineAbout.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
             @Override
             public void onClickListener(SuperTextView superTextView) {
-                ((MainActivity) getActivity()).jumpToActivity(MiAboutActivity.class);
+                ((AppActivity) getActivity()).jumpToActivity(MiAboutActivity.class);
             }
         });
 
         stvMineSet.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
             @Override
             public void onClickListener(SuperTextView superTextView) {
-                ((MainActivity) getActivity()).jumpToActivity(MiSetActivity.class);
+                ((AppActivity) getActivity()).jumpToActivity(MiSetActivity.class);
             }
         });
     }

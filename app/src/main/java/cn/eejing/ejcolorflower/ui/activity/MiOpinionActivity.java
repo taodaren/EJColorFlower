@@ -19,14 +19,13 @@ import com.lzy.okgo.model.Response;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.app.Urls;
+import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.model.request.FeedBackBean;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
 import cn.eejing.ejcolorflower.util.Settings;
 
 /**
- * @创建者 Taodaren
- * @描述 我的 → 意见反馈
+ * 意见反馈
  */
 
 public class MiOpinionActivity extends BaseActivity {

@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
@@ -19,7 +18,7 @@ import java.util.List;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.app.Urls;
+import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.model.request.GoodsDetailsBean;
 import cn.eejing.ejcolorflower.ui.adapter.GoodsDetailsAdapter;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
@@ -76,7 +75,7 @@ public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClick
                 showDialog();
                 break;
             case R.id.btn_buy_now:
-                Intent intent = new Intent(this, ConfirmOrderActivity.class);
+                Intent intent = new Intent(this, MaOrderConfirmActivity.class);
                 intent.putExtra("goods_id", mGoodsId);
                 jumpToActivity(intent);
                 break;

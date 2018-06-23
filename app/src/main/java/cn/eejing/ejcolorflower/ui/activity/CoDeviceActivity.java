@@ -4,7 +4,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.allen.library.SuperButton;
@@ -19,16 +18,16 @@ import java.util.List;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.app.Urls;
+import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.model.request.EditDeviceToGroupBean;
 import cn.eejing.ejcolorflower.ui.adapter.CoDeviceLeftAdapter;
 import cn.eejing.ejcolorflower.ui.adapter.CoDeviceRightAdapter;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
 
 /**
- * @创建者 Taodaren
- * @描述 添加、移除设备
+ * 添加、移除设备
  */
+
 public class CoDeviceActivity extends BaseActivity implements
         View.OnClickListener, CoDeviceLeftAdapter.LeftClickListener, CoDeviceRightAdapter.RightClickListener {
 

@@ -15,8 +15,7 @@ import cn.eejing.ejcolorflower.util.Settings;
 import static cn.eejing.ejcolorflower.app.AppConstant.EXIT_LOGIN;
 
 /**
- * @创建者 Taodaren
- * @描述 我的 → 设置
+ * 设置
  */
 public class MiSetActivity extends BaseActivity {
 
@@ -50,7 +49,7 @@ public class MiSetActivity extends BaseActivity {
         stvSetModifyPwd.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
             @Override
             public void onClickListener(SuperTextView superTextView) {
-                jumpToActivity(MiModifyPwdActivity.class);
+                jumpToActivity(MiPwdModifyActivity.class);
             }
         });
         btnExitLogin.setOnClickListener(new View.OnClickListener() {
@@ -84,9 +83,9 @@ public class MiSetActivity extends BaseActivity {
         // 清空缓存
         Settings.clearInfo(getBaseContext());
         // 退出登陆回到登陆界面
-        startActivity(new Intent(MiSetActivity.this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        startActivity(new Intent(MiSetActivity.this, SignInActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         finish();
-        // 结束 MainActivity
+        // 结束 AppActivity
         delActivity(EXIT_LOGIN);
     }
 

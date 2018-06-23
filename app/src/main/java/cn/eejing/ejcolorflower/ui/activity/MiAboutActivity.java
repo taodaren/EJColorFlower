@@ -14,13 +14,12 @@ import com.lzy.okgo.model.Response;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.app.Urls;
+import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.model.request.AboutLinkBean;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
 
 /**
- * @创建者 Taodaren
- * @描述 我的 → 关于我们
+ * 关于我们
  */
 
 public class MiAboutActivity extends BaseActivity {

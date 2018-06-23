@@ -32,13 +32,13 @@ import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.util.DeviceEvent;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.app.Urls;
+import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceState;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
-import cn.eejing.ejcolorflower.ui.activity.DeviceDetailsActivity;
-import cn.eejing.ejcolorflower.ui.activity.QRCodeActivity;
+import cn.eejing.ejcolorflower.ui.activity.DeDeviceDetailsActivity;
+import cn.eejing.ejcolorflower.ui.activity.DeQrAddDeviceActivity;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -246,7 +246,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     if (state != null && config != null) {
                         postDeviceId(position);
 
-                        Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
+                        Intent intent = new Intent(mContext, DeDeviceDetailsActivity.class);
                         intent.putExtra("device_id", deviceId);
                         intent.putExtra("device_temp", state.mTemperature);
                         intent.putExtra("device_dmx", config.mDMXAddress);
@@ -266,7 +266,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     if (state != null && config != null) {
                         postDeviceId(position);
 
-                        Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
+                        Intent intent = new Intent(mContext, DeDeviceDetailsActivity.class);
                         intent.putExtra("device_id", deviceId);
                         intent.putExtra("device_temp", state.mTemperature);
                         intent.putExtra("device_dmx", config.mDMXAddress);
@@ -286,7 +286,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     if (state != null && config != null) {
                         postDeviceId(position);
 
-                        Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
+                        Intent intent = new Intent(mContext, DeDeviceDetailsActivity.class);
                         intent.putExtra("device_id", deviceId);
                         intent.putExtra("device_temp", state.mTemperature);
                         intent.putExtra("device_dmx", config.mDMXAddress);
@@ -306,7 +306,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     if (state != null && config != null) {
                         postDeviceId(position);
 
-                        Intent intent = new Intent(mContext, DeviceDetailsActivity.class);
+                        Intent intent = new Intent(mContext, DeDeviceDetailsActivity.class);
                         intent.putExtra("device_id", deviceId);
                         intent.putExtra("device_temp", state.mTemperature);
                         intent.putExtra("device_dmx", config.mDMXAddress);
@@ -344,7 +344,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             imgAddDevice.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(mContext, QRCodeActivity.class);
+                    Intent intent = new Intent(mContext, DeQrAddDeviceActivity.class);
                     intent.putExtra("member_id", mMemberId);
                     mContext.startActivity(intent);
                 }

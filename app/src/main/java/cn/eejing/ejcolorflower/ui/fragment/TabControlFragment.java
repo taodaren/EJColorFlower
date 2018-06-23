@@ -16,8 +16,7 @@ import java.util.List;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.app.MainActivity;
-import cn.eejing.ejcolorflower.app.Urls;
+import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
@@ -25,11 +24,8 @@ import cn.eejing.ejcolorflower.ui.adapter.TabControlAdapter;
 import cn.eejing.ejcolorflower.ui.base.BaseFragment;
 import cn.eejing.ejcolorflower.util.Settings;
 
-import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_SERVICE;
-
 /**
- * @创建者 Taodaren
- * @描述 控制模块
+ * 控制模块
  */
 
 public class TabControlFragment extends BaseFragment {

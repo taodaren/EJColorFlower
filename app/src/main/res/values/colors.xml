@@ -24,7 +24,7 @@
     <color name="colorBgGray">#EEEEEE</color>
     <color name="colorBgDevice">#cccccc</color>
 
-    <color name="colorGroupName">#666666</color>
+    <color name="colorTitleName">#666666</color>
     <color name="colorConfig">#333333</color>
     <color name="colorNoClick">#999999</color>
     <color name="colorGroupLine">#e5e5e5</color>

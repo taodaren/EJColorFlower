@@ -28,18 +28,18 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.app.MainActivity;
-import cn.eejing.ejcolorflower.app.Urls;
+import cn.eejing.ejcolorflower.ui.activity.AppActivity;
+import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
-import cn.eejing.ejcolorflower.device.OnReceivePackage;
+import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.device.Protocol;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
 import cn.eejing.ejcolorflower.ui.activity.CoDeviceActivity;
-import cn.eejing.ejcolorflower.ui.activity.ConfigIntervalActivity;
-import cn.eejing.ejcolorflower.ui.activity.ConfigRideActivity;
-import cn.eejing.ejcolorflower.ui.activity.ConfigStreamActivity;
-import cn.eejing.ejcolorflower.ui.activity.ConfigTogetherActivity;
+import cn.eejing.ejcolorflower.ui.activity.CoConfigIntervalActivity;
+import cn.eejing.ejcolorflower.ui.activity.CoConfigRideActivity;
+import cn.eejing.ejcolorflower.ui.activity.CoConfigStreamActivity;
+import cn.eejing.ejcolorflower.ui.activity.CoConfigTogetherActivity;
 import cn.eejing.ejcolorflower.util.SelfDialog;
 import cn.eejing.ejcolorflower.util.Settings;
 
@@ -62,7 +62,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     private Device mDevice;
     private DeviceConfig mConfig;
-    private MainActivity.FireworksDeviceControl mDeviceControl;
+    private AppActivity.FireworksDeviceControl mDeviceControl;
 
 
     public TabControlAdapter(Context mContext, List<DeviceGroupListBean.DataBean> mList, String mMemberId) {
@@ -73,7 +73,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         this.mMemberId = mMemberId;
         this.mToken = Settings.getLoginSessionInfo(mContext).getToken();
 
-        this.mDeviceControl = MainActivity.getFireworksDeviceControl();
+        this.mDeviceControl = AppActivity.getFireworksDeviceControl();
     }
 
     @NonNull
@@ -269,16 +269,16 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     }
                     switch (v.getId()) {
                         case R.id.pop_config_stream:
-                            mContext.startActivity(new Intent(mContext, ConfigStreamActivity.class));
+                            mContext.startActivity(new Intent(mContext, CoConfigStreamActivity.class));
                             break;
                         case R.id.pop_config_ride:
-                            mContext.startActivity(new Intent(mContext, ConfigRideActivity.class));
+                            mContext.startActivity(new Intent(mContext, CoConfigRideActivity.class));
                             break;
                         case R.id.pop_config_interval:
-                            mContext.startActivity(new Intent(mContext, ConfigIntervalActivity.class));
+                            mContext.startActivity(new Intent(mContext, CoConfigIntervalActivity.class));
                             break;
                         case R.id.pop_config_together:
-                            mContext.startActivity(new Intent(mContext, ConfigTogetherActivity.class));
+                            mContext.startActivity(new Intent(mContext, CoConfigTogetherActivity.class));
                             break;
                         default:
                             break;
