@@ -3,13 +3,13 @@ package cn.eejing.ejcolorflower.ui.activity;
 import android.content.Intent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 
 import com.allen.library.SuperTextView;
 
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
+import cn.eejing.ejcolorflower.util.SelfDialogBase;
 import cn.eejing.ejcolorflower.util.Settings;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.EXIT_LOGIN;
@@ -27,6 +27,8 @@ public class MiSetActivity extends BaseActivity {
     @BindView(R.id.btn_exit_login)
     Button btnExitLogin;
 
+    private SelfDialogBase mDialog;
+
     @Override
     protected int layoutViewId() {
         return R.layout.activity_mi_set;
@@ -35,10 +37,10 @@ public class MiSetActivity extends BaseActivity {
     @Override
     public void initView() {
         setToolbar("设置", View.VISIBLE);
-        stvOnClickListener();
     }
 
-    private void stvOnClickListener() {
+    @Override
+    public void initListener() {
         stvSetUserInfo.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
             @Override
             public void onClickListener(SuperTextView superTextView) {
@@ -54,10 +56,28 @@ public class MiSetActivity extends BaseActivity {
         btnExitLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 退出登陆
-                logout();
+                signOut();
             }
         });
+    }
+
+    private void signOut() {
+        mDialog = new SelfDialogBase(this);
+        mDialog.setTitle("您确认要退出登陆？");
+        mDialog.setYesOnclickListener("确认", new SelfDialogBase.onYesOnclickListener() {
+            @Override
+            public void onYesClick() {
+                logout();
+                mDialog.dismiss();
+            }
+        });
+        mDialog.setNoOnclickListener("取消", new SelfDialogBase.onNoOnclickListener() {
+            @Override
+            public void onNoClick() {
+                mDialog.dismiss();
+            }
+        });
+        mDialog.show();
     }
 
     private void logout() {

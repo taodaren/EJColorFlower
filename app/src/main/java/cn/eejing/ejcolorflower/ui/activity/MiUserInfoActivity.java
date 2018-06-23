@@ -2,14 +2,21 @@ package cn.eejing.ejcolorflower.ui.activity;
 
 import android.view.View;
 
+import com.allen.library.SuperTextView;
+
+import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
+import cn.eejing.ejcolorflower.util.Settings;
 
 /**
  * @创建者 Taodaren
  * @描述 我的 → 设置 → 个人信息
  */
 public class MiUserInfoActivity extends BaseActivity {
+
+    @BindView(R.id.stv_phone_num)
+    SuperTextView stvPhoneNum;
 
     @Override
     protected int layoutViewId() {
@@ -19,6 +26,8 @@ public class MiUserInfoActivity extends BaseActivity {
     @Override
     public void initView() {
         setToolbar("个人信息", View.VISIBLE);
+        // set cellphone number
+        stvPhoneNum.setRightString(Settings.getLoginSessionInfo(this).getUsername());
     }
 
 }

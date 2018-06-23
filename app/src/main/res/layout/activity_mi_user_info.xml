@@ -20,7 +20,7 @@
         android:layout_marginTop="8dp"
         stv:layout_constraintTop_toBottomOf="@+id/toolbar_user_info"
         stv:sLeftTextString="手机号码"
-        stv:sRightTextString="18511211125"
+        stv:sRightTextString="18812345678"
         stv:sUseRipple="true"
         tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="8dp" />

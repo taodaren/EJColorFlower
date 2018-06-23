@@ -35,7 +35,6 @@
             android:hint="@string/current_psd_hint"
             android:inputType="textPassword"
             android:padding="4dp"
-            android:textColor="@color/colorGray"
             android:textSize="14sp" />
     </LinearLayout>
 
@@ -70,7 +69,6 @@
             android:hint="@string/reset_psd_hint"
             android:inputType="textPassword"
             android:padding="4dp"
-            android:textColor="@color/colorGray"
             android:textSize="14sp" />
     </LinearLayout>
 
@@ -105,7 +103,6 @@
             android:hint="@string/confirm_psd_hint"
             android:inputType="textPassword"
             android:padding="4dp"
-            android:textColor="@color/colorGray"
             android:textSize="14sp" />
     </LinearLayout>
 
@@ -115,6 +112,7 @@
         android:background="@color/colorGray" />
 
     <com.allen.library.SuperButton
+        android:id="@+id/btn_modify_pwd"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="36dp"
