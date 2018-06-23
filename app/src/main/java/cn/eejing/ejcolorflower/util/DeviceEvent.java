@@ -1,4 +1,4 @@
-package cn.eejing.ejcolorflower;
+package cn.eejing.ejcolorflower.util;
 
 public class DeviceEvent {
     private String id;
