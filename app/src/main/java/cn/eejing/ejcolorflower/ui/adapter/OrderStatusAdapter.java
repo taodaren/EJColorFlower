@@ -21,13 +21,17 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
+import cn.eejing.ejcolorflower.app.MainActivity;
 import cn.eejing.ejcolorflower.model.request.OrderPagerBean;
+import cn.eejing.ejcolorflower.ui.activity.OrderDetailsActivity;
+import cn.eejing.ejcolorflower.util.SelfDialogBase;
 
 public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context mContext;
     private LayoutInflater mInflater;
     private List<OrderPagerBean.DataBean> mList;
     private String mType;
+    private SelfDialogBase mDialog;
 
     public OrderStatusAdapter(Context context, List<OrderPagerBean.DataBean> list, String type) {
         this.mContext = context;
@@ -84,22 +88,26 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         TextView tvMoney;
         @BindView(R.id.btn_order_status)
         Button btnEdit;
+        View outItem;
 
         ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            outItem = itemView;
+
             btnEdit.setOnClickListener(this);
         }
 
         @SuppressLint("SetTextI18n")
         public void setData(OrderPagerBean.DataBean bean) {
+            double money = bean.getMoney() * bean.getQuantity();
             Glide.with(mContext).load(bean.getImage()).into(imgGoods);
             tvName.setText(bean.getName());
-            tvMoneyRmb.setText(mContext.getString(R.string.rmb) + bean.getMoney());
+            tvMoneyRmb.setText(mContext.getString(R.string.rmb) + money);
             tvNum.setText("×" + bean.getQuantity());
             tvQuantity.setText("共" + bean.getQuantity() + "件商品");
             tvPostage.setText("邮费:" + bean.getPostage() + "元");
-            tvMoney.setText("合计:" + bean.getMoney() + "元");
+            tvMoney.setText("合计:" + money + "元");
 
             switch (mType) {
                 case AppConstant.TYPE_WAIT_SHIP:
@@ -115,6 +123,13 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     break;
             }
 
+            outItem.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ((MainActivity) mContext).jumpToActivity(OrderDetailsActivity.class);
+                }
+            });
+
         }
 
         @Override
@@ -122,15 +137,63 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             switch (view.getId()) {
                 case R.id.btn_order_status:
                     if (mType.equals(AppConstant.TYPE_WAIT_RECEIPT)) {
-                        Toast.makeText(mContext, "确认收货", Toast.LENGTH_SHORT).show();
+                        collectGoods();
                     } else if (mType.equals(AppConstant.TYPE_COMPLETE_GOODS)) {
-                        Toast.makeText(mContext, "删除", Toast.LENGTH_SHORT).show();
+                        delCompleted();
                     }
                     break;
                 default:
                     break;
             }
         }
+    }
+
+    private void collectGoods() {
+        mDialog = new SelfDialogBase(mContext);
+        mDialog.setTitle("您是否已收到该订单商品？");
+        mDialog.setYesOnclickListener("已收货", new SelfDialogBase.onYesOnclickListener() {
+            @Override
+            public void onYesClick() {
+                getDataWithCollectGoods();
+                mDialog.dismiss();
+            }
+        });
+        mDialog.setNoOnclickListener("未收货", new SelfDialogBase.onNoOnclickListener() {
+            @Override
+            public void onNoClick() {
+                mDialog.dismiss();
+            }
+        });
+        mDialog.show();
+    }
+
+    private void delCompleted() {
+        mDialog = new SelfDialogBase(mContext);
+        mDialog.setTitle("确认删除此订单？");
+        mDialog.setYesOnclickListener("删除", new SelfDialogBase.onYesOnclickListener() {
+            @Override
+            public void onYesClick() {
+                getDataWithDelCompleted();
+                mDialog.dismiss();
+            }
+        });
+        mDialog.setNoOnclickListener("取消", new SelfDialogBase.onNoOnclickListener() {
+            @Override
+            public void onNoClick() {
+                mDialog.dismiss();
+            }
+        });
+        mDialog.show();
+    }
+
+    private void getDataWithCollectGoods() {
+        // 跳转到确认收货成功
+
+    }
+
+    private void getDataWithDelCompleted() {
+        // 删除并刷新列表
+
     }
 
 }
