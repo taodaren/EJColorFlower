@@ -29,7 +29,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import cn.eejing.ejcolorflower.util.DeviceEvent;
+import cn.eejing.ejcolorflower.model.event.DeviceEvent;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.presenter.Urls;

@@ -2,9 +2,14 @@ package cn.eejing.ejcolorflower.ui.activity;
 
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+
+import org.greenrobot.eventbus.EventBus;
 
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
+import cn.eejing.ejcolorflower.app.AppConstant;
+import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
 
 /**
@@ -15,6 +20,12 @@ public class CoConfigTogetherActivity extends BaseActivity implements View.OnCli
 
     @BindView(R.id.btn_verify_together)
     Button btnVerify;
+    @BindView(R.id.et_together_duration)
+    EditText etDuration;
+    @BindView(R.id.et_together_high)
+    EditText etHigh;
+
+    private int mGroupId;
 
     @Override
     protected int layoutViewId() {
@@ -24,6 +35,8 @@ public class CoConfigTogetherActivity extends BaseActivity implements View.OnCli
     @Override
     public void initView() {
         setToolbar(getString(R.string.config_together), View.VISIBLE);
+        mGroupId = getIntent().getIntExtra("group_id", 0);
+        defaultConfig();
     }
 
     @Override
@@ -35,11 +48,25 @@ public class CoConfigTogetherActivity extends BaseActivity implements View.OnCli
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_verify_together:
+                postEvent();
                 finish();
                 break;
             default:
                 break;
         }
+    }
+
+    private void postEvent() {
+        JetStatusEvent event = new JetStatusEvent(getString(R.string.config_together),
+                etDuration.getText().toString(),
+                etHigh.getText().toString(),
+                mGroupId);
+        EventBus.getDefault().post(event);
+    }
+
+    private void defaultConfig() {
+        etDuration.setText(AppConstant.DEFAULT_TOGETHER_DURATION);
+        etHigh.setText(AppConstant.DEFAULT_TOGETHER_HIGH);
     }
 
 }

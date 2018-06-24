@@ -6,11 +6,16 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+import org.greenrobot.eventbus.EventBus;
+
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
+import cn.eejing.ejcolorflower.app.AppConstant;
+import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
 import cn.eejing.ejcolorflower.ui.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.BORDER_TO_CENTER;
@@ -38,10 +43,19 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
     RadioGroup radioRight;
     @BindView(R.id.btn_config_verify)
     Button btnVerify;
+    @BindView(R.id.et_stream_gap)
+    EditText etGap;
+    @BindView(R.id.et_stream_duration)
+    EditText etDuration;
+    @BindView(R.id.et_stream_gap_big)
+    EditText etGapBig;
+    @BindView(R.id.et_stream_loop)
+    EditText etLoop;
 
     // 用于保存当前被选中的按钮
-    String strBtnSelected = "unInit";
+    String strBtnSelected;
     BtnSelected btnListener1, btnListener2, btnListener3, btnListener4;
+    private int mGroupId;
 
     @Override
     protected int layoutViewId() {
@@ -55,6 +69,8 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
         btnListener2 = new BtnSelected(BORDER_TO_CENTER);
         btnListener3 = new BtnSelected(RIGHT_TO_LEFT);
         btnListener4 = new BtnSelected(CENTER_TO_BORDER);
+        mGroupId = getIntent().getIntExtra("group_id", 0);
+        defaultConfig();
     }
 
     @Override
@@ -71,11 +87,31 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_config_verify:
+                postEvent();
                 finish();
                 break;
             default:
                 break;
         }
+    }
+
+    private void postEvent() {
+        JetStatusEvent event = new JetStatusEvent(getString(R.string.config_ride),
+                strBtnSelected,
+                etGap.getText().toString(),
+                etDuration.getText().toString(),
+                etGapBig.getText().toString(),
+                etLoop.getText().toString(),
+                mGroupId);
+        EventBus.getDefault().post(event);
+    }
+
+    private void defaultConfig() {
+        strBtnSelected = LEFT_TO_RIGHT;
+        etGap.setText(AppConstant.DEFAULT_STREAM_RIDE_GAP);
+        etDuration.setText(AppConstant.DEFAULT_STREAM_RIDE_DURATION);
+        etGapBig.setText(AppConstant.DEFAULT_STREAM_RIDE_GAP_BIG);
+        etLoop.setText(AppConstant.DEFAULT_STREAM_RIDE_LOOP);
     }
 
     /**
@@ -84,11 +120,11 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
      * 若用户点击的是 GroupRight 的按钮，则清除 GroupLeft 中按钮被选中的状态
      */
     public class BtnSelected implements View.OnClickListener {
+        final String bntID;
+
         BtnSelected(String str) {
             bntID = str;
         }
-
-        final String bntID;
 
         @RequiresApi(api = Build.VERSION_CODES.M)
         @Override

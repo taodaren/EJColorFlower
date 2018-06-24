@@ -22,30 +22,34 @@ import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.ui.activity.AppActivity;
-import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
-import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.device.Protocol;
+import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
-import cn.eejing.ejcolorflower.ui.activity.CoDeviceActivity;
+import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
+import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.ui.activity.AppActivity;
 import cn.eejing.ejcolorflower.ui.activity.CoConfigIntervalActivity;
 import cn.eejing.ejcolorflower.ui.activity.CoConfigRideActivity;
 import cn.eejing.ejcolorflower.ui.activity.CoConfigStreamActivity;
 import cn.eejing.ejcolorflower.ui.activity.CoConfigTogetherActivity;
+import cn.eejing.ejcolorflower.ui.activity.CoDeviceActivity;
 import cn.eejing.ejcolorflower.util.SelfDialog;
 import cn.eejing.ejcolorflower.util.Settings;
 
 /**
- * @创建者 Taodaren
- * @描述 控制模块适配器
+ * 控制模块适配器
  */
 
 public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -63,6 +67,8 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private Device mDevice;
     private DeviceConfig mConfig;
     private AppActivity.FireworksDeviceControl mDeviceControl;
+    private String mConfigType, mDirection, mGgap, mDduration, mGapBig, mLoop, mFrequency, mHigh;
+    private int mPostGroupId;
 
 
     public TabControlAdapter(Context mContext, List<DeviceGroupListBean.DataBean> mList, String mMemberId) {
@@ -72,7 +78,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         this.mGson = new Gson();
         this.mMemberId = mMemberId;
         this.mToken = Settings.getLoginSessionInfo(mContext).getToken();
-
         this.mDeviceControl = AppActivity.getFireworksDeviceControl();
     }
 
@@ -109,6 +114,18 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         } else {
             return TYPE_FOOTER;
         }
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        EventBus.getDefault().unregister(this);
     }
 
     public void refreshList(List<DeviceGroupListBean.DataBean> list) {
@@ -177,6 +194,11 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             groupId = bean.getGroup_id();
             groupName = bean.getGroup_name();
 
+            if (mPostGroupId == groupId) {
+                // 如果返回的 groupId 与服务器 groupId 一致，改变配置
+                sbType.setText(mConfigType);
+            }
+
             outItem.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
@@ -230,7 +252,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     mContext.startActivity(intent);
                     break;
                 case R.id.sb_config_puff:
-                    showPopTopWithDarkBg();
+                    showPopTopWithDarkBg(groupId);
                     break;
                 default:
                     break;
@@ -238,10 +260,10 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         // 显示 PopupWindow 同时背景变暗
-        private void showPopTopWithDarkBg() {
+        private void showPopTopWithDarkBg(int groupId) {
             View contentView = LayoutInflater.from(mContext).inflate(R.layout.layout_pop_menu, null);
             // 处理 popWindow 显示内容
-            handleLogic(contentView);
+            handleLogic(contentView, groupId);
             // 创建并显示 popWindow
             mCustomPopWindow = new CustomPopWindow.PopupWindowBuilder(mContext)
                     .setView(contentView)
@@ -260,7 +282,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         // 处理弹出显示内容、点击事件等逻辑
-        private void handleLogic(View contentView) {
+        private void handleLogic(View contentView, final int groupId) {
             View.OnClickListener listener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -269,16 +291,16 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     }
                     switch (v.getId()) {
                         case R.id.pop_config_stream:
-                            mContext.startActivity(new Intent(mContext, CoConfigStreamActivity.class));
+                            mContext.startActivity(new Intent(mContext, CoConfigStreamActivity.class).putExtra("group_id", groupId));
                             break;
                         case R.id.pop_config_ride:
-                            mContext.startActivity(new Intent(mContext, CoConfigRideActivity.class));
+                            mContext.startActivity(new Intent(mContext, CoConfigRideActivity.class).putExtra("group_id", groupId));
                             break;
                         case R.id.pop_config_interval:
-                            mContext.startActivity(new Intent(mContext, CoConfigIntervalActivity.class));
+                            mContext.startActivity(new Intent(mContext, CoConfigIntervalActivity.class).putExtra("group_id", groupId));
                             break;
                         case R.id.pop_config_together:
-                            mContext.startActivity(new Intent(mContext, CoConfigTogetherActivity.class));
+                            mContext.startActivity(new Intent(mContext, CoConfigTogetherActivity.class).putExtra("group_id", groupId));
                             break;
                         default:
                             break;
@@ -476,6 +498,29 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                         getDataWithDeviceGroupList();
                     }
                 });
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(JetStatusEvent event) {
+        mConfigType = event.getType();
+        mDirection = event.getmDirection();
+        mGgap = event.getGap();
+        mDduration = event.getDuration();
+        mGapBig = event.getGapBig();
+        mLoop = event.getLoop();
+        mFrequency = event.getFrequency();
+        mHigh = event.getHigh();
+        mPostGroupId = event.getGroupId();
+
+        Log.i("EVENT_JET", "configType: " + mConfigType);
+        Log.i("EVENT_JET", "direction: " + mDirection);
+        Log.i("EVENT_JET", "gap: " + mGgap);
+        Log.i("EVENT_JET", "duration: " + mDduration);
+        Log.i("EVENT_JET", "gapBig: " + mGapBig);
+        Log.i("EVENT_JET", "loop: " + mLoop);
+        Log.i("EVENT_JET", "frequency: " + mFrequency);
+        Log.i("EVENT_JET", "high: " + mHigh);
+        Log.i("EVENT_JET", "mPostGroupId: " + mPostGroupId);
     }
 
 }

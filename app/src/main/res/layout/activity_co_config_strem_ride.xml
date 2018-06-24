@@ -108,11 +108,15 @@
                     android:textSize="15sp" />
 
                 <EditText
+                    android:id="@+id/et_stream_gap"
                     android:layout_width="124dp"
                     android:layout_height="30dp"
                     android:background="@drawable/shape_edit_bg"
+                    android:inputType="number"
                     android:padding="6dp"
-                    android:textCursorDrawable="@null" />
+                    android:textColor="@color/colorTitleName"
+                    android:textCursorDrawable="@null"
+                    android:textSize="16sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -142,11 +146,15 @@
                     android:textSize="15sp" />
 
                 <EditText
+                    android:id="@+id/et_stream_duration"
                     android:layout_width="124dp"
                     android:layout_height="30dp"
                     android:background="@drawable/shape_edit_bg"
+                    android:inputType="number"
                     android:padding="6dp"
-                    android:textCursorDrawable="@null" />
+                    android:textColor="@color/colorTitleName"
+                    android:textCursorDrawable="@null"
+                    android:textSize="16sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -176,11 +184,15 @@
                     android:textSize="15sp" />
 
                 <EditText
+                    android:id="@+id/et_stream_gap_big"
                     android:layout_width="124dp"
                     android:layout_height="30dp"
                     android:background="@drawable/shape_edit_bg"
+                    android:inputType="number"
                     android:padding="6dp"
-                    android:textCursorDrawable="@null" />
+                    android:textColor="@color/colorTitleName"
+                    android:textCursorDrawable="@null"
+                    android:textSize="16sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -210,11 +222,15 @@
                     android:textSize="15sp" />
 
                 <EditText
+                    android:id="@+id/et_stream_loop"
                     android:layout_width="124dp"
                     android:layout_height="30dp"
                     android:background="@drawable/shape_edit_bg"
+                    android:inputType="number"
                     android:padding="6dp"
-                    android:textCursorDrawable="@null" />
+                    android:textColor="@color/colorTitleName"
+                    android:textCursorDrawable="@null"
+                    android:textSize="16sp" />
             </LinearLayout>
         </RelativeLayout>
 
