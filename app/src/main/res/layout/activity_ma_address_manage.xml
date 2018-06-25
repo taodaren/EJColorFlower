@@ -1,10 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".view.activity.MaAddressManageActivity">
 
-    <include layout="@layout/layout_toolbar" />
-</android.support.constraint.ConstraintLayout>
+    <include
+        android:id="@+id/toolbar_address_manage"
+        layout="@layout/layout_toolbar" />
+
+    <Button
+        android:id="@+id/btn_shipping_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/colorPrimary"
+        android:text="添加新地址"
+        android:textColor="@color/colorWhite"
+        android:textSize="16sp" />
+
+    <com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView
+        android:id="@+id/rv_shipping_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/btn_shipping_address"
+        android:layout_below="@id/toolbar_address_manage" />
+</RelativeLayout>

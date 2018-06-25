@@ -45,4 +45,10 @@
             android:textColor="@color/colorWhite"
             android:textSize="16sp" />
     </android.support.v7.widget.Toolbar>
+
+    <com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView
+        android:id="@+id/rv_shipping_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar_shipping_address" />
 </RelativeLayout>

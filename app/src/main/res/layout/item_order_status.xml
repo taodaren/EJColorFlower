@@ -89,7 +89,7 @@
             android:layout_width="72dp"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:background="@drawable/shape_btn_order_bg"
+            android:background="@drawable/shape_btn_color_primary"
             android:textColor="@color/colorPrimary"
             android:textSize="12sp" />
     </LinearLayout>
