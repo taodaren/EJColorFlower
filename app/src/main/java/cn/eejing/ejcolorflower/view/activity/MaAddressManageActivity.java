@@ -62,7 +62,9 @@ public class MaAddressManageActivity extends BaseActivity {
 
     @OnClick(R.id.btn_shipping_address)
     public void clickAddAddress() {
-        Toast.makeText(this, "clickAddAddress", Toast.LENGTH_SHORT).show();
+        jumpToActivity(MaAddressAddActivity.class);
+
+        getDataWithAddressAdd();
     }
 
     private void initRecyclerView() {
@@ -121,5 +123,39 @@ public class MaAddressManageActivity extends BaseActivity {
                          }
                 );
     }
+
+    private void getDataWithAddressAdd() {
+        OkGo.<String>post(Urls.ADDRESS_ADD)
+                .tag(this)
+                .params("member_id", mMemberId)
+                .params("token", mToken)
+                .execute(new StringCallback() {
+                             @Override
+                             public void onSuccess(Response<String> response) {
+                                 String body = response.body();
+                                 Log.e(AppConstant.TAG, "address_list request succeeded--->" + body);
+
+                                 AddressListBean bean = mGson.fromJson(body, AddressListBean.class);
+                                 switch (bean.getCode()) {
+                                     case 1:
+                                         mList = bean.getData();
+                                         // 刷新数据
+                                         mAdapter.refreshList(mList);
+                                         // 刷新结束
+                                         rvAddress.setPullLoadMoreCompleted();
+                                         break;
+                                     default:
+                                         break;
+                                 }
+                             }
+
+                             @Override
+                             public void onError(Response<String> response) {
+                                 super.onError(response);
+                             }
+                         }
+                );
+    }
+
 
 }

@@ -69,9 +69,11 @@
             <com.allen.library.SuperTextView
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
+                stv:sBackgroundDrawableRes="@color/colorWhite"
                 stv:sLeftTextString="版本信息"
                 stv:sRightTextString="V 1.0.0"
-                stv:sRightViewMarginRight="16dp" />
+                stv:sRightViewMarginRight="16dp"
+                stv:sUseRipple="false" />
 
             <com.allen.library.SuperTextView
                 android:id="@+id/stv_mine_set"
