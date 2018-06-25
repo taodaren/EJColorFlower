@@ -30,37 +30,37 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".ui.activity.SignInActivity">
+        <activity android:name=".view.activity.SignInActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.activity.SignUpActivity" />
-        <activity android:name=".ui.activity.SiPwdForgetActivity" />
-        <activity android:name=".ui.activity.AppActivity" />
-        <activity android:name=".ui.activity.BLEActivity" />
-        <activity android:name=".ui.activity.DeQrAddDeviceActivity" />
-        <activity android:name=".ui.activity.DeDeviceDetailsActivity" />
-        <activity android:name=".ui.activity.DeQrAddMaterialActivity" />
-        <activity android:name=".ui.activity.CoDeviceActivity" />
-        <activity android:name=".ui.activity.CoConfigStreamActivity" />
-        <activity android:name=".ui.activity.CoConfigRideActivity" />
-        <activity android:name=".ui.activity.CoConfigIntervalActivity" />
-        <activity android:name=".ui.activity.CoConfigTogetherActivity" />
-        <activity android:name=".ui.activity.MaGoodsDetailsActivity" />
-        <activity android:name=".ui.activity.MaOrderConfirmActivity" />
-        <activity android:name=".ui.activity.MaOrderPayActivity" />
-        <activity android:name=".ui.activity.MaAddressSelectActivity" />
-        <activity android:name=".ui.activity.MaAddressManageActivity" />
-        <activity android:name=".ui.activity.MiOpinionActivity" />
-        <activity android:name=".ui.activity.MiAboutActivity" />
-        <activity android:name=".ui.activity.MiSetActivity" />
-        <activity android:name=".ui.activity.MiUserInfoActivity" />
-        <activity android:name=".ui.activity.MiPwdModifyActivity" />
-        <activity android:name=".ui.activity.MiOrderActivity" />
-        <activity android:name=".ui.activity.MiOrderDetailsActivity" />
+        <activity android:name=".view.activity.SignUpActivity" />
+        <activity android:name=".view.activity.SiPwdForgetActivity" />
+        <activity android:name=".view.activity.AppActivity" />
+        <activity android:name=".view.activity.BLEActivity" />
+        <activity android:name=".view.activity.DeQrAddDeviceActivity" />
+        <activity android:name=".view.activity.DeDeviceDetailsActivity" />
+        <activity android:name=".view.activity.DeQrAddMaterialActivity" />
+        <activity android:name=".view.activity.CoDeviceActivity" />
+        <activity android:name=".view.activity.CoConfigStreamActivity" />
+        <activity android:name=".view.activity.CoConfigRideActivity" />
+        <activity android:name=".view.activity.CoConfigIntervalActivity" />
+        <activity android:name=".view.activity.CoConfigTogetherActivity" />
+        <activity android:name=".view.activity.MaGoodsDetailsActivity" />
+        <activity android:name=".view.activity.MaOrderConfirmActivity" />
+        <activity android:name=".view.activity.MaOrderPayActivity" />
+        <activity android:name=".view.activity.MaAddressSelectActivity" />
+        <activity android:name=".view.activity.MaAddressManageActivity" />
+        <activity android:name=".view.activity.MiOpinionActivity" />
+        <activity android:name=".view.activity.MiAboutActivity" />
+        <activity android:name=".view.activity.MiSetActivity" />
+        <activity android:name=".view.activity.MiUserInfoActivity" />
+        <activity android:name=".view.activity.MiPwdModifyActivity" />
+        <activity android:name=".view.activity.MiOrderActivity" />
+        <activity android:name=".view.activity.MiOrderDetailsActivity" />
 
         <!-- alipay -->
         <activity
