@@ -52,8 +52,8 @@
         <activity android:name=".view.activity.MaGoodsDetailsActivity" />
         <activity android:name=".view.activity.MaOrderConfirmActivity" />
         <activity android:name=".view.activity.MaOrderPayActivity" />
-        <activity android:name=".view.activity.MaAddressSelectActivity" />
-        <activity android:name=".view.activity.MaAddressManageActivity" />
+        <activity android:name=".view.activity.MaAddrSelectActivity" />
+        <activity android:name=".view.activity.MaAddrManageActivity" />
         <activity android:name=".view.activity.MiOpinionActivity" />
         <activity android:name=".view.activity.MiAboutActivity" />
         <activity android:name=".view.activity.MiSetActivity" />
@@ -75,7 +75,10 @@
             android:exported="false"
             android:screenOrientation="behind"
             android:windowSoftInputMode="adjustResize|stateHidden" />
-        <activity android:name=".view.activity.MaAddressAddActivity"></activity>
+        <activity android:name=".view.activity.MaAddrAddActivity" />
+        <activity android:name=".view.activity.MaAddrProvincesActivity" />
+        <activity android:name=".view.activity.MaAddrAreasActivity" />
+        <activity android:name=".view.activity.MaAddrCitysActivity"></activity>
     </application>
 
 </manifest>

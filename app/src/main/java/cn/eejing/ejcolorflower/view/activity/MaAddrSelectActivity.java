@@ -11,23 +11,28 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.model.request.AddressListBean;
+import cn.eejing.ejcolorflower.model.event.AddrAddEvent;
+import cn.eejing.ejcolorflower.model.request.AddrListBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.Settings;
-import cn.eejing.ejcolorflower.view.adapter.AddressSelectAdapter;
+import cn.eejing.ejcolorflower.view.adapter.AddrSelectAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 /**
  * 选择收货地址
  */
 
-public class MaAddressSelectActivity extends BaseActivity implements View.OnClickListener {
+public class MaAddrSelectActivity extends BaseActivity implements View.OnClickListener {
 
     @BindView(R.id.tv_title_shipping_address)
     TextView tvTitle;
@@ -40,12 +45,12 @@ public class MaAddressSelectActivity extends BaseActivity implements View.OnClic
 
     private Gson mGson;
     private String mMemberId, mToken;
-    private List<AddressListBean.DataBean> mList;
-    private AddressSelectAdapter mAdapter;
+    private List<AddrListBean.DataBean> mList;
+    private AddrSelectAdapter mAdapter;
 
     @Override
     protected int layoutViewId() {
-        return R.layout.activity_ma_address_select;
+        return R.layout.activity_ma_addr_select;
     }
 
     @Override
@@ -56,6 +61,7 @@ public class MaAddressSelectActivity extends BaseActivity implements View.OnClic
         mMemberId = String.valueOf(Settings.getLoginSessionInfo(this).getMember_id());
         mToken = Settings.getLoginSessionInfo(this).getToken();
         initRecyclerView();
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -69,6 +75,12 @@ public class MaAddressSelectActivity extends BaseActivity implements View.OnClic
         tvManage.setOnClickListener(this);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(AddrAddEvent event) {
+        // 地址添加成功返回刷新列表
+        getDataWithAddressList();
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -76,7 +88,7 @@ public class MaAddressSelectActivity extends BaseActivity implements View.OnClic
                 finish();
                 break;
             case R.id.tv_manage_shipping_address:
-                jumpToActivity(MaAddressManageActivity.class);
+                jumpToActivity(MaAddrManageActivity.class);
                 break;
             default:
                 break;
@@ -87,7 +99,7 @@ public class MaAddressSelectActivity extends BaseActivity implements View.OnClic
         // 设置布局
         rvAddress.setLinearLayout();
         // 绑定适配器
-        mAdapter = new AddressSelectAdapter(this, mList);
+        mAdapter = new AddrSelectAdapter(this, mList);
         rvAddress.setAdapter(mAdapter);
 
         // 不需要上拉刷新
@@ -118,7 +130,7 @@ public class MaAddressSelectActivity extends BaseActivity implements View.OnClic
                                  String body = response.body();
                                  Log.e(AppConstant.TAG, "address_list request succeeded--->" + body);
 
-                                 AddressListBean bean = mGson.fromJson(body, AddressListBean.class);
+                                 AddrListBean bean = mGson.fromJson(body, AddrListBean.class);
                                  switch (bean.getCode()) {
                                      case 1:
                                          mList = bean.getData();

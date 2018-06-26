@@ -2,7 +2,6 @@ package cn.eejing.ejcolorflower.view.adapter;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -20,15 +19,15 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.model.request.AddressListBean;
+import cn.eejing.ejcolorflower.model.request.AddrListBean;
 import cn.eejing.ejcolorflower.util.TextColorSizeHelper;
 
-public class AddressSelectAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class AddrSelectAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Activity mContext;
     private LayoutInflater mInflater;
-    private List<AddressListBean.DataBean> mList;
+    private List<AddrListBean.DataBean> mList;
 
-    public AddressSelectAdapter(Activity context, List<AddressListBean.DataBean> list) {
+    public AddrSelectAdapter(Activity context, List<AddrListBean.DataBean> list) {
         this.mContext = context;
         this.mInflater = LayoutInflater.from(context);
         this.mList = new ArrayList<>();
@@ -51,14 +50,14 @@ public class AddressSelectAdapter extends RecyclerView.Adapter<RecyclerView.View
         return mList.size();
     }
 
-    public void refreshList(List<AddressListBean.DataBean> list) {
+    public void refreshList(List<AddrListBean.DataBean> list) {
         if (list != null) {
             mList.clear();
             addList(list);
         }
     }
 
-    private void addList(List<AddressListBean.DataBean> list) {
+    private void addList(List<AddrListBean.DataBean> list) {
         mList.addAll(list);
         notifyDataSetChanged();
     }
@@ -80,7 +79,7 @@ public class AddressSelectAdapter extends RecyclerView.Adapter<RecyclerView.View
 
         @RequiresApi(api = Build.VERSION_CODES.M)
         @SuppressLint("SetTextI18n")
-        public void setData(AddressListBean.DataBean bean) {
+        public void setData(AddrListBean.DataBean bean) {
             String defAddress = mContext.getResources().getString(R.string.text_address_def) + bean.getAddress_all();
             String[] defColor = {"[", "默", "认", "地", "址", "]"};
 

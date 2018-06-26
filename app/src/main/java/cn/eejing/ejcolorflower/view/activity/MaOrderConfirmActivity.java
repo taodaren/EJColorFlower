@@ -118,7 +118,7 @@ public class MaOrderConfirmActivity extends BaseActivity implements View.OnClick
                 }
                 break;
             case R.id.ll_confirm_order_address:
-                jumpToActivity(MaAddressSelectActivity.class);
+                jumpToActivity(MaAddrSelectActivity.class);
                 break;
             default:
                 break;

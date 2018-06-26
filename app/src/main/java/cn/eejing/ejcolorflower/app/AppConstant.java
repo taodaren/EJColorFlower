@@ -37,11 +37,13 @@ public class AppConstant {
     public static final String TYPE_WAIT_RECEIPT = "待收货";
     public static final String TYPE_COMPLETE_GOODS = "已完成";
 
-    // 效果功能（方式）
-    public static final String CONFIG_STREAM = "流水灯";
-    public static final String CONFIG_RIDE = "跑马灯";
-    public static final String CONFIG_INTERVAL= "间隔高低";
-    public static final String CONFIG_TOGETHER = "齐喷";
+    // 地址选择
+    public static final String ADDRESS_PROVINCESS = "address_provincess";
+    public static final String ADDRESS_AREAS = "address_areas";
+    public static final String ADDRESS_CITYS = "address_citys";
+    public static final String ADDRESS_ID_PROVINCESS = "address_id_provincess";
+    public static final String ADDRESS_ID_AREAS = "address_id_areas";
+    public static final String ADDRESS_ID_CITYS = "address_id_citys";
 
     // 配置设备喷射方向
     public static final String LEFT_TO_RIGHT = "1";

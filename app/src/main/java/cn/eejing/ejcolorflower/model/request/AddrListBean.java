@@ -2,7 +2,7 @@ package cn.eejing.ejcolorflower.model.request;
 
 import java.util.List;
 
-public class AddressListBean {
+public class AddrListBean {
 
     /**
      * code : 1

@@ -21,15 +21,15 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.model.request.AddressListBean;
+import cn.eejing.ejcolorflower.model.request.AddrListBean;
 
-public class AddressManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context mContext;
     private LayoutInflater mInflater;
-    private List<AddressListBean.DataBean> mList;
+    private List<AddrListBean.DataBean> mList;
     private int lastSelectedPosition = -1;
 
-    public AddressManageAdapter(Context context, List<AddressListBean.DataBean> list) {
+    public AddrManageAdapter(Context context, List<AddrListBean.DataBean> list) {
         this.mContext = context;
         this.mInflater = LayoutInflater.from(context);
         this.mList = new ArrayList<>();
@@ -52,14 +52,14 @@ public class AddressManageAdapter extends RecyclerView.Adapter<RecyclerView.View
         return mList.size();
     }
 
-    public void refreshList(List<AddressListBean.DataBean> list) {
+    public void refreshList(List<AddrListBean.DataBean> list) {
         if (list != null) {
             mList.clear();
             addList(list);
         }
     }
 
-    private void addList(List<AddressListBean.DataBean> list) {
+    private void addList(List<AddrListBean.DataBean> list) {
         mList.addAll(list);
         notifyDataSetChanged();
     }
@@ -84,7 +84,7 @@ public class AddressManageAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
 
         @SuppressLint("SetTextI18n")
-        public void setData(AddressListBean.DataBean bean, int position) {
+        public void setData(AddrListBean.DataBean bean, int position) {
             // 由于只允许选择一个单选按钮，因此此条件将取消选中以前的选择
             rbttDef.setChecked(lastSelectedPosition == position);
 
