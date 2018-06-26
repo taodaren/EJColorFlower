@@ -1,5 +1,6 @@
 package cn.eejing.ejcolorflower.view.activity;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -24,6 +25,10 @@ import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.Settings;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
+import static cn.eejing.ejcolorflower.app.AppConstant.ADDRESS_AREAS;
+import static cn.eejing.ejcolorflower.app.AppConstant.ADDRESS_CITYS;
+import static cn.eejing.ejcolorflower.app.AppConstant.ADDRESS_PROVINCESS;
+
 public class MaAddrAddActivity extends BaseActivity {
 
     @BindView(R.id.btn_address_add_save)
@@ -38,7 +43,8 @@ public class MaAddrAddActivity extends BaseActivity {
     TextView tvAddress;
 
     private Gson mGson;
-    private String mMemberId, mToken;
+    private String mMemberId, mToken, mAddress;
+    private String mProvincess, mCity, mAreas;
 
     @Override
     protected int layoutViewId() {
@@ -48,14 +54,36 @@ public class MaAddrAddActivity extends BaseActivity {
     @Override
     public void initView() {
         setToolbar("添加收货地址", View.VISIBLE);
+        setAddress();
+
         mGson = new Gson();
         mMemberId = String.valueOf(Settings.getLoginSessionInfo(this).getMember_id());
         mToken = Settings.getLoginSessionInfo(this).getToken();
     }
 
+    @SuppressLint("SetTextI18n")
+    private void setAddress() {
+        mProvincess = getIntent().getStringExtra(ADDRESS_PROVINCESS);
+        mCity = getIntent().getStringExtra(ADDRESS_CITYS);
+        mAreas = getIntent().getStringExtra(ADDRESS_AREAS);
+        if (mProvincess != null && mCity != null && mAreas != null) {
+            mAddress = mProvincess + " " + mCity + " " + mAreas;
+            tvAddress.setText(mAddress);
+        }
+        if (mAddress != null) {
+            mAddress = etAddress.getText().toString() + mAddress;
+        }
+    }
+
     @OnClick(R.id.btn_address_add_save)
     public void clickSave() {
-        getDataWithAddressAdd();
+        if (mProvincess == null || mCity == null || mAreas == null) {
+            Toast.makeText(this, "请您选择所在地区", Toast.LENGTH_SHORT).show();
+        } else if (etAddress.getText() == null) {
+            Toast.makeText(this, "请您填写详细地址", Toast.LENGTH_SHORT).show();
+        } else {
+            getDataWithAddressAdd();
+        }
     }
 
     @OnClick(R.id.layout_address_add_select)
@@ -70,7 +98,7 @@ public class MaAddrAddActivity extends BaseActivity {
                 .params("token", mToken)
                 .params("name", etConsignee.getText().toString())
                 .params("mobile", etPhone.getText().toString())
-                .params("address", etAddress.getText().toString())
+                .params("address", mAddress)
                 .params("status", 0)
                 .execute(new StringCallback() {
                              @Override

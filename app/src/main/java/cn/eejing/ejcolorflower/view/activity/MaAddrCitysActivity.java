@@ -9,16 +9,15 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.request.AddrCitysBean;
-import cn.eejing.ejcolorflower.model.request.AddrProvincesBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.view.adapter.AddrCitysAdapter;
-import cn.eejing.ejcolorflower.view.adapter.AddrProvincessAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.ADDRESS_ID_PROVINCESS;
@@ -35,7 +34,7 @@ public class MaAddrCitysActivity extends BaseActivity {
 
     private List<AddrCitysBean.DataBean> mList;
     private AddrCitysAdapter mAdapter;
-    private String mProvincess,mProvincessId;
+    private String mProvincess, mProvincessId;
 
     @Override
     protected int layoutViewId() {
@@ -45,6 +44,7 @@ public class MaAddrCitysActivity extends BaseActivity {
     @Override
     public void initView() {
         setToolbar("选择地区", View.VISIBLE);
+        mList = new ArrayList<>();
         mProvincess = getIntent().getStringExtra(ADDRESS_PROVINCESS);
         mProvincessId = getIntent().getStringExtra(ADDRESS_ID_PROVINCESS);
 
@@ -60,7 +60,7 @@ public class MaAddrCitysActivity extends BaseActivity {
         // 设置布局
         rvCitys.setLinearLayout();
         // 绑定适配器
-        mAdapter = new AddrCitysAdapter(this, mList);
+        mAdapter = new AddrCitysAdapter(this, mList, mProvincess);
         rvCitys.setAdapter(mAdapter);
 
         // 不需要上拉刷新

@@ -1,6 +1,6 @@
 package cn.eejing.ejcolorflower.view.adapter;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -16,21 +16,26 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.model.request.AddrProvincesBean;
-import cn.eejing.ejcolorflower.view.activity.MaAddrAreasActivity;
+import cn.eejing.ejcolorflower.model.request.AddrAreasBean;
+import cn.eejing.ejcolorflower.view.activity.MaAddrAddActivity;
 
+import static cn.eejing.ejcolorflower.app.AppConstant.ADDRESS_AREAS;
+import static cn.eejing.ejcolorflower.app.AppConstant.ADDRESS_CITYS;
 import static cn.eejing.ejcolorflower.app.AppConstant.ADDRESS_PROVINCESS;
 
 public class AddrAreasAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private Context mContext;
+    private Activity mContext;
     private LayoutInflater mInflater;
-    private List<AddrProvincesBean.DataBean> mList;
+    private List<AddrAreasBean.DataBean> mList;
+    private String mProvincess, mCity;
 
-    public AddrAreasAdapter(Context context, List<AddrProvincesBean.DataBean> list) {
+    public AddrAreasAdapter(Activity context, List<AddrAreasBean.DataBean> list, String provincess, String city) {
         this.mContext = context;
         this.mInflater = LayoutInflater.from(context);
         this.mList = new ArrayList<>();
         this.mList.addAll(list);
+        this.mProvincess = provincess;
+        this.mCity = city;
     }
 
     @NonNull
@@ -49,14 +54,14 @@ public class AddrAreasAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return mList.size();
     }
 
-    public void refreshList(List<AddrProvincesBean.DataBean> list) {
+    public void refreshList(List<AddrAreasBean.DataBean> list) {
         if (list != null) {
             mList.clear();
             addList(list);
         }
     }
 
-    private void addList(List<AddrProvincesBean.DataBean> list) {
+    private void addList(List<AddrAreasBean.DataBean> list) {
         mList.addAll(list);
         notifyDataSetChanged();
     }
@@ -64,22 +69,26 @@ public class AddrAreasAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     class CitysViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.tv_addr_citys)
         TextView tvCitys;
-        private String province;
+        private String areas;
 
         CitysViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
 
-        public void setData(AddrProvincesBean.DataBean bean) {
-            province = bean.getProvince();
-            tvCitys.setText(bean.getProvince());
+        public void setData(AddrAreasBean.DataBean bean) {
+            areas = bean.getArea();
+            tvCitys.setText(areas);
         }
 
         @OnClick(R.id.layout_addr_citys)
         public void onViewClicked() {
-            mContext.startActivity(new Intent(mContext, MaAddrAreasActivity.class)
-                    .putExtra(ADDRESS_PROVINCESS, province));
+            Intent intent = new Intent(mContext, MaAddrAddActivity.class);
+            intent.putExtra(ADDRESS_PROVINCESS, mProvincess);
+            intent.putExtra(ADDRESS_CITYS, mCity);
+            intent.putExtra(ADDRESS_AREAS, areas);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            mContext.startActivity(intent);
         }
     }
 

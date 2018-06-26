@@ -22,17 +22,20 @@ import cn.eejing.ejcolorflower.view.activity.MaAddrCitysActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.ADDRESS_CITYS;
 import static cn.eejing.ejcolorflower.app.AppConstant.ADDRESS_ID_CITYS;
+import static cn.eejing.ejcolorflower.app.AppConstant.ADDRESS_PROVINCESS;
 
 public class AddrCitysAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context mContext;
     private LayoutInflater mInflater;
     private List<AddrCitysBean.DataBean> mList;
+    private String mProvincess;
 
-    public AddrCitysAdapter(Context context, List<AddrCitysBean.DataBean> list) {
+    public AddrCitysAdapter(Context context, List<AddrCitysBean.DataBean> list, String provincess) {
         this.mContext = context;
         this.mInflater = LayoutInflater.from(context);
         this.mList = new ArrayList<>();
         this.mList.addAll(list);
+        this.mProvincess = provincess;
     }
 
     @NonNull
@@ -76,12 +79,13 @@ public class AddrCitysAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         public void setData(AddrCitysBean.DataBean bean) {
             city = bean.getCity();
             cityId = bean.getCity_id();
-            tvCitys.setText(bean.getCity());
+            tvCitys.setText(city);
         }
 
         @OnClick(R.id.layout_addr_citys)
         public void onViewClicked() {
             mContext.startActivity(new Intent(mContext, MaAddrAreasActivity.class)
+                    .putExtra(ADDRESS_PROVINCESS, mProvincess)
                     .putExtra(ADDRESS_CITYS, city)
                     .putExtra(ADDRESS_ID_CITYS, cityId)
             );

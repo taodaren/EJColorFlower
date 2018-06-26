@@ -30,7 +30,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".view.activity.SignInActivity">
+        <!--<activity android:name=".view.activity.SignInActivity">-->
+        <activity android:name=".view.activity.MaAddrAddActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -75,10 +76,11 @@
             android:exported="false"
             android:screenOrientation="behind"
             android:windowSoftInputMode="adjustResize|stateHidden" />
-        <activity android:name=".view.activity.MaAddrAddActivity" />
+        <activity android:name=".view.activity.SignInActivity" />
+        <!--<activity android:name=".view.activity.MaAddrAddActivity" />-->
         <activity android:name=".view.activity.MaAddrProvincesActivity" />
         <activity android:name=".view.activity.MaAddrAreasActivity" />
-        <activity android:name=".view.activity.MaAddrCitysActivity"></activity>
+        <activity android:name=".view.activity.MaAddrCitysActivity" />
     </application>
 
 </manifest>

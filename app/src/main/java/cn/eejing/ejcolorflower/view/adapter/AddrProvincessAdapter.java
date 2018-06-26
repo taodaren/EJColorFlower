@@ -17,7 +17,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.model.request.AddrProvincesBean;
-import cn.eejing.ejcolorflower.view.activity.MaAddrAreasActivity;
 import cn.eejing.ejcolorflower.view.activity.MaAddrCitysActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.ADDRESS_ID_PROVINCESS;
@@ -66,7 +65,7 @@ public class AddrProvincessAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     class CitysViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.tv_addr_citys)
         TextView tvCitys;
-        private String province,provinceId;
+        private String province, provinceId;
 
         CitysViewHolder(View itemView) {
             super(itemView);
@@ -76,7 +75,7 @@ public class AddrProvincessAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         public void setData(AddrProvincesBean.DataBean bean) {
             province = bean.getProvince();
             provinceId = bean.getProvince_id();
-            tvCitys.setText(bean.getProvince());
+            tvCitys.setText(province);
         }
 
         @OnClick(R.id.layout_addr_citys)

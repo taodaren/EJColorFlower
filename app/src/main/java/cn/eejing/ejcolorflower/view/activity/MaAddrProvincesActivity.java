@@ -2,6 +2,7 @@ package cn.eejing.ejcolorflower.view.activity;
 
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
@@ -9,6 +10,7 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -39,7 +41,9 @@ public class MaAddrProvincesActivity extends BaseActivity {
     @Override
     public void initView() {
         setToolbar("选择地区", View.VISIBLE);
-//        initRecyclerView();
+        mList = new ArrayList<>();
+
+        initRecyclerView();
     }
 
     @Override
@@ -91,6 +95,7 @@ public class MaAddrProvincesActivity extends BaseActivity {
                                          rvCitys.setPullLoadMoreCompleted();
                                          break;
                                      default:
+                                         Toast.makeText(MaAddrProvincesActivity.this, "" + bean.getCode(), Toast.LENGTH_SHORT).show();
                                          break;
                                  }
                              }
