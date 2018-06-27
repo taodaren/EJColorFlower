@@ -45,6 +45,12 @@ public class AppConstant {
     public static final String ADDRESS_ID_AREAS = "address_id_areas";
     public static final String ADDRESS_ID_CITYS = "address_id_citys";
 
+    // 配置设备效果
+    public static final String CONFIG_STREAM = "流水灯";
+    public static final String CONFIG_RIDE = "跑马灯";
+    public static final String CONFIG_INTERVAL = "间隔高低";
+    public static final String CONFIG_TOGETHER = "齐喷";
+
     // 配置设备喷射方向
     public static final String LEFT_TO_RIGHT = "1";
     public static final String BORDER_TO_CENTER = "2";

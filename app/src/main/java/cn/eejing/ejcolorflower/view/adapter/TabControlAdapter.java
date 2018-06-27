@@ -39,14 +39,19 @@ import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.SelfDialog;
+import cn.eejing.ejcolorflower.util.Settings;
 import cn.eejing.ejcolorflower.view.activity.AppActivity;
 import cn.eejing.ejcolorflower.view.activity.CoConfigIntervalActivity;
 import cn.eejing.ejcolorflower.view.activity.CoConfigRideActivity;
 import cn.eejing.ejcolorflower.view.activity.CoConfigStreamActivity;
 import cn.eejing.ejcolorflower.view.activity.CoConfigTogetherActivity;
 import cn.eejing.ejcolorflower.view.activity.CoDeviceActivity;
-import cn.eejing.ejcolorflower.util.SelfDialog;
-import cn.eejing.ejcolorflower.util.Settings;
+
+import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_INTERVAL;
+import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_RIDE;
+import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_STREAM;
+import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
 
 /**
  * 控制模块适配器
@@ -67,7 +72,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private Device mDevice;
     private DeviceConfig mConfig;
     private AppActivity.FireworksDeviceControl mDeviceControl;
-    private String mConfigType, mDirection, mGgap, mDduration, mGapBig, mLoop, mFrequency, mHigh;
+    private int mConfigType, mDirection, mGap, mDuration, mGapBig, mLoop, mFrequency, mHigh;
     private int mPostGroupId;
 
 
@@ -222,12 +227,22 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     renameGroup(groupId);
                     break;
                 case R.id.img_ctrl_group_switch:
+                    // TODO: 2018/6/27
 //                    Log.i("JET", "onClick: ID--->" + mDevice.getId());
-                    final byte[] pkg303 = Protocol.jet_start_package(810303L, 0, 10, 50);
-                    final byte[] pkg316 = Protocol.jet_start_package(810316L, 3000, 20, 50);
-                    Log.i("JET", "onClick: PKG_303--->" + pkg303.length);
-                    Log.i("JET", "onClick: PKG_316--->" + pkg316.length);
-                    mDeviceControl.sendCommand(810303L, pkg303, new OnReceivePackage() {
+                    Log.i("SWITCH_CTRL", "间隔时间: " + mGap * 1000 + "秒");
+                    Log.i("SWITCH_CTRL", "持续时间: " + mDuration / 10 + "秒");
+                    Log.i("SWITCH_CTRL", "大间隔时间: " + mGapBig * 1000 + "秒");
+                    Log.i("SWITCH_CTRL", "循环次数: " + mLoop);
+                    Log.i("SWITCH_CTRL", "次数: " + mFrequency);
+                    Log.i("SWITCH_CTRL", "高度: " + mHigh);
+                    // 齐喷（持续时间、高度）
+                    final byte[] pkgTogether = Protocol.jet_start_package(810303L, mGap, mDuration, mHigh);
+                    // 间隔高低（间隔时间、持续时间、次数）
+                    final byte[] pkgInterval = Protocol.jet_start_package(810303L, mGap, mDuration, mHigh);
+                    // 流水/跑马灯（方向、间隔时间、持续时间、大间隔时间、循环次数）
+                    final byte[] pkgStream = Protocol.jet_start_package(810303L, mGap, mDuration, mHigh);
+
+                    mDeviceControl.sendCommand(810303L, pkgTogether, new OnReceivePackage() {
                         @Override
                         public void ack(@NonNull byte[] pkg) {
                             Log.i("JET", "喷射ACK--->" + pkg.length + "===" + pkg);
@@ -238,8 +253,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                         @Override
                         public void timeout() {
                             Log.i("JET", "解析超时");
-
-//                            mDeviceControl.sendCommand(810303L, pkg303);
                         }
                     });
                     break;
@@ -502,25 +515,50 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(JetStatusEvent event) {
-        mConfigType = event.getType();
-        mDirection = event.getmDirection();
-        mGgap = event.getGap();
-        mDduration = event.getDuration();
-        mGapBig = event.getGapBig();
-        mLoop = event.getLoop();
-        mFrequency = event.getFrequency();
-        mHigh = event.getHigh();
-        mPostGroupId = event.getGroupId();
+        switch (event.getType()) {
+            case CONFIG_STREAM:
+            case CONFIG_RIDE:
+                initStatus();
+                mGap = Integer.parseInt(event.getGap()) * 1000;
+                mDuration = Integer.parseInt(event.getDuration()) * 10;
+                mGapBig = Integer.parseInt(event.getGapBig());
+                mLoop = Integer.parseInt(event.getLoop());
+                break;
+            case CONFIG_INTERVAL:
+                initStatus();
+                mGap = Integer.parseInt(event.getGap()) * 1000;
+                mDuration = Integer.parseInt(event.getDuration()) * 10;
+                mFrequency = Integer.parseInt(event.getFrequency());
+                break;
+            case CONFIG_TOGETHER:
+                initStatus();
+                mDuration = Integer.parseInt(event.getDuration()) * 10;
+                mHigh = Integer.parseInt(event.getHigh());
+                break;
+            default:
+                break;
+        }
 
-        Log.i("EVENT_JET", "configType: " + mConfigType);
-        Log.i("EVENT_JET", "direction: " + mDirection);
-        Log.i("EVENT_JET", "gap: " + mGgap);
-        Log.i("EVENT_JET", "duration: " + mDduration);
-        Log.i("EVENT_JET", "gapBig: " + mGapBig);
-        Log.i("EVENT_JET", "loop: " + mLoop);
-        Log.i("EVENT_JET", "frequency: " + mFrequency);
-        Log.i("EVENT_JET", "high: " + mHigh);
-        Log.i("EVENT_JET", "mPostGroupId: " + mPostGroupId);
+        Log.i("JET_STATUS", "mPostGroupId: " + event.getGroupId());
+        Log.i("JET_STATUS", "configType: " + mConfigType);
+        Log.i("JET_STATUS", "direction: 方向--->" + mDirection);
+        Log.i("JET_STATUS", "gap: 间隔时间--->" + mGap);
+        Log.i("JET_STATUS", "duration: 持续时间--->" + mDuration);
+        Log.i("JET_STATUS", "gapBig: 大间隔时间--->" + mGapBig);
+        Log.i("JET_STATUS", "loop: 循环次数--->" + mLoop);
+        Log.i("JET_STATUS", "frequency: 次数（换向）--->" + mFrequency);
+        Log.i("JET_STATUS", "high: 高度--->" + mHigh);
+    }
+
+    private void initStatus() {
+        mConfigType = 0;
+        mDirection = 0;
+        mGap = 0;
+        mDuration = 0;
+        mGapBig = 0;
+        mLoop = 0;
+        mFrequency = 0;
+        mHigh = 0;
     }
 
 }
