@@ -1,4 +1,4 @@
-package cn.eejing.ejcolorflower.app;
+package cn.eejing.ejcolorflower.model.session;
 
 public class LoginSession {
     private String username;

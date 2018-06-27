@@ -124,6 +124,7 @@
     </LinearLayout>
 
     <com.allen.library.SuperTextView
+        android:id="@+id/stv_address_add_def"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         stv:sBackgroundDrawableRes="@color/colorWhite"
@@ -133,7 +134,6 @@
         stv:sLeftTextString="设为默认"
         stv:sLeftViewGravity="left_center"
         stv:sRightViewType="switchBtn"
-        stv:sRightBottomTextColor="@color/colorPrimary"
         stv:sUseRipple="false" />
 
     <com.allen.library.SuperButton
