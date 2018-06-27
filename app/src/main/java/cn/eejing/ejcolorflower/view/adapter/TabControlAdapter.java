@@ -26,6 +26,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -229,32 +230,37 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 case R.id.img_ctrl_group_switch:
                     // TODO: 2018/6/27
 //                    Log.i("JET", "onClick: ID--->" + mDevice.getId());
-                    Log.i("SWITCH_CTRL", "间隔时间: " + mGap * 1000 + "秒");
+                    long id303 = 810303;
+                    long id311 = 810311;
+                    long id316 = 810316;
+                    List<Long> list = new ArrayList<>();
+                    list.add(id303);
+                    list.add(id316);
+                    for (int i = 0; i < list.size(); i++) {
+                        Log.i("SWITCH_CTRL", "list.get(i): " + list.get(i));
+                    }
+                    Log.i("SWITCH_CTRL", "间隔时间: " + mGap / 1000 + "秒");
                     Log.i("SWITCH_CTRL", "持续时间: " + mDuration / 10 + "秒");
-                    Log.i("SWITCH_CTRL", "大间隔时间: " + mGapBig * 1000 + "秒");
+                    Log.i("SWITCH_CTRL", "大间隔时间: " + mGapBig / 1000 + "秒");
                     Log.i("SWITCH_CTRL", "循环次数: " + mLoop);
                     Log.i("SWITCH_CTRL", "次数: " + mFrequency);
                     Log.i("SWITCH_CTRL", "高度: " + mHigh);
-                    // 齐喷（持续时间、高度）
-                    final byte[] pkgTogether = Protocol.jet_start_package(810303L, mGap, mDuration, mHigh);
-                    // 间隔高低（间隔时间、持续时间、次数）
-                    final byte[] pkgInterval = Protocol.jet_start_package(810303L, mGap, mDuration, mHigh);
-                    // 流水/跑马灯（方向、间隔时间、持续时间、大间隔时间、循环次数）
-                    final byte[] pkgStream = Protocol.jet_start_package(810303L, mGap, mDuration, mHigh);
+                    final byte[] pkg = Protocol.jet_start_package(id303, mGap, mDuration, mHigh);
 
-                    mDeviceControl.sendCommand(810303L, pkgTogether, new OnReceivePackage() {
-                        @Override
-                        public void ack(@NonNull byte[] pkg) {
-                            Log.i("JET", "喷射ACK--->" + pkg.length + "===" + pkg);
-                            int jet = Protocol.parseStartJet(pkg, pkg.length);
-                            Log.i("JET", "喷射解析--->" + jet);
-                        }
 
-                        @Override
-                        public void timeout() {
-                            Log.i("JET", "解析超时");
-                        }
-                    });
+//                    mDeviceControl.sendCommand(id303, pkg, new OnReceivePackage() {
+//                        @Override
+//                        public void ack(@NonNull byte[] pkg) {
+//                            Log.i("JET", "喷射ACK--->" + pkg.length + "===" + pkg);
+//                            int jet = Protocol.parseStartJet(pkg, pkg.length);
+//                            Log.i("JET", "喷射解析--->" + jet);
+//                        }
+//
+//                        @Override
+//                        public void timeout() {
+//                            Log.i("JET", "解析超时");
+//                        }
+//                    });
                     break;
                 case R.id.img_ctrl_group_add:
                     Intent intent = new Intent(mContext, CoDeviceActivity.class);
