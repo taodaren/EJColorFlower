@@ -73,7 +73,8 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private Device mDevice;
     private DeviceConfig mConfig;
     private AppActivity.FireworksDeviceControl mDeviceControl;
-    private int mConfigType, mDirection, mGap, mDuration, mGapBig, mLoop, mFrequency, mHigh;
+    private int mDirection, mGap, mDuration, mGapBig, mLoop, mFrequency, mHigh;
+    private String mConfigType;
     private int mPostGroupId;
 
 
@@ -230,37 +231,87 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 case R.id.img_ctrl_group_switch:
                     // TODO: 2018/6/27
 //                    Log.i("JET", "onClick: ID--->" + mDevice.getId());
-                    long id303 = 810303;
-                    long id311 = 810311;
-                    long id316 = 810316;
+                    long id303 = 810303;// has
+                    long id311 = 810311;// ok
+                    long id316 = 810316;// has
                     List<Long> list = new ArrayList<>();
                     list.add(id303);
                     list.add(id316);
+
                     for (int i = 0; i < list.size(); i++) {
+                        Log.e("SWITCH_CTRL", "第 " + i + " 个设备");
                         Log.i("SWITCH_CTRL", "list.get(i): " + list.get(i));
-                    }
-                    Log.i("SWITCH_CTRL", "间隔时间: " + mGap / 1000 + "秒");
-                    Log.i("SWITCH_CTRL", "持续时间: " + mDuration / 10 + "秒");
-                    Log.i("SWITCH_CTRL", "大间隔时间: " + mGapBig / 1000 + "秒");
-                    Log.i("SWITCH_CTRL", "循环次数: " + mLoop);
-                    Log.i("SWITCH_CTRL", "次数: " + mFrequency);
-                    Log.i("SWITCH_CTRL", "高度: " + mHigh);
-                    final byte[] pkg = Protocol.jet_start_package(id303, mGap, mDuration, mHigh);
+                        Log.i("SWITCH_CTRL", "list.size() - i: " + (list.size() - i));
+                        switch (mConfigType) {
+                            case CONFIG_STREAM:
+                                byte[] pkgStream = Protocol.jet_start_package(list.get(i),// from device
+                                        mGap * i, (list.size() - i) * mDuration, mHigh);
 
-
-//                    mDeviceControl.sendCommand(id303, pkg, new OnReceivePackage() {
-//                        @Override
-//                        public void ack(@NonNull byte[] pkg) {
-//                            Log.i("JET", "喷射ACK--->" + pkg.length + "===" + pkg);
-//                            int jet = Protocol.parseStartJet(pkg, pkg.length);
-//                            Log.i("JET", "喷射解析--->" + jet);
-//                        }
+                                // 循环 loop 次
+                                for (int loop = 0; loop < mLoop; loop++) {
+                                    if (loop == 0) {
+                                        try {
+                                            jetStart(list.get(i), pkgStream);
+                                            Thread.sleep(5);
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+                                    } else {
+                                        try {
+                                            Thread.sleep(mGapBig * 1000);
+                                            jetStart(list.get(i), pkgStream);
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+//                                    if (loop == 0) {
+//                                        try {
+//                                            jetStart(list.get(i), pkgStream);
+//                                            Thread.sleep(5);
+//                                        } catch (InterruptedException e) {
+//                                            e.printStackTrace();
+//                                        }
+//                                    }
 //
-//                        @Override
-//                        public void timeout() {
-//                            Log.i("JET", "解析超时");
-//                        }
-//                    });
+//                                    try {
+//                                        Thread.sleep(mGapBig * 1000);
+//                                    } catch (InterruptedException e) {
+//                                        e.printStackTrace();
+//                                    }
+//
+//                                    try {
+//                                        jetStart(list.get(i), pkgStream);
+//                                        Thread.sleep(5);
+//                                    } catch (InterruptedException e) {
+//                                        e.printStackTrace();
+//                                    }
+                                }
+                                break;
+                            case CONFIG_RIDE:
+                                Log.i("SWITCH_CTRL", "RIDE_I: " + i);
+                                Log.i("SWITCH_CTRL", "RIDE_延时: " + (mDirection / 10 + mGap / 1000) * 1000 * i);
+                                Log.i("SWITCH_CTRL", "RIDE_喷射时间: " + mDuration);
+                                Log.i("SWITCH_CTRL", "RIDE_高度: " + mHigh);
+                                Log.i("SWITCH_CTRL", "RIDE_大间隔时间: " + mGapBig);
+                                Log.i("SWITCH_CTRL", "RIDE_循环次数: " + mLoop);
+
+                                byte[] pkgRide = Protocol.jet_start_package(list.get(i),// from device
+                                        (mDirection / 10 + mGap / 1000) * 1000 * i, mDuration, mHigh);
+                                StreamRideLoopJet(list, i, pkgRide);
+                                break;
+                            case CONFIG_INTERVAL:
+                                // 间隔高低
+                                jetInterval(list, i);
+                                break;
+                            case CONFIG_TOGETHER:
+                                // 齐喷
+                                jetTogether(list, i);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
                     break;
                 case R.id.img_ctrl_group_add:
                     Intent intent = new Intent(mContext, CoDeviceActivity.class);
@@ -275,7 +326,97 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     break;
                 default:
                     break;
+
             }
+        }
+
+
+        // 间隔高低次数判断
+        private void frequencyInterval(List<Long> list, int i, byte[] pkgInterval) {
+            if (mFrequency == 0) {
+                try {
+                    jetStart(list.get(i), pkgInterval);
+                    Thread.sleep(5);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (mFrequency > 0) {
+
+            }
+        }
+
+        private void jetInterval(List<Long> list, int i) {
+            byte[] pkgInterval;
+            try {
+                if (i % 2 == 0) {
+                    // 如果设备是第偶数个，高度100
+                    pkgInterval = Protocol.jet_start_package(list.get(i),// from device
+                            0, mDuration, mHigh);
+                    frequencyInterval(list, i, pkgInterval);
+                    Thread.sleep(1);
+                }
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            if (i % 2 == 1) {
+                // 如果设备是第奇数个，高度60
+                pkgInterval = Protocol.jet_start_package(list.get(i),// from device
+                        0, mDuration, 60);
+                frequencyInterval(list, i, pkgInterval);
+            }
+        }
+
+        private void jetTogether(List<Long> list, int i) {
+            Log.i("SWITCH_CTRL", "TOGETHER_喷射时间: " + mDuration);
+            Log.i("SWITCH_CTRL", "TOGETHER_高度: " + mHigh);
+
+            byte[] pkgTogether = Protocol.jet_start_package(list.get(i),// from device
+                    mGap, mDuration, mHigh);
+            try {
+                jetStart(list.get(i), pkgTogether);
+                Thread.sleep(5);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // 流水灯、跑马灯循环喷射
+        private void StreamRideLoopJet(List<Long> list, int i, byte[] pkgRide) {
+            // 要来几次？（循环 loop 次)
+            for (int loop = 0; loop < mLoop; loop++) {
+                if (loop == 0) {
+                    // 如果是第一次，直接上
+                    jetStart(list.get(i), pkgRide);
+                } else {
+                    // 如果是老司机，睡会再喷（大间隔时间）
+                    try {
+                        Thread.sleep(mGapBig * 1000);
+                        jetStart(list.get(i), pkgRide);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
+        // 开始喷射
+        private void jetStart(long deviceId, byte[] pkg) {
+            mDeviceControl.sendCommand(deviceId, pkg, new OnReceivePackage() {
+                @Override
+                public void ack(@NonNull byte[] pkg) {
+                    Log.i("JET", "喷射ACK--->" + pkg.length + "===" + pkg);
+                    int jet = Protocol.parseStartJet(pkg, pkg.length);
+                    Log.i("JET", "喷射解析--->" + jet);
+                }
+
+                @Override
+                public void timeout() {
+                    Log.i("JET", "解析超时");
+                }
+            });
         }
 
         // 显示 PopupWindow 同时背景变暗
@@ -521,7 +662,8 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(JetStatusEvent event) {
-        switch (event.getType()) {
+        mConfigType = event.getType();
+        switch (mConfigType) {
             case CONFIG_STREAM:
             case CONFIG_RIDE:
                 initStatus();
@@ -529,12 +671,14 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 mDuration = Integer.parseInt(event.getDuration()) * 10;
                 mGapBig = Integer.parseInt(event.getGapBig());
                 mLoop = Integer.parseInt(event.getLoop());
+                mHigh = Integer.parseInt(event.getHigh());
                 break;
             case CONFIG_INTERVAL:
                 initStatus();
                 mGap = Integer.parseInt(event.getGap()) * 1000;
                 mDuration = Integer.parseInt(event.getDuration()) * 10;
                 mFrequency = Integer.parseInt(event.getFrequency());
+                mHigh = Integer.parseInt(event.getHigh());
                 break;
             case CONFIG_TOGETHER:
                 initStatus();
@@ -557,7 +701,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     private void initStatus() {
-        mConfigType = 0;
         mDirection = 0;
         mGap = 0;
         mDuration = 0;

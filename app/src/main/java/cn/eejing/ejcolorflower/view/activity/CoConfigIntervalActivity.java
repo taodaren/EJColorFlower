@@ -12,6 +12,8 @@ import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
+import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_TOGETHER_HIGH;
+
 /**
  * 间隔高低
  */
@@ -63,7 +65,8 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
                 etGap.getText().toString(),
                 etDuration.getText().toString(),
                 etFrequency.getText().toString(),
-                mGroupId
+                mGroupId,
+                DEFAULT_TOGETHER_HIGH
         );
         EventBus.getDefault().post(event);
     }

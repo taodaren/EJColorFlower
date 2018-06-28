@@ -20,6 +20,7 @@ import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.BORDER_TO_CENTER;
 import static cn.eejing.ejcolorflower.app.AppConstant.CENTER_TO_BORDER;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_TOGETHER_HIGH;
 import static cn.eejing.ejcolorflower.app.AppConstant.LEFT_TO_RIGHT;
 import static cn.eejing.ejcolorflower.app.AppConstant.RIGHT_TO_LEFT;
 
@@ -102,7 +103,9 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
                 etDuration.getText().toString(),
                 etGapBig.getText().toString(),
                 etLoop.getText().toString(),
-                mGroupId);
+                mGroupId,
+                DEFAULT_TOGETHER_HIGH
+        );
         EventBus.getDefault().post(event);
     }
 
