@@ -234,7 +234,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     long id303 = 810303;// has
                     long id311 = 810311;// ok
                     long id316 = 810316;// has
-                    List<Long> list = new ArrayList<>();
+                    final List<Long> list = new ArrayList<>();
                     list.add(id303);
                     list.add(id316);
 
@@ -244,12 +244,14 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                         Log.i("SWITCH_CTRL", "list.size() - i: " + (list.size() - i));
                         switch (mConfigType) {
                             case CONFIG_STREAM:
-                                byte[] pkgStream = Protocol.jet_start_package(list.get(i),// from device
+                                final byte[] pkgStream = Protocol.jet_start_package(list.get(i),// from device
                                         mGap * i, (list.size() - i) * mDuration, mHigh);
 
                                 // 循环 loop 次
                                 for (int loop = 0; loop < mLoop; loop++) {
                                     if (loop == 0) {
+                                        Log.e("SWITCH_CTRL", "loop is zero--->" + loop);
+                                        // 如果是首次喷射，直接发送喷射命令
                                         try {
                                             jetStart(list.get(i), pkgStream);
                                             Thread.sleep(5);
@@ -257,34 +259,28 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                                             e.printStackTrace();
                                         }
                                     } else {
+                                        Log.e("SWITCH_CTRL", "loop not zero--->" + loop);
+                                        // 如果不是首次，先停顿一个大间隔时间，再喷射
+                                        new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                try {
+                                                    Thread.sleep(mGapBig * 1000);
+                                                    Log.i("SWITCH_CTRL", "sleep is --->" + mGapBig * 1000);
+                                                } catch (InterruptedException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        }).start();
                                         try {
-                                            Thread.sleep(mGapBig * 1000);
+                                            Log.e("SWITCH_CTRL", "第" + loop + "次喷射");
                                             jetStart(list.get(i), pkgStream);
+                                            Thread.sleep(5);
                                         } catch (InterruptedException e) {
                                             e.printStackTrace();
                                         }
                                     }
-//                                    if (loop == 0) {
-//                                        try {
-//                                            jetStart(list.get(i), pkgStream);
-//                                            Thread.sleep(5);
-//                                        } catch (InterruptedException e) {
-//                                            e.printStackTrace();
-//                                        }
-//                                    }
-//
-//                                    try {
-//                                        Thread.sleep(mGapBig * 1000);
-//                                    } catch (InterruptedException e) {
-//                                        e.printStackTrace();
-//                                    }
-//
-//                                    try {
-//                                        jetStart(list.get(i), pkgStream);
-//                                        Thread.sleep(5);
-//                                    } catch (InterruptedException e) {
-//                                        e.printStackTrace();
-//                                    }
+
                                 }
                                 break;
                             case CONFIG_RIDE:
