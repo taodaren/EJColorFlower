@@ -28,6 +28,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -250,37 +251,43 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                                 // 循环 loop 次
                                 for (int loop = 0; loop < mLoop; loop++) {
                                     if (loop == 0) {
-                                        Log.e("SWITCH_CTRL", "loop is zero--->" + loop);
-                                        // 如果是首次喷射，直接发送喷射命令
+                                        Log.e("SWITCH_CTRL", list.get(i) + "第" + loop + "次喷射");
+
                                         try {
+                                            // 如果是首次喷射，直接发送喷射命令
                                             jetStart(list.get(i), pkgStream);
-                                            Thread.sleep(5);
-                                        } catch (InterruptedException e) {
-                                            e.printStackTrace();
-                                        }
-                                    } else {
-                                        Log.e("SWITCH_CTRL", "loop not zero--->" + loop);
-                                        // 如果不是首次，先停顿一个大间隔时间，再喷射
-                                        new Thread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                try {
-                                                    Thread.sleep(mGapBig * 1000);
-                                                    Log.i("SWITCH_CTRL", "sleep is --->" + mGapBig * 1000);
-                                                } catch (InterruptedException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                        }).start();
-                                        try {
-                                            Log.e("SWITCH_CTRL", "第" + loop + "次喷射");
-                                            jetStart(list.get(i), pkgStream);
+                                            // 为了多台设备一起喷射，5毫秒人实际感受不到
                                             Thread.sleep(5);
                                         } catch (InterruptedException e) {
                                             e.printStackTrace();
                                         }
                                     }
 
+//                                    if (loop > 0) {
+//                                        Log.e("SWITCH_CTRL", list.get(i) + "第" + loop + "次喷射");
+//
+//
+//                                        try {
+//                                            Log.e("SWITCH_CTRL", list.get(i) + "第" + loop + "次喷射");
+//
+//                                            new Thread(new Runnable() {
+//                                                @Override
+//                                                public void run() {
+//                                                    try {
+//                                                        // 两次循环间隔时间
+//                                                        TimeUnit.SECONDS.sleep((long) mGapBig);
+//                                                        jetStart(list.get(i), pkgStream);
+//                                                        Thread.sleep(5);
+//                                                    } catch (InterruptedException e) {
+//                                                        e.printStackTrace();
+//                                                    }
+//                                                }
+//                                            }).start();
+//
+//                                        } catch (InterruptedException e) {
+//                                            e.printStackTrace();
+//                                        }
+//                                    }
                                 }
                                 break;
                             case CONFIG_RIDE:
@@ -293,7 +300,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
                                 byte[] pkgRide = Protocol.jet_start_package(list.get(i),// from device
                                         (mDirection / 10 + mGap / 1000) * 1000 * i, mDuration, mHigh);
-                                StreamRideLoopJet(list, i, pkgRide);
                                 break;
                             case CONFIG_INTERVAL:
                                 // 间隔高低
@@ -376,25 +382,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 Thread.sleep(5);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }
-        }
-
-        // 流水灯、跑马灯循环喷射
-        private void StreamRideLoopJet(List<Long> list, int i, byte[] pkgRide) {
-            // 要来几次？（循环 loop 次)
-            for (int loop = 0; loop < mLoop; loop++) {
-                if (loop == 0) {
-                    // 如果是第一次，直接上
-                    jetStart(list.get(i), pkgRide);
-                } else {
-                    // 如果是老司机，睡会再喷（大间隔时间）
-                    try {
-                        Thread.sleep(mGapBig * 1000);
-                        jetStart(list.get(i), pkgRide);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
             }
         }
 

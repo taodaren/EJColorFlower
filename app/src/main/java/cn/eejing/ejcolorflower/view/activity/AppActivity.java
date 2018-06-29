@@ -1,10 +1,7 @@
 package cn.eejing.ejcolorflower.view.activity;
 
 import android.annotation.SuppressLint;
-import android.bluetooth.BluetoothDevice;
-import android.os.ParcelUuid;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.ArrayMap;
@@ -25,15 +22,15 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceState;
-import cn.eejing.ejcolorflower.presenter.ISendCommand;
-import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.device.Protocol;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
+import cn.eejing.ejcolorflower.presenter.ISendCommand;
+import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
+import cn.eejing.ejcolorflower.util.Util;
 import cn.eejing.ejcolorflower.view.fragment.TabControlFragment;
 import cn.eejing.ejcolorflower.view.fragment.TabDeviceFragment;
 import cn.eejing.ejcolorflower.view.fragment.TabMallFragment;
 import cn.eejing.ejcolorflower.view.fragment.TabMineFragment;
-import cn.eejing.ejcolorflower.util.Util;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.ACK_TIMEOUT;
 import static cn.eejing.ejcolorflower.app.AppConstant.EXIT_LOGIN;
@@ -57,6 +54,10 @@ public class AppActivity extends BLEActivity implements ISendCommand,
     private boolean mRequestConfig = false;
     private TabDeviceFragment.OnRecvHandler mTabDeviceOnRecvHandler;
     private TabControlFragment.OnRecvHandler mTabControlOnRecvHandler;
+
+    //MAC地址与设备ID对应关系
+    private final Map<Long,String> mDeviceMacToId = new ArrayMap<>();
+
     // 设备控制
     private static FireworksDeviceControl mFireworksDeviceControl;
 
@@ -81,6 +82,7 @@ public class AppActivity extends BLEActivity implements ISendCommand,
         mFireworksDeviceControl = mFireworksDeviceControlImpl;
 
         addScanFilter(UUID_GATT_SERVICE);
+        setAllowedConnectDevicesName("EEJING-CHJ");  //配置当前APP处理的蓝牙设备名称
     }
 
     /**
@@ -213,31 +215,29 @@ public class AppActivity extends BLEActivity implements ISendCommand,
     }
 
     // TODO: /**<-------------------- 以下硬件交互相关 -------------------->**/
-    @Override
-    public void scanDevice() {
-        refresh();
-    }
-
-    @Override
-    void onStopScan() {
-    }
 
     @Override
     public void setRegisterDevice(List<DeviceListBean.DataBean.ListBean> list) {
-        List<String> rmMac = new LinkedList<>();
-        List<Device> rmDevice = new LinkedList<>();
-        for (String mac : mProtocolList.keySet()) {
-            if (!contain(list, mac)) {
-                rmMac.add(mac);
-                rmDevice.add(getDevice(mac));
+        clearAllowedConnectDevicesMAC();  //BLEActivity.getBleCtrl().
+        mDeviceMacToId.clear();
+        for (int i = 0; i < list.size(); i++) {
+            addAllowedConnectDevicesMAC(list.get(i).getMac());
+            mDeviceMacToId.put( Long.parseLong(list.get(i).getId()) , list.get(i).getMac() );
+        }
+        removeConnectedMoreDevice();
+        //mDeviceMacToId
+    }
+
+    public String getMacById(Long id){
+        return mDeviceMacToId.get(id);
+    }
+    private Device findDeviceById(long deviceId) {
+        for (Device device : mDeviceList) {
+            if (device.getId() == deviceId) {
+                return device;
             }
         }
-        for (String mac : rmMac) {
-            mProtocolList.remove(mac);
-        }
-        for (Device d : rmDevice) {
-            mDeviceList.remove(d);
-        }
+        return null;
     }
 
     @Override
@@ -250,23 +250,6 @@ public class AppActivity extends BLEActivity implements ISendCommand,
         mTabControlOnRecvHandler = handler;
     }
 
-    @Override
-    void onFoundDevice(BluetoothDevice device, @Nullable List<ParcelUuid> serviceUuids) {
-        String name = device.getName();
-        String mac = device.getAddress();
-
-        Log.i(TAG, "找到设备---> mac = " + mac + "  name = " + name);
-
-        if (name.indexOf("EEJING-CHJ") != 0) {
-            return;
-        }
-
-        if (!mFoundDeviceAddressList.contains(mac)) {
-            mFoundDeviceAddressList.add(mac);
-        }
-
-        add_device(mac, 0);
-    }
 
     public interface FireworksDeviceControl {
         void sendCommand(long device_id, @NonNull byte[] pkg);
@@ -274,14 +257,6 @@ public class AppActivity extends BLEActivity implements ISendCommand,
         void sendCommand(long device_id, @NonNull byte[] pkg, OnReceivePackage callback);
     }
 
-    private Device findDeviceById(long deviceId) {
-        for (Device device : mDeviceList) {
-            if (device.getId() == deviceId) {
-                return device;
-            }
-        }
-        return null;
-    }
 
     private final FireworksDeviceControl mFireworksDeviceControlImpl = new FireworksDeviceControl() {
         @Override
@@ -339,7 +314,7 @@ public class AppActivity extends BLEActivity implements ISendCommand,
                         }
                         send(mac, Protocol.get_status_package(id));
                         if (mTabControlOnRecvHandler != null) {
-                            mTabControlOnRecvHandler.onConfig(device,config);
+                            mTabControlOnRecvHandler.onConfig(device, config);
                         }
                     }
                 }
@@ -380,21 +355,6 @@ public class AppActivity extends BLEActivity implements ISendCommand,
             }
         }
         return null;
-    }
-
-    private void add_device(final String mac, long id) {
-        Log.e(TAG, "add_device: MAC--->" + mac);
-
-        if (!mProtocolList.containsKey(mac)) {
-            final Device device = new Device(mac);
-            device.setId(id);
-            mDeviceList.add(device);
-
-            Log.e(TAG, "add_device: mDeviceList--->" + mDeviceList.size());
-
-            addDevice(mac);
-            mProtocolList.put(mac, new ProtocolWithDevice(device));
-        }
     }
 
     // 做超时检查

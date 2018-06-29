@@ -20,6 +20,7 @@ import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
+import cn.eejing.ejcolorflower.view.activity.BLEActivity;
 import cn.eejing.ejcolorflower.view.adapter.TabControlAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseFragment;
 import cn.eejing.ejcolorflower.util.Settings;
@@ -160,7 +161,7 @@ public class TabControlFragment extends BaseFragment {
         rvTabControl.setOnPullLoadMoreListener(new PullLoadMoreRecyclerView.PullLoadMoreListener() {
             @Override
             public void onRefresh() {
-                mListener.scanDevice();
+                BLEActivity.getBleCtrl().startScan();
                 getDataWithDeviceGroupList();
             }
 

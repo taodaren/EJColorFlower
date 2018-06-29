@@ -39,6 +39,7 @@ import com.yanzhenjie.permission.Rationale;
 import com.yanzhenjie.permission.RequestExecutor;
 import com.yanzhenjie.permission.SettingService;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,8 +49,8 @@ import java.util.UUID;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.MyLifecycleHandler;
 import cn.eejing.ejcolorflower.device.Protocol;
-import cn.eejing.ejcolorflower.view.base.BaseActivity;
 import cn.eejing.ejcolorflower.util.Util;
+import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 /**
  * 管理多个 BLE 设备的发现、连接、通讯
@@ -75,11 +76,45 @@ public class BLEActivity extends BaseActivity {
     private Handler mHandler;
 
     private final Map<String, Pair<Runnable, Integer>> mPeriodRunnable = new ArrayMap<>();
-    private final Map<String, DeviceManager> mDeviceManagerSet = new ArrayMap<>();
+    private final Map<String, DeviceManager> mDeviceManagerSet = new ArrayMap<>(); //已经连接到的设备
+    // 允许连接的设备
+    private List<String> mAllowedConnectDevicesMAC = new ArrayList<>();
+    private String       mAllowedConnectDevicesName = "";
 
     private final LinkedList<GattOperation> mGattOperations = new LinkedList<>();
     private final Object mGattOperationLock = new Object();
     private GattOperation mCurrentGattOperation = null;
+    private boolean bWaitingResponse = false;
+    private int     nWaitTimeOut = 300; //单位ms
+
+    static private BLEActivity BleInstanse = null;
+    public static BLEActivity getBleCtrl(){ return  BleInstanse; }
+
+
+    /**
+     * 设置允许连接设备管理(通过 MAC)
+     */
+    public void setAllowedConnectDevicesMAC(List<String> newMacs) {
+        mAllowedConnectDevicesMAC = newMacs;
+        removeConnectedMoreDevice();
+    }
+    public void clearAllowedConnectDevicesMAC() {
+        mAllowedConnectDevicesMAC.clear();
+    }
+    public void addAllowedConnectDevicesMAC(String newMac) {
+        mAllowedConnectDevicesMAC.add(newMac);
+    }
+    //更新允许连接的设备MAC地址列表后，删除已经连接的不在列表中多余的设备
+    public void removeConnectedMoreDevice(){
+        // TODO: 2018/6/29  判断已经连接的数据，如果里面有设备不在AllowedConnectDevicesMAC中，断开设备连接
+    }
+    public void setAllowedConnectDevicesName(String name) {
+        mAllowedConnectDevicesName = name;
+    }
+    public void setWaitTimeOut(int to){
+        nWaitTimeOut = to;
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +126,7 @@ public class BLEActivity extends BaseActivity {
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = (bluetoothManager == null) ? null : bluetoothManager.getAdapter();
 //        mHandler.post(mPoll);
+        BleInstanse = this;
     }
 
     @Override
@@ -102,16 +138,15 @@ public class BLEActivity extends BaseActivity {
             new MyLifecycleHandler.OnForegroundStateChangeListener() {
                 @Override
                 public void onStateChanged(boolean foreground) {
-                    Log.i(TAG, "OnForegroundStateChangeListener "+foreground);
-                    if(foreground){
-                        for(Pair<Runnable, Integer> s : mPeriodRunnable.values()){
+                    Log.i(TAG, "OnForegroundStateChangeListener " + foreground);
+                    if (foreground) {
+                        for (Pair<Runnable, Integer> s : mPeriodRunnable.values()) {
                             mHandler.postDelayed(s.first, s.second);
                         }
                         mHandler.post(mPoll);
-                    }
-                    else{
+                    } else {
                         mHandler.removeCallbacks(mPoll);
-                        for(Pair<Runnable, Integer> s : mPeriodRunnable.values()){
+                        for (Pair<Runnable, Integer> s : mPeriodRunnable.values()) {
                             mHandler.removeCallbacks(s.first);
                         }
                     }
@@ -119,7 +154,7 @@ public class BLEActivity extends BaseActivity {
             };
 
     @Override
-    protected void onPause(){
+    protected void onPause() {
         super.onPause();
         /*
         mHandler.removeCallbacks(mPoll);
@@ -131,7 +166,7 @@ public class BLEActivity extends BaseActivity {
     }
 
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
         Log.i(TAG, "onResume");
         /*
@@ -212,7 +247,44 @@ public class BLEActivity extends BaseActivity {
         }
     };
 
+    private void addDevice(BluetoothDevice device) {
+        final DeviceManager mgr;
+        String mac = device.getAddress();
+        if (!mDeviceManagerSet.containsKey(mac)) {
+            mgr = new DeviceManager(device);
+            mDeviceManagerSet.put(mac, mgr);
+        } else {
+            mgr = mDeviceManagerSet.get(mac);
+        }
+
+        if (mgr.gatt == null && !mShutdown) {
+            mgr.gatt = mgr.device.connectGatt(this, true, mBluetoothGattCallback);
+        }
+    }
+
+    //接收到设备的广播信息后，被调用
+    void onFoundDevice(BluetoothDevice device, @Nullable List<ParcelUuid> serviceUuids) {
+        String name = device.getName();
+        String mac = device.getAddress();
+
+        Log.i(TAG, "找到设备---> mac = " + mac + "  name = " + name);
+
+        //通过设备广播名称，判断是否为采花机设备
+        if (name.indexOf(mAllowedConnectDevicesName) != 0) { //"EEJING-CHJ"
+            return;
+        }
+
+        //当前接收的广播信息是否为 配置的允许连接的MAC地址中设备发出的
+        if( mAllowedConnectDevicesMAC.contains(mac) ){
+            addDevice(device);
+        }
+    }
     private final ScanCallback mScanCallback = new ScanCallback() {
+        /**
+         * BLE 扫描功能开启后，接收到设备（外设）的广播信息后的回掉函数
+         *
+         * @param result 一个数据包的信息参数
+         */
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
@@ -236,7 +308,7 @@ public class BLEActivity extends BaseActivity {
                 String mac = result.getDevice().getAddress();
                 Log.i(TAG, "扫描结果--->" + " " + mac + " | " + result.getDevice().getName());
 
-                if (!mDeviceManagerSet.containsKey(mac)) {
+                if (!mDeviceManagerSet.containsKey(mac)) { //当前设备还没有被连接
                     ScanRecord record = result.getScanRecord();
                     // 找到设备
                     onFoundDevice(result.getDevice(), (record == null) ? null : record.getServiceUuids());
@@ -353,7 +425,7 @@ public class BLEActivity extends BaseActivity {
         }
     };
 
-    private void startScan() {
+    public void startScan() {
         if (mBluetoothAdapter != null) {
             if (!mBluetoothAdapter.isEnabled()) {
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -451,20 +523,7 @@ public class BLEActivity extends BaseActivity {
         }
     }
 
-    private void addDevice(BluetoothDevice device) {
-        final DeviceManager mgr;
-        String mac = device.getAddress();
-        if (!mDeviceManagerSet.containsKey(mac)) {
-            mgr = new DeviceManager(device);
-            mDeviceManagerSet.put(mac, mgr);
-        } else {
-            mgr = mDeviceManagerSet.get(mac);
-        }
 
-        if (mgr.gatt == null && !mShutdown) {
-            mgr.gatt = mgr.device.connectGatt(this, true, mBluetoothGattCallback);
-        }
-    }
 
     private void remove() {
         synchronized (mGattOperationLock) {
@@ -531,6 +590,7 @@ public class BLEActivity extends BaseActivity {
         return (mgr != null) && mgr.setWriteChannel(uuid);
     }
 
+    //向一个设备发送数据的最基本函数
     boolean send(String mac, byte[] data) {
         Log.i(TAG, "send:" + Util.hex(data, data.length));
         if (mShutdown) {
@@ -554,6 +614,19 @@ public class BLEActivity extends BaseActivity {
         }
         return false;
     }
+
+    //向一个设备发送数据，不进行其它处理
+    public boolean sendCmdNoResponse(String mac, byte[] data) {
+        if(bWaitingResponse){
+            return  false;
+        }
+        //设置接收数据的回调函数为默认的无任何处理的函数
+        if ( !send(mac,data) ){
+            return  false;
+        }
+        return  true;
+    }
+
 
     private class WrappedRunnable implements Runnable {
         private final Runnable runnable;
@@ -667,24 +740,15 @@ public class BLEActivity extends BaseActivity {
         mScanFilters.add(filter);
     }
 
-    /**
-     * 找到设备
-     */
-    void onFoundDevice(BluetoothDevice device, @Nullable List<ParcelUuid> serviceUuids) {
-        Log.i(TAG, "找到设备--->" + device.toString() + " | " + device.getName());
-        if (serviceUuids != null) {
-            for (ParcelUuid uuid : serviceUuids) {
-                Log.i(TAG, "   ==> service--->" + uuid.toString());
-            }
-        }
-        // 添加设备
-        addDevice(device);
+
+    public void scanDevice() {
+        refresh();
     }
 
     /**
      * 停止扫描
      */
-    void onStopScan() {
+    public void onStopScan() {
     }
 
     /**
