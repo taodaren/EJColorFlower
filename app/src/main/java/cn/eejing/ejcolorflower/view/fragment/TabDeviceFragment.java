@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.model.event.DeviceEvent;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
@@ -34,7 +35,6 @@ import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceMaterialStatus;
 import cn.eejing.ejcolorflower.device.DeviceState;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
-import cn.eejing.ejcolorflower.device.Protocol;
 import cn.eejing.ejcolorflower.model.request.AddMaterialBean;
 import cn.eejing.ejcolorflower.model.request.CancelMaterialStatusBean;
 import cn.eejing.ejcolorflower.model.request.ChangeMaterialStatusBean;
@@ -172,11 +172,11 @@ public class TabDeviceFragment extends BaseFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void getMaterialId(final String qrMId) {
         // 判断设备加料状态
-        final byte[] pkg = Protocol.get_material_status(Long.parseLong(mDeviceId));
+        final byte[] pkg = BleDeviceProtocol.get_material_status(Long.parseLong(mDeviceId));
         mDeviceControl.sendCommand(Long.parseLong(mDeviceId), pkg, new OnReceivePackage() {
             @Override
             public void ack(@NonNull byte[] pkg) {
-                DeviceMaterialStatus materialStatus = Protocol.parseMaterialStatus(pkg, pkg.length);
+                DeviceMaterialStatus materialStatus = BleDeviceProtocol.parseMaterialStatus(pkg, pkg.length);
                 long deviceMID = materialStatus.materialId;
                 Log.e(JL, "【设备端】加料状态: " + materialStatus.exist);
                 Log.e(JL, "【设备端】材料ID: " + deviceMID);
@@ -397,11 +397,11 @@ public class TabDeviceFragment extends BaseFragment {
                                 information(getString(R.string.toast_get_info_failed));
                                 // TODO: 2018/6/8  
                                 // 清除加料信息（设备端）
-                                byte[] info = Protocol.clear_material_info(Long.parseLong(mDeviceId), Long.parseLong(mMemberId), 274652232);
+                                byte[] info = BleDeviceProtocol.clear_material_info(Long.parseLong(mDeviceId), Long.parseLong(mMemberId), 274652232);
                                 mDeviceControl.sendCommand(Long.parseLong(mDeviceId), info, new OnReceivePackage() {
                                     @Override
                                     public void ack(@NonNull byte[] pkg) {
-                                        int info = Protocol.parseClearMaterialInfo(pkg, pkg.length);
+                                        int info = BleDeviceProtocol.parseClearMaterialInfo(pkg, pkg.length);
                                         if (info == 0) {
                                             Log.e(JL, "ack: ");
                                         }
@@ -555,11 +555,11 @@ public class TabDeviceFragment extends BaseFragment {
 
     private void byDeviceClearInfo_D(String materialId) {
         Log.i(JL, "清除加料信息参数: " + "\nmDeviceId" + mDeviceId + "\nmMemberId" + mMemberId + "\nmaterialId" + materialId);
-        byte[] pkg = Protocol.clear_material_info(Long.parseLong(mDeviceId), Long.parseLong(mMemberId), Long.parseLong(materialId));
+        byte[] pkg = BleDeviceProtocol.clear_material_info(Long.parseLong(mDeviceId), Long.parseLong(mMemberId), Long.parseLong(materialId));
         mDeviceControl.sendCommand(Long.parseLong(mDeviceId), pkg, new OnReceivePackage() {
             @Override
             public void ack(@NonNull byte[] pkg) {
-                int info = Protocol.parseClearMaterialInfo(pkg, pkg.length);
+                int info = BleDeviceProtocol.parseClearMaterialInfo(pkg, pkg.length);
                 Log.e(JL, "清除加料信息返回值-->" + info);
                 switch (info) {
                     case 0:
@@ -581,11 +581,11 @@ public class TabDeviceFragment extends BaseFragment {
 
     private void byDeviceClearInfo_E(final long deviceMId, final String serverMId) {
         Log.i(JL, "清除加料信息参数: " + "\nmDeviceId" + mDeviceId + "\nmMemberId" + mMemberId + "\ndeviceMId" + deviceMId + "\nserverMId" + serverMId);
-        byte[] pkg = Protocol.clear_material_info(Long.parseLong(mDeviceId), Long.parseLong(mMemberId), deviceMId);
+        byte[] pkg = BleDeviceProtocol.clear_material_info(Long.parseLong(mDeviceId), Long.parseLong(mMemberId), deviceMId);
         mDeviceControl.sendCommand(Long.parseLong(mDeviceId), pkg, new OnReceivePackage() {
             @Override
             public void ack(@NonNull byte[] pkg) {
-                int info = Protocol.parseClearMaterialInfo(pkg, pkg.length);
+                int info = BleDeviceProtocol.parseClearMaterialInfo(pkg, pkg.length);
                 Log.e(JL, "清除加料信息返回值-->" + info + "  " + pkg.length);
                 switch (info) {
                     case 0:
@@ -609,12 +609,12 @@ public class TabDeviceFragment extends BaseFragment {
 
     private void byDeviceGetTimestamps(final String materialId, final int addTime) {
         final long deviceId = Long.parseLong(mDeviceId);
-        byte[] pkg = Protocol.get_timestamp_package(deviceId);
+        byte[] pkg = BleDeviceProtocol.get_timestamp_package(deviceId);
 
         mDeviceControl.sendCommand(deviceId, pkg, new OnReceivePackage() {
             @Override
             public void ack(@NonNull byte[] pkg) {
-                long timestamp = Protocol.parseTimestamp(pkg, pkg.length);
+                long timestamp = BleDeviceProtocol.parseTimestamp(pkg, pkg.length);
 
                 // 加料（设备端）
                 Log.i(JL, "开始加料...");
@@ -628,12 +628,12 @@ public class TabDeviceFragment extends BaseFragment {
     }
 
     private void byDeviceAddMaterial(long timestamp, final long deviceId, int addTime, final String materialId) {
-        final byte[] pkgAdd = Protocol.add_material(deviceId, addTime, timestamp, Long.parseLong(mMemberId), Long.parseLong(materialId));
+        final byte[] pkgAdd = BleDeviceProtocol.add_material(deviceId, addTime, timestamp, Long.parseLong(mMemberId), Long.parseLong(materialId));
 
         mDeviceControl.sendCommand(deviceId, pkgAdd, new OnReceivePackage() {
             @Override
             public void ack(@NonNull byte[] pkg) {
-                final int material = Protocol.parseAddMaterial(pkg, pkg.length);
+                final int material = BleDeviceProtocol.parseAddMaterial(pkg, pkg.length);
                 Log.i(JL, "加料结果--->" + material);
                 switch (material) {
                     case 0:

@@ -14,11 +14,11 @@ import cn.eejing.ejcolorflower.util.CRC16;
 import cn.eejing.ejcolorflower.util.Util;
 
 /**
- * 协议处理
+ * 蓝牙设备协议处理
  */
 
-public class Protocol {
-    private final static String TAG = "Protocol";
+public class BleDeviceProtocol {
+    private final static String TAG = "BleDeviceProtocol";
     private final static int MAX_PKG_LEN = 0x80;
     private final static int CMD_STATUS = 1;
     private final static int CMD_CONFIG = 2;

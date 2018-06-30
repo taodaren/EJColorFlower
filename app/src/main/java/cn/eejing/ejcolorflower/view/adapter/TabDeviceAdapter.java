@@ -29,14 +29,15 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import cn.eejing.ejcolorflower.model.event.DeviceEvent;
+import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceState;
+import cn.eejing.ejcolorflower.model.event.DeviceEvent;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
+import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.view.activity.DeDeviceDetailsActivity;
 import cn.eejing.ejcolorflower.view.activity.DeQrAddDeviceActivity;
 import pub.devrel.easypermissions.AfterPermissionGranted;
@@ -45,8 +46,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 import static cn.eejing.ejcolorflower.app.AppConstant.REQUEST_CODE_QRCODE_PERMISSIONS;
 
 /**
- * @创建者 Taodaren
- * @描述 设备模块适配器
+ * 设备模块适配器
  */
 
 public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements EasyPermissions.PermissionCallbacks {
@@ -73,21 +73,14 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        RecyclerView.ViewHolder holder = null;
-        View inflate;
         switch (viewType) {
             case TYPE_ITEM:
-                inflate = mLayoutInflater.inflate(R.layout.item_unit_device, parent, false);
-                holder = new ItemViewHolder(inflate);
-                break;
+                return new ItemViewHolder(mLayoutInflater.inflate(R.layout.item_unit_device, parent, false));
             case TYPE_FOOTER:
-                inflate = mLayoutInflater.inflate(R.layout.item_footer_device, parent, false);
-                holder = new FootViewHolder(inflate);
-                ((FootViewHolder) holder).setClickListener();
-                break;
+                return new FootViewHolder(mLayoutInflater.inflate(R.layout.item_footer_control, parent, false));
             default:
+                return null;
         }
-        return holder;
     }
 
     @Override
@@ -332,23 +325,20 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     class FootViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.img_add_device)
-        ImageView imgAddDevice;
+        @BindView(R.id.tv_footer_add)
+        TextView tvAdd;
 
-        public FootViewHolder(View itemView) {
+        FootViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            tvAdd.setText(R.string.add_device);
         }
 
-        public void setClickListener() {
-            imgAddDevice.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(mContext, DeQrAddDeviceActivity.class);
-                    intent.putExtra("member_id", mMemberId);
-                    mContext.startActivity(intent);
-                }
-            });
+        @OnClick(R.id.img_footer_add)
+        public void onViewClicked() {
+            Intent intent = new Intent(mContext, DeQrAddDeviceActivity.class);
+            intent.putExtra("member_id", mMemberId);
+            mContext.startActivity(intent);
         }
 
     }

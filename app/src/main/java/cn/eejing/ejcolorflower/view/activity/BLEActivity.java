@@ -48,7 +48,8 @@ import java.util.UUID;
 
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.MyLifecycleHandler;
-import cn.eejing.ejcolorflower.device.Protocol;
+import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
+import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.util.Util;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
@@ -63,11 +64,11 @@ public class BLEActivity extends BaseActivity {
     private static final int REFRESHING_PERIOD = 60 * 1000;
     private static final int SCANNING_TIME = 8 * 1000;
 
+    private long mNextRefreshingTime;
     private boolean mScanning = false;
     private boolean mShutdown = false;
     private boolean mUserDenied = false;
     private boolean mDoNextRefresh = true;
-    private long mNextRefreshingTime;
 
     private List<ScanFilter> mScanFilters = null;
     private BluetoothAdapter mBluetoothAdapter;
@@ -75,21 +76,23 @@ public class BLEActivity extends BaseActivity {
     private ScanSettings mScanSettings = null;
     private Handler mHandler;
 
-    private final Map<String, Pair<Runnable, Integer>> mPeriodRunnable = new ArrayMap<>();
-    private final Map<String, DeviceManager> mDeviceManagerSet = new ArrayMap<>(); //已经连接到的设备
+    // 已经连接到的设备
+    private Map<String, DeviceManager> mDeviceManagerSet = new ArrayMap<>();
     // 允许连接的设备
     private List<String> mAllowedConnectDevicesMAC = new ArrayList<>();
-    private String       mAllowedConnectDevicesName = "";
+
+    private final Map<String, Pair<Runnable, Integer>> mPeriodRunnable = new ArrayMap<>();
+    private String mAllowedConnectDevicesName = "";
 
     private final LinkedList<GattOperation> mGattOperations = new LinkedList<>();
     private final Object mGattOperationLock = new Object();
     private GattOperation mCurrentGattOperation = null;
-    private boolean bWaitingResponse = false;
-    private int     nWaitTimeOut = 300; //单位ms
 
     static private BLEActivity BleInstanse = null;
-    public static BLEActivity getBleCtrl(){ return  BleInstanse; }
 
+    public static BLEActivity getBleCtrl() {
+        return BleInstanse;
+    }
 
     /**
      * 设置允许连接设备管理(通过 MAC)
@@ -98,23 +101,40 @@ public class BLEActivity extends BaseActivity {
         mAllowedConnectDevicesMAC = newMacs;
         removeConnectedMoreDevice();
     }
+
     public void clearAllowedConnectDevicesMAC() {
         mAllowedConnectDevicesMAC.clear();
     }
+
     public void addAllowedConnectDevicesMAC(String newMac) {
         mAllowedConnectDevicesMAC.add(newMac);
     }
-    //更新允许连接的设备MAC地址列表后，删除已经连接的不在列表中多余的设备
-    public void removeConnectedMoreDevice(){
-        // TODO: 2018/6/29  判断已经连接的数据，如果里面有设备不在AllowedConnectDevicesMAC中，断开设备连接
+
+    /**
+     * 更新允许连接的设备 MAC 地址列表后，删除已经连接的不在列表中多余的设备
+     */
+    public void removeConnectedMoreDevice() {
+        // 判断已经连接的数据
+        for (DeviceManager mgr : mDeviceManagerSet.values()) {
+            // 如果已连接的设备不在 AllowedConnectDevicesMAC 中，断开设备连接
+            if (!mAllowedConnectDevicesMAC.contains(mgr.mac)) {
+                if (mgr.gatt != null && mgr.connected) {
+                    mgr.gatt.disconnect(); //断开连接
+                }
+                mDeviceManagerSet.remove(mgr.mac);
+            }
+        }
+
     }
+
+    /**
+     * 配置当前 APP 处理的蓝牙设备名称
+     *
+     * @param name 蓝牙设备名称
+     */
     public void setAllowedConnectDevicesName(String name) {
         mAllowedConnectDevicesName = name;
     }
-    public void setWaitTimeOut(int to){
-        nWaitTimeOut = to;
-    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,7 +145,6 @@ public class BLEActivity extends BaseActivity {
         mHandler = new Handler();
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = (bluetoothManager == null) ? null : bluetoothManager.getAdapter();
-//        mHandler.post(mPoll);
         BleInstanse = this;
     }
 
@@ -156,12 +175,6 @@ public class BLEActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        /*
-        mHandler.removeCallbacks(mPoll);
-        for(Pair<Runnable, Integer> s : mPeriodRunnable.values()){
-            mHandler.removeCallbacks(s.first);
-        }
-        */
         Log.i(TAG, "onPause");
     }
 
@@ -169,12 +182,6 @@ public class BLEActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         Log.i(TAG, "onResume");
-        /*
-        for(Pair<Runnable, Integer> s : mPeriodRunnable.values()){
-            mHandler.postDelayed(s.first, s.second);
-        }
-        mHandler.post(mPoll);
-        */
     }
 
     @Override
@@ -206,6 +213,7 @@ public class BLEActivity extends BaseActivity {
         }
     }
 
+    // 蓝牙固定时间开启扫描功能（底层功能）
     private final Runnable mPoll = new Runnable() {
         @Override
         public void run() {
@@ -248,37 +256,43 @@ public class BLEActivity extends BaseActivity {
     };
 
     private void addDevice(BluetoothDevice device) {
-        final DeviceManager mgr;
+        final DeviceManager deviceManager;
         String mac = device.getAddress();
         if (!mDeviceManagerSet.containsKey(mac)) {
-            mgr = new DeviceManager(device);
-            mDeviceManagerSet.put(mac, mgr);
+            deviceManager = new DeviceManager(device);
+            mDeviceManagerSet.put(mac, deviceManager);
+            onFoundAndConnectOneDevice(deviceManager);
         } else {
-            mgr = mDeviceManagerSet.get(mac);
+            deviceManager = mDeviceManagerSet.get(mac);
         }
 
-        if (mgr.gatt == null && !mShutdown) {
-            mgr.gatt = mgr.device.connectGatt(this, true, mBluetoothGattCallback);
+        if (deviceManager.gatt == null && !mShutdown) {
+            deviceManager.gatt = deviceManager.device.connectGatt(this, true, mBluetoothGattCallback);
         }
     }
 
-    //接收到设备的广播信息后，被调用
+    // 找到并连接一台设备
+    protected void onFoundAndConnectOneDevice(DeviceManager dev) {
+    }
+
+    // 接收到设备的广播信息后，被调用
     void onFoundDevice(BluetoothDevice device, @Nullable List<ParcelUuid> serviceUuids) {
         String name = device.getName();
         String mac = device.getAddress();
 
         Log.i(TAG, "找到设备---> mac = " + mac + "  name = " + name);
 
-        //通过设备广播名称，判断是否为采花机设备
-        if (name.indexOf(mAllowedConnectDevicesName) != 0) { //"EEJING-CHJ"
+        // 通过设备广播名称，判断是否为采花机设备
+        if (name.indexOf(mAllowedConnectDevicesName) != 0) {// "EEJING-CHJ"
             return;
         }
 
-        //当前接收的广播信息是否为 配置的允许连接的MAC地址中设备发出的
-        if( mAllowedConnectDevicesMAC.contains(mac) ){
+        // 当前接收的广播信息是否为 配置的允许连接的 MAC 地址中设备发出的
+        if (mAllowedConnectDevicesMAC.contains(mac)) {
             addDevice(device);
         }
     }
+
     private final ScanCallback mScanCallback = new ScanCallback() {
         /**
          * BLE 扫描功能开启后，接收到设备（外设）的广播信息后的回掉函数
@@ -308,7 +322,7 @@ public class BLEActivity extends BaseActivity {
                 String mac = result.getDevice().getAddress();
                 Log.i(TAG, "扫描结果--->" + " " + mac + " | " + result.getDevice().getName());
 
-                if (!mDeviceManagerSet.containsKey(mac)) { //当前设备还没有被连接
+                if (!mDeviceManagerSet.containsKey(mac)) {//当前设备还没有被连接
                     ScanRecord record = result.getScanRecord();
                     // 找到设备
                     onFoundDevice(result.getDevice(), (record == null) ? null : record.getServiceUuids());
@@ -338,6 +352,7 @@ public class BLEActivity extends BaseActivity {
     };
 
     private final BluetoothGattCallback mBluetoothGattCallback = new BluetoothGattCallback() {
+        // 连接状态更改
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             super.onConnectionStateChange(gatt, status, newState);
@@ -354,12 +369,14 @@ public class BLEActivity extends BaseActivity {
                         @Override
                         public void run() {
                             onDeviceDisconnect(mgr.mac);
+                            mDeviceManagerSet.remove(mgr.mac);  //设备断开连接后，从已连接设备列表中移除
                         }
                     });
                 }
             }
         }
 
+        // 发现的服务
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             super.onServicesDiscovered(gatt, status);
@@ -425,6 +442,7 @@ public class BLEActivity extends BaseActivity {
         }
     };
 
+    // 开始扫描
     public void startScan() {
         if (mBluetoothAdapter != null) {
             if (!mBluetoothAdapter.isEnabled()) {
@@ -523,8 +541,6 @@ public class BLEActivity extends BaseActivity {
         }
     }
 
-
-
     private void remove() {
         synchronized (mGattOperationLock) {
             mCurrentGattOperation = null;
@@ -572,6 +588,7 @@ public class BLEActivity extends BaseActivity {
         }
     }
 
+    // 断开全部蓝牙
     private void disconnectAll() {
         mShutdown = true;
         synchronized (mGattOperationLock) {
@@ -590,43 +607,25 @@ public class BLEActivity extends BaseActivity {
         return (mgr != null) && mgr.setWriteChannel(uuid);
     }
 
-    //向一个设备发送数据的最基本函数
-    boolean send(String mac, byte[] data) {
+    // 向一个设备发送数据的最基本函数
+    boolean send(String mac, byte[] data, OnReceivePackage revCb) {
         Log.i(TAG, "send:" + Util.hex(data, data.length));
         if (mShutdown) {
             return false;
         }
-        data = Protocol.wrapped_package(data);
+        data = BleDeviceProtocol.wrapped_package(data);
         DeviceManager mgr = mDeviceManagerSet.get(mac);
-        if (mgr != null && mgr.connected && mgr.gatt != null) {
-            BluetoothGattCharacteristic ch = mgr.getWriteChannel();
-            if (ch != null) {
-                if (data.length > MAX_BLUETOOTH_SEND_PKG_LEN) {
-                    for (int i = 0; i < data.length; i += MAX_BLUETOOTH_SEND_PKG_LEN) {
-                        int len = Math.min(data.length - i, MAX_BLUETOOTH_SEND_PKG_LEN);
-                        add(GattOperation.newWriteCharacteristic(mgr.gatt, ch, Arrays.copyOfRange(data, i, i + len)));
-                    }
-                } else {
-                    add(GattOperation.newWriteCharacteristic(mgr.gatt, ch, data));
-                }
-                return true;
-            }
-        }
-        return false;
+        return mgr != null && mgr.sendData(data, revCb);
     }
+//    if (mgr != null) {
+//        return mgr.sendData(data, revCb);
+//    }
+//        return false;
 
-    //向一个设备发送数据，不进行其它处理
-    public boolean sendCmdNoResponse(String mac, byte[] data) {
-        if(bWaitingResponse){
-            return  false;
-        }
-        //设置接收数据的回调函数为默认的无任何处理的函数
-        if ( !send(mac,data) ){
-            return  false;
-        }
-        return  true;
+    // 向一个设备发送数据的最基本函数
+    boolean send(String mac, byte[] data) {
+        return send(mac, data, null);
     }
-
 
     private class WrappedRunnable implements Runnable {
         private final Runnable runnable;
@@ -646,14 +645,69 @@ public class BLEActivity extends BaseActivity {
         }
     }
 
-    private static class DeviceManager {
-        final String mac;
-        final BluetoothDevice device;
-        BluetoothGatt gatt = null;
-        List<BluetoothGattCharacteristic> characteristic = null;
-        BluetoothGattCharacteristic write_characteristic = null;
-        boolean connected = false;
-        boolean discovering = false;
+    /**
+     * 根据 MAC 地址，获取已经连接的设备中的设备管理器
+     *
+     * @param mac MAC 地址
+     * @return 设备管理器
+     */
+    public DeviceManager getConnectedDeviceByMac(String mac) {
+        return mDeviceManagerSet.get(mac);
+    }
+
+    /**
+     * 对单个已经连接的设备进行管理
+     * 包括数据 BLE 协议管理、数据发送管理、等待回复、超时
+     */
+    public static class DeviceManager {
+        final String                            mac;
+        final BluetoothDevice                   device;
+        BluetoothGatt                           gatt = null;
+        List<BluetoothGattCharacteristic>       characteristic = null;
+        BluetoothGattCharacteristic             write_characteristic = null;
+        boolean                                 connected = false;
+        boolean                                 discovering = false;
+
+        int                                     waitTime = 1000;                     // 等待回复、超时
+        long                                    sendTime;                            // 数据发送时刻 用于判断是否超时
+        OnReceivePackage                        callBack;                            // 接收到数据包及超时的处理回调函数
+        byte[]                                  needCallbackCmdPkg;                  // 如果某个命令需要等待回复，记录命令包
+        BleDeviceProtocol                       bleDeviceProtocol = null;
+
+        public void setBleDeviceProtocol(BleDeviceProtocol bleDevPro) {
+            bleDeviceProtocol = bleDevPro;
+        }
+
+        public void setWaitTime(int timeOut) {
+            waitTime = timeOut;
+        }
+
+        // 接收到蓝牙数据的处理函数
+        void dealRecieveDataByProtocol(byte[] data) {
+            if (bleDeviceProtocol != null) {
+                bleDeviceProtocol.onReceive(data);
+            }
+        }
+
+        // 接收到匹配的蓝牙设备发送的数据包后，需要进行的回调处理
+        public void doMatchPackage(byte[] ack_pkg) {
+            if (callBack == null) {
+                return;
+            }
+            if (BleDeviceProtocol.isMatch(needCallbackCmdPkg, ack_pkg)) {
+                Log.i(TAG, "doMatch match");
+                callBack.ack(ack_pkg);
+                // 只要匹配到回复数据后，将不再进行数据接收处理，超时检测
+                callBack = null;
+            }
+        }
+
+        boolean isTimeout() {
+            if (callBack == null) {
+                return false;
+            }
+            return (System.currentTimeMillis() - sendTime) > waitTime;
+        }
 
         DeviceManager(BluetoothDevice dev) {
             mac = dev.getAddress();
@@ -672,8 +726,34 @@ public class BLEActivity extends BaseActivity {
             return false;
         }
 
-        BluetoothGattCharacteristic getWriteChannel() {
-            return write_characteristic;
+        // 向一个设备发送数据的最基本函数
+        boolean sendData(byte[] data, OnReceivePackage revCb) {
+            // Log.i(TAG, "send:" + Util.hex(data, data.length));
+            if (connected && (gatt != null)) {
+                if (write_characteristic != null) {
+                    if (data.length > MAX_BLUETOOTH_SEND_PKG_LEN) {
+                        for (int i = 0; i < data.length; i += MAX_BLUETOOTH_SEND_PKG_LEN) {
+                            int len = Math.min(data.length - i, MAX_BLUETOOTH_SEND_PKG_LEN);
+                            BLEActivity.getBleCtrl().add(GattOperation.newWriteCharacteristic(gatt, write_characteristic, Arrays.copyOfRange(data, i, i + len)));
+                        }
+                    } else {
+                        BLEActivity.getBleCtrl().add(GattOperation.newWriteCharacteristic(gatt, write_characteristic, data));
+                    }
+
+                    // 超时处理
+                    sendTime = System.currentTimeMillis();
+                    callBack = revCb;
+                    needCallbackCmdPkg = data;
+
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // 向一个设备发送数据的最基本函数
+        boolean sendData(byte[] data) {
+            return sendData(data, null);
         }
     }
 
@@ -722,6 +802,7 @@ public class BLEActivity extends BaseActivity {
         }
     }
 
+    // 获得匹配的设备管理器
     private DeviceManager getMatchedDeviceManager(BluetoothGatt gatt) {
         String mac = gatt.getDevice().getAddress();
         return mDeviceManagerSet.get(mac);
@@ -780,6 +861,10 @@ public class BLEActivity extends BaseActivity {
      */
     void onReceive(String mac, byte[] data) {
         Log.i(TAG, "recv from " + mac + "  : " + Util.hex(data, data.length));
+        DeviceManager dev = mDeviceManagerSet.get(mac);
+        if (dev != null) {
+            dev.dealRecieveDataByProtocol(data);
+        }
     }
 
     /**
@@ -823,6 +908,21 @@ public class BLEActivity extends BaseActivity {
      */
     void poll() {
         peekDeviceToDiscovering();
+        doTimeoutCheck();
+    }
+
+    /**
+     * 做超时检查
+     */
+    private void doTimeoutCheck() {
+        for (DeviceManager mgr : mDeviceManagerSet.values()) {
+            if (mgr.isTimeout()) {
+                mgr.callBack.timeout();
+                // 只进行一次超时检测处理
+                mgr.callBack = null;
+                return;
+            }
+        }
     }
 
 }

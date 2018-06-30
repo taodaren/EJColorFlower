@@ -28,15 +28,15 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
+import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
-import cn.eejing.ejcolorflower.device.Protocol;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
@@ -245,7 +245,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                         Log.i("SWITCH_CTRL", "list.size() - i: " + (list.size() - i));
                         switch (mConfigType) {
                             case CONFIG_STREAM:
-                                final byte[] pkgStream = Protocol.jet_start_package(list.get(i),// from device
+                                final byte[] pkgStream = BleDeviceProtocol.jet_start_package(list.get(i),// from device
                                         mGap * i, (list.size() - i) * mDuration, mHigh);
 
                                 // 循环 loop 次
@@ -298,7 +298,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                                 Log.i("SWITCH_CTRL", "RIDE_大间隔时间: " + mGapBig);
                                 Log.i("SWITCH_CTRL", "RIDE_循环次数: " + mLoop);
 
-                                byte[] pkgRide = Protocol.jet_start_package(list.get(i),// from device
+                                byte[] pkgRide = BleDeviceProtocol.jet_start_package(list.get(i),// from device
                                         (mDirection / 10 + mGap / 1000) * 1000 * i, mDuration, mHigh);
                                 break;
                             case CONFIG_INTERVAL:
@@ -353,7 +353,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             try {
                 if (i % 2 == 0) {
                     // 如果设备是第偶数个，高度100
-                    pkgInterval = Protocol.jet_start_package(list.get(i),// from device
+                    pkgInterval = BleDeviceProtocol.jet_start_package(list.get(i),// from device
                             0, mDuration, mHigh);
                     frequencyInterval(list, i, pkgInterval);
                     Thread.sleep(1);
@@ -365,7 +365,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
             if (i % 2 == 1) {
                 // 如果设备是第奇数个，高度60
-                pkgInterval = Protocol.jet_start_package(list.get(i),// from device
+                pkgInterval = BleDeviceProtocol.jet_start_package(list.get(i),// from device
                         0, mDuration, 60);
                 frequencyInterval(list, i, pkgInterval);
             }
@@ -375,7 +375,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             Log.i("SWITCH_CTRL", "TOGETHER_喷射时间: " + mDuration);
             Log.i("SWITCH_CTRL", "TOGETHER_高度: " + mHigh);
 
-            byte[] pkgTogether = Protocol.jet_start_package(list.get(i),// from device
+            byte[] pkgTogether = BleDeviceProtocol.jet_start_package(list.get(i),// from device
                     mGap, mDuration, mHigh);
             try {
                 jetStart(list.get(i), pkgTogether);
@@ -391,7 +391,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 @Override
                 public void ack(@NonNull byte[] pkg) {
                     Log.i("JET", "喷射ACK--->" + pkg.length + "===" + pkg);
-                    int jet = Protocol.parseStartJet(pkg, pkg.length);
+                    int jet = BleDeviceProtocol.parseStartJet(pkg, pkg.length);
                     Log.i("JET", "喷射解析--->" + jet);
                 }
 
@@ -485,14 +485,20 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
     }
 
-    class FootViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        @BindView(R.id.img_add_group)
-        ImageView imgAddGroup;
+    class FootViewHolder extends RecyclerView.ViewHolder {
+
+        @BindView(R.id.tv_footer_add)
+        TextView tvAdd;
 
         FootViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, itemView);
-            imgAddGroup.setOnClickListener(this);
+            tvAdd.setText(R.string.add_group);
+        }
+
+        @OnClick(R.id.img_footer_add)
+        public void onViewClicked() {
+            addGroup();
         }
 
         private void addGroup() {
@@ -516,16 +522,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             mDialog.show();
         }
 
-        @Override
-        public void onClick(View view) {
-            switch (view.getId()) {
-                case R.id.img_add_group:
-                    addGroup();
-                    break;
-                default:
-                    break;
-            }
-        }
     }
 
     public class GroupListAdapter extends RecyclerView.Adapter<GroupListAdapter.DeviceHolder> {
