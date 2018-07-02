@@ -12,11 +12,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.allen.library.SuperButton;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
@@ -115,7 +114,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
 
-    public void addList(List<DeviceListBean.DataBean.ListBean> list) {
+    private void addList(List<DeviceListBean.DataBean.ListBean> list) {
         mList.addAll(list);
         notifyDataSetChanged();
     }
@@ -136,28 +135,26 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         TextView tvConnected;
         @BindView(R.id.tv_device_id)
         TextView tvDeviceId;
-        @BindView(R.id.img_device_id)
-        ImageView imgDeviceId;
-        @BindView(R.id.sb_device_temp)
-        SuperButton sbTemp;
-        @BindView(R.id.sb_device_dmx)
-        SuperButton sbDmx;
-        @BindView(R.id.sb_device_time)
-        SuperButton sbTime;
+        @BindView(R.id.btn_device_temp)
+        Button btnTemp;
+        @BindView(R.id.btn_device_dmx)
+        Button btnDmx;
+        @BindView(R.id.btn_device_time)
+        Button btnTime;
         View outView;
 
-        public ItemViewHolder(View itemView) {
+        ItemViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
             outView = itemView;
         }
 
-        public void setDataOnlyServer(DeviceListBean.DataBean.ListBean bean, int position) {
+        void setDataOnlyServer(DeviceListBean.DataBean.ListBean bean, int position) {
             tvDeviceId.setText(bean.getId());
             setClickListener(position, bean.getId(), null, null);
         }
 
-        public void setDataHasDevice(DeviceListBean.DataBean.ListBean bean, int position, DeviceState state, DeviceConfig config, Device device) {
+        void setDataHasDevice(DeviceListBean.DataBean.ListBean bean, int position, DeviceState state, DeviceConfig config, Device device) {
             if (bean.getMac().equals(device.getAddress()) && String.valueOf(config.mID).equals(bean.getId())) {
                 // 如果设备中的 MAC 地址与设备 ID 跟添加的一致，执行以下操作
                 int temp, dmx, time, thresholdHigh;
@@ -175,38 +172,31 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 tempLvFive = thresholdHigh;
 
                 if (temp <= tempLvOne) {
-                    sbTemp.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTempLvOne));
-                    sbTemp.setText(String.valueOf(temp));
-                    sbTemp.setUseShape();
+                    btnTemp.setBackgroundResource(R.drawable.ic_device_one);
+                    btnTemp.setText(String.valueOf(temp));
                 } else if (tempLvOne < temp && temp <= tempLvTwo) {
-                    sbTemp.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTempLvTwo));
-                    sbTemp.setText(String.valueOf(temp));
-                    sbTemp.setUseShape();
+                    btnTemp.setBackgroundResource(R.drawable.ic_device_two);
+                    btnTemp.setText(String.valueOf(temp));
                 } else if (tempLvTwo < temp && temp <= tempLvThree) {
-                    sbTemp.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTempLvThree));
-                    sbTemp.setText(String.valueOf(temp));
-                    sbTemp.setUseShape();
+                    btnTemp.setBackgroundResource(R.drawable.ic_device_three);
+                    btnTemp.setText(String.valueOf(temp));
                 } else if (tempLvThree < temp && temp <= tempLvFour) {
-                    sbTemp.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTempLvFour));
-                    sbTemp.setText(String.valueOf(temp));
-                    sbTemp.setUseShape();
+                    btnTemp.setBackgroundResource(R.drawable.ic_device_four);
+                    btnTemp.setText(String.valueOf(temp));
                 } else if (tempLvFour < temp && temp <= tempLvFive) {
-                    sbTemp.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTempLvFive));
-                    sbTemp.setText(String.valueOf(temp));
-                    sbTemp.setUseShape();
+                    btnTemp.setBackgroundResource(R.drawable.ic_device_five);
+                    btnTemp.setText(String.valueOf(temp));
                 } else {
-                    sbTemp.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTempLvFive));
-                    sbTemp.setText(String.valueOf(temp));
-                    sbTemp.setUseShape();
+                    btnTemp.setText(String.valueOf(temp));
                 }
 
                 // 将获取到的 int 类型剩余时间转换成 String 类型显示
                 long nowTimeLong = (long) time * 1000;
                 @SuppressLint("SimpleDateFormat") DateFormat ymdhmsFormat = new SimpleDateFormat("mm:ss");
                 String nowTimeStr = ymdhmsFormat.format(nowTimeLong);
-                sbTime.setText(nowTimeStr);
+                btnTime.setText(nowTimeStr);
 
-                sbDmx.setText(String.valueOf(dmx));
+                btnDmx.setText(String.valueOf(dmx));
 
                 tvDeviceId.setText(bean.getId());
                 tvConnected.setText("已连接");
@@ -233,27 +223,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 }
             });
 
-            imgDeviceId.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (state != null && config != null) {
-                        postDeviceId(position);
-
-                        Intent intent = new Intent(mContext, DeDeviceDetailsActivity.class);
-                        intent.putExtra("device_id", deviceId);
-                        intent.putExtra("device_temp", state.mTemperature);
-                        intent.putExtra("device_dmx", config.mDMXAddress);
-                        intent.putExtra("device_time", state.mRestTime);
-                        intent.putExtra("device_threshold", config.mTemperatureThresholdHigh);
-                        mContext.startActivity(intent);
-                    } else {
-                        Toast.makeText(mContext, "此设备尚未连接", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-
-
-            sbTemp.setOnClickListener(new View.OnClickListener() {
+            btnTemp.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (state != null && config != null) {
@@ -273,7 +243,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 }
             });
 
-            sbDmx.setOnClickListener(new View.OnClickListener() {
+            btnDmx.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (state != null && config != null) {
@@ -293,7 +263,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 }
             });
 
-            sbTime.setOnClickListener(new View.OnClickListener() {
+            btnTime.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (state != null && config != null) {

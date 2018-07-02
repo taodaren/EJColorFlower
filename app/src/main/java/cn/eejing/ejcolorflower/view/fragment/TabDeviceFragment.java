@@ -24,6 +24,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
+import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
 import cn.eejing.ejcolorflower.model.event.DeviceEvent;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
@@ -62,8 +63,10 @@ public class TabDeviceFragment extends BaseFragment {
     private Gson mGson;
     private List<DeviceListBean.DataBean.ListBean> mList;
     private TabDeviceAdapter mAdapter;
-    private String mMemberId, mToken, mDeviceId;
+    private String mMemberId, mToken;
 
+    private Device mDeviceConnected;
+    private String mDeviceIdByServer, mDeviceIdByBle;
     private DeviceState mState;
     private DeviceConfig mConfig;
 
@@ -121,7 +124,6 @@ public class TabDeviceFragment extends BaseFragment {
         mGson = new Gson();
         mList = new ArrayList<>();
         mDeviceControl = AppActivity.getFireworksDeviceControl();
-
         LoginSession session = Settings.getLoginSessionInfo(getActivity());
         mMemberId = String.valueOf(session.getMember_id());
         mToken = session.getToken();
@@ -158,10 +160,18 @@ public class TabDeviceFragment extends BaseFragment {
         EventBus.getDefault().unregister(this);
     }
 
+    // TODO: 2018/7/2  
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void getDeviceId(DeviceEvent deviceId) {
-        mDeviceId = deviceId.getId();
-        Log.i("TabDeviceFragment", "mDeviceId: " + mDeviceId);
+    public void getDeviceConnect(DeviceConnectEvent event) {
+        mDeviceIdByBle = event.getId();
+        Log.i("LJQ", "getId: " + mDeviceIdByBle);
+        Log.i("LJQ", "device_connected: " + event.getDevice());
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void getDeviceId(DeviceEvent deviceIdByServer) {
+        mDeviceIdByServer = deviceIdByServer.getId();
+        Log.i("TabDeviceFragment", "mDeviceIdByServer: " + mDeviceIdByServer);
     }
 
     /**
@@ -172,8 +182,8 @@ public class TabDeviceFragment extends BaseFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void getMaterialId(final String qrMId) {
         // 判断设备加料状态
-        final byte[] pkg = BleDeviceProtocol.get_material_status(Long.parseLong(mDeviceId));
-        mDeviceControl.sendCommand(Long.parseLong(mDeviceId), pkg, new OnReceivePackage() {
+        final byte[] pkg = BleDeviceProtocol.get_material_status(Long.parseLong(mDeviceIdByServer));
+        mDeviceControl.sendCommand(Long.parseLong(mDeviceIdByServer), pkg, new OnReceivePackage() {
             @Override
             public void ack(@NonNull byte[] pkg) {
                 DeviceMaterialStatus materialStatus = BleDeviceProtocol.parseMaterialStatus(pkg, pkg.length);
@@ -248,6 +258,7 @@ public class TabDeviceFragment extends BaseFragment {
                         Log.e(AppConstant.TAG, "device list request succeeded--->" + body);
 
                         DeviceListBean bean = mGson.fromJson(body, DeviceListBean.class);
+                        DeviceListBean.DataBean.ListBean deviceBean = mGson.fromJson(body, DeviceListBean.DataBean.ListBean.class);
                         switch (bean.getCode()) {
                             case 101:
                             case 102:
@@ -307,9 +318,9 @@ public class TabDeviceFragment extends BaseFragment {
                                         // 提示被哪个设备绑定
                                         final String useDevice = bean.getData().getUse_device();
                                         Log.i(JL, "绑定设备: " + useDevice);
-                                        Log.i(JL, "mDeviceId: " + mDeviceId);
+                                        Log.i(JL, "mDeviceIdByServer: " + mDeviceIdByServer);
                                         // 提示被哪个设备绑定
-                                        if (useDevice.equals(mDeviceId)) {
+                                        if (useDevice.equals(mDeviceIdByServer)) {
                                             // 如果被本设备绑定
                                             Log.i(JL, "如果被本设备绑定，走到此处");
 
@@ -354,7 +365,7 @@ public class TabDeviceFragment extends BaseFragment {
         OkGo.<String>post(Urls.NO_USE_STATUS)
                 .params("member_id", mMemberId)
                 .params("material_id", materialId)
-                .params("device_id", mDeviceId)
+                .params("device_id", mDeviceIdByServer)
                 .params("token", mToken)
                 .execute(new StringCallback() {
                     @Override
@@ -397,8 +408,8 @@ public class TabDeviceFragment extends BaseFragment {
                                 information(getString(R.string.toast_get_info_failed));
                                 // TODO: 2018/6/8  
                                 // 清除加料信息（设备端）
-                                byte[] info = BleDeviceProtocol.clear_material_info(Long.parseLong(mDeviceId), Long.parseLong(mMemberId), 274652232);
-                                mDeviceControl.sendCommand(Long.parseLong(mDeviceId), info, new OnReceivePackage() {
+                                byte[] info = BleDeviceProtocol.clear_material_info(Long.parseLong(mDeviceIdByServer), Long.parseLong(mMemberId), 274652232);
+                                mDeviceControl.sendCommand(Long.parseLong(mDeviceIdByServer), info, new OnReceivePackage() {
                                     @Override
                                     public void ack(@NonNull byte[] pkg) {
                                         int info = BleDeviceProtocol.parseClearMaterialInfo(pkg, pkg.length);
@@ -452,7 +463,7 @@ public class TabDeviceFragment extends BaseFragment {
         OkGo.<String>post(Urls.WAIT_USE_STATUS)
                 .params("member_id", mMemberId)
                 .params("material_id", materialId)
-                .params("device_id", mDeviceId)
+                .params("device_id", mDeviceIdByServer)
                 .params("token", mToken)
                 .execute(new StringCallback() {
                     @Override
@@ -486,7 +497,7 @@ public class TabDeviceFragment extends BaseFragment {
         OkGo.<String>post(Urls.END_USE_STATUS)
                 .params("member_id", mMemberId)
                 .params("material_id", materialId)
-                .params("device_id", mDeviceId)
+                .params("device_id", mDeviceIdByServer)
                 .params("token", mToken)
                 .execute(new StringCallback() {
                     @Override
@@ -522,7 +533,7 @@ public class TabDeviceFragment extends BaseFragment {
         OkGo.<String>post(Urls.END_USE_STATUS)
                 .params("member_id", mMemberId)
                 .params("material_id", deviceMId)
-                .params("device_id", mDeviceId)
+                .params("device_id", mDeviceIdByServer)
                 .params("token", mToken)
                 .execute(new StringCallback() {
                     @Override
@@ -554,9 +565,9 @@ public class TabDeviceFragment extends BaseFragment {
     }
 
     private void byDeviceClearInfo_D(String materialId) {
-        Log.i(JL, "清除加料信息参数: " + "\nmDeviceId" + mDeviceId + "\nmMemberId" + mMemberId + "\nmaterialId" + materialId);
-        byte[] pkg = BleDeviceProtocol.clear_material_info(Long.parseLong(mDeviceId), Long.parseLong(mMemberId), Long.parseLong(materialId));
-        mDeviceControl.sendCommand(Long.parseLong(mDeviceId), pkg, new OnReceivePackage() {
+        Log.i(JL, "清除加料信息参数: " + "\nmDeviceIdByServer" + mDeviceIdByServer + "\nmMemberId" + mMemberId + "\nmaterialId" + materialId);
+        byte[] pkg = BleDeviceProtocol.clear_material_info(Long.parseLong(mDeviceIdByServer), Long.parseLong(mMemberId), Long.parseLong(materialId));
+        mDeviceControl.sendCommand(Long.parseLong(mDeviceIdByServer), pkg, new OnReceivePackage() {
             @Override
             public void ack(@NonNull byte[] pkg) {
                 int info = BleDeviceProtocol.parseClearMaterialInfo(pkg, pkg.length);
@@ -580,9 +591,9 @@ public class TabDeviceFragment extends BaseFragment {
     }
 
     private void byDeviceClearInfo_E(final long deviceMId, final String serverMId) {
-        Log.i(JL, "清除加料信息参数: " + "\nmDeviceId" + mDeviceId + "\nmMemberId" + mMemberId + "\ndeviceMId" + deviceMId + "\nserverMId" + serverMId);
-        byte[] pkg = BleDeviceProtocol.clear_material_info(Long.parseLong(mDeviceId), Long.parseLong(mMemberId), deviceMId);
-        mDeviceControl.sendCommand(Long.parseLong(mDeviceId), pkg, new OnReceivePackage() {
+        Log.i(JL, "清除加料信息参数: " + "\nmDeviceIdByServer" + mDeviceIdByServer + "\nmMemberId" + mMemberId + "\ndeviceMId" + deviceMId + "\nserverMId" + serverMId);
+        byte[] pkg = BleDeviceProtocol.clear_material_info(Long.parseLong(mDeviceIdByServer), Long.parseLong(mMemberId), deviceMId);
+        mDeviceControl.sendCommand(Long.parseLong(mDeviceIdByServer), pkg, new OnReceivePackage() {
             @Override
             public void ack(@NonNull byte[] pkg) {
                 int info = BleDeviceProtocol.parseClearMaterialInfo(pkg, pkg.length);
@@ -608,7 +619,7 @@ public class TabDeviceFragment extends BaseFragment {
     }
 
     private void byDeviceGetTimestamps(final String materialId, final int addTime) {
-        final long deviceId = Long.parseLong(mDeviceId);
+        final long deviceId = Long.parseLong(mDeviceIdByServer);
         byte[] pkg = BleDeviceProtocol.get_timestamp_package(deviceId);
 
         mDeviceControl.sendCommand(deviceId, pkg, new OnReceivePackage() {

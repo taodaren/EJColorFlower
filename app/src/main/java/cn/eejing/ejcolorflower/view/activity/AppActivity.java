@@ -13,6 +13,8 @@ import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
 import com.jaeger.library.StatusBarUtil;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +24,7 @@ import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceState;
+import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
 import cn.eejing.ejcolorflower.presenter.ISendCommand;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
@@ -206,6 +209,7 @@ public class AppActivity extends BLEActivity implements ISendCommand,
 
     /**
      * 通过服务器信息设置设备
+     *
      * @param list 设备列表
      */
     @Override
@@ -219,6 +223,12 @@ public class AppActivity extends BLEActivity implements ISendCommand,
             // 添加允许连接的设备 MAC
             addAllowedConnectDevicesMAC(list.get(i).getMac());
             mDeviceMacToId.put(Long.parseLong(list.get(i).getId()), list.get(i).getMac());
+
+            // TODO: 2018/7/2 连接成功设备id
+            Device device = findDeviceById(Long.parseLong(list.get(i).getId()));
+            if (device != null) {
+                EventBus.getDefault().post(new DeviceConnectEvent(list.get(i).getId()));
+            }
         }
         // 更新允许连接的设备 MAC 地址列表后，删除已经连接的不在列表中多余的设备
         removeConnectedMoreDevice();
@@ -249,10 +259,10 @@ public class AppActivity extends BLEActivity implements ISendCommand,
 
     private Device getDevice(String mac) {
         BLEActivity.DeviceManager dev = getConnectedDeviceByMac(mac);
-        if( dev == null ){
+        if (dev == null) {
             return null;
         }
-        ProtocolWithDevice pt = (ProtocolWithDevice)(dev.bleDeviceProtocol) ;
+        ProtocolWithDevice pt = (ProtocolWithDevice) (dev.bleDeviceProtocol);
         return pt.device;
     }
 
@@ -309,7 +319,7 @@ public class AppActivity extends BLEActivity implements ISendCommand,
 
     @Override
     public void sendCommand(@NonNull Device device, @NonNull byte[] pkg, OnReceivePackage callback) {
-        send(device.getAddress(), pkg,callback);
+        send(device.getAddress(), pkg, callback);
     }
 
     @Override
@@ -402,11 +412,11 @@ public class AppActivity extends BLEActivity implements ISendCommand,
 
     /**
      * 做匹配
-     *
+     * <p>
      * 在接收到蓝牙数据，经过协议分析，提取数据包后， 通过下面的函数对数据包进行分析处理
      */
     private void doMatch(String mac, byte[] ack_pkg) {
-        Log.i(TAG, "doMatch " + Util.hex(ack_pkg, ack_pkg.length) );
+        Log.i(TAG, "doMatch " + Util.hex(ack_pkg, ack_pkg.length));
         BLEActivity.DeviceManager dev = getConnectedDeviceByMac(mac);
         if (dev != null) {
             dev.doMatchPackage(ack_pkg);
