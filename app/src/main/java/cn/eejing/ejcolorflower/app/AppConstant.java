@@ -33,6 +33,9 @@ public class AppConstant {
     public static final int TYPE_WAIT_USED = 1;
     public static final int TYPE_END_USED = 2;
 
+    public static final String DEVICE_CONNECT_YES = "device_connect_yes";
+    public static final String DEVICE_CONNECT_NO = "device_connect_no";
+
     public static final String TYPE_WAIT_SHIP = "待发货";
     public static final String TYPE_WAIT_RECEIPT = "待收货";
     public static final String TYPE_COMPLETE_GOODS = "已完成";

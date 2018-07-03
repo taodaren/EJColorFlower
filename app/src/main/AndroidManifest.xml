@@ -30,38 +30,99 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".view.activity.SignInActivity">
-        <!--<activity android:name=".view.activity.MaAddrAddActivity">-->
+        <activity
+            android:name=".view.activity.SignInActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.activity.SignUpActivity" />
-        <activity android:name=".view.activity.SiPwdForgetActivity" />
-        <activity android:name=".view.activity.AppActivity" />
-        <activity android:name=".view.activity.BLEActivity" />
-        <activity android:name=".view.activity.DeQrAddDeviceActivity" />
-        <activity android:name=".view.activity.DeDeviceDetailsActivity" />
-        <activity android:name=".view.activity.DeQrAddMaterialActivity" />
-        <activity android:name=".view.activity.CoDeviceActivity" />
-        <activity android:name=".view.activity.CoConfigStreamActivity" />
-        <activity android:name=".view.activity.CoConfigRideActivity" />
-        <activity android:name=".view.activity.CoConfigIntervalActivity" />
-        <activity android:name=".view.activity.CoConfigTogetherActivity" />
-        <activity android:name=".view.activity.MaGoodsDetailsActivity" />
-        <activity android:name=".view.activity.MaOrderConfirmActivity" />
-        <activity android:name=".view.activity.MaOrderPayActivity" />
-        <activity android:name=".view.activity.MaAddrSelectActivity" />
-        <activity android:name=".view.activity.MaAddrManageActivity" />
-        <activity android:name=".view.activity.MiOpinionActivity" />
-        <activity android:name=".view.activity.MiAboutActivity" />
-        <activity android:name=".view.activity.MiSetActivity" />
-        <activity android:name=".view.activity.MiUserInfoActivity" />
-        <activity android:name=".view.activity.MiPwdModifyActivity" />
-        <activity android:name=".view.activity.MiOrderActivity" />
-        <activity android:name=".view.activity.MiOrderDetailsActivity" />
+        <activity
+            android:name=".view.activity.SignUpActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.SiPwdForgetActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.AppActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.BLEActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.DeQrAddDeviceActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.DeDeviceDetailsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.DeQrAddMaterialActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.CoDeviceActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.CoConfigStreamActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.CoConfigRideActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.CoConfigIntervalActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.CoConfigTogetherActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.MaGoodsDetailsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.MaOrderConfirmActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.MaOrderPayActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.MaAddrSelectActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.MaAddrManageActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.MaAddrAddActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.MaAddrProvincesActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.MaAddrAreasActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.MaAddrCitysActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.MiOpinionActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.MiAboutActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.MiSetActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.MiUserInfoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.MiPwdModifyActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.MiOrderActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.MiOrderDetailsActivity"
+            android:screenOrientation="portrait" />
 
         <!-- alipay -->
         <activity
@@ -76,11 +137,6 @@
             android:exported="false"
             android:screenOrientation="behind"
             android:windowSoftInputMode="adjustResize|stateHidden" />
-        <!--<activity android:name=".view.activity.SignInActivity" />-->
-        <activity android:name=".view.activity.MaAddrAddActivity" />
-        <activity android:name=".view.activity.MaAddrProvincesActivity" />
-        <activity android:name=".view.activity.MaAddrAreasActivity" />
-        <activity android:name=".view.activity.MaAddrCitysActivity" />
     </application>
 
 </manifest>

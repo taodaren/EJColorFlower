@@ -23,28 +23,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
-import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
-import cn.eejing.ejcolorflower.model.event.DeviceEvent;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.model.session.LoginSession;
-import cn.eejing.ejcolorflower.view.activity.AppActivity;
-import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceMaterialStatus;
 import cn.eejing.ejcolorflower.device.DeviceState;
-import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
+import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
+import cn.eejing.ejcolorflower.model.event.DeviceEvent;
 import cn.eejing.ejcolorflower.model.request.AddMaterialBean;
 import cn.eejing.ejcolorflower.model.request.CancelMaterialStatusBean;
 import cn.eejing.ejcolorflower.model.request.ChangeMaterialStatusBean;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
 import cn.eejing.ejcolorflower.model.request.MaterialInfoBean;
+import cn.eejing.ejcolorflower.model.session.LoginSession;
+import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
+import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.Settings;
+import cn.eejing.ejcolorflower.view.activity.AppActivity;
 import cn.eejing.ejcolorflower.view.activity.SignInActivity;
 import cn.eejing.ejcolorflower.view.adapter.TabDeviceAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseFragment;
-import cn.eejing.ejcolorflower.util.Settings;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_END_USED;
 import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_NO_USED;
@@ -160,14 +160,6 @@ public class TabDeviceFragment extends BaseFragment {
         EventBus.getDefault().unregister(this);
     }
 
-    // TODO: 2018/7/2  
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void getDeviceConnect(DeviceConnectEvent event) {
-        mDeviceIdByBle = event.getId();
-        Log.i("LJQ", "getId: " + mDeviceIdByBle);
-        Log.i("LJQ", "device_connected: " + event.getDevice());
-    }
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void getDeviceId(DeviceEvent deviceIdByServer) {
         mDeviceIdByServer = deviceIdByServer.getId();
@@ -229,7 +221,7 @@ public class TabDeviceFragment extends BaseFragment {
         rvTabDevice.setOnPullLoadMoreListener(new PullLoadMoreRecyclerView.PullLoadMoreListener() {
             @Override
             public void onRefresh() {
-                mListener.scanDevice();
+//                mListener.scanDevice();
                 getDataWithDeviceList();
             }
 

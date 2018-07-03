@@ -8,6 +8,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -405,7 +406,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         // 显示 PopupWindow 同时背景变暗
         private void showPopTopWithDarkBg(int groupId) {
             View contentView = LayoutInflater.from(mContext).inflate(R.layout.layout_pop_menu, null);
-            // 处理 popWindow 显示内容
             handleLogic(contentView, groupId);
             // 创建并显示 popWindow
             mCustomPopWindow = new CustomPopWindow.PopupWindowBuilder(mContext)
@@ -421,7 +421,8 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                         }
                     })
                     .create()
-                    .showAsDropDown(sbConfig, 0, 20);
+                    // 设置 pop 位置
+                    .showAsDropDown(sbConfig, -100, 20);
         }
 
         // 处理弹出显示内容、点击事件等逻辑

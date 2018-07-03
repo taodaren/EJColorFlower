@@ -617,10 +617,6 @@ public class BLEActivity extends BaseActivity {
         DeviceManager mgr = mDeviceManagerSet.get(mac);
         return mgr != null && mgr.sendData(data, revCb);
     }
-//    if (mgr != null) {
-//        return mgr.sendData(data, revCb);
-//    }
-//        return false;
 
     // 向一个设备发送数据的最基本函数
     boolean send(String mac, byte[] data) {

@@ -21,9 +21,12 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -34,6 +37,7 @@ import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceState;
+import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
 import cn.eejing.ejcolorflower.model.event.DeviceEvent;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
@@ -54,11 +58,14 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     private Context mContext;
     private List<DeviceListBean.DataBean.ListBean> mList;
+    private List<String> mConnDevList;
     private LayoutInflater mLayoutInflater;
     private String mMemberId, mToken;
+    private String mDeviceIdByBle;
     private Device mDevice;
     private DeviceState mState;
     private DeviceConfig mConfig;
+    private String mConnectDeviceMac;
 
     public TabDeviceAdapter(Context context, List<DeviceListBean.DataBean.ListBean> list, String memberId, String token) {
         this.mContext = context;
@@ -85,11 +92,20 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE_ITEM) {
-            if (mState != null && mConfig != null) {
-                ((ItemViewHolder) holder).setDataHasDevice(mList.get(position), position, mState, mConfig, mDevice);
+            if (mConnDevList != null) {
+                for (int i = 0; i < mConnDevList.size(); i++) {
+                    Log.e("LJQ", "onBindViewHolder: " + mConnDevList.get(i));
+                    ((ItemViewHolder) holder).setData(mList.get(position), mConnDevList.get(i), position);
+                }
             } else {
-                ((ItemViewHolder) holder).setDataOnlyServer(mList.get(position), position);
+                ((ItemViewHolder) holder).setData(mList.get(position), null, position);
             }
+
+//            if (mState != null && mConfig != null) {
+//                ((ItemViewHolder) holder).setDataHasDevice(mList.get(position), position, mState, mConfig, mDevice);
+//            } else {
+//                ((ItemViewHolder) holder).setDataOnlyServer(mList.get(position), position);
+//            }
         }
     }
 
@@ -104,6 +120,29 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             return TYPE_ITEM;
         } else {
             return TYPE_FOOTER;
+        }
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void getDeviceConnect(DeviceConnectEvent event) {
+        // TODO: 2018/7/3 I Love LJQ Forever.
+        mConnDevList = new ArrayList<>();
+        mConnDevList.add(event.getMac());
+        for (int i = 0; i < mConnDevList.size(); i++) {
+            Log.i("LJQ", "已连接设备MAC: " + mConnDevList.get(i));
+            Log.i("LJQ", "已连接设备数量: " + mConnDevList.size());
         }
     }
 
@@ -149,9 +188,36 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             outView = itemView;
         }
 
-        void setDataOnlyServer(DeviceListBean.DataBean.ListBean bean, int position) {
-            tvDeviceId.setText(bean.getId());
-            setClickListener(position, bean.getId(), null, null);
+        void setData(DeviceListBean.DataBean.ListBean bean, String connectDeviceMac, int position) {
+            Log.e("LJQ", "setData设备MAC: " + connectDeviceMac);
+            Log.i("LJQ", "服务器MAC: " + bean.getMac());
+            Log.i("LJQ", "服务器ID: " + bean.getId());
+
+            if (connectDeviceMac != null) {
+                // 如果硬件中通过 MAC 地址已经连接的设备不为空
+                if (bean.getMac().equals(connectDeviceMac)) {
+                    // 如果服务器设备列表中的 MAC 地址与设备 MAC 一致，设置已连接状态
+                    tvDeviceId.setText(bean.getId());
+                    tvConnected.setText("已连接");
+                    tvConnected.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
+                }
+            } else {
+                // 如果硬件中通过 MAC 地址已经连接的设备为空，则只展示服务器中的设备 ID
+                tvDeviceId.setText(bean.getId());
+            }
+
+//            if (connectDeviceMac.get(position) != null &&                       // 如果硬件中通过 MAC 地址已经连接的设备不为空，并且
+//                    bean.getMac().equals(connectDeviceMac.get(position))) {     // 服务器设备列表中的 MAC 地址与设备 MAC 一致，设置已连接状态
+//                tvDeviceId.setText(bean.getId());
+//                tvConnected.setText("已连接");
+//                tvConnected.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
+////                btnTime.setText(nowTimeStr);
+//
+////                btnDmx.setText(String.valueOf(dmx));
+//            } else {                                                            // 否则只展示服务器中的设备 ID
+//                tvDeviceId.setText(bean.getId());
+//            }
+
         }
 
         void setDataHasDevice(DeviceListBean.DataBean.ListBean bean, int position, DeviceState state, DeviceConfig config, Device device) {
@@ -205,6 +271,11 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 //                Toast.makeText(mContext, bean.getId() + "连接成功", Toast.LENGTH_SHORT).show();
                 setClickListener(position, bean.getId(), state, config);
             }
+        }
+
+        void setDataOnlyServer(DeviceListBean.DataBean.ListBean bean, int position) {
+            tvDeviceId.setText(bean.getId());
+            setClickListener(position, bean.getId(), null, null);
         }
 
         private void setClickListener(final int position, final String deviceId, final DeviceState state, final DeviceConfig config) {

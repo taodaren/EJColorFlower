@@ -34,6 +34,8 @@ import cn.eejing.ejcolorflower.view.fragment.TabDeviceFragment;
 import cn.eejing.ejcolorflower.view.fragment.TabMallFragment;
 import cn.eejing.ejcolorflower.view.fragment.TabMineFragment;
 
+import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_NO;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_YES;
 import static cn.eejing.ejcolorflower.app.AppConstant.EXIT_LOGIN;
 import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_CHARACTERISTIC_WRITE;
 import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_SERVICE;
@@ -224,11 +226,12 @@ public class AppActivity extends BLEActivity implements ISendCommand,
             addAllowedConnectDevicesMAC(list.get(i).getMac());
             mDeviceMacToId.put(Long.parseLong(list.get(i).getId()), list.get(i).getMac());
 
-            // TODO: 2018/7/2 连接成功设备id
-            Device device = findDeviceById(Long.parseLong(list.get(i).getId()));
-            if (device != null) {
-                EventBus.getDefault().post(new DeviceConnectEvent(list.get(i).getId()));
-            }
+//            // TODO: 2018/7/2 连接成功设备id
+//            Device device = findDeviceById(Long.parseLong(list.get(i).getId()));
+//            if (device != null) {
+//                device.setConnected(true);
+//                EventBus.getDefault().post(new DeviceConnectEvent(list.get(i).getId()));
+//            }
         }
         // 更新允许连接的设备 MAC 地址列表后，删除已经连接的不在列表中多余的设备
         removeConnectedMoreDevice();
@@ -244,7 +247,7 @@ public class AppActivity extends BLEActivity implements ISendCommand,
      * @param deviceId 服务器设备 id
      * @return 设备（已经连接）
      */
-    private Device findDeviceById(long deviceId) {
+    public Device findDeviceById(long deviceId) {
         String mac = getMacById(deviceId);
         if (mac == null) {
             return null;
@@ -346,6 +349,7 @@ public class AppActivity extends BLEActivity implements ISendCommand,
                         if (mTabControlOnRecvHandler != null) {
                             mTabControlOnRecvHandler.onConfig(device, config);
                         }
+                        EventBus.getDefault().post(new DeviceConnectEvent(mac));
                     }
                 }
             }, 2000);
@@ -360,6 +364,7 @@ public class AppActivity extends BLEActivity implements ISendCommand,
         Device device = getDevice(mac);
         if (device != null) {
             device.setConnected(false);
+            EventBus.getDefault().post(new DeviceConnectEvent(DEVICE_CONNECT_NO, device));
         }
     }
 
