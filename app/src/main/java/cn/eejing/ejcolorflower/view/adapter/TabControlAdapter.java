@@ -38,6 +38,7 @@ import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
+import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
@@ -149,6 +150,22 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         notifyDataSetChanged();
     }
 
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    public void getDeviceConnect(DeviceConnectEvent event) {
+//        // 接收硬件传过来的已连接设备信息
+//        mConnectDeviceMac = event.getMac();
+//        mState = event.getState();
+//        mConfig = event.getConfig();
+//        Log.e("LJQ", event.getInfo()
+//                + "\nMAC--->" + mConnectDeviceMac
+//                + "\nDEV_ID--->" + mConfig.mID
+//                + "\nTEMP--->" + mState.mTemperature
+//                + "\nDMX--->" + mConfig.mDMXAddress
+//                + "\nTIME--->" + mState.mRestTime
+//        );
+//        notifyDataSetChanged();
+//    }
+
     public void setDeviceConfig(Device device, DeviceConfig config) {
         this.mDevice = device;
         this.mConfig = config;
@@ -188,6 +205,11 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         @SuppressLint("ResourceAsColor")
         public void setData(DeviceGroupListBean.DataBean bean, final int position) {
+//            Log.e("LJQ", "设备 MAC: " + connectDeviceMac);
+//            Log.i("LJQ", "设备 STATE: " + state);
+//            Log.i("LJQ", "设备 CONFIG: " + config);
+//            Log.i("LJQ", "服务器 MAC: " + bean.getMac());
+//            Log.i("LJQ", "服务器 ID: " + bean.getId());
             if (bean.getGroup_list() != null && bean.getGroup_list().size() > 0) {
                 // 如果有设备，显示设备，隐藏提示文字
                 tvInfo.setVisibility(View.GONE);

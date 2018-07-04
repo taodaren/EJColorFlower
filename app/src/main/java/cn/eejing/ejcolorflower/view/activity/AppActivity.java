@@ -50,7 +50,7 @@ public class AppActivity extends BLEActivity implements ISendCommand,
     private Fragment currentFragment;
 
     private boolean mRequestConfig = false;
-    private TabDeviceFragment.OnRecvHandler mTabDeviceOnRecvHandler;
+//    private TabDeviceFragment.OnRecvHandler mTabDeviceOnRecvHandler;
     private TabControlFragment.OnRecvHandler mTabControlOnRecvHandler;
 
     // MAC 地址与设备 ID 对应关系
@@ -225,13 +225,6 @@ public class AppActivity extends BLEActivity implements ISendCommand,
             // 添加允许连接的设备 MAC
             addAllowedConnectDevicesMAC(list.get(i).getMac());
             mDeviceMacToId.put(Long.parseLong(list.get(i).getId()), list.get(i).getMac());
-
-//            // TODO: 2018/7/2 连接成功设备id
-//            Device device = findDeviceById(Long.parseLong(list.get(i).getId()));
-//            if (device != null) {
-//                device.setConnected(true);
-//                EventBus.getDefault().post(new DeviceConnectEvent(list.get(i).getId()));
-//            }
         }
         // 更新允许连接的设备 MAC 地址列表后，删除已经连接的不在列表中多余的设备
         removeConnectedMoreDevice();
@@ -269,10 +262,10 @@ public class AppActivity extends BLEActivity implements ISendCommand,
         return pt.device;
     }
 
-    @Override
-    public void setRecvHandler(TabDeviceFragment.OnRecvHandler handler) {
-        mTabDeviceOnRecvHandler = handler;
-    }
+//    @Override
+//    public void setRecvHandler(TabDeviceFragment.OnRecvHandler handler) {
+//        mTabDeviceOnRecvHandler = handler;
+//    }
 
     @Override
     public void setRecvHandler(TabControlFragment.OnRecvHandler handler) {
@@ -284,8 +277,6 @@ public class AppActivity extends BLEActivity implements ISendCommand,
         void sendCommand(long device_id, @NonNull byte[] pkg);
 
         void sendCommand(long device_id, @NonNull byte[] pkg, OnReceivePackage callback);
-
-        Device getDeviceById(long device_id);
     }
 
     private final FireworksDeviceControl mFireworksDeviceControlImpl = new FireworksDeviceControl() {
@@ -303,10 +294,6 @@ public class AppActivity extends BLEActivity implements ISendCommand,
             if (device != null) {
                 AppActivity.this.sendCommand(device, pkg, callback);
             }
-        }
-
-        public Device getDeviceById(long device_id) {
-            return findDeviceById(device_id);
         }
     };
 
@@ -338,6 +325,10 @@ public class AppActivity extends BLEActivity implements ISendCommand,
             registerPeriod(mac + "- 注册期 status", new Runnable() {
                 @Override
                 public void run() {
+//                    Device device = findDeviceById(device_id);
+//                    if (device != null) {
+//                        AppActivity.this.sendCommand(device, pkg);
+//                    }
                     final Device device = getDevice(mac);
                     if (device != null) {
                         DeviceConfig config = device.getConfig();
@@ -346,10 +337,14 @@ public class AppActivity extends BLEActivity implements ISendCommand,
                             mRequestConfig = !send(mac, BleDeviceProtocol.get_config_package(id));
                         }
                         send(mac, BleDeviceProtocol.get_status_package(id));
+
+                        if (findDeviceById(id) != null) {
+                            // 已经连接的设备不为空，发送相关数据
+                            EventBus.getDefault().post(new DeviceConnectEvent(DEVICE_CONNECT_YES, mac, device.getState(), device.getConfig()));
+                        }
                         if (mTabControlOnRecvHandler != null) {
                             mTabControlOnRecvHandler.onConfig(device, config);
                         }
-                        EventBus.getDefault().post(new DeviceConnectEvent(mac));
                     }
                 }
             }, 2000);
@@ -364,7 +359,7 @@ public class AppActivity extends BLEActivity implements ISendCommand,
         Device device = getDevice(mac);
         if (device != null) {
             device.setConnected(false);
-            EventBus.getDefault().post(new DeviceConnectEvent(DEVICE_CONNECT_NO, device));
+            EventBus.getDefault().post(new DeviceConnectEvent(DEVICE_CONNECT_NO, mac));
         }
     }
 
@@ -381,27 +376,27 @@ public class AppActivity extends BLEActivity implements ISendCommand,
         @Override
         protected void onReceivePackage(@NonNull final DeviceState state) {
             device.setState(state);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (mTabDeviceOnRecvHandler != null) {
-                        mTabDeviceOnRecvHandler.onState(device, state);
-                    }
-                }
-            });
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    if (mTabDeviceOnRecvHandler != null) {
+//                        mTabDeviceOnRecvHandler.onState(device, state);
+//                    }
+//                }
+//            });
         }
 
         @Override
         protected void onReceivePackage(@NonNull final DeviceConfig config) {
             device.setConfig(config);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (mTabDeviceOnRecvHandler != null) {
-                        mTabDeviceOnRecvHandler.onConfig(config);
-                    }
-                }
-            });
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    if (mTabDeviceOnRecvHandler != null) {
+//                        mTabDeviceOnRecvHandler.onConfig(config);
+//                    }
+//                }
+//            });
         }
 
         @Override

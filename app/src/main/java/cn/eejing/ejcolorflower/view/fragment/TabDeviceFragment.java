@@ -30,7 +30,6 @@ import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceMaterialStatus;
 import cn.eejing.ejcolorflower.device.DeviceState;
-import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
 import cn.eejing.ejcolorflower.model.event.DeviceEvent;
 import cn.eejing.ejcolorflower.model.request.AddMaterialBean;
 import cn.eejing.ejcolorflower.model.request.CancelMaterialStatusBean;
@@ -65,26 +64,25 @@ public class TabDeviceFragment extends BaseFragment {
     private TabDeviceAdapter mAdapter;
     private String mMemberId, mToken;
 
-    private Device mDeviceConnected;
-    private String mDeviceIdByServer, mDeviceIdByBle;
-    private DeviceState mState;
-    private DeviceConfig mConfig;
+    private String mDeviceIdByServer;
+//    private DeviceState mState;
+//    private DeviceConfig mConfig;
 
     private OnFragmentInteractionListener mListener;
     private AppActivity.FireworksDeviceControl mDeviceControl;
 
-    public interface OnRecvHandler {
-        void onState(Device device, DeviceState state);
-
-        void onConfig(DeviceConfig config);
-    }
+//    public interface OnRecvHandler {
+//        void onState(Device device, DeviceState state);
+//
+//        void onConfig(DeviceConfig config);
+//    }
 
     public interface OnFragmentInteractionListener {
         void scanDevice();
 
         void setRegisterDevice(List<DeviceListBean.DataBean.ListBean> list);
 
-        void setRecvHandler(OnRecvHandler handler);
+//        void setRecvHandler(OnRecvHandler handler);
     }
 
     public static TabDeviceFragment newInstance() {
@@ -94,19 +92,17 @@ public class TabDeviceFragment extends BaseFragment {
     public TabDeviceFragment() {
     }
 
-    private final OnRecvHandler mOnRecvHandler = new OnRecvHandler() {
-        @Override
-        public void onState(Device device, DeviceState state) {
-            mState = state;
-            mAdapter.setDeviceState(device, mState);
-        }
-
-        @Override
-        public void onConfig(DeviceConfig config) {
-            mConfig = config;
-            mAdapter.setDeviceConfig(mConfig);
-        }
-    };
+//    private final OnRecvHandler mOnRecvHandler = new OnRecvHandler() {
+//        @Override
+//        public void onState(Device device, DeviceState state) {
+//            mState = state;
+//        }
+//
+//        @Override
+//        public void onConfig(DeviceConfig config) {
+//            mConfig = config;
+//        }
+//    };
 
     @Override
     protected int layoutViewId() {
@@ -140,8 +136,8 @@ public class TabDeviceFragment extends BaseFragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
-            mState = new DeviceState();
-            mConfig = new DeviceConfig();
+//            mState = new DeviceState();
+//            mConfig = new DeviceConfig();
             mListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString() + "必须实现 OnFragmentInteractionListener");
@@ -207,13 +203,11 @@ public class TabDeviceFragment extends BaseFragment {
     }
 
     private void initRecyclerView() {
-        Log.i(AppConstant.TAG, "initRecyclerView State : " + mState.mRestTime);
-        Log.i(AppConstant.TAG, "initRecyclerView Config : " + mConfig.mDMXAddress);
         // 设置布局
         rvTabDevice.setLinearLayout();
         // 绑定适配器
         mAdapter = new TabDeviceAdapter(getContext(), mList, mMemberId, mToken);
-        mListener.setRecvHandler(mOnRecvHandler);
+//        mListener.setRecvHandler(mOnRecvHandler);
         rvTabDevice.setAdapter(mAdapter);
 
         // 不需要上拉刷新
@@ -227,7 +221,6 @@ public class TabDeviceFragment extends BaseFragment {
 
             @Override
             public void onLoadMore() {
-
             }
         });
         // 刷新结束
