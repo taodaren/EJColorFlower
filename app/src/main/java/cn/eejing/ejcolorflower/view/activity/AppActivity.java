@@ -47,10 +47,14 @@ public class AppActivity extends BLEActivity implements ISendCommand,
     private static final String TAG = "AppActivity";
 
     private ArrayList<Fragment> mFragments;
-    private Fragment currentFragment;
+    private Fragment mCurrentFragment;
+//    private TabDeviceFragment mTabDeviceFragment;
+//    private TabControlFragment mTabControlFragment;
+//    private TabMallFragment mTabMallFragment;
+//    private TabMineFragment mTabMineFragment;
 
     private boolean mRequestConfig = false;
-//    private TabDeviceFragment.OnRecvHandler mTabDeviceOnRecvHandler;
+    //    private TabDeviceFragment.OnRecvHandler mTabDeviceOnRecvHandler;
     private TabControlFragment.OnRecvHandler mTabControlOnRecvHandler;
 
     // MAC 地址与设备 ID 对应关系
@@ -77,6 +81,23 @@ public class AppActivity extends BLEActivity implements ISendCommand,
         // 配置当前 APP 处理的蓝牙设备名称
         setAllowedConnectDevicesName("EEJING-CHJ");
     }
+
+//    @Override
+//    public void onAttachFragment(Fragment fragment) {
+//        super.onAttachFragment(fragment);
+//        if (mTabDeviceFragment == null && fragment instanceof TabDeviceFragment) {
+//            mTabDeviceFragment = fragment;
+//        }
+//        if (mFragments.get(1) == null && fragment instanceof TabControlFragment) {
+//            addFragment(R.id.main_content, fragment);
+//        }
+//        if (mFragments.get(2) == null && fragment instanceof TabMallFragment) {
+//            addFragment(R.id.main_content, fragment);
+//        }
+//        if (mFragments.get(3) == null && fragment instanceof TabMineFragment) {
+//            addFragment(R.id.main_content, fragment);
+//        }
+//    }
 
     /**
      * 设置底部导航
@@ -131,7 +152,7 @@ public class AppActivity extends BLEActivity implements ISendCommand,
         Fragment defFragment = mFragments.get(0);
         if (!defFragment.isAdded()) {
             addFragment(R.id.main_content, defFragment);
-            currentFragment = defFragment;
+            mCurrentFragment = defFragment;
         }
     }
 
@@ -139,7 +160,7 @@ public class AppActivity extends BLEActivity implements ISendCommand,
      * 添加 Fragment 到 Activity 的布局
      */
     protected void addFragment(int containerViewId, Fragment fragment) {
-        final FragmentTransaction fragmentTransaction = this.getSupportFragmentManager().beginTransaction();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(containerViewId, fragment);
         fragmentTransaction.commit();
     }
@@ -151,16 +172,16 @@ public class AppActivity extends BLEActivity implements ISendCommand,
     private void replaceFragment(Fragment fragment) {
         // 添加或者显示 fragment
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        if (currentFragment == fragment)
+        if (mCurrentFragment == fragment)
             return;
         if (!fragment.isAdded()) {
             // 如果当前 fragment 未被添加，则添加到 Fragment 管理器中
-            transaction.hide(currentFragment).add(R.id.main_content, fragment).commit();
+            transaction.hide(mCurrentFragment).add(R.id.main_content, fragment).commit();
         } else {
-            // 如果当前 fragment 已添加，则添加到 Fragment 管理器中
-            transaction.hide(currentFragment).show(fragment).commit();
+            // 如果当前 fragment 已添加，则显示 Fragment 管理器中的 fragment
+            transaction.hide(mCurrentFragment).show(fragment).commit();
         }
-        currentFragment = fragment;
+        mCurrentFragment = fragment;
     }
 
     /**
