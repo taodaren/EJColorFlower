@@ -16,11 +16,11 @@ import com.lzy.okgo.model.Response;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.model.request.RegisterBean;
 import cn.eejing.ejcolorflower.model.request.SendMsgBean;
-import cn.eejing.ejcolorflower.view.base.BaseActivity;
+import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.Encryption;
+import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 /**
  * 注册
@@ -28,22 +28,15 @@ import cn.eejing.ejcolorflower.util.Encryption;
 
 public class SignUpActivity extends BaseActivity implements View.OnClickListener {
 
-    @BindView(R.id.et_register_phone)
-    EditText mPhone;
-    @BindView(R.id.et_register_set_pwd)
-    EditText mSetPwd;
-    @BindView(R.id.et_register_confirm_pwd)
-    EditText mConfirmPwd;
-    @BindView(R.id.et_register_verify_code)
-    EditText mVerifyCode;
-    @BindView(R.id.btn_register_get_code)
-    Button btnGetCode;
-    @BindView(R.id.btn_register_register)
-    SuperButton btnRegister;
+    @BindView(R.id.et_register_phone)          EditText mPhone;
+    @BindView(R.id.et_register_set_pwd)        EditText mSetPwd;
+    @BindView(R.id.et_register_confirm_pwd)    EditText mConfirmPwd;
+    @BindView(R.id.et_register_verify_code)    EditText mVerifyCode;
+    @BindView(R.id.btn_register_get_code)      Button btnGetCode;
+    @BindView(R.id.btn_register_register)      SuperButton btnRegister;
 
     private Gson mGson;
     private String mIv;
-
 
     @Override
     protected int layoutViewId() {
@@ -53,7 +46,6 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
     @Override
     public void initView() {
         setToolbar("注册", View.VISIBLE);
-
         mIv = Encryption.newIv();
     }
 
@@ -78,53 +70,62 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
     }
 
     private void getDateWithRegister(final ProgressDialog dialog) {
-        OkGo.<String>post(Urls.REGISTER)
-                .tag(this)
-                .params("mobile", mPhone.getText().toString())
-                .params("password", mSetPwd.getText().toString())
-                .params("re_password", mSetPwd.getText().toString())
-                .params("code", mVerifyCode.getText().toString())
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        Log.e(AppConstant.TAG, "register request succeeded--->" + body);
+        try {
+            String encryptSetPwd = Encryption.encrypt(mSetPwd.getText().toString(), mIv);
+            String encryptConfirmPwd = Encryption.encrypt(mConfirmPwd.getText().toString(), mIv);
 
-                        mGson = new Gson();
-                        RegisterBean bean = mGson.fromJson(body, RegisterBean.class);
+            OkGo.<String>post(Urls.REGISTER)
+                    .tag(this)
+                    .params("mobile", mPhone.getText().toString())
+                    .params("password", encryptSetPwd)
+                    .params("re_password", encryptConfirmPwd)
+                    .params("code", mVerifyCode.getText().toString())
+                    .params("iv", mIv)
+                    .execute(new StringCallback() {
+                        @Override
+                        public void onSuccess(Response<String> response) {
+                            String body = response.body();
+                            Log.e(AppConstant.TAG, "register request succeeded--->" + body);
 
-                        switch (bean.getCode()) {
-                            case 1:
-                                onSignupSuccess();
-                                dialog.dismiss();
-                                break;
-                            case 9:
-                                Toast.makeText(getBaseContext(), "该手机号已注册", Toast.LENGTH_LONG).show();
-                                btnRegister.setEnabled(true);
-                                dialog.dismiss();
-                                break;
-                            case 5:
-                                Toast.makeText(getBaseContext(), "手机号格式不正确", Toast.LENGTH_LONG).show();
-                                btnRegister.setEnabled(true);
-                                dialog.dismiss();
-                                break;
-                            case 8:
-                                Toast.makeText(getBaseContext(), "两次输入密码不一致", Toast.LENGTH_LONG).show();
-                                btnRegister.setEnabled(true);
-                                dialog.dismiss();
-                            case 6:
-                                Toast.makeText(getBaseContext(), "验证码不正确", Toast.LENGTH_LONG).show();
-                                btnRegister.setEnabled(true);
-                                dialog.dismiss();
-                                break;
-                            default:
-                                onSignupFailed();
-                                dialog.dismiss();
-                                break;
+                            mGson = new Gson();
+                            RegisterBean bean = mGson.fromJson(body, RegisterBean.class);
+
+                            switch (bean.getCode()) {
+                                case 1:
+                                    Toast.makeText(getBaseContext(), "账号注册成功", Toast.LENGTH_LONG).show();
+                                    onSignupSuccess();
+                                    dialog.dismiss();
+                                    break;
+                                case 9:
+                                    Toast.makeText(getBaseContext(), "该手机号已注册", Toast.LENGTH_LONG).show();
+                                    btnRegister.setEnabled(true);
+                                    dialog.dismiss();
+                                    break;
+                                case 5:
+                                    Toast.makeText(getBaseContext(), "手机号格式不正确", Toast.LENGTH_LONG).show();
+                                    btnRegister.setEnabled(true);
+                                    dialog.dismiss();
+                                    break;
+                                case 8:
+                                    Toast.makeText(getBaseContext(), "两次输入密码不一致", Toast.LENGTH_LONG).show();
+                                    btnRegister.setEnabled(true);
+                                    dialog.dismiss();
+                                case 6:
+                                    Toast.makeText(getBaseContext(), "验证码不正确", Toast.LENGTH_LONG).show();
+                                    btnRegister.setEnabled(true);
+                                    dialog.dismiss();
+                                    break;
+                                default:
+                                    onSignupFailed();
+                                    dialog.dismiss();
+                                    break;
+                            }
+
                         }
-
-                    }
-                });
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void getDateWithSendMsg() {
@@ -179,7 +180,6 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
         dialog.show();
 
         getDateWithRegister(dialog);
-
     }
 
     public void onSignupSuccess() {
@@ -190,7 +190,6 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
 
     public void onSignupFailed() {
         Toast.makeText(getBaseContext(), "注册失败", Toast.LENGTH_LONG).show();
-
         btnRegister.setEnabled(true);
     }
 

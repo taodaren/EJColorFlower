@@ -17,12 +17,12 @@ import com.lzy.okgo.model.Response;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
+import cn.eejing.ejcolorflower.model.request.LoginBean;
 import cn.eejing.ejcolorflower.model.session.LoginSession;
 import cn.eejing.ejcolorflower.presenter.Urls;
-import cn.eejing.ejcolorflower.model.request.LoginBean;
-import cn.eejing.ejcolorflower.view.base.BaseActivity;
 import cn.eejing.ejcolorflower.util.Encryption;
 import cn.eejing.ejcolorflower.util.Settings;
+import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 /**
  * 登录
@@ -31,16 +31,11 @@ import cn.eejing.ejcolorflower.util.Settings;
 public class SignInActivity extends BaseActivity implements View.OnClickListener {
     private static final int REQUEST_SIGNUP = 0;
 
-    @BindView(R.id.et_login_phone)
-    EditText etLoginPhone;
-    @BindView(R.id.et_login_pwd)
-    EditText etLoginPwd;
-    @BindView(R.id.btn_login)
-    SuperButton btnLogin;
-    @BindView(R.id.tv_login_register)
-    TextView tvLoginRegister;
-    @BindView(R.id.tv_login_forget)
-    TextView tvLoginForget;
+    @BindView(R.id.et_login_phone)       EditText etLoginPhone;
+    @BindView(R.id.et_login_pwd)         EditText etLoginPwd;
+    @BindView(R.id.btn_login)            SuperButton btnLogin;
+    @BindView(R.id.tv_login_register)    TextView tvLoginRegister;
+    @BindView(R.id.tv_login_forget)      TextView tvLoginForget;
 
     @Override
     protected int layoutViewId() {
@@ -71,8 +66,6 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SIGNUP) {
             if (resultCode == RESULT_OK) {
-
-                // TODO: 在这里实施成功的注册逻辑
                 // 默认情况下，我们只需完成活动并自动登录它们
                 this.finish();
             }
