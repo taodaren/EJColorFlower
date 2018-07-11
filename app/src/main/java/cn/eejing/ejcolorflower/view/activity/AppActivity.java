@@ -1,6 +1,7 @@
 package cn.eejing.ejcolorflower.view.activity;
 
 import android.annotation.SuppressLint;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -46,12 +47,8 @@ public class AppActivity extends BLEActivity implements ISendCommand,
         TabControlFragment.OnFragmentInteractionListener {
     private static final String TAG = "AppActivity";
 
-    private ArrayList<Fragment> mFragments;
+    private List<Fragment> mFragments;
     private Fragment mCurrentFragment;
-//    private TabDeviceFragment mTabDeviceFragment;
-//    private TabControlFragment mTabControlFragment;
-//    private TabMallFragment mTabMallFragment;
-//    private TabMineFragment mTabMineFragment;
 
     private boolean mRequestConfig = false;
     //    private TabDeviceFragment.OnRecvHandler mTabDeviceOnRecvHandler;
@@ -82,22 +79,13 @@ public class AppActivity extends BLEActivity implements ISendCommand,
         setAllowedConnectDevicesName("EEJING-CHJ");
     }
 
-//    @Override
-//    public void onAttachFragment(Fragment fragment) {
-//        super.onAttachFragment(fragment);
-//        if (mTabDeviceFragment == null && fragment instanceof TabDeviceFragment) {
-//            mTabDeviceFragment = fragment;
-//        }
-//        if (mFragments.get(1) == null && fragment instanceof TabControlFragment) {
-//            addFragment(R.id.main_content, fragment);
-//        }
-//        if (mFragments.get(2) == null && fragment instanceof TabMallFragment) {
-//            addFragment(R.id.main_content, fragment);
-//        }
-//        if (mFragments.get(3) == null && fragment instanceof TabMineFragment) {
-//            addFragment(R.id.main_content, fragment);
-//        }
-//    }
+    @SuppressLint("MissingSuperCall")
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        // 如果用以下这种做法则不保存状态，再次进来的话会显示默认tab
+        // 总是执行这句代码来调用父类去保存视图层的状态
+//        super.onSaveInstanceState(outState);
+    }
 
     /**
      * 设置底部导航

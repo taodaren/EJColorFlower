@@ -65,24 +65,14 @@ public class TabDeviceFragment extends BaseFragment {
     private String mMemberId, mToken;
 
     private String mDeviceIdByServer;
-//    private DeviceState mState;
-//    private DeviceConfig mConfig;
 
     private OnFragmentInteractionListener mListener;
     private AppActivity.FireworksDeviceControl mDeviceControl;
-
-//    public interface OnRecvHandler {
-//        void onState(Device device, DeviceState state);
-//
-//        void onConfig(DeviceConfig config);
-//    }
 
     public interface OnFragmentInteractionListener {
         void scanDevice();
 
         void setRegisterDevice(List<DeviceListBean.DataBean.ListBean> list);
-
-//        void setRecvHandler(OnRecvHandler handler);
     }
 
     public static TabDeviceFragment newInstance() {
@@ -91,18 +81,6 @@ public class TabDeviceFragment extends BaseFragment {
 
     public TabDeviceFragment() {
     }
-
-//    private final OnRecvHandler mOnRecvHandler = new OnRecvHandler() {
-//        @Override
-//        public void onState(Device device, DeviceState state) {
-//            mState = state;
-//        }
-//
-//        @Override
-//        public void onConfig(DeviceConfig config) {
-//            mConfig = config;
-//        }
-//    };
 
     @Override
     protected int layoutViewId() {
@@ -136,8 +114,6 @@ public class TabDeviceFragment extends BaseFragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
-//            mState = new DeviceState();
-//            mConfig = new DeviceConfig();
             mListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString() + "必须实现 OnFragmentInteractionListener");
@@ -207,7 +183,6 @@ public class TabDeviceFragment extends BaseFragment {
         rvTabDevice.setLinearLayout();
         // 绑定适配器
         mAdapter = new TabDeviceAdapter(getContext(), mList, mMemberId, mToken);
-//        mListener.setRecvHandler(mOnRecvHandler);
         rvTabDevice.setAdapter(mAdapter);
 
         // 不需要上拉刷新
