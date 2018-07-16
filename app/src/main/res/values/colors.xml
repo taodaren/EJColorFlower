@@ -37,4 +37,6 @@
     <color name="colorTempTextMark">#291111</color>
     <color name="color_main_light">#9FCB48</color>
     <color name="color_main_dark">#2EAA50</color>
+
+    <color name="navpage">#FFE1E8EB</color>
 </resources>

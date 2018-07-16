@@ -11,7 +11,10 @@ import java.util.UUID;
 public class AppConstant {
     public static final String TAG = "taodaren";
 
-    public static final String PAY_CODE = "alipay";
+    public static final String APP_ID = "wx6a32217e1e3ae4f4";
+
+    public static final String PAY_CODE_ALI = "alipay";
+    public static final String PAY_CODE_WEI = "weipay";
     public static final String EXIT_LOGIN = "exit_login";
     public static final String ARG_TYPE = "arg_type";
 

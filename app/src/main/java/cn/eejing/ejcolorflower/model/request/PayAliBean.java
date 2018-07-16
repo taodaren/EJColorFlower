@@ -1,6 +1,6 @@
 package cn.eejing.ejcolorflower.model.request;
 
-public class PayBean {
+public class PayAliBean {
 
     /**
      * code : 1

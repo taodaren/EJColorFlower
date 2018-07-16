@@ -8,6 +8,11 @@
     <string name="mall_name">商城</string>
     <string name="mine_name">我的</string>
 
+    <!-- WXPayEntryActivity -->
+    <string name="pay_result_tip">这个界面用于显示第三方app通过微信支付的结果</string>
+    <string name="pay_result_callback_msg" formatted="false">微信支付结果：%s</string>
+    <string name="app_tip">提示</string>
+
     <string name="temperature">温度</string>
     <string name="motor_1_speed">进料电机速度</string>
     <string name="dc_supply_voltage">直流供电电压</string>

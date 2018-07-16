@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
@@ -29,40 +30,23 @@ import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 public class MaOrderConfirmActivity extends BaseActivity implements View.OnClickListener {
 
-    @BindView(R.id.btn_submit_order)
-    Button btnSubmitOrder;
-    @BindView(R.id.tv_confirm_order_consignee)
-    TextView tvConsignee;
-    @BindView(R.id.tv_confirm_order_phone)
-    TextView tvPhone;
-    @BindView(R.id.tv_confirm_order_address)
-    TextView tvAddress;
-    @BindView(R.id.ll_confirm_order_address)
-    LinearLayout llAddress;
-    @BindView(R.id.img_confirm_order_goods)
-    ImageView imgGoods;
-    @BindView(R.id.tv_confirm_order_name)
-    TextView tvName;
-    @BindView(R.id.tv_confirm_order_money)
-    TextView tvMoney;
-    @BindView(R.id.tv_confirm_order_num)
-    TextView tvNum;
-    @BindView(R.id.btn_confirm_order_sub)
-    Button btnSub;
-    @BindView(R.id.tv_confirm_order_num_buy)
-    TextView tvNumBuy;
-    @BindView(R.id.btn_confirm_order_add)
-    Button btnAdd;
-    @BindView(R.id.tv_confirm_order_postage_full)
-    TextView tvPostageFull;
-    @BindView(R.id.tv_confirm_order_postage_basics)
-    TextView tvPostageBasics;
-    @BindView(R.id.tv_confirm_order_total_money)
-    TextView tvTotalMoney;
-    @BindView(R.id.layout_addr_confirm_order)
-    LinearLayout layoutAddr;
-    @BindView(R.id.tv_addr_confirm_order)
-    TextView tvAddrNull;
+    @BindView(R.id.btn_submit_order)                       Button btnSubmitOrder;
+    @BindView(R.id.tv_confirm_order_consignee)             TextView tvConsignee;
+    @BindView(R.id.tv_confirm_order_phone)                 TextView tvPhone;
+    @BindView(R.id.tv_confirm_order_address)               TextView tvAddress;
+    @BindView(R.id.ll_confirm_order_address)               LinearLayout llAddress;
+    @BindView(R.id.layout_addr_confirm_order)              LinearLayout layoutAddr;
+    @BindView(R.id.tv_addr_confirm_order)                  TextView tvAddrNull;
+    @BindView(R.id.img_confirm_order_goods)                ImageView imgGoods;
+    @BindView(R.id.tv_confirm_order_name)                  TextView tvName;
+    @BindView(R.id.tv_confirm_order_money)                 TextView tvMoney;
+    @BindView(R.id.tv_confirm_order_num)                   TextView tvNum;
+    @BindView(R.id.btn_confirm_order_sub)                  Button btnSub;
+    @BindView(R.id.tv_confirm_order_num_buy)               TextView tvNumBuy;
+    @BindView(R.id.btn_confirm_order_add)                  Button btnAdd;
+    @BindView(R.id.tv_confirm_order_postage_full)          TextView tvPostageFull;
+    @BindView(R.id.tv_confirm_order_postage_basics)        TextView tvPostageBasics;
+    @BindView(R.id.tv_confirm_order_total_money)           TextView tvTotalMoney;
 
     private ConfirmOrderBean.DataBean mBean;
     private Gson mGson;
@@ -102,14 +86,18 @@ public class MaOrderConfirmActivity extends BaseActivity implements View.OnClick
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_submit_order:
-                Intent intent = new Intent(this, MaOrderPayActivity.class);
-                intent.putExtra("goods_id", mGoodsId);
-                intent.putExtra("quantity", mNumber);
-                intent.putExtra("address_id", mBean.getAddress().getId());
-                intent.putExtra("member_id", mMemberId);
-                intent.putExtra("token", mToken);
-                intent.putExtra("money", mTotalMoney);
-                jumpToActivity(intent);
+                if (tvConsignee.getText().length() > 0 && tvPhone.getText().length() > 0 && tvAddress.getText().length() > 0) {
+                    Intent intent = new Intent(this, MaOrderPayActivity.class);
+                    intent.putExtra("goods_id", mGoodsId);
+                    intent.putExtra("quantity", mNumber);
+                    intent.putExtra("address_id", mBean.getAddress().getId());
+                    intent.putExtra("member_id", mMemberId);
+                    intent.putExtra("token", mToken);
+                    intent.putExtra("money", mTotalMoney);
+                    jumpToActivity(intent);
+                } else {
+                    Toast.makeText(this, getString(R.string.text_add_addr), Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.btn_confirm_order_add:
                 mNumber = mNumber + 1;
