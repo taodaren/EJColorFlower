@@ -18,10 +18,10 @@ import com.lzy.okgo.model.Response;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.model.request.ConfirmOrderBean;
-import cn.eejing.ejcolorflower.view.base.BaseActivity;
+import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.Settings;
+import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 /**
  * 确认订单
@@ -59,6 +59,10 @@ public class MaOrderConfirmActivity extends BaseActivity implements View.OnClick
     TextView tvPostageBasics;
     @BindView(R.id.tv_confirm_order_total_money)
     TextView tvTotalMoney;
+    @BindView(R.id.layout_addr_confirm_order)
+    LinearLayout layoutAddr;
+    @BindView(R.id.tv_addr_confirm_order)
+    TextView tvAddrNull;
 
     private ConfirmOrderBean.DataBean mBean;
     private Gson mGson;
@@ -171,9 +175,15 @@ public class MaOrderConfirmActivity extends BaseActivity implements View.OnClick
 
     @SuppressLint("SetTextI18n")
     private void setData() {
-        tvConsignee.setText(getString(R.string.text_consignee) + mBean.getAddress().getName());
-        tvPhone.setText(mBean.getAddress().getMobile());
-        tvAddress.setText(getString(R.string.text_shipping_address) + mBean.getAddress().getAddress_all());
+        // 如果地址内容不为空，设置显示信息
+        if (mBean.getAddress().getName() != null || mBean.getAddress().getMobile() != null || mBean.getAddress().getAddress_all() != null) {
+            tvConsignee.setText(getString(R.string.text_consignee) + mBean.getAddress().getName());
+            tvPhone.setText(mBean.getAddress().getMobile());
+            tvAddress.setText(getString(R.string.text_shipping_address) + mBean.getAddress().getAddress_all());
+        } else {
+            tvAddrNull.setVisibility(View.VISIBLE);
+            layoutAddr.setVisibility(View.GONE);
+        }
 
         Glide.with(this).load(mBean.getGoods().getImage()).into(imgGoods);
         tvName.setText(mBean.getGoods().getName());
