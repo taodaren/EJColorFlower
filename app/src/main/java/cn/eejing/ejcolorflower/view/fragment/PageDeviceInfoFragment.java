@@ -87,10 +87,13 @@ public class PageDeviceInfoFragment extends BaseFragment {
 
     @Override
     public void initView(View rootView) {
+        if (!EventBus.getDefault().isRegistered(this)) {
+            // 注册服务之前检查服务是否已注册 EventBus.getDefault().isRegistered(...)或检查服务未停止的原因，因此仍然注册。
+            EventBus.getDefault().register(this);
+        }
         mDmxSet = new HashSet<>();
         mDeviceControl = AppActivity.getFireworksDeviceControl();
 
-        EventBus.getDefault().register(this);
         setTempStatus();
         setDmxAddress();
         setTimeLeft();
