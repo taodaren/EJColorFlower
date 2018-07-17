@@ -130,6 +130,7 @@ public class MaOrderPayActivity extends BaseActivity implements View.OnClickList
         //（验证的规则请看 https://doc.open.alipay.com/doc2/detail.htm?spm=0.0.0.0.xdvAU6&treeId=59&articleId=103665&docType=1)
         // 建议商户依赖异步通知
         String resultInfo = payResult.getResult();// 同步返回需要验证的信息
+//        getDataWithCallBackConfirm();
 
         String resultStatus = payResult.getResultStatus();
         switch (resultStatus) {
