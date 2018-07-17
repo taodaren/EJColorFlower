@@ -455,6 +455,17 @@ public class BleDeviceProtocol {
         }
     }
 
+    public static int parseDmx(@NonNull byte[] pkg, int pkg_len) {
+        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkg_len));
+        try {
+            reader.skip(HEADER_LEN);
+            return reader.readUnsignedChar();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
     public static long parseTimestamp(@NonNull byte[] pkg, int pkg_len) {
         BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkg_len));
         try {

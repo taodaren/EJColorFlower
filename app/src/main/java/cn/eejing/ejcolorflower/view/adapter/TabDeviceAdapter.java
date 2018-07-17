@@ -258,7 +258,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             // 将获取到的 int 类型剩余时间转换成 String 类型显示
             @SuppressLint("SimpleDateFormat")
             String nowTimeStr = new SimpleDateFormat("mm:ss").format((long) time * 1000);
-            btnTemp.setText(String.valueOf(temp));
+//            btnTemp.setText(String.valueOf(temp));
             btnDmx.setText(String.valueOf(dmx));
             btnTime.setText(nowTimeStr);
         }

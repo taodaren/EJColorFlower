@@ -73,9 +73,9 @@ public class DeDeviceDetailsActivity extends BaseActivity implements View.OnClic
         tempThresholdHigh = getIntent().getIntExtra("device_threshold", 0);
 
         mFragments = new ArrayList<>();
-        mFragments.add(PageDeviceInfoFragment.newInstance(temp, tempThresholdHigh, AppConstant.TYPE_TEMP));
-        mFragments.add(PageDeviceInfoFragment.newInstance(dmx, tempThresholdHigh, AppConstant.TYPE_DMX));
-        mFragments.add(PageDeviceInfoFragment.newInstance(time, tempThresholdHigh, AppConstant.TYPE_TIME));
+        mFragments.add(PageDeviceInfoFragment.newInstance(temp, tempThresholdHigh, AppConstant.TYPE_TEMP, Long.parseLong(mDeviceId)));
+        mFragments.add(PageDeviceInfoFragment.newInstance(dmx, tempThresholdHigh, AppConstant.TYPE_DMX, Long.parseLong(mDeviceId)));
+        mFragments.add(PageDeviceInfoFragment.newInstance(time, tempThresholdHigh, AppConstant.TYPE_TIME, Long.parseLong(mDeviceId)));
 
         mDecorView = getWindow().getDecorView();
         mTabLayout = ViewFindUtils.find(mDecorView, R.id.tl_device_del);
