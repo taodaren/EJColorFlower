@@ -185,28 +185,33 @@ public class PageDeviceInfoFragment extends BaseFragment {
             @Override
             public void onYesClick() {
                 if (!(mDialog.getEditTextStr().equals(""))) {
-                    final int niDmx = Integer.parseInt(mDialog.getEditTextStr());
-
-                    if (!(niDmx > 0 && niDmx < 512)) {
-                        // 如果输入的 DMX 不在 1~511 之间，提示用户
+                    try {
+                        final int niDmx = Integer.parseInt(mDialog.getEditTextStr());
+                        if (!(niDmx > 0 && niDmx < 512)) {
+                            // 如果输入的 DMX 不在 1~511 之间，提示用户
+                            Toast.makeText(getContext(), "您设置的 DMX 地址超出范围\n请重新设置", Toast.LENGTH_SHORT).show();
+                            mDialog.dismiss();
+                        } else {
+                            int flag = 0;
+                            for (Integer dmx : mDmxSet) {
+                                if (niDmx == dmx) {
+                                    // 如果输入的 DMX 跟其它连接设备相同，提示用户重新设置
+                                    Toast.makeText(getContext(), "您设置的 DMX 地址已被使用\n请重新设置", Toast.LENGTH_LONG).show();
+                                    mDialog.dismiss();
+                                    break;
+                                }
+                                flag++;
+                            }
+                            if (flag == mDmxSet.size()) {
+                                // 更新 DMX 地址
+                                updateDmx(niDmx);
+                            }
+                        }
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
+                        // 还有不按规矩出牌的？有！
                         Toast.makeText(getContext(), "请设置正确的 DMX 地址", Toast.LENGTH_SHORT).show();
                         mDialog.dismiss();
-                    } else {
-                        int flag = 0;
-                        for (Integer dmx : mDmxSet) {
-                            if (niDmx == dmx) {
-                                // 如果输入的 DMX 跟其它连接设备相同，提示用户重新设置
-                                Toast.makeText(getContext(), "您设置的 DMX 地址已被使用\n请重新设置", Toast.LENGTH_LONG).show();
-                                mDialog.dismiss();
-                                break;
-                            }
-                            flag++;
-                        }
-                        if (flag == mDmxSet.size()) {
-                            // 更新 DMX 地址
-                            updateDmx(niDmx);
-                        }
-
                     }
                 } else {
                     Toast.makeText(getContext(), "未更新 DMX 地址", Toast.LENGTH_SHORT).show();
