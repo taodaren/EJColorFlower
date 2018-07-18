@@ -149,4 +149,6 @@
     <string name="text_config">配置</string>
     <string name="text_address_def">[默认地址]</string>
     <string name="text_add_addr">请添加收货地址</string>
+    <string name="text_device_null">您暂无添加设备</string>
+    <string name="text_add_device_null">添加设备</string>
 </resources>

@@ -162,12 +162,12 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     class ItemViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.layout_device_list)        LinearLayout      outView;
-        @BindView(R.id.tv_connected)              TextView          tvConnected;
-        @BindView(R.id.tv_device_id)              TextView          tvDeviceId;
-        @BindView(R.id.btn_device_temp)           Button            btnTemp;
-        @BindView(R.id.btn_device_dmx)            Button            btnDmx;
-        @BindView(R.id.btn_device_time)           Button            btnTime;
+        @BindView(R.id.layout_device_list)        LinearLayout outView;
+        @BindView(R.id.tv_connected)              TextView tvConnected;
+        @BindView(R.id.tv_device_id)              TextView tvDeviceId;
+        @BindView(R.id.btn_device_temp)           Button btnTemp;
+        @BindView(R.id.btn_device_dmx)            Button btnDmx;
+        @BindView(R.id.btn_device_time)           Button btnTime;
 
         ItemViewHolder(View itemView) {
             super(itemView);
