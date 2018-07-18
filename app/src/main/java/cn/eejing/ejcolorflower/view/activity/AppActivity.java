@@ -59,6 +59,12 @@ public class AppActivity extends BLEActivity implements ISendCommand,
     // 设备控制
     private static FireworksDeviceControl mFireworksDeviceControl;
 
+    static private AppActivity AppInstanse = null;
+
+    public static AppActivity getAppCtrl() {
+        return AppInstanse;
+    }
+
     @Override
     protected int layoutViewId() {
         return R.layout.activity_main;
@@ -66,6 +72,7 @@ public class AppActivity extends BLEActivity implements ISendCommand,
 
     @Override
     public void initView() {
+        AppInstanse = this;
         addActivity(EXIT_LOGIN, this);
 
         initBtnNavBar();
@@ -271,11 +278,6 @@ public class AppActivity extends BLEActivity implements ISendCommand,
         return pt.device;
     }
 
-//    @Override
-//    public void setRecvHandler(TabDeviceFragment.OnRecvHandler handler) {
-//        mTabDeviceOnRecvHandler = handler;
-//    }
-
     @Override
     public void setRecvHandler(TabControlFragment.OnRecvHandler handler) {
         mTabControlOnRecvHandler = handler;
@@ -334,18 +336,15 @@ public class AppActivity extends BLEActivity implements ISendCommand,
             registerPeriod(mac + "- 注册期 status", new Runnable() {
                 @Override
                 public void run() {
-//                    Device device = findDeviceById(device_id);
-//                    if (device != null) {
-//                        AppActivity.this.sendCommand(device, pkg);
-//                    }
                     final Device device = getDevice(mac);
                     if (device != null) {
                         DeviceConfig config = device.getConfig();
                         long id = (config == null) ? 0 : config.mID;
                         if (config == null || mRequestConfig) {
                             mRequestConfig = !send(mac, BleDeviceProtocol.get_config_package(id));
+                        } else {
+                            send(mac, BleDeviceProtocol.get_status_package(id));
                         }
-                        send(mac, BleDeviceProtocol.get_status_package(id));
 
                         if (findDeviceById(id) != null) {
                             // 已经连接的设备不为空，发送相关数据
@@ -385,27 +384,11 @@ public class AppActivity extends BLEActivity implements ISendCommand,
         @Override
         protected void onReceivePackage(@NonNull final DeviceState state) {
             device.setState(state);
-//            runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    if (mTabDeviceOnRecvHandler != null) {
-//                        mTabDeviceOnRecvHandler.onState(device, state);
-//                    }
-//                }
-//            });
         }
 
         @Override
         protected void onReceivePackage(@NonNull final DeviceConfig config) {
             device.setConfig(config);
-//            runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    if (mTabDeviceOnRecvHandler != null) {
-//                        mTabDeviceOnRecvHandler.onConfig(config);
-//                    }
-//                }
-//            });
         }
 
         @Override
@@ -441,6 +424,28 @@ public class AppActivity extends BLEActivity implements ISendCommand,
         final Device device = new Device(dev.mac);
         // 设置接收到蓝牙设备后的处理协议对象
         dev.setBleDeviceProtocol(new ProtocolWithDevice(device));
+    }
+
+    /**
+     * 清空设备配置
+     */
+    public void clearDeviceConfig(long deviceId) {
+        Device device = findDeviceById(deviceId);
+        if (device == null) {
+            return;
+        }
+        device.clearConfig();
+    }
+
+    /**
+     * 清空设备状态
+     */
+    public void clearDeviceState(long deviceId) {
+        Device device = findDeviceById(deviceId);
+        if (device == null) {
+            return;
+        }
+        device.clearState();
     }
 
 }

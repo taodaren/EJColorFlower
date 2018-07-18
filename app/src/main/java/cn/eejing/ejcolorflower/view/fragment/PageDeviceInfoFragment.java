@@ -1,7 +1,6 @@
 package cn.eejing.ejcolorflower.view.fragment;
 
 import android.annotation.SuppressLint;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -29,7 +28,6 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
-import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.util.SelfDialog;
 import cn.eejing.ejcolorflower.view.activity.AppActivity;
 import cn.eejing.ejcolorflower.view.base.BaseFragment;
@@ -40,16 +38,11 @@ import cn.eejing.ejcolorflower.view.base.BaseFragment;
 
 public class PageDeviceInfoFragment extends BaseFragment {
 
-    @BindView(R.id.tv_dmx_address)
-    TextView tvDmxAddress;
-    @BindView(R.id.img_temp_threshold)
-    ImageView imgTempThreshold;
-    @BindView(R.id.croller)
-    Croller croller;
-    @BindView(R.id.layout_device_time)
-    RelativeLayout layoutDeviceTime;
-    @BindView(R.id.ch_time_left)
-    Chronometer chTimeLeft;
+    @BindView(R.id.tv_dmx_address)            TextView tvDmxAddress;
+    @BindView(R.id.img_temp_threshold)        ImageView imgTempThreshold;
+    @BindView(R.id.croller)                   Croller croller;
+    @BindView(R.id.layout_device_time)        RelativeLayout layoutDeviceTime;
+    @BindView(R.id.ch_time_left)              Chronometer chTimeLeft;
 
     private int mDeviceInfo, mThresholdHigh;
     private long mDeviceId;
@@ -180,7 +173,7 @@ public class PageDeviceInfoFragment extends BaseFragment {
     }
 
     @OnClick(R.id.tv_dmx_address)
-    public void onViewClicked() {
+    public void onClickDmxAddr() {
         showDialog();
     }
 
@@ -192,43 +185,28 @@ public class PageDeviceInfoFragment extends BaseFragment {
             @Override
             public void onYesClick() {
                 if (!(mDialog.getEditTextStr().equals(""))) {
-                    int niDmx = Integer.parseInt(mDialog.getEditTextStr());
-
-                    for (Integer dmx : mDmxSet) {
-                        if (niDmx == dmx) {
-                            // 如果输入的 DMX 跟其它连接设备相同，提示用户重新设置
-                            Toast.makeText(getContext(), "您设置的 DMX 地址已被使用\n请重新设置", Toast.LENGTH_LONG).show();
-                            mDialog.dismiss();
-                        }
-                    }
+                    final int niDmx = Integer.parseInt(mDialog.getEditTextStr());
 
                     if (!(niDmx > 0 && niDmx < 512)) {
                         // 如果输入的 DMX 不在 1~511 之间，提示用户
                         Toast.makeText(getContext(), "请设置正确的 DMX 地址", Toast.LENGTH_SHORT).show();
                         mDialog.dismiss();
                     } else {
-                        // 正常更新 DMX 地址
-                        Log.i("UPDMX", "正常更新 DMX 地址");
-                        byte[] pkg = BleDeviceProtocol.set_dmx_address_package(mDeviceId, niDmx);
-                        Log.i("UPDMX", "发送 DMX 地址数据" + pkg);
-
-                        mDeviceControl.sendCommand(mDeviceId, pkg, new OnReceivePackage() {
-                            @Override
-                            public void ack(@NonNull byte[] pkg) {
-                                Log.i("UPDMX", "sendCommand");
-                                int parseDmx = BleDeviceProtocol.parseDmx(pkg, pkg.length);
-                                Log.i("UPDMX", "parseDmx" + parseDmx);
-                                Log.i("UPDMX", "pkg: " + pkg);
-                                Log.i("UPDMX", "length: " + pkg.length);
-                                Log.i("UPDMX", "ack: " + parseDmx);
+                        int flag = 0;
+                        for (Integer dmx : mDmxSet) {
+                            if (niDmx == dmx) {
+                                // 如果输入的 DMX 跟其它连接设备相同，提示用户重新设置
+                                Toast.makeText(getContext(), "您设置的 DMX 地址已被使用\n请重新设置", Toast.LENGTH_LONG).show();
+                                mDialog.dismiss();
+                                break;
                             }
+                            flag++;
+                        }
+                        if (flag == mDmxSet.size()) {
+                            // 更新 DMX 地址
+                            updateDmx(niDmx);
+                        }
 
-                            @Override
-                            public void timeout() {
-                                Log.e(AppConstant.TAG, "timeout");
-                            }
-                        });
-                        mDialog.dismiss();
                     }
                 } else {
                     Toast.makeText(getContext(), "未更新 DMX 地址", Toast.LENGTH_SHORT).show();
@@ -243,6 +221,17 @@ public class PageDeviceInfoFragment extends BaseFragment {
             }
         });
         mDialog.show();
+    }
+
+    private void updateDmx(int niDmx) {
+        // 清空设备配置
+        AppActivity.getAppCtrl().clearDeviceConfig(mDeviceId);
+        // 发送更新 DMX 命令
+        byte[] pkg = BleDeviceProtocol.set_dmx_address_package(mDeviceId, niDmx);
+        mDeviceControl.sendCommand(mDeviceId, pkg);
+        // 更新显示
+        tvDmxAddress.setText(String.valueOf(niDmx));
+        mDialog.dismiss();
     }
 
 }

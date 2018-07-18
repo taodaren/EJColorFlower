@@ -64,6 +64,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private DeviceState mState;
     private DeviceConfig mConfig;
     private String mConnectDeviceMac;
+    private int mTemp, mDMX, mTime, mThresholdHigh;
 
     public TabDeviceAdapter(Context context, List<DeviceListBean.DataBean.ListBean> list, String memberId, String token) {
         this.mContext = context;
@@ -140,11 +141,19 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void getDeviceConnect(DeviceConnectEvent event) {
+    public void onEventDeviceConnect(DeviceConnectEvent event) {
         // 接收硬件传过来的已连接设备信息
         mConnectDeviceMac = event.getMac();
         mState = event.getState();
         mConfig = event.getConfig();
+
+        mTemp = event.getState().mTemperature;
+        mDMX = event.getConfig().mDMXAddress;
+        mTime = event.getState().mRestTime;
+        mThresholdHigh = event.getConfig().mTemperatureThresholdHigh;
+
+        Log.i("UPDMX", "Device Info: " + "\nmTemp--->" + mTemp + "\nmDMX--->" + mDMX + "\nmTime--->" + mTime + "\nmThresholdHigh--->" + mThresholdHigh);
+
         notifyDataSetChanged();
     }
 
@@ -168,7 +177,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 tvConnected.setText("已连接");
                 tvConnected.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
                 // 显示硬件数据
-                displayHardwareData(state, config);
+                displayHardwareData();
                 // 设置点击事件
                 setClickListener(bean.getId(), state, config, position);
             }
@@ -228,38 +237,33 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             }
         }
 
-        private void displayHardwareData(DeviceState state, DeviceConfig config) {
-            int temp = state.mTemperature;
-            int dmx = config.mDMXAddress;
-            int time = state.mRestTime;
-            int thresholdHigh = config.mTemperatureThresholdHigh;
-
+        private void displayHardwareData() {
             // 根据温度阈值划分温度等级（5个等级）
-            double tempLvOne = thresholdHigh * (0.2);
-            double tempLvTwo = thresholdHigh * (0.4);
-            double tempLvThree = thresholdHigh * (0.6);
-            double tempLvFour = thresholdHigh * (0.8);
+            double tempLvOne = mThresholdHigh * (0.2);
+            double tempLvTwo = mThresholdHigh * (0.4);
+            double tempLvThree = mThresholdHigh * (0.6);
+            double tempLvFour = mThresholdHigh * (0.8);
 
             // 根据温度等级改变背景颜色
-            if (temp <= tempLvOne) {
+            if (mTemp <= tempLvOne) {
                 btnTemp.setBackgroundResource(R.drawable.ic_device_one);
-            } else if (tempLvOne < temp && temp <= tempLvTwo) {
+            } else if (tempLvOne < mTemp && mTemp <= tempLvTwo) {
                 btnTemp.setBackgroundResource(R.drawable.ic_device_two);
-            } else if (tempLvTwo < temp && temp <= tempLvThree) {
+            } else if (tempLvTwo < mTemp && mTemp <= tempLvThree) {
                 btnTemp.setBackgroundResource(R.drawable.ic_device_three);
-            } else if (tempLvThree < temp && temp <= tempLvFour) {
+            } else if (tempLvThree < mTemp && mTemp <= tempLvFour) {
                 btnTemp.setBackgroundResource(R.drawable.ic_device_four);
-            } else if (tempLvFour < temp && temp <= (double) thresholdHigh) {
+            } else if (tempLvFour < mTemp && mTemp <= (double) mThresholdHigh) {
                 btnTemp.setBackgroundResource(R.drawable.ic_device_five);
             } else {
                 btnTemp.setBackgroundResource(R.drawable.ic_device_five);
             }
 
+            // 展示硬件数据到 View
+            btnDmx.setText(String.valueOf(mDMX));
             // 将获取到的 int 类型剩余时间转换成 String 类型显示
             @SuppressLint("SimpleDateFormat")
-            String nowTimeStr = new SimpleDateFormat("mm:ss").format((long) time * 1000);
-//            btnTemp.setText(String.valueOf(temp));
-            btnDmx.setText(String.valueOf(dmx));
+            String nowTimeStr = new SimpleDateFormat("mm:ss").format((long) mTime * 1000);
             btnTime.setText(nowTimeStr);
         }
     }

@@ -25,6 +25,20 @@ public class Device {
         return config;
     }
 
+    /**
+     * 清空设备配置
+     */
+    public void clearConfig() {
+        this.config = null;
+    }
+
+    /**
+     * 清空设备状态
+     */
+    public void clearState() {
+        this.state = null;
+    }
+
     public DeviceState getState() {
         return state;
     }

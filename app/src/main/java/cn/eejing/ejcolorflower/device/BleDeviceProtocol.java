@@ -306,7 +306,7 @@ public class BleDeviceProtocol {
         return command_package(CMD_SET_ID, id, data);
     }
 
-    // 设置DMX地址
+    // 设置 DMX 地址
     @NonNull
     public static byte[] set_dmx_address_package(long id, int dmx_address) {
         byte[] data = new byte[2];
