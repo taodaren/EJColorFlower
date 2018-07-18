@@ -133,6 +133,10 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             mList.clear();
             addList(list);
         }
+        if (list == null) {
+            mList.clear();
+            notifyDataSetChanged();
+        }
     }
 
     private void addList(List<DeviceListBean.DataBean.ListBean> list) {
@@ -231,6 +235,8 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 intent.putExtra("device_time", state.mRestTime);
                 intent.putExtra("device_threshold", config.mTemperatureThresholdHigh);
                 intent.putExtra("page", type);
+                intent.putExtra("member_id", mMemberId);
+                intent.putExtra("token", mToken);
                 mContext.startActivity(intent);
             } else {
                 Toast.makeText(mContext, "此设备尚未连接", Toast.LENGTH_SHORT).show();

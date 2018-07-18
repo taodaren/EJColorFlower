@@ -5,12 +5,17 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.allen.library.SuperButton;
 import com.flyco.tablayout.SegmentTabLayout;
 import com.flyco.tablayout.listener.OnTabSelectListener;
+import com.lzy.okgo.OkGo;
+import com.lzy.okgo.callback.StringCallback;
+import com.lzy.okgo.model.Response;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,10 +23,13 @@ import java.util.List;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
+import cn.eejing.ejcolorflower.model.event.DelDeviceEvent;
+import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.SelfDialogBase;
+import cn.eejing.ejcolorflower.util.ViewFindUtils;
 import cn.eejing.ejcolorflower.view.adapter.ViewPagerAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 import cn.eejing.ejcolorflower.view.fragment.PageDeviceInfoFragment;
-import cn.eejing.ejcolorflower.util.ViewFindUtils;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -33,10 +41,8 @@ import static cn.eejing.ejcolorflower.app.AppConstant.REQUEST_CODE_QRCODE_PERMIS
 
 public class DeDeviceDetailsActivity extends BaseActivity implements View.OnClickListener, EasyPermissions.PermissionCallbacks {
 
-    @BindView(R.id.btn_add_material)
-    SuperButton btnAddMaterial;
-    @BindView(R.id.btn_remove_device)
-    SuperButton btnRemoveDevice;
+    @BindView(R.id.btn_add_material)         SuperButton btnAddMaterial;
+    @BindView(R.id.btn_remove_device)        SuperButton btnRemoveDevice;
 
     private String[] mTitles = {"温度", "DMX地址", "剩余时间"};
     private SegmentTabLayout mTabLayout;
@@ -45,7 +51,8 @@ public class DeDeviceDetailsActivity extends BaseActivity implements View.OnClic
     private List<Fragment> mFragments;
     private ViewPager mVPager;
     private int mPageType;
-    private String mDeviceId;
+    private String mDeviceId, mMemberId, mToken;
+    private SelfDialogBase mDialog;
 
     public DeDeviceDetailsActivity() {
     }
@@ -64,6 +71,8 @@ public class DeDeviceDetailsActivity extends BaseActivity implements View.OnClic
     @Override
     public void initView() {
         mDeviceId = getIntent().getStringExtra("device_id");
+        mMemberId = getIntent().getStringExtra("member_id");
+        mToken = getIntent().getStringExtra("token");
         setToolbar(mDeviceId, View.VISIBLE);
 
         int temp, dmx, time, tempThresholdHigh;
@@ -100,7 +109,7 @@ public class DeDeviceDetailsActivity extends BaseActivity implements View.OnClic
                 finish();
                 break;
             case R.id.btn_remove_device:
-                Toast.makeText(this, "click_remove_device", Toast.LENGTH_SHORT).show();
+                showDialog();
                 break;
         }
     }
@@ -129,7 +138,6 @@ public class DeDeviceDetailsActivity extends BaseActivity implements View.OnClic
             // 在滚动页
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
             }
 
             // 在选择的页面上
@@ -142,7 +150,6 @@ public class DeDeviceDetailsActivity extends BaseActivity implements View.OnClic
             // 在页面滚动状态改变
             @Override
             public void onPageScrollStateChanged(int state) {
-
             }
         });
 
@@ -150,14 +157,49 @@ public class DeDeviceDetailsActivity extends BaseActivity implements View.OnClic
         mVPager.setCurrentItem(mPageType);
     }
 
+    private void showDialog() {
+        mDialog = new SelfDialogBase(this);
+        mDialog.setTitle("确认将 " + mDeviceId + " 删除？");
+        mDialog.setYesOnclickListener("确认", new SelfDialogBase.onYesOnclickListener() {
+            @Override
+            public void onYesClick() {
+                // 删除设备
+                getDataWithDelDevice();
+                mDialog.dismiss();
+            }
+        });
+        mDialog.setNoOnclickListener("取消", new SelfDialogBase.onNoOnclickListener() {
+            @Override
+            public void onNoClick() {
+                mDialog.dismiss();
+            }
+        });
+        mDialog.show();
+    }
+
+    private void getDataWithDelDevice() {
+        OkGo.<String>post(Urls.RM_DEVICE)
+                .tag(this)
+                .params("member_id", mMemberId)
+                .params("device_id", mDeviceId)
+                .params("token", mToken)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        String body = response.body();
+                        Log.e(AppConstant.TAG, "rm device request succeeded--->" + body);
+                        EventBus.getDefault().post(new DelDeviceEvent(mDeviceId));
+                        finish();
+                    }
+                });
+    }
+
     @Override
     public void onPermissionsGranted(int requestCode, List<String> perms) {
-
     }
 
     @Override
     public void onPermissionsDenied(int requestCode, List<String> perms) {
-
     }
 
     @Override

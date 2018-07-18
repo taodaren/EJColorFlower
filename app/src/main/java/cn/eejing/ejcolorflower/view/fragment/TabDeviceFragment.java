@@ -26,10 +26,8 @@ import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
-import cn.eejing.ejcolorflower.device.Device;
-import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceMaterialStatus;
-import cn.eejing.ejcolorflower.device.DeviceState;
+import cn.eejing.ejcolorflower.model.event.DelDeviceEvent;
 import cn.eejing.ejcolorflower.model.event.DeviceEvent;
 import cn.eejing.ejcolorflower.model.request.AddMaterialBean;
 import cn.eejing.ejcolorflower.model.request.CancelMaterialStatusBean;
@@ -56,8 +54,7 @@ import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_WAIT_USED;
 public class TabDeviceFragment extends BaseFragment {
     private static final String JL = "测试加料功能>>>>>>";
 
-    @BindView(R.id.rv_tab_device)
-    PullLoadMoreRecyclerView rvTabDevice;
+    @BindView(R.id.rv_tab_device)       PullLoadMoreRecyclerView rvTabDevice;
 
     private Gson mGson;
     private List<DeviceListBean.DataBean.ListBean> mList;
@@ -130,6 +127,12 @@ public class TabDeviceFragment extends BaseFragment {
     public void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventDelDevice(DelDeviceEvent event) {
+        getDataWithDeviceList();
+        Toast.makeText(getContext(), event.getDeviceId() + " 已成功删除", Toast.LENGTH_SHORT).show();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -226,8 +229,10 @@ public class TabDeviceFragment extends BaseFragment {
                                 startActivity(new Intent(getActivity(), SignInActivity.class));
                                 getActivity().finish();
                                 break;
-                            case 0:
-                                // 若返回码为 0 ，表示暂无设备
+                            case 0:// 若返回码为 0 ，表示暂无设备
+                                // 刷新数据
+                                mAdapter.refreshList(null);
+                                // 刷新结束
                                 rvTabDevice.setPullLoadMoreCompleted();
                                 return;
                             case 1:
@@ -521,7 +526,6 @@ public class TabDeviceFragment extends BaseFragment {
                         }
                     }
                 });
-
     }
 
     private void byDeviceClearInfo_D(String materialId) {
@@ -623,7 +627,6 @@ public class TabDeviceFragment extends BaseFragment {
             @Override
             public void timeout() {
             }
-
         });
     }
 
