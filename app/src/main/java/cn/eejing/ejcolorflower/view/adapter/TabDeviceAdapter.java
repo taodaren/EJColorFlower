@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +37,7 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceState;
+import cn.eejing.ejcolorflower.model.event.DelDeviceEvent;
 import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
 import cn.eejing.ejcolorflower.model.event.DeviceEvent;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
@@ -98,6 +100,17 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 // 如果硬件设备信息为空，则只展示服务器中的设备 ID
                 ((ItemViewHolder) holder).tvDeviceId.setText(mList.get(position).getId());
                 ((ItemViewHolder) holder).setClickListener(null, null, null, position);
+            }
+        }
+
+        if (getItemViewType(position) == TYPE_FOOTER) {
+            FootViewHolder footHolder = (FootViewHolder) holder;
+            if (mList.size() == 0) {
+                footHolder.nullDevice.setVisibility(View.VISIBLE);
+                footHolder.haveDevice.setVisibility(View.GONE);
+            } else {
+                footHolder.nullDevice.setVisibility(View.GONE);
+                footHolder.haveDevice.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -193,7 +206,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     .setAction("确定", new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            getDataWithDelGroup(getAdapterPosition());
+                            getDataWithDelDevice(getAdapterPosition());
                         }
                     })
                     .show();
@@ -275,7 +288,9 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     class FootViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.tv_footer_add)        TextView tvAdd;
+        @BindView(R.id.tv_footer_add)             TextView tvAdd;
+        @BindView(R.id.layout_device_have)        RelativeLayout haveDevice;
+        @BindView(R.id.layout_device_null)        LinearLayout nullDevice;
 
         FootViewHolder(View itemView) {
             super(itemView);
@@ -284,14 +299,21 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
 
         @OnClick(R.id.img_footer_add)
-        public void onViewClicked() {
+        public void onClickAddHave() {
+            Intent intent = new Intent(mContext, DeQrAddDeviceActivity.class);
+            intent.putExtra("member_id", mMemberId);
+            mContext.startActivity(intent);
+        }
+
+        @OnClick(R.id.home_null_device)
+        public void onClickAddNull() {
             Intent intent = new Intent(mContext, DeQrAddDeviceActivity.class);
             intent.putExtra("member_id", mMemberId);
             mContext.startActivity(intent);
         }
     }
 
-    private void getDataWithDelGroup(int position) {
+    private void getDataWithDelDevice(final int position) {
         OkGo.<String>post(Urls.RM_DEVICE)
                 .tag(this)
                 .params("member_id", mMemberId)
@@ -302,7 +324,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
                         Log.e(AppConstant.TAG, "rm device request succeeded--->" + body);
-                        refreshList(mList);
+                        EventBus.getDefault().post(new DelDeviceEvent(mList.get(position).getId()));
                     }
                 });
     }
