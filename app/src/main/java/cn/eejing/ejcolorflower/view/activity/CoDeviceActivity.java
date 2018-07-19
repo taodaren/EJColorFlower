@@ -88,15 +88,19 @@ public class CoDeviceActivity extends BaseActivity implements
             tvAddedAlready.setVisibility(View.GONE);
         }
 
-        String data = mList.get(position);
+        try {
+            String data = mList.get(position);
 
-        leftAdapter.removeData(position);
-        rightAdapter.addData(data);
-        mPossess.add(data);
-        mList.remove(position);
+            leftAdapter.removeData(position);
+            rightAdapter.addData(data);
+            mPossess.add(data);
+            mList.remove(position);
 
-        mNewPossess = mGson.toJson(mPossess);
-        Log.i(AppConstant.TAG, "onClickLeft mNewPossess: " + mNewPossess);
+            mNewPossess = mGson.toJson(mPossess);
+            Log.i(AppConstant.TAG, "onClickLeft mNewPossess: " + mNewPossess);
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -109,15 +113,19 @@ public class CoDeviceActivity extends BaseActivity implements
             tvAddedAlready.setVisibility(View.VISIBLE);
         }
 
-        String data = mPossess.get(position);
+        try {
+            String data = mPossess.get(position);
 
-        rightAdapter.removeData(position);
-        leftAdapter.addData(data);
-        mPossess.remove(position);
-        mList.add(data);
+            rightAdapter.removeData(position);
+            leftAdapter.addData(data);
+            mPossess.remove(position);
+            mList.add(data);
 
-        mNewPossess = mGson.toJson(mPossess);
-        Log.i(AppConstant.TAG, "onClickRight mNewPossess: " + mNewPossess);
+            mNewPossess = mGson.toJson(mPossess);
+            Log.i(AppConstant.TAG, "onClickRight mNewPossess: " + mNewPossess);
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
