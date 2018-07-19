@@ -15,8 +15,7 @@ import cn.eejing.ejcolorflower.util.Settings;
 
 public class MiUserInfoActivity extends BaseActivity {
 
-    @BindView(R.id.stv_phone_num)
-    SuperTextView stvPhoneNum;
+    @BindView(R.id.stv_phone_num)       SuperTextView stvPhoneNum;
 
     @Override
     protected int layoutViewId() {

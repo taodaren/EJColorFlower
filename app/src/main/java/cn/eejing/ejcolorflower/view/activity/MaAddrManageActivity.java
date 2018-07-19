@@ -34,10 +34,8 @@ import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 public class MaAddrManageActivity extends BaseActivity {
 
-    @BindView(R.id.btn_shipping_address)
-    Button btnAddAddress;
-    @BindView(R.id.rv_shipping_address)
-    PullLoadMoreRecyclerView rvAddress;
+    @BindView(R.id.btn_shipping_address)        Button btnAddAddress;
+    @BindView(R.id.rv_shipping_address)         PullLoadMoreRecyclerView rvAddress;
 
     private Gson mGson;
     private String mMemberId, mToken;

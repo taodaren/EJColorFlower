@@ -26,7 +26,6 @@ import cn.eejing.ejcolorflower.view.activity.MaGoodsDetailsActivity;
  * @创建者 Taodaren
  * 实现 Adapter 步骤：
  * 写 ViewHolder → extends RecyclerView.Adapter<泛型是写的VH> → 全局变量与构造方法（Context,list,LayoutInflater）→ 完善重写方法
- * @描述
  */
 public class TabMallAdapter extends RecyclerView.Adapter<TabMallAdapter.MallViewHolder> {
     private Context mContext;
@@ -78,16 +77,12 @@ public class TabMallAdapter extends RecyclerView.Adapter<TabMallAdapter.MallView
     }
 
     class MallViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.img_goods_list)
-        ImageView imgGoods;
-        @BindView(R.id.tv_goods_list_title)
-        TextView tvTitle;
-        @BindView(R.id.tv_goods_list_rmb)
-        TextView tvRmb;
-        @BindView(R.id.tv_goods_list_num)
-        TextView tvNum;
-        @BindView(R.id.tv_goods_list_has)
-        TextView tvHas;
+
+        @BindView(R.id.img_goods_list)             ImageView imgGoods;
+        @BindView(R.id.tv_goods_list_title)        TextView tvTitle;
+        @BindView(R.id.tv_goods_list_rmb)          TextView tvRmb;
+        @BindView(R.id.tv_goods_list_num)          TextView tvNum;
+        @BindView(R.id.tv_goods_list_has)          TextView tvHas;
 
         View outView;
 

@@ -152,7 +152,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
 //    @Subscribe(threadMode = ThreadMode.MAIN)
-//    public void getDeviceConnect(DeviceConnectEvent event) {
+//    public void onEventDeviceConnect(DeviceConnectEvent event) {
 //        // 接收硬件传过来的已连接设备信息
 //        mConnectDeviceMac = event.getMac();
 //        mState = event.getState();

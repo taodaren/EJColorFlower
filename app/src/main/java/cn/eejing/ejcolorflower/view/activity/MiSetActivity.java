@@ -17,14 +17,13 @@ import static cn.eejing.ejcolorflower.app.AppConstant.EXIT_LOGIN;
 /**
  * 设置
  */
+
 public class MiSetActivity extends BaseActivity {
 
-    @BindView(R.id.stv_set_user_info)
-    SuperTextView stvSetUserInfo;
-    @BindView(R.id.stv_set_modify_pwd)
-    SuperTextView stvSetModifyPwd;
-    @BindView(R.id.btn_exit_login)
-    Button btnExitLogin;
+    @BindView(R.id.stv_set_user_info)             SuperTextView stvUserInfo;
+    @BindView(R.id.stv_set_modify_pwd)            SuperTextView stvModifyPwd;
+    @BindView(R.id.stv_set_manage_address)        SuperTextView stvManageAddress;
+    @BindView(R.id.btn_exit_login)                Button        btnExitLogin;
 
     private SelfDialogBase mDialog;
 
@@ -40,16 +39,22 @@ public class MiSetActivity extends BaseActivity {
 
     @Override
     public void initListener() {
-        stvSetUserInfo.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
+        stvUserInfo.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
             @Override
             public void onClickListener(SuperTextView superTextView) {
                 jumpToActivity(MiUserInfoActivity.class);
             }
         });
-        stvSetModifyPwd.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
+        stvModifyPwd.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
             @Override
             public void onClickListener(SuperTextView superTextView) {
                 jumpToActivity(MiPwdModifyActivity.class);
+            }
+        });
+        stvManageAddress.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
+            @Override
+            public void onClickListener(SuperTextView superTextView) {
+                jumpToActivity(MaAddrManageActivity.class);
             }
         });
         btnExitLogin.setOnClickListener(new View.OnClickListener() {

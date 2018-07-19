@@ -26,8 +26,7 @@ import cn.eejing.ejcolorflower.view.base.BaseFragment;
 
 public class TabMallFragment extends BaseFragment {
 
-    @BindView(R.id.rv_tab_mall)
-    PullLoadMoreRecyclerView rvTabMall;
+    @BindView(R.id.rv_tab_mall)        PullLoadMoreRecyclerView rvTabMall;
 
     private Gson mGson;
     private List<GoodsListBean.DataBean> mList;
