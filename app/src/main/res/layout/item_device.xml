@@ -15,7 +15,7 @@
         android:textSize="10sp"
         stv:sCornersRadius="2.5dp"
         stv:sShapeType="rectangle"
-        stv:sSolidColor="@color/colorTransparent"
+        stv:sSolidColor="@color/colorFrame"
         stv:sStrokeColor="@color/colorFrame"
         stv:sStrokeWidth="1dp"
         tools:ignore="SmallSp" />

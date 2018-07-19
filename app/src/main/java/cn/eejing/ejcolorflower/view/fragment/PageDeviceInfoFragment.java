@@ -44,29 +44,29 @@ public class PageDeviceInfoFragment extends BaseFragment {
     @BindView(R.id.layout_device_time)        RelativeLayout layoutDeviceTime;
     @BindView(R.id.ch_time_left)              Chronometer chTimeLeft;
 
-    private int mDeviceInfo, mThresholdHigh;
-    private long mDeviceId;
-    private static int mDeviceTemp, mDeviceDmx, mDevicetime;
+    private int mDevInfo, mThresholdHigh;
+    private long mDevId;
+    private static int mDevTemp, mDevDmx, mDevTime;
     private SelfDialog mDialog;
     private Set<Integer> mDmxSet;
-    private AppActivity.FireworksDeviceControl mDeviceControl;
+    private AppActivity.FireworkDevCtrl mDevCtrl;
 
     public static PageDeviceInfoFragment newInstance(int info, int thresholdHigh, int type, long deviceId) {
         Log.i("TAG", "newInstance: " + info);
         PageDeviceInfoFragment fragment = new PageDeviceInfoFragment();
-        fragment.mDeviceInfo = info;
+        fragment.mDevInfo = info;
         fragment.mThresholdHigh = thresholdHigh;
-        fragment.mDeviceId = deviceId;
+        fragment.mDevId = deviceId;
 
         switch (type) {
             case AppConstant.TYPE_TEMP:
-                mDeviceTemp = fragment.mDeviceInfo;
+                mDevTemp = fragment.mDevInfo;
                 break;
             case AppConstant.TYPE_DMX:
-                mDeviceDmx = fragment.mDeviceInfo;
+                mDevDmx = fragment.mDevInfo;
                 break;
             case AppConstant.TYPE_TIME:
-                mDevicetime = fragment.mDeviceInfo;
+                mDevTime = fragment.mDevInfo;
                 break;
             default:
         }
@@ -85,7 +85,7 @@ public class PageDeviceInfoFragment extends BaseFragment {
             EventBus.getDefault().register(this);
         }
         mDmxSet = new HashSet<>();
-        mDeviceControl = AppActivity.getFireworksDeviceControl();
+        mDevCtrl = AppActivity.getFireworksDevCtrl();
 
         setTempStatus();
         setDmxAddress();
@@ -109,7 +109,7 @@ public class PageDeviceInfoFragment extends BaseFragment {
     @SuppressLint("ClickableViewAccessibility")
     private void setTimeLeft() {
         // 展示剩余时间
-        long nowTimeLong = (long) mDeviceInfo * 1000;
+        long nowTimeLong = (long) mDevInfo * 1000;
         @SuppressLint("SimpleDateFormat") DateFormat ymdhmsFormat = new SimpleDateFormat("mm:ss");
         String nowTimeStr = ymdhmsFormat.format(nowTimeLong);
         chTimeLeft.setText(nowTimeStr);
@@ -124,16 +124,16 @@ public class PageDeviceInfoFragment extends BaseFragment {
         // 最大值 2 小时
         croller.setMax(7200);
         // 当前剩余时间进度
-        croller.setProgress(mDeviceInfo);
+        croller.setProgress(mDevInfo);
         // 设置剩余时间占比
-        double conversion = (double) mDeviceInfo / 7200;
+        double conversion = (double) mDevInfo / 7200;
         NumberFormat instance = NumberFormat.getPercentInstance();
         instance.setMaximumFractionDigits(1);
         croller.setLabel(instance.format(conversion));
     }
 
     private void setDmxAddress() {
-        tvDmxAddress.setText(String.valueOf(mDeviceInfo));
+        tvDmxAddress.setText(String.valueOf(mDevInfo));
     }
 
     private void setTempStatus() {
@@ -145,15 +145,15 @@ public class PageDeviceInfoFragment extends BaseFragment {
         tempLvFour = mThresholdHigh * (0.8);
         tempLvFive = mThresholdHigh;
 
-        if (mDeviceInfo <= tempLvOne) {
+        if (mDevInfo <= tempLvOne) {
             imgTempThreshold.setImageDrawable(getContext().getDrawable(R.drawable.lv_temp_one));
-        } else if (tempLvOne < mDeviceInfo && mDeviceInfo <= tempLvTwo) {
+        } else if (tempLvOne < mDevInfo && mDevInfo <= tempLvTwo) {
             imgTempThreshold.setImageDrawable(getContext().getDrawable(R.drawable.lv_temp_two));
-        } else if (tempLvTwo < mDeviceInfo && mDeviceInfo <= tempLvThree) {
+        } else if (tempLvTwo < mDevInfo && mDevInfo <= tempLvThree) {
             imgTempThreshold.setImageDrawable(getContext().getDrawable(R.drawable.lv_temp_three));
-        } else if (tempLvThree < mDeviceInfo && mDeviceInfo <= tempLvFour) {
+        } else if (tempLvThree < mDevInfo && mDevInfo <= tempLvFour) {
             imgTempThreshold.setImageDrawable(getContext().getDrawable(R.drawable.lv_temp_four));
-        } else if (tempLvFour < mDeviceInfo && mDeviceInfo <= tempLvFive) {
+        } else if (tempLvFour < mDevInfo && mDevInfo <= tempLvFive) {
             imgTempThreshold.setImageDrawable(getContext().getDrawable(R.drawable.lv_temp_five));
         } else {
             imgTempThreshold.setImageDrawable(getContext().getDrawable(R.drawable.lv_temp_five));
@@ -161,13 +161,13 @@ public class PageDeviceInfoFragment extends BaseFragment {
     }
 
     private void typeOfJudgment() {
-        if (mDeviceInfo == mDeviceTemp) {
+        if (mDevInfo == mDevTemp) {
             imgTempThreshold.setVisibility(View.VISIBLE);
         }
-        if (mDeviceInfo == mDeviceDmx) {
+        if (mDevInfo == mDevDmx) {
             tvDmxAddress.setVisibility(View.VISIBLE);
         }
-        if (mDeviceInfo == mDevicetime) {
+        if (mDevInfo == mDevTime) {
             layoutDeviceTime.setVisibility(View.VISIBLE);
         }
     }
@@ -230,10 +230,10 @@ public class PageDeviceInfoFragment extends BaseFragment {
 
     private void updateDmx(int niDmx) {
         // 清空设备配置
-        AppActivity.getAppCtrl().clearDeviceConfig(mDeviceId);
+        AppActivity.getAppCtrl().clearDeviceConfig(mDevId);
         // 发送更新 DMX 命令
-        byte[] pkg = BleDeviceProtocol.set_dmx_address_package(mDeviceId, niDmx);
-        mDeviceControl.sendCommand(mDeviceId, pkg);
+        byte[] pkg = BleDeviceProtocol.set_dmx_address_package(mDevId, niDmx);
+        mDevCtrl.sendCommand(mDevId, pkg);
         // 更新显示
         tvDmxAddress.setText(String.valueOf(niDmx));
         mDialog.dismiss();

@@ -28,10 +28,8 @@ import cn.eejing.ejcolorflower.util.Settings;
 
 public class DeQrAddDeviceActivity extends BaseActivity implements View.OnClickListener, QRCodeView.Delegate {
 
-    @BindView(R.id.zxingview)
-    ZXingView mQRCodeView;
-    @BindView(R.id.tv_light_switch)
-    TextView tvLightSwitch;
+    @BindView(R.id.zxingview)              ZXingView mQRCodeView;
+    @BindView(R.id.tv_light_switch)        TextView tvLightSwitch;
 
     private int mFlag;
     private String mMemberId, mToken;

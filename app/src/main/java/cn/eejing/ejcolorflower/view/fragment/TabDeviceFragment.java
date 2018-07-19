@@ -1,7 +1,6 @@
 package cn.eejing.ejcolorflower.view.fragment;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -63,14 +62,7 @@ public class TabDeviceFragment extends BaseFragment {
 
     private String mDeviceIdByServer;
 
-    private OnFragmentInteractionListener mListener;
-    private AppActivity.FireworksDeviceControl mDeviceControl;
-
-    public interface OnFragmentInteractionListener {
-        void scanDevice();
-
-        void setRegisterDevice(List<DeviceListBean.DataBean.ListBean> list);
-    }
+    private AppActivity.FireworkDevCtrl mDeviceControl;
 
     public static TabDeviceFragment newInstance() {
         return new TabDeviceFragment();
@@ -94,7 +86,7 @@ public class TabDeviceFragment extends BaseFragment {
         EventBus.getDefault().register(this);
         mGson = new Gson();
         mList = new ArrayList<>();
-        mDeviceControl = AppActivity.getFireworksDeviceControl();
+        mDeviceControl = AppActivity.getFireworksDevCtrl();
         LoginSession session = Settings.getLoginSessionInfo(getActivity());
         mMemberId = String.valueOf(session.getMember_id());
         mToken = session.getToken();
@@ -105,22 +97,6 @@ public class TabDeviceFragment extends BaseFragment {
     @Override
     public void initData() {
         getDataWithDeviceList();
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString() + "必须实现 OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
     }
 
     @Override
@@ -239,7 +215,7 @@ public class TabDeviceFragment extends BaseFragment {
                                 mList = bean.getData().getList();
                                 Log.i(AppConstant.TAG, "onSuccess: get device group list--->" + mList.size());
                                 // 注册设备
-                                mListener.setRegisterDevice(mList);
+                                AppActivity.getAppCtrl().setRegisterDevice(mList);
                                 // 刷新数据
                                 mAdapter.refreshList(mList);
                                 // 刷新结束

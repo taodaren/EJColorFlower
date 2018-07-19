@@ -88,10 +88,10 @@ public class BLEActivity extends BaseActivity {
     private final Object mGattOperationLock = new Object();
     private GattOperation mCurrentGattOperation = null;
 
-    static private BLEActivity BleInstanse = null;
+    static private BLEActivity BleInstance = null;
 
     public static BLEActivity getBleCtrl() {
-        return BleInstanse;
+        return BleInstance;
     }
 
     /**
@@ -132,7 +132,7 @@ public class BLEActivity extends BaseActivity {
      *
      * @param name 蓝牙设备名称
      */
-    public void setAllowedConnectDevicesName(String name) {
+    public void setAllowedConnDevName(String name) {
         mAllowedConnectDevicesName = name;
     }
 
@@ -145,7 +145,7 @@ public class BLEActivity extends BaseActivity {
         mHandler = new Handler();
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = (bluetoothManager == null) ? null : bluetoothManager.getAdapter();
-        BleInstanse = this;
+        BleInstance = this;
     }
 
     @Override

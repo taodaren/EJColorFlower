@@ -10,6 +10,7 @@
     stv:cardCornerRadius="5dp">
 
     <LinearLayout
+        android:id="@+id/layout_ctrl_group_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -34,7 +35,7 @@
             android:layout_height="104dp">
 
             <ImageView
-                android:id="@+id/img_ctrl_group_switch"
+                android:id="@+id/img_ctrl_group_jet"
                 android:layout_width="66dp"
                 android:layout_height="66dp"
                 android:layout_alignParentBottom="true"
@@ -47,7 +48,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginStart="25dp"
-                android:layout_toEndOf="@id/img_ctrl_group_switch"
+                android:layout_toEndOf="@id/img_ctrl_group_jet"
                 android:orientation="vertical">
 
                 <RelativeLayout

@@ -1,6 +1,5 @@
 package cn.eejing.ejcolorflower.view.fragment;
 
-import android.content.Context;
 import android.util.Log;
 import android.view.View;
 
@@ -16,14 +15,14 @@ import java.util.List;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
+import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.Settings;
 import cn.eejing.ejcolorflower.view.activity.BLEActivity;
 import cn.eejing.ejcolorflower.view.adapter.TabControlAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseFragment;
-import cn.eejing.ejcolorflower.util.Settings;
 
 /**
  * 控制模块
@@ -31,35 +30,12 @@ import cn.eejing.ejcolorflower.util.Settings;
 
 public class TabControlFragment extends BaseFragment {
 
-    @BindView(R.id.rv_tab_control)
-    PullLoadMoreRecyclerView rvTabControl;
+    @BindView(R.id.rv_tab_control)        PullLoadMoreRecyclerView rvTabControl;
 
     private Gson mGson;
     private List<DeviceGroupListBean.DataBean> mList;
     private TabControlAdapter mAdapter;
     private String mMemberId, mToken;
-
-    private DeviceConfig mConfig;
-
-    private OnFragmentInteractionListener mListener;
-
-    public interface OnRecvHandler {
-        void onConfig(Device device, DeviceConfig config);
-    }
-
-    public interface OnFragmentInteractionListener {
-        void scanDevice();
-
-        void setRecvHandler(OnRecvHandler handler);
-    }
-
-    private final OnRecvHandler mOnRecvHandler = new OnRecvHandler() {
-        @Override
-        public void onConfig(Device device, DeviceConfig config) {
-            mConfig = config;
-            mAdapter.setDeviceConfig(device,mConfig);
-        }
-    };
 
     public static TabControlFragment newInstance() {
         return new TabControlFragment();
@@ -94,23 +70,6 @@ public class TabControlFragment extends BaseFragment {
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mConfig = new DeviceConfig();
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString() + "必须实现 OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         getDataWithDeviceGroupList();
@@ -137,7 +96,6 @@ public class TabControlFragment extends BaseFragment {
                                  mAdapter.refreshList(mList);
                                  // 刷新结束
                                  rvTabControl.setPullLoadMoreCompleted();
-
                              }
 
                              @Override
@@ -153,7 +111,6 @@ public class TabControlFragment extends BaseFragment {
         rvTabControl.setLinearLayout();
         // 绑定适配器
         mAdapter = new TabControlAdapter(getContext(), mList, mMemberId);
-        mListener.setRecvHandler(mOnRecvHandler);
         rvTabControl.setAdapter(mAdapter);
 
         // 不需要上拉刷新
@@ -167,7 +124,6 @@ public class TabControlFragment extends BaseFragment {
 
             @Override
             public void onLoadMore() {
-
             }
         });
         // 刷新结束
