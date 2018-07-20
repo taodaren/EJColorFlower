@@ -120,7 +120,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public int getItemCount() {
-        Log.i("EJBUG", "getItemCount: " + mList);
         if (mList != null) {
             return mList.size() + 1;
         } else {

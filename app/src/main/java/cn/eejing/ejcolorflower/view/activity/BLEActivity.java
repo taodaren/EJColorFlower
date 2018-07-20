@@ -71,8 +71,8 @@ public class BLEActivity extends BaseActivity {
     private boolean mDoNextRefresh = true;
 
     private List<ScanFilter> mScanFilters = null;
-    private BluetoothAdapter mBluetoothAdapter;
-    private BluetoothLeScanner mBluetoothLeScanner;
+    private BluetoothAdapter mBLEAdapter;
+    private BluetoothLeScanner mBleLeScan;
     private ScanSettings mScanSettings = null;
     private Handler mHandler;
 
@@ -144,7 +144,7 @@ public class BLEActivity extends BaseActivity {
 
         mHandler = new Handler();
         BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        mBluetoothAdapter = (bluetoothManager == null) ? null : bluetoothManager.getAdapter();
+        mBLEAdapter = (bluetoothManager == null) ? null : bluetoothManager.getAdapter();
         BleInstance = this;
     }
 
@@ -204,8 +204,8 @@ public class BLEActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_ENABLE_BT) {
-            if (mBluetoothAdapter.isEnabled()) {
-                onBluetoothEnabled();
+            if (mBLEAdapter.isEnabled()) {
+                onBleEnabled();
             } else {
                 mUserDenied = true;
                 onUserDenied();
@@ -233,7 +233,8 @@ public class BLEActivity extends BaseActivity {
         @Override
         public void showRationale(Context context, List<String> permissions, final RequestExecutor executor) {
             List<String> permissionNames = Permission.transformText(context, permissions);
-            String message = context.getString(R.string.message_permission_rationale, TextUtils.join("\n", permissionNames));
+            String message = context.getString(R.string.message_permission_rationale,
+                    TextUtils.join("\n", permissionNames));
 
             new AlertDialog.Builder(context)
                     .setCancelable(false)
@@ -341,8 +342,8 @@ public class BLEActivity extends BaseActivity {
         @Override
         public void run() {
             mScanning = false;
-            mBluetoothLeScanner.flushPendingScanResults(mScanCallback);
-            mBluetoothLeScanner.stopScan(mScanCallback);
+            mBleLeScan.flushPendingScanResults(mScanCallback);
+            mBleLeScan.stopScan(mScanCallback);
             onStopScan();
             if (!mUserDenied) {
                 mDoNextRefresh = true;
@@ -444,18 +445,18 @@ public class BLEActivity extends BaseActivity {
 
     // 开始扫描
     public void startScan() {
-        if (mBluetoothAdapter != null) {
-            if (!mBluetoothAdapter.isEnabled()) {
+        if (mBLEAdapter != null) {
+            if (!mBLEAdapter.isEnabled()) {
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
             } else {
-                onBluetoothEnabled();
+                onBleEnabled();
             }
         }
     }
 
     // 蓝牙已启用
-    private void onBluetoothEnabled() {
+    private void onBleEnabled() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             AndPermission.with(this)
                     .permission(Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -510,7 +511,7 @@ public class BLEActivity extends BaseActivity {
                 .show();
     }
 
-    // 如果在 onBluetoothEnabled 中直接调用 startLeScan， 将出现 android.os.DeadObjectException
+    // 如果在 onBleEnabled 中直接调用 startLeScan， 将出现 android.os.DeadObjectException
     private void startLeScanNoBug() {
         mHandler.post(new Runnable() {
             @Override
@@ -523,11 +524,11 @@ public class BLEActivity extends BaseActivity {
     // 启动扫描
     private void startLeScan() {
         Log.v(TAG, "startLeScan");
-        mBluetoothLeScanner = (mBluetoothAdapter == null) ? null : mBluetoothAdapter.getBluetoothLeScanner();
-        if (mBluetoothLeScanner != null) {
+        mBleLeScan = (mBLEAdapter == null) ? null : mBLEAdapter.getBluetoothLeScanner();
+        if (mBleLeScan != null) {
             mScanning = true;
             if (mScanFilters == null) {
-                mBluetoothLeScanner.startScan(mScanCallback);
+                mBleLeScan.startScan(mScanCallback);
             } else {
                 if (mScanSettings == null) {
                     mScanSettings = new ScanSettings.Builder()
@@ -535,7 +536,7 @@ public class BLEActivity extends BaseActivity {
                             .setScanMode(ScanSettings.SCAN_MODE_BALANCED)
                             .build();
                 }
-                mBluetoothLeScanner.startScan(mScanFilters, mScanSettings, mScanCallback);
+                mBleLeScan.startScan(mScanFilters, mScanSettings, mScanCallback);
             }
             mHandler.postDelayed(mStopScan, SCANNING_TIME);
         }
@@ -846,7 +847,7 @@ public class BLEActivity extends BaseActivity {
         mac = mac.toUpperCase();
         Log.i(TAG, "Add device by mac--->" + mac);
         if (BluetoothAdapter.checkBluetoothAddress(mac)) {
-            addDevice(mBluetoothAdapter.getRemoteDevice(mac));
+            addDevice(mBLEAdapter.getRemoteDevice(mac));
         } else {
             throw new IllegalArgumentException("无效的蓝牙地址 : " + mac);
         }
