@@ -31,16 +31,11 @@ import cn.eejing.ejcolorflower.view.base.BaseActivity;
 public class CoDeviceActivity extends BaseActivity implements
         View.OnClickListener, CoDeviceLeftAdapter.LeftClickListener, CoDeviceRightAdapter.RightClickListener {
 
-    @BindView(R.id.btn_device_save)
-    SuperButton btnDeviceSave;
-    @BindView(R.id.tv_added_can)
-    TextView tvAddedCan;
-    @BindView(R.id.rv_added_can)
-    RecyclerView rvAddedCan;
-    @BindView(R.id.tv_added_already)
-    TextView tvAddedAlready;
-    @BindView(R.id.rv_added_already)
-    RecyclerView rvAddedAlready;
+    @BindView(R.id.btn_device_save)         SuperButton btnDeviceSave;
+    @BindView(R.id.tv_added_can)            TextView tvAddedCan;
+    @BindView(R.id.rv_added_can)            RecyclerView rvAddedCan;
+    @BindView(R.id.tv_added_already)        TextView tvAddedAlready;
+    @BindView(R.id.rv_added_already)        RecyclerView rvAddedAlready;
 
     private List<String> mList, mPossess;
     private LinearLayoutManager mManager;
@@ -141,27 +136,31 @@ public class CoDeviceActivity extends BaseActivity implements
     }
 
     private void initRvAddedCan() {
-        if (mList.size() > 0) {
-            tvAddedCan.setVisibility(View.GONE);
-        } else {
-            tvAddedCan.setVisibility(View.VISIBLE);
+        if (mList != null) {
+            if (mList.size() > 0) {
+                tvAddedCan.setVisibility(View.GONE);
+            } else {
+                tvAddedCan.setVisibility(View.VISIBLE);
+            }
+            mManager = new LinearLayoutManager(this);
+            rvAddedCan.setLayoutManager(mManager);
+            leftAdapter = new CoDeviceLeftAdapter(this, mList, this);
+            rvAddedCan.setAdapter(leftAdapter);
         }
-        mManager = new LinearLayoutManager(this);
-        rvAddedCan.setLayoutManager(mManager);
-        leftAdapter = new CoDeviceLeftAdapter(this, mList, this);
-        rvAddedCan.setAdapter(leftAdapter);
     }
 
     private void initRvAddedReady() {
-        if (mPossess.size() > 0) {
-            tvAddedAlready.setVisibility(View.GONE);
-        } else {
-            tvAddedAlready.setVisibility(View.VISIBLE);
+        if (mList != null) {
+            if (mPossess.size() > 0) {
+                tvAddedAlready.setVisibility(View.GONE);
+            } else {
+                tvAddedAlready.setVisibility(View.VISIBLE);
+            }
+            mManager = new LinearLayoutManager(this);
+            rvAddedAlready.setLayoutManager(mManager);
+            rightAdapter = new CoDeviceRightAdapter(this, mPossess, this);
+            rvAddedAlready.setAdapter(rightAdapter);
         }
-        mManager = new LinearLayoutManager(this);
-        rvAddedAlready.setLayoutManager(mManager);
-        rightAdapter = new CoDeviceRightAdapter(this, mPossess, this);
-        rvAddedAlready.setAdapter(rightAdapter);
     }
 
     private void getDataWithEditDeviceGroup() {
