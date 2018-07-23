@@ -15,8 +15,6 @@
  */
 package cn.eejing.ejcolorflower.app;
 
-import android.app.Application;
-
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.cache.CacheEntity;
 import com.lzy.okgo.cache.CacheMode;
@@ -26,6 +24,9 @@ import com.lzy.okgo.https.HttpsUtils;
 import com.lzy.okgo.interceptor.HttpLoggingInterceptor;
 import com.lzy.okgo.model.HttpHeaders;
 import com.lzy.okgo.model.HttpParams;
+
+import org.litepal.LitePal;
+import org.litepal.LitePalApplication;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -38,7 +39,7 @@ import javax.net.ssl.X509TrustManager;
 
 import okhttp3.OkHttpClient;
 
-public class GApp extends Application {
+public class GApp extends LitePalApplication {
 
     @Override
     public void onCreate() {
@@ -48,6 +49,8 @@ public class GApp extends Application {
         // with just a few lines of code. Now *that's* nice.
         registerActivityLifecycleCallbacks(new MyLifecycleHandler());
         initOkGo();
+        // 初始化 LitePal 数据库
+        LitePal.initialize(this);
     }
 
     private void initOkGo() {

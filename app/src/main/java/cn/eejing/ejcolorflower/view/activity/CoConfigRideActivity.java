@@ -4,6 +4,7 @@ import android.os.Build;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.RequiresApi;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,15 +12,20 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import org.greenrobot.eventbus.EventBus;
+import org.litepal.LitePal;
+
+import java.util.List;
 
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
+import cn.eejing.ejcolorflower.model.lite.CtrlTypeEntity;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.BORDER_TO_CENTER;
 import static cn.eejing.ejcolorflower.app.AppConstant.CENTER_TO_BORDER;
+import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_RIDE;
 import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_TOGETHER_HIGH;
 import static cn.eejing.ejcolorflower.app.AppConstant.LEFT_TO_RIGHT;
 import static cn.eejing.ejcolorflower.app.AppConstant.RIGHT_TO_LEFT;
@@ -30,28 +36,17 @@ import static cn.eejing.ejcolorflower.app.AppConstant.RIGHT_TO_LEFT;
 
 public class CoConfigRideActivity extends BaseActivity implements View.OnClickListener {
 
-    @BindView(R.id.rbtn_left_to_right)
-    RadioButton rbtnLeftToRight;
-    @BindView(R.id.rbtn_border_to_center)
-    RadioButton rbtnBorderToCenter;
-    @BindView(R.id.radio_left)
-    RadioGroup radioLeft;
-    @BindView(R.id.rbtn_right_to_left)
-    RadioButton rbtnRightToLeft;
-    @BindView(R.id.rbtn_center_to_border)
-    RadioButton rbtnCenterToBorder;
-    @BindView(R.id.radio_right)
-    RadioGroup radioRight;
-    @BindView(R.id.btn_config_verify)
-    Button btnVerify;
-    @BindView(R.id.et_stream_gap)
-    EditText etGap;
-    @BindView(R.id.et_stream_duration)
-    EditText etDuration;
-    @BindView(R.id.et_stream_gap_big)
-    EditText etGapBig;
-    @BindView(R.id.et_stream_loop)
-    EditText etLoop;
+    @BindView(R.id.rbtn_left_to_right)           RadioButton    rbtnLeftToRight;
+    @BindView(R.id.rbtn_border_to_center)        RadioButton    rbtnBorderToCenter;
+    @BindView(R.id.radio_left)                   RadioGroup     radioLeft;
+    @BindView(R.id.rbtn_right_to_left)           RadioButton    rbtnRightToLeft;
+    @BindView(R.id.rbtn_center_to_border)        RadioButton    rbtnCenterToBorder;
+    @BindView(R.id.radio_right)                  RadioGroup     radioRight;
+    @BindView(R.id.btn_config_verify)            Button         btnVerify;
+    @BindView(R.id.et_stream_gap)                EditText       etGap;
+    @BindView(R.id.et_stream_duration)           EditText       etDuration;
+    @BindView(R.id.et_stream_gap_big)            EditText       etGapBig;
+    @BindView(R.id.et_stream_loop)               EditText       etLoop;
 
     // 用于保存当前被选中的按钮
     String strBtnSelected;
@@ -88,12 +83,41 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_config_verify:
+                setSQLiteData();
                 postEvent();
                 finish();
                 break;
             default:
                 break;
         }
+    }
+
+    private void setSQLiteData() {
+        List<CtrlTypeEntity> groupIdList = LitePal
+                .where("groupId=?", String.valueOf(mGroupId))
+                .find(CtrlTypeEntity.class);
+
+        CtrlTypeEntity entity = new CtrlTypeEntity();
+        if (groupIdList.size() == 0) {
+            // 增
+            setEntity(entity);
+            entity.save();
+        } else {
+            // 改
+            setEntity(entity);
+            entity.updateAll("groupId=?", String.valueOf(mGroupId));
+        }
+    }
+
+    private void setEntity(CtrlTypeEntity entity) {
+        entity.setConfigType(CONFIG_RIDE);
+        entity.setGroupId(mGroupId);
+        entity.setDirection(strBtnSelected);
+        entity.setGap(etGap.getText().toString());
+        entity.setDuration(etDuration.getText().toString());
+        entity.setGapBig(etGapBig.getText().toString());
+        entity.setLoop(etLoop.getText().toString());
+        entity.setHigh(DEFAULT_TOGETHER_HIGH);
     }
 
     private void postEvent() {

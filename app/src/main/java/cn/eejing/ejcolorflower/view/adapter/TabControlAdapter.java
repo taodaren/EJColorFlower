@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.allen.library.SuperButton;
 import com.example.zhouwei.library.CustomPopWindow;
@@ -25,11 +24,10 @@ import com.lzy.okgo.model.Response;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.litepal.LitePal;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -42,6 +40,7 @@ import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceState;
 import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
+import cn.eejing.ejcolorflower.model.lite.CtrlTypeEntity;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.presenter.Urls;
@@ -58,7 +57,7 @@ import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_INTERVAL;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_RIDE;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_STREAM;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
-import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_YES;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_TOGETHER_HIGH;
 
 /**
  * 控制模块适配器
@@ -83,9 +82,8 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private long mConnDevID;
 
     private AppActivity.FireworkDevCtrl mDevCtrl;
-    private int mDirection, mGap, mDuration, mGapBig, mLoop, mFrequency, mHigh;
     private String mConfigType;
-    private int mPostGroupId;
+    private int mPostGroupId, mGap, mDirection, mDuration, mGapBig, mLoop, mFrequency, mHigh;
 
     public TabControlAdapter(Context mContext, List<DeviceGroupListBean.DataBean> mList, String mMemberId) {
         this.mContext = mContext;
@@ -166,11 +164,11 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     class ItemViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.tv_ctrl_group_name)           TextView tvName;
-        @BindView(R.id.rv_control_group)             RecyclerView rvGroup;
-        @BindView(R.id.tv_ctrl_group_info)           TextView tvInfo;
-        @BindView(R.id.sb_type_puff)                 SuperButton sbType;
-        @BindView(R.id.sb_config_puff)               SuperButton sbConfig;
+        @BindView(R.id.tv_ctrl_group_name)        TextView tvName;
+        @BindView(R.id.rv_control_group)          RecyclerView rvGroup;
+        @BindView(R.id.tv_ctrl_group_info)        TextView tvInfo;
+        @BindView(R.id.sb_type_puff)              SuperButton sbType;
+        @BindView(R.id.sb_config_puff)            SuperButton sbConfig;
 
         String groupName;
         int groupId;
@@ -182,11 +180,39 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         @SuppressLint("ResourceAsColor")
         public void setData(DeviceGroupListBean.DataBean bean) {
+            groupName = bean.getGroup_name();
+            groupId = bean.getGroup_id();
+
+            // 设置分组名称
+            tvName.setText(bean.getGroup_name());
+
+            // 数据库中查询是否保存信息
+            List<CtrlTypeEntity> entities = LitePal.findAll(CtrlTypeEntity.class);
+            for (int i = 0; i < entities.size(); i++) {
+                if (entities.get(i).getGroupId() == groupId) {
+                    // 如果数据库中的 groupId 和服务器的一致，设置相关数据
+                    sbType.setText(entities.get(i).getConfigType());
+                } else {
+                    if (mConfigType != null && mPostGroupId == groupId) {
+                        // 不一致情况，如果传过来的控制模式不为空且传过来的 groupId 和服务器的一致，设置相关数据
+                        sbType.setText(mConfigType);
+                    }
+                    if (mConfigType == null) {
+                        // 如果 mConfigType 为空，设置默认数据（齐喷、10s、高度100）
+                        sbType.setText(CONFIG_TOGETHER);
+                        mDuration = 100;
+                        mHigh = 100;
+                    }
+                }
+            }
+
             Log.i("LJQ", "setData"
                     + "\n设备 MAC: " + mConnDevMac
                     + "\n设备 ID: " + mConnDevID
                     + "\n设备 STATE: " + mState
                     + "\n设备 CONFIG: " + mConfig
+                    + "\n设备 mPostGroupId: " + mPostGroupId
+                    + "\n设备 groupId: " + bean.getGroup_id()
             );
 
             if (bean.getGroup_list() != null && bean.getGroup_list().size() > 0) {
@@ -197,16 +223,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             } else {
                 tvInfo.setVisibility(View.VISIBLE);
                 rvGroup.setVisibility(View.INVISIBLE);
-            }
-
-            tvName.setText(bean.getGroup_name());
-
-            groupId = bean.getGroup_id();
-            groupName = bean.getGroup_name();
-
-            if (mPostGroupId == groupId) {
-                // 如果返回的 groupId 与服务器 groupId 一致，改变配置
-                sbType.setText(mConfigType);
             }
         }
 
@@ -580,15 +596,15 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 Log.e(AppConstant.TAG, "devList: " + devList.toString());
                 sbDevice.setText(devList.get(getAdapterPosition()));
                 // TODO: 2018/6/20  未连接显示不正常
-                if (mConfig != null && mState != null) {
-                    for (String devIdServer : devList) {
-                        if (devIdServer.equals(String.valueOf(mConnDevID))) {
-                            sbDevice.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTransparent));
-                            sbDevice.setShapeStrokeColor(mContext.getResources().getColor(R.color.colorFrame));
-                            sbDevice.setUseShape();
-                        }
-                    }
-                }
+//                if (mConfig != null && mState != null) {
+//                    for (String devIdServer : devList) {
+//                        if (devIdServer.equals(String.valueOf(mConnDevID))) {
+//                            sbDevice.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTransparent));
+//                            sbDevice.setShapeStrokeColor(mContext.getResources().getColor(R.color.colorFrame));
+//                            sbDevice.setUseShape();
+//                        }
+//                    }
+//                }
             }
         }
     }
@@ -685,11 +701,13 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             case CONFIG_STREAM:
             case CONFIG_RIDE:
                 initStatus();
+                mDirection = Integer.parseInt(event.getmDirection());
                 mGap = Integer.parseInt(event.getGap()) * 1000;
                 mDuration = Integer.parseInt(event.getDuration()) * 10;
                 mGapBig = Integer.parseInt(event.getGapBig());
                 mLoop = Integer.parseInt(event.getLoop());
                 mHigh = Integer.parseInt(event.getHigh());
+                mPostGroupId = event.getGroupId();
                 break;
             case CONFIG_INTERVAL:
                 initStatus();
@@ -697,17 +715,19 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 mDuration = Integer.parseInt(event.getDuration()) * 10;
                 mFrequency = Integer.parseInt(event.getFrequency());
                 mHigh = Integer.parseInt(event.getHigh());
+                mPostGroupId = event.getGroupId();
                 break;
             case CONFIG_TOGETHER:
                 initStatus();
                 mDuration = Integer.parseInt(event.getDuration()) * 10;
                 mHigh = Integer.parseInt(event.getHigh());
+                mPostGroupId = event.getGroupId();
                 break;
             default:
                 break;
         }
 
-        Log.i("JET_STATUS", "mPostGroupId: " + event.getGroupId());
+        Log.i("JET_STATUS", "mPostGroupId: " + mPostGroupId);
         Log.i("JET_STATUS", "configType: " + mConfigType);
         Log.i("JET_STATUS", "direction: 方向--->" + mDirection);
         Log.i("JET_STATUS", "gap: 间隔时间--->" + mGap);

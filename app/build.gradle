@@ -66,6 +66,8 @@ dependencies {
     implementation 'cn.bingoogolapple:bga-banner:2.2.4@aar'
     // CustomPopWindow
     implementation 'com.github.pinguo-zhouwei:CustomPopwindow:2.1.1'
+    // 数据库
+    implementation 'org.litepal.android:core:2.0.0'
     // 微信支付
     implementation 'com.tencent.mm.opensdk:wechat-sdk-android-with-mta:+'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
