@@ -35,6 +35,7 @@
             android:background="@null"
             android:hint="@string/phone_num"
             android:inputType="phone"
+            android:textCursorDrawable="@null"
             android:textSize="16sp" />
     </LinearLayout>
 
@@ -71,6 +72,7 @@
             android:background="@null"
             android:hint="@string/set_pwd"
             android:inputType="textPassword"
+            android:textCursorDrawable="@null"
             android:textSize="16sp" />
     </LinearLayout>
 
@@ -107,6 +109,7 @@
             android:background="@null"
             android:hint="@string/confirm_psd"
             android:inputType="textPassword"
+            android:textCursorDrawable="@null"
             android:textSize="16sp" />
     </LinearLayout>
 
@@ -143,6 +146,7 @@
             android:background="@null"
             android:hint="@string/verify_code"
             android:inputType="phone"
+            android:textCursorDrawable="@null"
             android:textSize="16sp" />
 
         <Button

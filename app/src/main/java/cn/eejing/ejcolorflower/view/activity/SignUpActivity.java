@@ -28,12 +28,12 @@ import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 public class SignUpActivity extends BaseActivity implements View.OnClickListener {
 
-    @BindView(R.id.et_register_phone)          EditText mPhone;
-    @BindView(R.id.et_register_set_pwd)        EditText mSetPwd;
-    @BindView(R.id.et_register_confirm_pwd)    EditText mConfirmPwd;
-    @BindView(R.id.et_register_verify_code)    EditText mVerifyCode;
-    @BindView(R.id.btn_register_get_code)      Button btnGetCode;
-    @BindView(R.id.btn_register_register)      SuperButton btnRegister;
+    @BindView(R.id.et_register_phone)              EditText mPhone;
+    @BindView(R.id.et_register_set_pwd)            EditText mSetPwd;
+    @BindView(R.id.et_register_confirm_pwd)        EditText mConfirmPwd;
+    @BindView(R.id.et_register_verify_code)        EditText mVerifyCode;
+    @BindView(R.id.btn_register_get_code)          Button btnGetCode;
+    @BindView(R.id.btn_register_register)          SuperButton btnRegister;
 
     private Gson mGson;
     private String mIv;

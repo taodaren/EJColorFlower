@@ -37,16 +37,11 @@ import static cn.eejing.ejcolorflower.app.AppConstant.ADDRESS_PROVINCESS;
 
 public class MaAddrAddActivity extends BaseActivity {
 
-    @BindView(R.id.et_address_add_consignee)
-    EditText etConsignee;
-    @BindView(R.id.et_address_add_phone)
-    EditText etPhone;
-    @BindView(R.id.et_address_add_address)
-    EditText etAddress;
-    @BindView(R.id.tv_address_add_address)
-    TextView tvAddress;
-    @BindView(R.id.stv_address_add_def)
-    SuperTextView stvSwitch;
+    @BindView(R.id.et_address_add_consignee)        EditText etConsignee;
+    @BindView(R.id.et_address_add_phone)            EditText etPhone;
+    @BindView(R.id.et_address_add_address)          EditText etAddress;
+    @BindView(R.id.tv_address_add_address)          TextView tvAddress;
+    @BindView(R.id.stv_address_add_def)             SuperTextView stvSwitch;
 
     private int mFlag;
     private Gson mGson;

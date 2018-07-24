@@ -26,10 +26,10 @@ import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 public class MiPwdModifyActivity extends BaseActivity implements View.OnClickListener {
 
-    @BindView(R.id.et_current_psd)       EditText etCurrentPsd;
-    @BindView(R.id.et_reset_psd)         EditText etResetPsd;
-    @BindView(R.id.et_confirm_psd)       EditText etConfirmPsd;
-    @BindView(R.id.btn_modify_pwd)       SuperButton btnModifyPwd;
+    @BindView(R.id.et_current_psd)        EditText etCurrentPsd;
+    @BindView(R.id.et_reset_psd)          EditText etResetPsd;
+    @BindView(R.id.et_confirm_psd)        EditText etConfirmPsd;
+    @BindView(R.id.btn_modify_pwd)        SuperButton btnModifyPwd;
 
     private Gson mGson;
     private String mIv, mMemberId, mToken;

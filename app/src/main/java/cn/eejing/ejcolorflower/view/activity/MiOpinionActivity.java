@@ -32,12 +32,9 @@ public class MiOpinionActivity extends BaseActivity {
     int MAX_LENGTH = 500;
     int Rest_Length = MAX_LENGTH;
 
-    @BindView(R.id.edit_opinion_content)
-    EditText edContent;
-    @BindView(R.id.tv_num_length)
-    TextView tvLength;
-    @BindView(R.id.btn_opinion_submit)
-    SuperButton btnSubmit;
+    @BindView(R.id.edit_opinion_content)        EditText edContent;
+    @BindView(R.id.tv_num_length)               TextView tvLength;
+    @BindView(R.id.btn_opinion_submit)          SuperButton btnSubmit;
 
     @Override
     protected int layoutViewId() {

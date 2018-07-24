@@ -19,8 +19,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:padding="4dp"
-        android:background="@color/colorWhite">
+        android:background="@color/colorWhite"
+        android:padding="4dp">
 
         <EditText
             android:id="@+id/edit_opinion_content"
@@ -32,6 +32,7 @@
             android:inputType="none"
             android:maxLength="500"
             android:padding="4dp"
+            android:textCursorDrawable="@null"
             android:textSize="12sp" />
 
         <TextView

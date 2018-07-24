@@ -27,18 +27,12 @@ import cn.eejing.ejcolorflower.util.Encryption;
 
 public class SiPwdForgetActivity extends BaseActivity implements View.OnClickListener {
 
-    @BindView(R.id.et_forget_phone)
-    EditText etForgetPhone;
-    @BindView(R.id.et_forget_set_pwd)
-    EditText etForgetSetPwd;
-    @BindView(R.id.et_forget_confirm_pwd)
-    EditText etForgetConfirmPwd;
-    @BindView(R.id.et_forget_verify_code)
-    EditText etForgetVerifyCode;
-    @BindView(R.id.btn_forget_get_code)
-    Button btnForgetGetCode;
-    @BindView(R.id.btn_reset_pwd)
-    SuperButton btnResetPwd;
+    @BindView(R.id.et_forget_phone)              EditText etForgetPhone;
+    @BindView(R.id.et_forget_set_pwd)            EditText etForgetSetPwd;
+    @BindView(R.id.et_forget_confirm_pwd)        EditText etForgetConfirmPwd;
+    @BindView(R.id.et_forget_verify_code)        EditText etForgetVerifyCode;
+    @BindView(R.id.btn_forget_get_code)          Button btnForgetGetCode;
+    @BindView(R.id.btn_reset_pwd)                SuperButton btnResetPwd;
 
     private Gson mGson;
     private String mMobile, mIv;

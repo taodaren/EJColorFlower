@@ -35,6 +35,7 @@
             android:hint="@string/current_psd_hint"
             android:inputType="textPassword"
             android:padding="4dp"
+            android:textCursorDrawable="@null"
             android:textSize="14sp" />
     </LinearLayout>
 
@@ -68,6 +69,7 @@
             android:hint="@string/reset_psd_hint"
             android:inputType="textPassword"
             android:padding="4dp"
+            android:textCursorDrawable="@null"
             android:textSize="14sp" />
     </LinearLayout>
 
@@ -101,6 +103,7 @@
             android:hint="@string/confirm_psd_hint"
             android:inputType="textPassword"
             android:padding="4dp"
+            android:textCursorDrawable="@null"
             android:textSize="14sp" />
     </LinearLayout>
 

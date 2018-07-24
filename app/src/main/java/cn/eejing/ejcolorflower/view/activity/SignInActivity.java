@@ -31,11 +31,11 @@ import cn.eejing.ejcolorflower.view.base.BaseActivity;
 public class SignInActivity extends BaseActivity implements View.OnClickListener {
     private static final int REQUEST_SIGNUP = 0;
 
-    @BindView(R.id.et_login_phone)       EditText etLoginPhone;
-    @BindView(R.id.et_login_pwd)         EditText etLoginPwd;
-    @BindView(R.id.btn_login)            SuperButton btnLogin;
-    @BindView(R.id.tv_login_register)    TextView tvLoginRegister;
-    @BindView(R.id.tv_login_forget)      TextView tvLoginForget;
+    @BindView(R.id.et_login_phone)           EditText etLoginPhone;
+    @BindView(R.id.et_login_pwd)             EditText etLoginPwd;
+    @BindView(R.id.btn_login)                SuperButton btnLogin;
+    @BindView(R.id.tv_login_register)        TextView tvLoginRegister;
+    @BindView(R.id.tv_login_forget)          TextView tvLoginForget;
 
     @Override
     protected int layoutViewId() {
