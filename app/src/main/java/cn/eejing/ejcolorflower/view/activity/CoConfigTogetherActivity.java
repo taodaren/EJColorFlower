@@ -13,7 +13,7 @@ import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
-import cn.eejing.ejcolorflower.model.lite.CtrlTypeEntity;
+import cn.eejing.ejcolorflower.model.lite.CtrlTogetherEntity;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
@@ -61,11 +61,11 @@ public class CoConfigTogetherActivity extends BaseActivity implements View.OnCli
     }
 
     private void setSQLiteData() {
-        List<CtrlTypeEntity> groupIdList = LitePal
+        List<CtrlTogetherEntity> groupIdList = LitePal
                 .where("groupId=?", String.valueOf(mGroupId))
-                .find(CtrlTypeEntity.class);
+                .find(CtrlTogetherEntity.class);
 
-        CtrlTypeEntity entity = new CtrlTypeEntity();
+        CtrlTogetherEntity entity = new CtrlTogetherEntity();
         if (groupIdList.size() == 0) {
             // 增
             setEntity(entity);
@@ -77,7 +77,7 @@ public class CoConfigTogetherActivity extends BaseActivity implements View.OnCli
         }
     }
 
-    private void setEntity(CtrlTypeEntity entity) {
+    private void setEntity(CtrlTogetherEntity entity) {
         entity.setConfigType(CONFIG_TOGETHER);
         entity.setGroupId(mGroupId);
         entity.setDuration(etDuration.getText().toString());

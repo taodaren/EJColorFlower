@@ -1,6 +1,5 @@
 package cn.eejing.ejcolorflower.view.activity;
 
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,11 +13,10 @@ import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
-import cn.eejing.ejcolorflower.model.lite.CtrlTypeEntity;
+import cn.eejing.ejcolorflower.model.lite.CtrlIntervalEntity;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_INTERVAL;
-import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_STREAM;
 import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_TOGETHER_HIGH;
 
 /**
@@ -65,11 +63,11 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
     }
 
     private void setSQLiteData() {
-        List<CtrlTypeEntity> groupIdList = LitePal
+        List<CtrlIntervalEntity> groupIdList = LitePal
                 .where("groupId=?", String.valueOf(mGroupId))
-                .find(CtrlTypeEntity.class);
+                .find(CtrlIntervalEntity.class);
 
-        CtrlTypeEntity entity = new CtrlTypeEntity();
+        CtrlIntervalEntity entity = new CtrlIntervalEntity();
         if (groupIdList.size() == 0) {
             // 增
             setEntity(entity);
@@ -81,7 +79,7 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
         }
     }
 
-    private void setEntity(CtrlTypeEntity entity) {
+    private void setEntity(CtrlIntervalEntity entity) {
         entity.setConfigType(CONFIG_INTERVAL);
         entity.setGroupId(mGroupId);
         entity.setGap(etGap.getText().toString());

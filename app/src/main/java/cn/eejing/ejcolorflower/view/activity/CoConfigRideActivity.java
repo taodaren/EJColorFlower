@@ -20,7 +20,7 @@ import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
-import cn.eejing.ejcolorflower.model.lite.CtrlTypeEntity;
+import cn.eejing.ejcolorflower.model.lite.CtrlRideEntity;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.BORDER_TO_CENTER;
@@ -49,24 +49,99 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
     @BindView(R.id.et_stream_loop)               EditText       etLoop;
 
     // 用于保存当前被选中的按钮
-    String strBtnSelected;
-    BtnSelected btnListener1, btnListener2, btnListener3, btnListener4;
+    private String strBtnSelected;
+    private BtnSelected btnListener1, btnListener2, btnListener3, btnListener4;
+
     private int mGroupId;
+    private String mConfigType;
 
     @Override
     protected int layoutViewId() {
         return R.layout.activity_co_config_strem_ride;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void initView() {
-        setToolbar(getString(R.string.config_ride), View.VISIBLE);
+        setToolbar(CONFIG_RIDE, View.VISIBLE);
+
+        mGroupId = getIntent().getIntExtra("group_id", 0);
+        mConfigType = getIntent().getStringExtra("config_type");
+
+        Log.e("GSD", "initView config_type: " + mConfigType);
+        Log.e("GSD", "initView group_id: " + mGroupId);
+
         btnListener1 = new BtnSelected(LEFT_TO_RIGHT);
         btnListener2 = new BtnSelected(BORDER_TO_CENTER);
         btnListener3 = new BtnSelected(RIGHT_TO_LEFT);
         btnListener4 = new BtnSelected(CENTER_TO_BORDER);
-        mGroupId = getIntent().getIntExtra("group_id", 0);
-        defaultConfig();
+
+        initConfigDB();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void initConfigDB() {
+        List<CtrlRideEntity> entities = LitePal.findAll(CtrlRideEntity.class);
+        if (entities.size() == 0) {
+            // 默认配置
+            defaultConfig();
+        } else {
+            // 更新配置
+            for (int i = 0; i < entities.size(); i++) {
+                Log.i("GSD", "for config_type: " + entities.get(i).getConfigType());
+
+                defaultConfig();
+                if (mGroupId == entities.get(i).getGroupId() && mConfigType.equals(entities.get(i).getConfigType())) {
+                    updateConfig(entities, i);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void defaultConfig() {
+        strBtnSelected = LEFT_TO_RIGHT;
+        etGap.setText(AppConstant.DEFAULT_STREAM_RIDE_GAP);
+        etDuration.setText(AppConstant.DEFAULT_STREAM_RIDE_DURATION);
+        etGapBig.setText(AppConstant.DEFAULT_STREAM_RIDE_GAP_BIG);
+        etLoop.setText(AppConstant.DEFAULT_STREAM_RIDE_LOOP);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void updateConfig(List<CtrlRideEntity> entities, int i) {
+        switch (entities.get(i).getDirection()) {
+            case LEFT_TO_RIGHT:
+                btnChangeState(
+                        R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click,
+                        R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick
+                );
+                break;
+            case BORDER_TO_CENTER:
+                btnChangeState(
+                        R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click,
+                        R.color.colorNoClick, R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick
+                );
+                break;
+            case RIGHT_TO_LEFT:
+                btnChangeState(
+                        R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click,
+                        R.color.colorNoClick, R.color.colorNoClick, R.color.colorWhite, R.color.colorNoClick
+                );
+                break;
+            case CENTER_TO_BORDER:
+                btnChangeState(
+                        R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click,
+                        R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick, R.color.colorWhite
+                );
+                break;
+            default:
+                break;
+        }
+
+        etGap.setText(entities.get(i).getGap());
+        etDuration.setText(entities.get(i).getDuration());
+        etGapBig.setText(entities.get(i).getGapBig());
+        etLoop.setText(entities.get(i).getLoop());
     }
 
     @Override
@@ -93,11 +168,11 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
     }
 
     private void setSQLiteData() {
-        List<CtrlTypeEntity> groupIdList = LitePal
+        List<CtrlRideEntity> groupIdList = LitePal
                 .where("groupId=?", String.valueOf(mGroupId))
-                .find(CtrlTypeEntity.class);
+                .find(CtrlRideEntity.class);
 
-        CtrlTypeEntity entity = new CtrlTypeEntity();
+        CtrlRideEntity entity = new CtrlRideEntity();
         if (groupIdList.size() == 0) {
             // 增
             setEntity(entity);
@@ -109,7 +184,7 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
         }
     }
 
-    private void setEntity(CtrlTypeEntity entity) {
+    private void setEntity(CtrlRideEntity entity) {
         entity.setConfigType(CONFIG_RIDE);
         entity.setGroupId(mGroupId);
         entity.setDirection(strBtnSelected);
@@ -131,14 +206,6 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
                 DEFAULT_TOGETHER_HIGH
         );
         EventBus.getDefault().post(event);
-    }
-
-    private void defaultConfig() {
-        strBtnSelected = LEFT_TO_RIGHT;
-        etGap.setText(AppConstant.DEFAULT_STREAM_RIDE_GAP);
-        etDuration.setText(AppConstant.DEFAULT_STREAM_RIDE_DURATION);
-        etGapBig.setText(AppConstant.DEFAULT_STREAM_RIDE_GAP_BIG);
-        etLoop.setText(AppConstant.DEFAULT_STREAM_RIDE_LOOP);
     }
 
     /**
@@ -166,39 +233,48 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
 
             switch (arg0.getId()) {
                 case R.id.rbtn_left_to_right:
-                    btnChangeState(R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click,
-                            R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick);
+                    btnChangeState(
+                            R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click,
+                            R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick
+                    );
                     break;
                 case R.id.rbtn_border_to_center:
-                    btnChangeState(R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click,
-                            R.color.colorNoClick, R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick);
+                    btnChangeState(
+                            R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click,
+                            R.color.colorNoClick, R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick
+                    );
                     break;
                 case R.id.rbtn_right_to_left:
-                    btnChangeState(R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click,
-                            R.color.colorNoClick, R.color.colorNoClick, R.color.colorWhite, R.color.colorNoClick);
+                    btnChangeState(
+                            R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click,
+                            R.color.colorNoClick, R.color.colorNoClick, R.color.colorWhite, R.color.colorNoClick
+                    );
                     break;
                 case R.id.rbtn_center_to_border:
-                    btnChangeState(R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click,
-                            R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick, R.color.colorWhite);
+                    btnChangeState(
+                            R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click,
+                            R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick, R.color.colorWhite
+                    );
                     break;
                 default:
                     break;
             }
         }
 
-        @RequiresApi(api = Build.VERSION_CODES.M)
-        private void btnChangeState(@DrawableRes int lr, @DrawableRes int bc, @DrawableRes int rl, @DrawableRes int cb,
-                                    @ColorRes int lrColor, @ColorRes int bcColor, @ColorRes int rlColor, @ColorRes int cbColor) {
-            rbtnLeftToRight.setBackground(getDrawable(lr));
-            rbtnBorderToCenter.setBackground(getDrawable(bc));
-            rbtnRightToLeft.setBackground(getDrawable(rl));
-            rbtnCenterToBorder.setBackground(getDrawable(cb));
+    }
 
-            rbtnLeftToRight.setTextColor(getColor(lrColor));
-            rbtnBorderToCenter.setTextColor(getColor(bcColor));
-            rbtnRightToLeft.setTextColor(getColor(rlColor));
-            rbtnCenterToBorder.setTextColor(getColor(cbColor));
-        }
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void btnChangeState(@DrawableRes int lr, @DrawableRes int bc, @DrawableRes int rl, @DrawableRes int cb,
+                                @ColorRes int lrColor, @ColorRes int bcColor, @ColorRes int rlColor, @ColorRes int cbColor) {
+        rbtnLeftToRight.setBackground(getDrawable(lr));
+        rbtnBorderToCenter.setBackground(getDrawable(bc));
+        rbtnRightToLeft.setBackground(getDrawable(rl));
+        rbtnCenterToBorder.setBackground(getDrawable(cb));
+
+        rbtnLeftToRight.setTextColor(getColor(lrColor));
+        rbtnBorderToCenter.setTextColor(getColor(bcColor));
+        rbtnRightToLeft.setTextColor(getColor(rlColor));
+        rbtnCenterToBorder.setTextColor(getColor(cbColor));
     }
 
 }

@@ -40,7 +40,10 @@ import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceState;
 import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
-import cn.eejing.ejcolorflower.model.lite.CtrlTypeEntity;
+import cn.eejing.ejcolorflower.model.lite.CtrlIntervalEntity;
+import cn.eejing.ejcolorflower.model.lite.CtrlRideEntity;
+import cn.eejing.ejcolorflower.model.lite.CtrlStreamEntity;
+import cn.eejing.ejcolorflower.model.lite.CtrlTogetherEntity;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.presenter.Urls;
@@ -185,12 +188,74 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             // 设置分组名称
             tvName.setText(bean.getGroup_name());
 
+            // TODO: 2018/7/24 处理封装
             // 数据库中查询是否保存信息
-            List<CtrlTypeEntity> entities = LitePal.findAll(CtrlTypeEntity.class);
-            for (int i = 0; i < entities.size(); i++) {
-                if (groupId == entities.get(i).getGroupId()) {
+            List<CtrlStreamEntity> streamEntities = LitePal.findAll(CtrlStreamEntity.class);
+            List<CtrlRideEntity> rideEntities = LitePal.findAll(CtrlRideEntity.class);
+            List<CtrlIntervalEntity> intervalEntities = LitePal.findAll(CtrlIntervalEntity.class);
+            List<CtrlTogetherEntity> togetherEntities = LitePal.findAll(CtrlTogetherEntity.class);
+
+            for (int i = 0; i < streamEntities.size(); i++) {
+                if (groupId == streamEntities.get(i).getGroupId()) {
                     // 如果服务器的 groupId 和数据库中的一致，显示数据库中的相关数据
-                    sbType.setText(entities.get(i).getConfigType());
+                    sbType.setText(streamEntities.get(i).getConfigType());
+                }
+                else if (groupId == mPostGroupId) {
+                    // 如果服务器的 groupId 和通过控制界面传过来的一致，显示控制界面中的相关数据
+                    if (mConfigType != null) {
+                        // 如果传过来的控制模式不为空，显示穿过来的
+                        sbType.setText(mConfigType);
+                    } else {
+                        // 否则显示默认数据（齐喷、10s、高度100）
+                        sbType.setText(CONFIG_TOGETHER);
+                        mDuration = 100;
+                        mHigh = 100;
+                    }
+                }
+            }
+
+            for (int i = 0; i < rideEntities.size(); i++) {
+                if (groupId == rideEntities.get(i).getGroupId()) {
+                    // 如果服务器的 groupId 和数据库中的一致，显示数据库中的相关数据
+                    sbType.setText(rideEntities.get(i).getConfigType());
+                }
+                else if (groupId == mPostGroupId) {
+                    // 如果服务器的 groupId 和通过控制界面传过来的一致，显示控制界面中的相关数据
+                    if (mConfigType != null) {
+                        // 如果传过来的控制模式不为空，显示穿过来的
+                        sbType.setText(mConfigType);
+                    } else {
+                        // 否则显示默认数据（齐喷、10s、高度100）
+                        sbType.setText(CONFIG_TOGETHER);
+                        mDuration = 100;
+                        mHigh = 100;
+                    }
+                }
+            }
+
+            for (int i = 0; i < intervalEntities.size(); i++) {
+                if (groupId == intervalEntities.get(i).getGroupId()) {
+                    // 如果服务器的 groupId 和数据库中的一致，显示数据库中的相关数据
+                    sbType.setText(intervalEntities.get(i).getConfigType());
+                }
+                else if (groupId == mPostGroupId) {
+                    // 如果服务器的 groupId 和通过控制界面传过来的一致，显示控制界面中的相关数据
+                    if (mConfigType != null) {
+                        // 如果传过来的控制模式不为空，显示穿过来的
+                        sbType.setText(mConfigType);
+                    } else {
+                        // 否则显示默认数据（齐喷、10s、高度100）
+                        sbType.setText(CONFIG_TOGETHER);
+                        mDuration = 100;
+                        mHigh = 100;
+                    }
+                }
+            }
+
+            for (int i = 0; i < togetherEntities.size(); i++) {
+                if (groupId == togetherEntities.get(i).getGroupId()) {
+                    // 如果服务器的 groupId 和数据库中的一致，显示数据库中的相关数据
+                    sbType.setText(togetherEntities.get(i).getConfigType());
                 }
                 else if (groupId == mPostGroupId) {
                     // 如果服务器的 groupId 和通过控制界面传过来的一致，显示控制界面中的相关数据
@@ -334,16 +399,28 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     }
                     switch (v.getId()) {
                         case R.id.pop_config_stream:
-                            mContext.startActivity(new Intent(mContext, CoConfigStreamActivity.class).putExtra("group_id", groupId));
+                            mContext.startActivity(new Intent(mContext, CoConfigStreamActivity.class)
+                                    .putExtra("group_id", groupId)
+                                    .putExtra("config_type", CONFIG_STREAM)
+                            );
                             break;
                         case R.id.pop_config_ride:
-                            mContext.startActivity(new Intent(mContext, CoConfigRideActivity.class).putExtra("group_id", groupId));
+                            mContext.startActivity(new Intent(mContext, CoConfigRideActivity.class)
+                                    .putExtra("group_id", groupId)
+                                    .putExtra("config_type", CONFIG_RIDE)
+                            );
                             break;
                         case R.id.pop_config_interval:
-                            mContext.startActivity(new Intent(mContext, CoConfigIntervalActivity.class).putExtra("group_id", groupId));
+                            mContext.startActivity(new Intent(mContext, CoConfigIntervalActivity.class)
+                                    .putExtra("group_id", groupId)
+                                    .putExtra("config_type", CONFIG_INTERVAL)
+                            );
                             break;
                         case R.id.pop_config_together:
-                            mContext.startActivity(new Intent(mContext, CoConfigTogetherActivity.class).putExtra("group_id", groupId));
+                            mContext.startActivity(new Intent(mContext, CoConfigTogetherActivity.class)
+                                    .putExtra("group_id", groupId)
+                                    .putExtra("config_type", CONFIG_TOGETHER)
+                            );
                             break;
                         default:
                             break;

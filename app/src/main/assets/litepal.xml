@@ -29,7 +29,10 @@
         </list>
     -->
     <list>
-        <mapping class="cn.eejing.ejcolorflower.model.lite.CtrlTypeEntity" />
+        <mapping class="cn.eejing.ejcolorflower.model.lite.CtrlStreamEntity" />
+        <mapping class="cn.eejing.ejcolorflower.model.lite.CtrlRideEntity" />
+        <mapping class="cn.eejing.ejcolorflower.model.lite.CtrlIntervalEntity" />
+        <mapping class="cn.eejing.ejcolorflower.model.lite.CtrlTogetherEntity" />
     </list>
 
     <!--
