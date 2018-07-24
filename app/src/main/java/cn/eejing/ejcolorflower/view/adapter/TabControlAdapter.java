@@ -57,7 +57,6 @@ import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_INTERVAL;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_RIDE;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_STREAM;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
-import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_TOGETHER_HIGH;
 
 /**
  * 控制模块适配器
@@ -189,16 +188,17 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             // 数据库中查询是否保存信息
             List<CtrlTypeEntity> entities = LitePal.findAll(CtrlTypeEntity.class);
             for (int i = 0; i < entities.size(); i++) {
-                if (entities.get(i).getGroupId() == groupId) {
-                    // 如果数据库中的 groupId 和服务器的一致，设置相关数据
+                if (groupId == entities.get(i).getGroupId()) {
+                    // 如果服务器的 groupId 和数据库中的一致，显示数据库中的相关数据
                     sbType.setText(entities.get(i).getConfigType());
-                } else {
-                    if (mConfigType != null && mPostGroupId == groupId) {
-                        // 不一致情况，如果传过来的控制模式不为空且传过来的 groupId 和服务器的一致，设置相关数据
+                }
+                else if (groupId == mPostGroupId) {
+                    // 如果服务器的 groupId 和通过控制界面传过来的一致，显示控制界面中的相关数据
+                    if (mConfigType != null) {
+                        // 如果传过来的控制模式不为空，显示穿过来的
                         sbType.setText(mConfigType);
-                    }
-                    if (mConfigType == null) {
-                        // 如果 mConfigType 为空，设置默认数据（齐喷、10s、高度100）
+                    } else {
+                        // 否则显示默认数据（齐喷、10s、高度100）
                         sbType.setText(CONFIG_TOGETHER);
                         mDuration = 100;
                         mHigh = 100;
