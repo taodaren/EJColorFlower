@@ -6,19 +6,19 @@ package cn.eejing.ejcolorflower.model.event;
 
 public class JetStatusEvent {
     private String mType;      // 效果功能（方式）
-    private String mDirection; // 方向
-    private String mGap;       // 间隔时间
-    private String mDuration;  // 持续时间
-    private String mGapBig;    // 大间隔时间
-    private String mLoop;      // 循环次数
-    private String mFrequency; // 次数（换向）
-    private String mHigh;      // 高度
+    private int mDirection; // 方向
+    private int mGap;       // 间隔时间
+    private int mDuration;  // 持续时间
+    private int mGapBig;    // 大间隔时间
+    private int mLoop;      // 循环次数
+    private int mFrequency; // 次数（换向）
+    private int mHigh;      // 高度
     private int mGroupId;
 
     public JetStatusEvent() {
     }
 
-    public JetStatusEvent(String mType, String mDirection, String mGap, String mDuration, String mGapBig, String mLoop, int mGroupId, String mHigh) {
+    public JetStatusEvent(String mType, int mDirection, int mGap, int mDuration, int mGapBig, int mLoop, int mGroupId, int mHigh) {
         this.mType = mType;
         this.mDirection = mDirection;
         this.mGap = mGap;
@@ -29,7 +29,7 @@ public class JetStatusEvent {
         this.mHigh = mHigh;
     }
 
-    public JetStatusEvent(String mType, String mGap, String mDuration, String mFrequency, int mGroupId, String mHigh) {
+    public JetStatusEvent(String mType, int mGap, int mDuration, int mFrequency, int mGroupId, int mHigh) {
         this.mType = mType;
         this.mGap = mGap;
         this.mDuration = mDuration;
@@ -38,7 +38,7 @@ public class JetStatusEvent {
         this.mHigh = mHigh;
     }
 
-    public JetStatusEvent(String mType, String mDuration, String mHigh, int mGroupId) {
+    public JetStatusEvent(String mType, int mDuration, int mHigh, int mGroupId) {
         this.mType = mType;
         this.mDuration = mDuration;
         this.mHigh = mHigh;
@@ -53,59 +53,59 @@ public class JetStatusEvent {
         this.mType = mType;
     }
 
-    public String getmDirection() {
+    public int getmDirection() {
         return mDirection;
     }
 
-    public void setDirection(String mDirection) {
+    public void setDirection(int mDirection) {
         this.mDirection = mDirection;
     }
 
-    public String getGap() {
+    public int getGap() {
         return mGap;
     }
 
-    public void setGap(String mGap) {
+    public void setGap(int mGap) {
         this.mGap = mGap;
     }
 
-    public String getDuration() {
+    public int getDuration() {
         return mDuration;
     }
 
-    public void setDuration(String mDuration) {
+    public void setDuration(int mDuration) {
         this.mDuration = mDuration;
     }
 
-    public String getGapBig() {
+    public int getGapBig() {
         return mGapBig;
     }
 
-    public void setGapBig(String mGapBig) {
+    public void setGapBig(int mGapBig) {
         this.mGapBig = mGapBig;
     }
 
-    public String getLoop() {
+    public int getLoop() {
         return mLoop;
     }
 
-    public void setLoop(String mLoop) {
+    public void setLoop(int mLoop) {
         this.mLoop = mLoop;
     }
 
-    public String getFrequency() {
+    public int getFrequency() {
         return mFrequency;
     }
 
-    public void setFrequency(String mFrequency) {
+    public void setFrequency(int mFrequency) {
         this.mFrequency = mFrequency;
     }
 
-    public String getHigh() {
+    public int getHigh() {
         return mHigh;
     }
 
-    public void setHigh(String mHigh) {
+    public void setHigh(int mHigh) {
         this.mHigh = mHigh;
     }
 

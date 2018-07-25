@@ -31,6 +31,7 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
     @BindView(R.id.et_interval_frequency)        EditText etFrequency;
 
     private int mGroupId;
+    private String mConfigType;
 
     @Override
     protected int layoutViewId() {
@@ -39,9 +40,38 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
 
     @Override
     public void initView() {
-        setToolbar(getString(R.string.config_interval), View.VISIBLE);
+        setToolbar(CONFIG_INTERVAL, View.VISIBLE);
         mGroupId = getIntent().getIntExtra("group_id", 0);
-        defaultConfig();
+        mConfigType = getIntent().getStringExtra("config_type");
+
+        initConfigDB();
+    }
+
+    private void initConfigDB() {
+        List<CtrlIntervalEntity> entities = LitePal.findAll(CtrlIntervalEntity.class);
+        if (entities.size() == 0) {
+            // 默认配置
+            defaultConfig();
+        } else {
+            // 更新配置
+            for (int i = 0; i < entities.size(); i++) {
+                if (mGroupId == entities.get(i).getGroupId() && mConfigType.equals(entities.get(i).getConfigType())) {
+                    updateConfig(entities, i);
+                }
+            }
+        }
+    }
+
+    private void defaultConfig() {
+        etGap.setText(AppConstant.DEFAULT_INTERVAL_GAP);
+        etDuration.setText(AppConstant.DEFAULT_INTERVAL_DURATION);
+        etFrequency.setText(AppConstant.DEFAULT_INTERVAL_FREQUENCY);
+    }
+
+    private void updateConfig(List<CtrlIntervalEntity> entities, int i) {
+        etGap.setText(entities.get(i).getGap());
+        etDuration.setText(entities.get(i).getDuration());
+        etFrequency.setText(entities.get(i).getFrequency());
     }
 
     @Override
@@ -89,20 +119,18 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
     }
 
     private void postEvent() {
-        JetStatusEvent event = new JetStatusEvent(getString(R.string.config_interval),
-                etGap.getText().toString(),
-                etDuration.getText().toString(),
-                etFrequency.getText().toString(),
-                mGroupId,
-                DEFAULT_TOGETHER_HIGH
-        );
-        EventBus.getDefault().post(event);
-    }
+        try {
+            int gap = Integer.parseInt(etGap.getText().toString());
+            int duration = Integer.parseInt(etDuration.getText().toString());
+            int frequency = Integer.parseInt(etFrequency.getText().toString());
+            int high = Integer.parseInt(DEFAULT_TOGETHER_HIGH);
 
-    private void defaultConfig() {
-        etGap.setText(AppConstant.DEFAULT_INTERVAL_GAP);
-        etDuration.setText(AppConstant.DEFAULT_INTERVAL_DURATION);
-        etFrequency.setText(AppConstant.DEFAULT_INTERVAL_FREQUENCY);
+            JetStatusEvent event = new JetStatusEvent(getString(R.string.config_interval),
+                    gap, duration, frequency, mGroupId, high);
+            EventBus.getDefault().post(event);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
     }
 
 }

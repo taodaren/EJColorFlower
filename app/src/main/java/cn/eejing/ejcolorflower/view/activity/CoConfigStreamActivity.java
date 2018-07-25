@@ -49,8 +49,9 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
     @BindView(R.id.et_stream_loop)               EditText       etLoop;
 
     // 用于保存当前被选中的按钮
-    private String strBtnSelected;
-    private BtnSelected btnListener1, btnListener2, btnListener3, btnListener4;
+    private String strBtnDirection;
+    private BtnSelected mLrBtnListener, mBcBtnListener, mRlBtnListener, mCbBtnListener;
+    private boolean mLrChecked, mBcChecked, mRlChecked, mCbChecked;
 
     private int mGroupId;
     private String mConfigType;
@@ -68,13 +69,10 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
         mGroupId = getIntent().getIntExtra("group_id", 0);
         mConfigType = getIntent().getStringExtra("config_type");
 
-        Log.e("GSD", "initView config_type: " + mConfigType);
-        Log.e("GSD", "initView group_id: " + mGroupId);
-
-        btnListener1 = new BtnSelected(LEFT_TO_RIGHT);
-        btnListener2 = new BtnSelected(BORDER_TO_CENTER);
-        btnListener3 = new BtnSelected(RIGHT_TO_LEFT);
-        btnListener4 = new BtnSelected(CENTER_TO_BORDER);
+        mLrBtnListener = new BtnSelected(LEFT_TO_RIGHT);
+        mBcBtnListener = new BtnSelected(BORDER_TO_CENTER);
+        mRlBtnListener = new BtnSelected(RIGHT_TO_LEFT);
+        mCbBtnListener = new BtnSelected(CENTER_TO_BORDER);
 
         initConfigDB();
     }
@@ -88,10 +86,6 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
         } else {
             // 更新配置
             for (int i = 0; i < entities.size(); i++) {
-                Log.i("GSD", "for loop config_type: " + entities.get(i).getConfigType());
-                Log.i("GSD", "for loop group_id: " + entities.get(i).getGroupId());
-
-                defaultConfig();
                 if (mGroupId == entities.get(i).getGroupId() && mConfigType.equals(entities.get(i).getConfigType())) {
                     updateConfig(entities, i);
                 }
@@ -99,39 +93,53 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void defaultConfig() {
-        strBtnSelected = LEFT_TO_RIGHT;
         etGap.setText(AppConstant.DEFAULT_STREAM_RIDE_GAP);
         etDuration.setText(AppConstant.DEFAULT_STREAM_RIDE_DURATION);
         etGapBig.setText(AppConstant.DEFAULT_STREAM_RIDE_GAP_BIG);
         etLoop.setText(AppConstant.DEFAULT_STREAM_RIDE_LOOP);
+        strBtnDirection = LEFT_TO_RIGHT;
+        btnChangeState(
+                R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click,
+                R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick,
+                true, false, false, false
+        );
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void updateConfig(List<CtrlStreamEntity> entities, int i) {
         switch (entities.get(i).getDirection()) {
             case LEFT_TO_RIGHT:
+                strBtnDirection = LEFT_TO_RIGHT;
                 btnChangeState(
                         R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click,
-                        R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick
+                        R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick,
+                        true, false, false, false
                 );
                 break;
             case BORDER_TO_CENTER:
+                strBtnDirection = BORDER_TO_CENTER;
                 btnChangeState(
                         R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click,
-                        R.color.colorNoClick, R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick
+                        R.color.colorNoClick, R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick,
+                        false, true, false, false
                 );
                 break;
             case RIGHT_TO_LEFT:
+                strBtnDirection = RIGHT_TO_LEFT;
                 btnChangeState(
                         R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click,
-                        R.color.colorNoClick, R.color.colorNoClick, R.color.colorWhite, R.color.colorNoClick
+                        R.color.colorNoClick, R.color.colorNoClick, R.color.colorWhite, R.color.colorNoClick,
+                        false, false, true, false
                 );
                 break;
             case CENTER_TO_BORDER:
+                strBtnDirection = CENTER_TO_BORDER;
                 btnChangeState(
                         R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click,
-                        R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick, R.color.colorWhite
+                        R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick, R.color.colorWhite,
+                        false, false, false, true
                 );
                 break;
             default:
@@ -148,10 +156,10 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
     public void initListener() {
         btnVerify.setOnClickListener(this);
 
-        rbtnLeftToRight.setOnClickListener(btnListener1);
-        rbtnBorderToCenter.setOnClickListener(btnListener2);
-        rbtnRightToLeft.setOnClickListener(btnListener3);
-        rbtnCenterToBorder.setOnClickListener(btnListener4);
+        rbtnLeftToRight.setOnClickListener(mLrBtnListener);
+        rbtnBorderToCenter.setOnClickListener(mBcBtnListener);
+        rbtnRightToLeft.setOnClickListener(mRlBtnListener);
+        rbtnCenterToBorder.setOnClickListener(mCbBtnListener);
     }
 
     @Override
@@ -187,7 +195,7 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
     private void setEntity(CtrlStreamEntity entity) {
         entity.setConfigType(CONFIG_STREAM);
         entity.setGroupId(mGroupId);
-        entity.setDirection(strBtnSelected);
+        entity.setDirection(strBtnDirection);
         entity.setGap(etGap.getText().toString());
         entity.setDuration(etDuration.getText().toString());
         entity.setGapBig(etGapBig.getText().toString());
@@ -196,16 +204,37 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
     }
 
     private void postEvent() {
-        JetStatusEvent event = new JetStatusEvent(getString(R.string.config_stream),
-                strBtnSelected,
-                etGap.getText().toString(),
-                etDuration.getText().toString(),
-                etGapBig.getText().toString(),
-                etLoop.getText().toString(),
-                mGroupId,
-                DEFAULT_TOGETHER_HIGH
-        );
-        EventBus.getDefault().post(event);
+        try {
+            int direction = 0, gap, duration, bigGit, loop, high;
+            if (strBtnDirection == null) {
+                if (mLrChecked) {
+                    direction = Integer.parseInt(LEFT_TO_RIGHT);
+                }
+                if (mRlChecked) {
+                    direction = Integer.parseInt(RIGHT_TO_LEFT);
+                }
+                if (mBcChecked) {
+                    direction = Integer.parseInt(BORDER_TO_CENTER);
+                }
+                if (mCbChecked) {
+                    direction = Integer.parseInt(CENTER_TO_BORDER);
+                }
+            } else {
+                direction = Integer.parseInt(strBtnDirection);
+            }
+            gap = Integer.parseInt(etGap.getText().toString());
+            duration = Integer.parseInt(etDuration.getText().toString());
+            bigGit = Integer.parseInt(etGapBig.getText().toString());
+            loop = Integer.parseInt(etLoop.getText().toString());
+            high = Integer.parseInt(DEFAULT_TOGETHER_HIGH);
+
+
+            JetStatusEvent event = new JetStatusEvent(getString(R.string.config_stream),
+                    direction, gap, duration, bigGit, loop, mGroupId, high);
+            EventBus.getDefault().post(event);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -223,7 +252,7 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
         @RequiresApi(api = Build.VERSION_CODES.M)
         @Override
         public void onClick(View arg0) {
-            strBtnSelected = bntID;
+            strBtnDirection = bntID;
 
             if (bntID.equals(LEFT_TO_RIGHT) || bntID.equals(BORDER_TO_CENTER)) {
                 radioRight.clearCheck();
@@ -235,25 +264,29 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
                 case R.id.rbtn_left_to_right:
                     btnChangeState(
                             R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click,
-                            R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick
+                            R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick,
+                            true, false, false, false
                     );
                     break;
                 case R.id.rbtn_border_to_center:
                     btnChangeState(
                             R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click,
-                            R.color.colorNoClick, R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick
+                            R.color.colorNoClick, R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick,
+                            false, true, false, false
                     );
                     break;
                 case R.id.rbtn_right_to_left:
                     btnChangeState(
                             R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click,
-                            R.color.colorNoClick, R.color.colorNoClick, R.color.colorWhite, R.color.colorNoClick
+                            R.color.colorNoClick, R.color.colorNoClick, R.color.colorWhite, R.color.colorNoClick,
+                            false, false, true, false
                     );
                     break;
                 case R.id.rbtn_center_to_border:
                     btnChangeState(
                             R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click,
-                            R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick, R.color.colorWhite
+                            R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick, R.color.colorWhite,
+                            false, false, false, true
                     );
                     break;
                 default:
@@ -265,7 +298,8 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void btnChangeState(@DrawableRes int lr, @DrawableRes int bc, @DrawableRes int rl, @DrawableRes int cb,
-                                @ColorRes int lrColor, @ColorRes int bcColor, @ColorRes int rlColor, @ColorRes int cbColor) {
+                                @ColorRes int lrColor, @ColorRes int bcColor, @ColorRes int rlColor, @ColorRes int cbColor,
+                                boolean lrCheck,boolean bcCheck,boolean rlCheck,boolean cbCheck) {
         rbtnLeftToRight.setBackground(getDrawable(lr));
         rbtnBorderToCenter.setBackground(getDrawable(bc));
         rbtnRightToLeft.setBackground(getDrawable(rl));
@@ -275,6 +309,11 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
         rbtnBorderToCenter.setTextColor(getColor(bcColor));
         rbtnRightToLeft.setTextColor(getColor(rlColor));
         rbtnCenterToBorder.setTextColor(getColor(cbColor));
+
+        mLrChecked = lrCheck;
+        mBcChecked = bcCheck;
+        mRlChecked = rlCheck;
+        mCbChecked = cbCheck;
     }
 
 }
