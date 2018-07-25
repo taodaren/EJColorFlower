@@ -78,13 +78,14 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private SelfDialog mDialog;
 
     // 硬件相关
+    private AppActivity.FireworkDevCtrl mDevCtrl;
     private DeviceState mState;
     private DeviceConfig mConfig;
     private String mConnInfo, mConnDevMac;
     private long mConnDevID;
 
-    private AppActivity.FireworkDevCtrl mDevCtrl;
     private String mConfigType;
+    private long mMillis;
     private int mPostGroupId, mGap, mDirection, mDuration, mGapBig, mLoop, mFrequency, mHigh;
 
     public TabControlAdapter(Context mContext, List<DeviceGroupListBean.DataBean> mList, String mMemberId) {
@@ -174,6 +175,8 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         String groupName;
         int groupId;
+        // 时间戳
+        long streamMillis, rideMillis, intervalMillis, togetherMillis;
 
         ItemViewHolder(View itemView) {
             super(itemView);
@@ -188,87 +191,142 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             // 设置分组名称
             tvName.setText(bean.getGroup_name());
 
-            // TODO: 2018/7/24 处理封装
+            Log.i("SLN", "【Config Info】"+
+                    " group_id " + groupId +
+                    "\nmConfigType: " + mConfigType +
+                    "\nmPostGroupId: " + mPostGroupId +
+                    "\nmGap: " + mGap +
+                    "\nmDirection: " + mDirection +
+                    "\nmDuration: " + mDuration +
+                    "\nmGapBig: " + mGapBig +
+                    "\nmLoop: " + mLoop +
+                    "\nmFrequency: " + mFrequency +
+                    "\nmHigh: " + mHigh
+            );
+
             // 数据库中查询是否保存信息
-            List<CtrlStreamEntity> streamEntities = LitePal.findAll(CtrlStreamEntity.class);
-            List<CtrlRideEntity> rideEntities = LitePal.findAll(CtrlRideEntity.class);
-            List<CtrlIntervalEntity> intervalEntities = LitePal.findAll(CtrlIntervalEntity.class);
-            List<CtrlTogetherEntity> togetherEntities = LitePal.findAll(CtrlTogetherEntity.class);
+            List<CtrlStreamEntity> streamDBList = LitePal.findAll(CtrlStreamEntity.class);
+            List<CtrlRideEntity> rideDBList = LitePal.findAll(CtrlRideEntity.class);
+            List<CtrlIntervalEntity> intervalDBList = LitePal.findAll(CtrlIntervalEntity.class);
+            List<CtrlTogetherEntity> togetherDBList = LitePal.findAll(CtrlTogetherEntity.class);
+            Log.i("SLN", "streamDBList: " + streamDBList.size());
 
-            for (int i = 0; i < streamEntities.size(); i++) {
-                if (groupId == streamEntities.get(i).getGroupId()) {
-                    // 如果服务器的 groupId 和数据库中的一致，显示数据库中的相关数据
-                    sbType.setText(streamEntities.get(i).getConfigType());
-                }
-                else if (groupId == mPostGroupId) {
-                    // 如果服务器的 groupId 和通过控制界面传过来的一致，显示控制界面中的相关数据
-                    if (mConfigType != null) {
-                        // 如果传过来的控制模式不为空，显示穿过来的
-                        sbType.setText(mConfigType);
-                    } else {
-                        // 否则显示默认数据（齐喷、10s、高度100）
-                        sbType.setText(CONFIG_TOGETHER);
-                        mDuration = 100;
-                        mHigh = 100;
+            String type="流水灯";
+            long tempTime = 0;
+            if (mPostGroupId != 0) {
+                if (streamDBList.size() != 0) {
+                    for (CtrlStreamEntity streamBean : streamDBList) {
+                        Log.e("SLN", streamBean.getConfigType() + " 服务器 Id: " + groupId);
+                        Log.i("SLN", streamBean.getConfigType() + " 界面传 Id: " + mPostGroupId);
+                        Log.i("SLN", streamBean.getConfigType() + " 数据库 Id: " + streamBean.getGroupId());
+                        if (mConfigType != null) {
+                            if (mConfigType.equals(streamBean.getConfigType())) {
+                                if (groupId == streamBean.getGroupId()) {
+                                    // 如果服务器的 groupId 和数据库中的一致，显示数据库中的相关数据
+                                    sbType.setText(streamBean.getConfigType());
+                                } else if (groupId == mPostGroupId) {
+                                    sbType.setText(mConfigType);
+                                }
+                            }
+                        } else {
+                            defaultShow();
+                        }
                     }
+                } else {
+                    defaultShow();
                 }
-            }
+            } else {
+                // TODO: mPostGroupId == 0 情况  size > 0 暂时写了四个循环，可能不好使
+                if (streamDBList.size() != 0) {
+                    for (CtrlStreamEntity streamBean : streamDBList) {
+                        Log.e("SLN", streamBean.getConfigType() + " 服务器 Id: " + groupId);
+                        Log.i("SLN", streamBean.getConfigType() + " 数据库 Id: " + streamBean.getGroupId());
 
-            for (int i = 0; i < rideEntities.size(); i++) {
-                if (groupId == rideEntities.get(i).getGroupId()) {
-                    // 如果服务器的 groupId 和数据库中的一致，显示数据库中的相关数据
-                    sbType.setText(rideEntities.get(i).getConfigType());
-                }
-                else if (groupId == mPostGroupId) {
-                    // 如果服务器的 groupId 和通过控制界面传过来的一致，显示控制界面中的相关数据
-                    if (mConfigType != null) {
-                        // 如果传过来的控制模式不为空，显示穿过来的
-                        sbType.setText(mConfigType);
-                    } else {
-                        // 否则显示默认数据（齐喷、10s、高度100）
-                        sbType.setText(CONFIG_TOGETHER);
-                        mDuration = 100;
-                        mHigh = 100;
+                        Log.i("SLN", "streamBean.getConfigType(): " + streamBean.getConfigType());
+                        Log.i("SLN", "streamBean.时间戳(): " + streamBean.getMillis());
+                        if (groupId == streamBean.getGroupId()) {
+                            streamMillis = streamBean.getMillis();
+                            if (streamMillis > tempTime) {
+                                tempTime = streamMillis;
+                                type = streamBean.getConfigType();
+                            }
+                            // 如果服务器的 groupId 和数据库中的一致
+//                                sbType.setText(streamBean.getConfigType());
+                            break;
+                        }
                     }
+                } else {
+                    defaultShow();
                 }
-            }
 
-            for (int i = 0; i < intervalEntities.size(); i++) {
-                if (groupId == intervalEntities.get(i).getGroupId()) {
-                    // 如果服务器的 groupId 和数据库中的一致，显示数据库中的相关数据
-                    sbType.setText(intervalEntities.get(i).getConfigType());
-                }
-                else if (groupId == mPostGroupId) {
-                    // 如果服务器的 groupId 和通过控制界面传过来的一致，显示控制界面中的相关数据
-                    if (mConfigType != null) {
-                        // 如果传过来的控制模式不为空，显示穿过来的
-                        sbType.setText(mConfigType);
-                    } else {
-                        // 否则显示默认数据（齐喷、10s、高度100）
-                        sbType.setText(CONFIG_TOGETHER);
-                        mDuration = 100;
-                        mHigh = 100;
-                    }
-                }
-            }
+                if (rideDBList.size() != 0) {
+                    for (CtrlRideEntity rideBean : rideDBList) {
+                        Log.e("SLN", rideBean.getConfigType() + " 服务器 Id: " + groupId);
+                        Log.i("SLN", rideBean.getConfigType() + " 数据库 Id: " + rideBean.getGroupId());
 
-            for (int i = 0; i < togetherEntities.size(); i++) {
-                if (groupId == togetherEntities.get(i).getGroupId()) {
-                    // 如果服务器的 groupId 和数据库中的一致，显示数据库中的相关数据
-                    sbType.setText(togetherEntities.get(i).getConfigType());
-                }
-                else if (groupId == mPostGroupId) {
-                    // 如果服务器的 groupId 和通过控制界面传过来的一致，显示控制界面中的相关数据
-                    if (mConfigType != null) {
-                        // 如果传过来的控制模式不为空，显示穿过来的
-                        sbType.setText(mConfigType);
-                    } else {
-                        // 否则显示默认数据（齐喷、10s、高度100）
-                        sbType.setText(CONFIG_TOGETHER);
-                        mDuration = 100;
-                        mHigh = 100;
+                        Log.i("SLN", "rideBean.getConfigType(): " + rideBean.getConfigType());
+                        Log.i("SLN", "rideBean.时间戳(): " + rideBean.getMillis());
+                        if (groupId == rideBean.getGroupId()) {
+                            rideMillis = rideBean.getMillis();
+                            if (rideMillis > tempTime) {
+                                tempTime = rideMillis;
+                                type = rideBean.getConfigType();
+                            }
+                            // 如果服务器的 groupId 和数据库中的一致
+//                                sbType.setText(rideBean.getConfigType());
+                            break;
+                        }
                     }
+                } else {
+                    defaultShow();
                 }
+
+                if (intervalDBList.size() != 0) {
+                    for (CtrlIntervalEntity intervalBean : intervalDBList) {
+                        Log.e("SLN", intervalBean.getConfigType() + " 服务器 Id: " + groupId);
+                        Log.i("SLN", intervalBean.getConfigType() + " 数据库 Id: " + intervalBean.getGroupId());
+
+                        Log.i("SLN", "intervalBean.getConfigType(): " + intervalBean.getConfigType());
+                        Log.i("SLN", "intervalBean.时间戳(): " + intervalBean.getMillis());
+                        if (groupId == intervalBean.getGroupId()) {
+                            intervalMillis = intervalBean.getMillis();
+                            if (intervalMillis > tempTime) {
+                                tempTime = intervalMillis;
+                                type = intervalBean.getConfigType();
+                            }
+                            // 如果服务器的 groupId 和数据库中的一致
+//                                sbType.setText(intervalBean.getConfigType());
+                            break;
+                        }
+                    }
+                } else {
+                    defaultShow();
+                }
+
+                if (togetherDBList.size() != 0) {
+                    for (CtrlTogetherEntity togetherBean : togetherDBList) {
+                        Log.e("SLN", togetherBean.getConfigType() + " 服务器 Id: " + groupId);
+                        Log.i("SLN", togetherBean.getConfigType() + " 数据库 Id: " + togetherBean.getGroupId());
+
+                        Log.i("SLN", "togetherBean.getConfigType(): " + togetherBean.getConfigType());
+                        Log.i("SLN", "togetherBean.时间戳(): " + togetherBean.getMillis());
+                        if (groupId == togetherBean.getGroupId()) {
+                            togetherMillis = togetherBean.getMillis();
+                            if (togetherMillis > tempTime) {
+                                tempTime = intervalMillis;
+                                type = togetherBean.getConfigType();
+                            }
+                            togetherMillis = togetherBean.getMillis();
+//                            // 如果服务器的 groupId 和数据库中的一致
+//                                sbType.setText(togetherBean.getConfigType());
+                            break;
+                        }
+                    }
+                } else {
+                    defaultShow();
+                }
+
+                sbType.setText(type);
             }
 
             Log.i("LJQ", "setData"
@@ -289,6 +347,13 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 tvInfo.setVisibility(View.VISIBLE);
                 rvGroup.setVisibility(View.INVISIBLE);
             }
+        }
+
+        private void defaultShow() {
+            // 显示默认数据（齐喷、10s、高度100）
+            sbType.setText(CONFIG_TOGETHER);
+            mDuration = 100;
+            mHigh = 100;
         }
 
         @OnClick(R.id.tv_ctrl_group_name)
@@ -774,31 +839,35 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventJetStatus(JetStatusEvent event) {
         mConfigType = event.getType();
+        Log.i("JET_STATUS", "onEventJetStatus: " + mConfigType);
         switch (mConfigType) {
             case CONFIG_STREAM:
             case CONFIG_RIDE:
                 initStatus();
-                mDirection = Integer.parseInt(event.getmDirection());
-                mGap = Integer.parseInt(event.getGap()) * 1000;
-                mDuration = Integer.parseInt(event.getDuration()) * 10;
-                mGapBig = Integer.parseInt(event.getGapBig());
-                mLoop = Integer.parseInt(event.getLoop());
-                mHigh = Integer.parseInt(event.getHigh());
                 mPostGroupId = event.getGroupId();
+                mGap = event.getGap() * 1000;
+                mDuration = event.getDuration() * 10;
+                mGapBig = event.getGapBig();
+                mLoop = event.getLoop();
+                mHigh = event.getHigh();
+                mDirection = event.getmDirection();
+                mMillis = event.getMillis();
                 break;
             case CONFIG_INTERVAL:
                 initStatus();
-                mGap = Integer.parseInt(event.getGap()) * 1000;
-                mDuration = Integer.parseInt(event.getDuration()) * 10;
-                mFrequency = Integer.parseInt(event.getFrequency());
-                mHigh = Integer.parseInt(event.getHigh());
                 mPostGroupId = event.getGroupId();
+                mGap = event.getGap() * 1000;
+                mDuration = event.getDuration() * 10;
+                mFrequency = event.getFrequency();
+                mHigh = event.getHigh();
+                mMillis = event.getMillis();
                 break;
             case CONFIG_TOGETHER:
                 initStatus();
-                mDuration = Integer.parseInt(event.getDuration()) * 10;
-                mHigh = Integer.parseInt(event.getHigh());
                 mPostGroupId = event.getGroupId();
+                mDuration = event.getDuration() * 10;
+                mHigh = event.getHigh();
+                mMillis = event.getMillis();
                 break;
             default:
                 break;
@@ -813,6 +882,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         Log.i("JET_STATUS", "loop: 循环次数--->" + mLoop);
         Log.i("JET_STATUS", "frequency: 次数（换向）--->" + mFrequency);
         Log.i("JET_STATUS", "high: 高度--->" + mHigh);
+        Log.i("JET_STATUS", "millis: 时间戳--->" + mMillis);
     }
 
     private void initStatus() {

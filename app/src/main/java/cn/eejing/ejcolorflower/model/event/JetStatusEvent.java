@@ -14,11 +14,12 @@ public class JetStatusEvent {
     private int mFrequency; // 次数（换向）
     private int mHigh;      // 高度
     private int mGroupId;
+    private long millis;
 
     public JetStatusEvent() {
     }
 
-    public JetStatusEvent(String mType, int mDirection, int mGap, int mDuration, int mGapBig, int mLoop, int mGroupId, int mHigh) {
+    public JetStatusEvent(String mType, int mDirection, int mGap, int mDuration, int mGapBig, int mLoop, int mGroupId, int mHigh, long millis) {
         this.mType = mType;
         this.mDirection = mDirection;
         this.mGap = mGap;
@@ -27,22 +28,33 @@ public class JetStatusEvent {
         this.mLoop = mLoop;
         this.mGroupId = mGroupId;
         this.mHigh = mHigh;
+        this.millis = millis;
     }
 
-    public JetStatusEvent(String mType, int mGap, int mDuration, int mFrequency, int mGroupId, int mHigh) {
+    public JetStatusEvent(String mType, int mGap, int mDuration, int mFrequency, int mGroupId, int mHigh, long millis) {
         this.mType = mType;
         this.mGap = mGap;
         this.mDuration = mDuration;
         this.mFrequency = mFrequency;
         this.mGroupId = mGroupId;
         this.mHigh = mHigh;
+        this.millis = millis;
     }
 
-    public JetStatusEvent(String mType, int mDuration, int mHigh, int mGroupId) {
+    public JetStatusEvent(String mType, int mDuration, int mHigh, int mGroupId, long millis) {
         this.mType = mType;
         this.mDuration = mDuration;
         this.mHigh = mHigh;
         this.mGroupId = mGroupId;
+        this.millis = millis;
+    }
+
+    public long getMillis() {
+        return millis;
+    }
+
+    public void setMillis(long millis) {
+        this.millis = millis;
     }
 
     public String getType() {

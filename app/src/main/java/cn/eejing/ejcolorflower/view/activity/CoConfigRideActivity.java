@@ -163,8 +163,9 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_config_verify:
-                setSQLiteData();
-                postEvent();
+                long millis = System.currentTimeMillis();
+                setSQLiteData(millis);
+                postEvent(millis);
                 finish();
                 break;
             default:
@@ -172,7 +173,7 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
         }
     }
 
-    private void setSQLiteData() {
+    private void setSQLiteData(long millis) {
         List<CtrlRideEntity> groupIdList = LitePal
                 .where("groupId=?", String.valueOf(mGroupId))
                 .find(CtrlRideEntity.class);
@@ -180,16 +181,16 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
         CtrlRideEntity entity = new CtrlRideEntity();
         if (groupIdList.size() == 0) {
             // 增
-            setEntity(entity);
+            setEntity(entity, millis);
             entity.save();
         } else {
             // 改
-            setEntity(entity);
+            setEntity(entity, millis);
             entity.updateAll("groupId=?", String.valueOf(mGroupId));
         }
     }
 
-    private void setEntity(CtrlRideEntity entity) {
+    private void setEntity(CtrlRideEntity entity, long millis) {
         entity.setConfigType(CONFIG_RIDE);
         entity.setGroupId(mGroupId);
         entity.setDirection(strBtnDirection);
@@ -198,9 +199,10 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
         entity.setGapBig(etGapBig.getText().toString());
         entity.setLoop(etLoop.getText().toString());
         entity.setHigh(DEFAULT_TOGETHER_HIGH);
+        entity.setMillis(millis);
     }
 
-    private void postEvent() {
+    private void postEvent(long millis) {
         try {
             int direction = 0, gap, duration, bigGit, loop, high;
             if (strBtnDirection == null) {
@@ -226,7 +228,7 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
             high = Integer.parseInt(DEFAULT_TOGETHER_HIGH);
 
             JetStatusEvent event = new JetStatusEvent(getString(R.string.config_ride),
-                    direction, gap, duration, bigGit, loop, mGroupId, high);
+                    direction, gap, duration, bigGit, loop, mGroupId, high, millis);
             EventBus.getDefault().post(event);
         } catch (NumberFormatException e) {
             e.printStackTrace();

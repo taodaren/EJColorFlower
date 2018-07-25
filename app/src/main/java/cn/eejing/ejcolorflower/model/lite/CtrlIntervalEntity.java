@@ -9,6 +9,7 @@ public class CtrlIntervalEntity extends LitePalSupport {
     private String high;            // 高度
     private String frequency;       // 次数（换向）
     private int groupId;            // 分组 ID
+    private long millis;            // 时间戳
 
     public String getConfigType() {
         return configType;
@@ -58,4 +59,11 @@ public class CtrlIntervalEntity extends LitePalSupport {
         this.groupId = groupId;
     }
 
+    public long getMillis() {
+        return millis;
+    }
+
+    public void setMillis(long millis) {
+        this.millis = millis;
+    }
 }

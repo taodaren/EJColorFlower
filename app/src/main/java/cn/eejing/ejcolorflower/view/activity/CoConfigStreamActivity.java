@@ -166,8 +166,9 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_config_verify:
-                setSQLiteData();
-                postEvent();
+                long millis = System.currentTimeMillis();
+                setSQLiteData(millis);
+                postEvent(millis);
                 finish();
                 break;
             default:
@@ -175,7 +176,7 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
         }
     }
 
-    private void setSQLiteData() {
+    private void setSQLiteData(long millis) {
         List<CtrlStreamEntity> groupIdList = LitePal
                 .where("groupId=?", String.valueOf(mGroupId))
                 .find(CtrlStreamEntity.class);
@@ -183,16 +184,16 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
         CtrlStreamEntity entity = new CtrlStreamEntity();
         if (groupIdList.size() == 0) {
             // 增
-            setEntity(entity);
+            setEntity(entity, millis);
             entity.save();
         } else {
             // 改
-            setEntity(entity);
+            setEntity(entity, millis);
             entity.updateAll("groupId=?", String.valueOf(mGroupId));
         }
     }
 
-    private void setEntity(CtrlStreamEntity entity) {
+    private void setEntity(CtrlStreamEntity entity, long millis) {
         entity.setConfigType(CONFIG_STREAM);
         entity.setGroupId(mGroupId);
         entity.setDirection(strBtnDirection);
@@ -201,9 +202,10 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
         entity.setGapBig(etGapBig.getText().toString());
         entity.setLoop(etLoop.getText().toString());
         entity.setHigh(DEFAULT_TOGETHER_HIGH);
+        entity.setMillis(millis);
     }
 
-    private void postEvent() {
+    private void postEvent(long millis) {
         try {
             int direction = 0, gap, duration, bigGit, loop, high;
             if (strBtnDirection == null) {
@@ -228,9 +230,8 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
             loop = Integer.parseInt(etLoop.getText().toString());
             high = Integer.parseInt(DEFAULT_TOGETHER_HIGH);
 
-
             JetStatusEvent event = new JetStatusEvent(getString(R.string.config_stream),
-                    direction, gap, duration, bigGit, loop, mGroupId, high);
+                    direction, gap, duration, bigGit, loop, mGroupId, high, millis);
             EventBus.getDefault().post(event);
         } catch (NumberFormatException e) {
             e.printStackTrace();

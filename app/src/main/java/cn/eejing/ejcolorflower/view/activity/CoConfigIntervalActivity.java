@@ -83,8 +83,9 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_verify_interval:
-                setSQLiteData();
-                postEvent();
+                long millis = System.currentTimeMillis();
+                setSQLiteData(millis);
+                postEvent(millis);
                 finish();
                 break;
             default:
@@ -92,7 +93,7 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
         }
     }
 
-    private void setSQLiteData() {
+    private void setSQLiteData(long millis) {
         List<CtrlIntervalEntity> groupIdList = LitePal
                 .where("groupId=?", String.valueOf(mGroupId))
                 .find(CtrlIntervalEntity.class);
@@ -100,25 +101,26 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
         CtrlIntervalEntity entity = new CtrlIntervalEntity();
         if (groupIdList.size() == 0) {
             // 增
-            setEntity(entity);
+            setEntity(entity, millis);
             entity.save();
         } else {
             // 改
-            setEntity(entity);
+            setEntity(entity, millis);
             entity.updateAll("groupId=?", String.valueOf(mGroupId));
         }
     }
 
-    private void setEntity(CtrlIntervalEntity entity) {
+    private void setEntity(CtrlIntervalEntity entity, long millis) {
         entity.setConfigType(CONFIG_INTERVAL);
         entity.setGroupId(mGroupId);
         entity.setGap(etGap.getText().toString());
         entity.setDuration(etDuration.getText().toString());
         entity.setFrequency(etFrequency.getText().toString());
         entity.setHigh(DEFAULT_TOGETHER_HIGH);
+        entity.setMillis(millis);
     }
 
-    private void postEvent() {
+    private void postEvent(long millis) {
         try {
             int gap = Integer.parseInt(etGap.getText().toString());
             int duration = Integer.parseInt(etDuration.getText().toString());
@@ -126,7 +128,7 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
             int high = Integer.parseInt(DEFAULT_TOGETHER_HIGH);
 
             JetStatusEvent event = new JetStatusEvent(getString(R.string.config_interval),
-                    gap, duration, frequency, mGroupId, high);
+                    gap, duration, frequency, mGroupId, high, millis);
             EventBus.getDefault().post(event);
         } catch (NumberFormatException e) {
             e.printStackTrace();

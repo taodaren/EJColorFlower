@@ -7,6 +7,7 @@ public class CtrlTogetherEntity extends LitePalSupport {
     private String duration;        // 持续时间
     private String high;            // 高度
     private int groupId;            // 分组 ID
+    private long millis;            // 时间戳
 
     public String getConfigType() {
         return configType;
@@ -40,4 +41,11 @@ public class CtrlTogetherEntity extends LitePalSupport {
         this.groupId = groupId;
     }
 
+    public long getMillis() {
+        return millis;
+    }
+
+    public void setMillis(long millis) {
+        this.millis = millis;
+    }
 }

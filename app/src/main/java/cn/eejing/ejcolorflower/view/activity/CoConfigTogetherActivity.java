@@ -79,8 +79,9 @@ public class CoConfigTogetherActivity extends BaseActivity implements View.OnCli
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_verify_together:
-                setSQLiteData();
-                postEvent();
+                long millis = System.currentTimeMillis();
+                setSQLiteData(millis);
+                postEvent(millis);
                 finish();
                 break;
             default:
@@ -88,7 +89,7 @@ public class CoConfigTogetherActivity extends BaseActivity implements View.OnCli
         }
     }
 
-    private void setSQLiteData() {
+    private void setSQLiteData(long millis) {
         List<CtrlTogetherEntity> groupIdList = LitePal
                 .where("groupId=?", String.valueOf(mGroupId))
                 .find(CtrlTogetherEntity.class);
@@ -96,29 +97,30 @@ public class CoConfigTogetherActivity extends BaseActivity implements View.OnCli
         CtrlTogetherEntity entity = new CtrlTogetherEntity();
         if (groupIdList.size() == 0) {
             // 增
-            setEntity(entity);
+            setEntity(entity, millis);
             entity.save();
         } else {
             // 改
-            setEntity(entity);
+            setEntity(entity, millis);
             entity.updateAll("groupId=?", String.valueOf(mGroupId));
         }
     }
 
-    private void setEntity(CtrlTogetherEntity entity) {
+    private void setEntity(CtrlTogetherEntity entity, long millis) {
         entity.setConfigType(CONFIG_TOGETHER);
         entity.setGroupId(mGroupId);
         entity.setDuration(etDuration.getText().toString());
         entity.setHigh(etHigh.getText().toString());
+        entity.setMillis(millis);
     }
 
-    private void postEvent() {
+    private void postEvent(long millis) {
         try {
             int duration = Integer.parseInt(etDuration.getText().toString());
             int high = Integer.parseInt(etHigh.getText().toString());
 
             JetStatusEvent event = new JetStatusEvent(getString(R.string.config_together),
-                    duration, high, mGroupId);
+                    duration, high, mGroupId, millis);
             EventBus.getDefault().post(event);
         } catch (NumberFormatException e) {
             e.printStackTrace();
