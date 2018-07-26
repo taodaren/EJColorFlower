@@ -1,132 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorWhite"
+    android:orientation="vertical"
     tools:context=".view.activity.CoConfigIntervalActivity">
+
+    <include layout="@layout/layout_toolbar" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorWhite"
-        android:orientation="vertical">
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="45dp"
+        android:gravity="center_vertical">
 
-        <include layout="@layout/layout_toolbar" />
-
-        <RelativeLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="84dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
-            android:layout_marginTop="45dp">
+            android:text="@string/text_gap"
+            android:textColor="@color/colorConfig"
+            android:textSize="15sp" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical">
+        <EditText
+            android:id="@+id/et_interval_gap"
+            android:layout_width="124dp"
+            android:layout_height="30dp"
+            android:background="@drawable/shape_edit_bg"
+            android:hint="@string/please_input"
+            android:inputType="number"
+            android:padding="6dp"
+            android:textColor="@color/colorTitleName"
+            android:textCursorDrawable="@null"
+            android:textSize="12sp" />
 
-                <TextView
-                    android:layout_width="84dp"
-                    android:layout_height="wrap_content"
-                    android:text="间隔时间"
-                    android:textColor="@color/colorConfig"
-                    android:textSize="15sp" />
-
-                <EditText
-                    android:id="@+id/et_interval_gap"
-                    android:layout_width="124dp"
-                    android:layout_height="30dp"
-                    android:background="@drawable/shape_edit_bg"
-                    android:inputType="number"
-                    android:padding="6dp"
-                    android:textColor="@color/colorTitleName"
-                    android:textCursorDrawable="@null"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="@string/text_s"
-                    android:textColor="@color/colorNoClick" />
-            </LinearLayout>
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
-            android:layout_marginTop="15dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:layout_width="84dp"
-                    android:layout_height="wrap_content"
-                    android:text="持续时间"
-                    android:textColor="@color/colorConfig"
-                    android:textSize="15sp" />
-
-                <EditText
-                    android:id="@+id/et_interval_duration"
-                    android:layout_width="124dp"
-                    android:layout_height="30dp"
-                    android:background="@drawable/shape_edit_bg"
-                    android:inputType="number"
-                    android:padding="6dp"
-                    android:textColor="@color/colorTitleName"
-                    android:textCursorDrawable="@null"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="@string/text_s"
-                    android:textColor="@color/colorNoClick" />
-            </LinearLayout>
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
-            android:layout_marginTop="15dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:layout_width="84dp"
-                    android:layout_height="wrap_content"
-                    android:text="次数"
-                    android:textColor="@color/colorConfig"
-                    android:textSize="15sp" />
-
-                <EditText
-                    android:id="@+id/et_interval_frequency"
-                    android:layout_width="124dp"
-                    android:layout_height="30dp"
-                    android:background="@drawable/shape_edit_bg"
-                    android:inputType="number"
-                    android:padding="6dp"
-                    android:textColor="@color/colorTitleName"
-                    android:textCursorDrawable="@null"
-                    android:textSize="16sp" />
-            </LinearLayout>
-        </RelativeLayout>
-
-        <Button
-            android:id="@+id/btn_verify_interval"
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="35dp"
-            android:layout_marginTop="45dp"
-            android:background="@drawable/ic_btn_confirm" />
+            android:layout_marginStart="8dp"
+            android:text="@string/text_s"
+            android:textColor="@color/colorNoClick" />
     </LinearLayout>
-</RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="15dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="84dp"
+            android:layout_height="wrap_content"
+            android:text="@string/text_duration"
+            android:textColor="@color/colorConfig"
+            android:textSize="15sp" />
+
+        <EditText
+            android:id="@+id/et_interval_duration"
+            android:layout_width="124dp"
+            android:layout_height="30dp"
+            android:background="@drawable/shape_edit_bg"
+            android:hint="@string/please_input"
+            android:inputType="number"
+            android:padding="6dp"
+            android:textColor="@color/colorTitleName"
+            android:textCursorDrawable="@null"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/text_s"
+            android:textColor="@color/colorNoClick" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="15dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="84dp"
+            android:layout_height="wrap_content"
+            android:text="@string/text_frequency"
+            android:textColor="@color/colorConfig"
+            android:textSize="15sp" />
+
+        <EditText
+            android:id="@+id/et_interval_frequency"
+            android:layout_width="124dp"
+            android:layout_height="30dp"
+            android:background="@drawable/shape_edit_bg"
+            android:hint="@string/please_input"
+            android:inputType="number"
+            android:padding="6dp"
+            android:textColor="@color/colorTitleName"
+            android:textCursorDrawable="@null"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_verify_interval"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/ic_btn_confirm" />
+</LinearLayout>

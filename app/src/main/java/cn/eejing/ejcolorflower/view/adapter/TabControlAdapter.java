@@ -384,6 +384,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         /** 配置喷射样式 */
         private void configJetStyle(int groupId) {
             // 显示 PopupWindow 同时背景变暗
+            @SuppressLint("InflateParams")
             View contentView = LayoutInflater.from(mContext).inflate(R.layout.layout_pop_menu, null);
             handleLogic(contentView, groupId);
             // 创建并显示 popWindow

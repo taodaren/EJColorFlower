@@ -4,6 +4,8 @@ import android.os.Build;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.RequiresApi;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -54,6 +56,32 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
 
     private int mGroupId;
 
+    private TextWatcher textWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+            if (etGap.getText().toString().trim().isEmpty()
+                    || etDuration.getText().toString().trim().isEmpty()
+                    || etGapBig.getText().toString().trim().isEmpty()
+                    || etLoop.getText().toString().trim().isEmpty()) {
+                // EditText 有空情况
+                btnVerify.setEnabled(Boolean.FALSE);
+                btnVerify.setBackground(getDrawable(R.drawable.ic_btn_confirm_no));
+            } else {
+                // EditText 同时不为空的情况
+                btnVerify.setEnabled(Boolean.TRUE);
+                btnVerify.setBackground(getDrawable(R.drawable.ic_btn_confirm));
+            }
+        }
+    };
+
     @Override
     protected int layoutViewId() {
         return R.layout.activity_co_config_strem_ride;
@@ -72,6 +100,11 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
         mCbBtnListener = new BtnSelected(CENTER_TO_BORDER);
 
         initConfigDB();
+
+        etGap.addTextChangedListener(textWatcher);
+        etDuration.addTextChangedListener(textWatcher);
+        etGapBig.addTextChangedListener(textWatcher);
+        etLoop.addTextChangedListener(textWatcher);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)

@@ -1,5 +1,7 @@
 package cn.eejing.ejcolorflower.view.activity;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -32,6 +34,33 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
 
     private int mGroupId;
 
+
+    private TextWatcher textWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+            if (etGap.getText().toString().trim().isEmpty()
+                    || etDuration.getText().toString().trim().isEmpty()
+                    || etFrequency.getText().toString().trim().isEmpty()) {
+                // EditText 有空情况
+                btnVerify.setEnabled(Boolean.FALSE);
+                btnVerify.setBackground(getDrawable(R.drawable.ic_btn_confirm_no));
+            } else {
+                // EditText 同时不为空的情况
+                btnVerify.setEnabled(Boolean.TRUE);
+                btnVerify.setBackground(getDrawable(R.drawable.ic_btn_confirm));
+            }
+        }
+    };
+
+
     @Override
     protected int layoutViewId() {
         return R.layout.activity_co_config_interval;
@@ -43,6 +72,10 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
         mGroupId = getIntent().getIntExtra("group_id", 0);
 
         initConfigDB();
+
+        etGap.addTextChangedListener(textWatcher);
+        etDuration.addTextChangedListener(textWatcher);
+        etFrequency.addTextChangedListener(textWatcher);
     }
 
     private void initConfigDB() {

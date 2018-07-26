@@ -151,4 +151,11 @@
     <string name="text_add_addr">请添加收货地址</string>
     <string name="text_device_null">您暂无添加设备</string>
     <string name="text_add_device_null">添加设备</string>
+    <string name="please_input">请输入</string>
+    <string name="text_direction">方向</string>
+    <string name="text_gap">间隔时间</string>
+    <string name="text_duration">持续时间</string>
+    <string name="text_gap_big">大间隔时间</string>
+    <string name="text_loop">循环次数</string>
+    <string name="text_frequency">次数</string>
 </resources>
