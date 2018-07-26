@@ -29,7 +29,6 @@ public class CoConfigTogetherActivity extends BaseActivity implements View.OnCli
     @BindView(R.id.et_together_high)            EditText etHigh;
 
     private int mGroupId;
-    private String mConfigType;
 
     @Override
     protected int layoutViewId() {
@@ -40,23 +39,22 @@ public class CoConfigTogetherActivity extends BaseActivity implements View.OnCli
     public void initView() {
         setToolbar(CONFIG_TOGETHER, View.VISIBLE);
         mGroupId = getIntent().getIntExtra("group_id", 0);
-        mConfigType = getIntent().getStringExtra("config_type");
 
         initConfigDB();
     }
 
     private void initConfigDB() {
-        List<CtrlTogetherEntity> entities = LitePal.findAll(CtrlTogetherEntity.class);
-        if (entities.size() == 0) {
-            // 默认配置
-            defaultConfig();
-        } else {
-            // 更新配置
-            for (int i = 0; i < entities.size(); i++) {
-                if (mGroupId == entities.get(i).getGroupId() && mConfigType.equals(entities.get(i).getConfigType())) {
-                    updateConfig(entities, i);
-                }
-            }
+        List<CtrlTogetherEntity> entities = LitePal.where("groupId = ?", String.valueOf(mGroupId)).find(CtrlTogetherEntity.class);
+
+        switch (entities.size()) {
+            case 0:
+                // 默认配置
+                defaultConfig();
+                break;
+            default:
+                // 更新配置
+                updateConfig(entities.get(0));
+                break;
         }
     }
 
@@ -65,9 +63,9 @@ public class CoConfigTogetherActivity extends BaseActivity implements View.OnCli
         etHigh.setText(AppConstant.DEFAULT_TOGETHER_HIGH);
     }
 
-    private void updateConfig(List<CtrlTogetherEntity> entities, int i) {
-        etDuration.setText(entities.get(i).getDuration());
-        etHigh.setText(entities.get(i).getHigh());
+    private void updateConfig(CtrlTogetherEntity togetherEntity) {
+        etDuration.setText(togetherEntity.getDuration());
+        etHigh.setText(togetherEntity.getHigh());
     }
 
     @Override

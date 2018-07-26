@@ -31,7 +31,6 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
     @BindView(R.id.et_interval_frequency)        EditText etFrequency;
 
     private int mGroupId;
-    private String mConfigType;
 
     @Override
     protected int layoutViewId() {
@@ -42,23 +41,22 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
     public void initView() {
         setToolbar(CONFIG_INTERVAL, View.VISIBLE);
         mGroupId = getIntent().getIntExtra("group_id", 0);
-        mConfigType = getIntent().getStringExtra("config_type");
 
         initConfigDB();
     }
 
     private void initConfigDB() {
-        List<CtrlIntervalEntity> entities = LitePal.findAll(CtrlIntervalEntity.class);
-        if (entities.size() == 0) {
-            // 默认配置
-            defaultConfig();
-        } else {
-            // 更新配置
-            for (int i = 0; i < entities.size(); i++) {
-                if (mGroupId == entities.get(i).getGroupId() && mConfigType.equals(entities.get(i).getConfigType())) {
-                    updateConfig(entities, i);
-                }
-            }
+        List<CtrlIntervalEntity> entities = LitePal.where("groupId = ?", String.valueOf(mGroupId)).find(CtrlIntervalEntity.class);
+
+        switch (entities.size()) {
+            case 0:
+                // 默认配置
+                defaultConfig();
+                break;
+            default:
+                // 更新配置
+                updateConfig(entities.get(0));
+                break;
         }
     }
 
@@ -68,10 +66,10 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
         etFrequency.setText(AppConstant.DEFAULT_INTERVAL_FREQUENCY);
     }
 
-    private void updateConfig(List<CtrlIntervalEntity> entities, int i) {
-        etGap.setText(entities.get(i).getGap());
-        etDuration.setText(entities.get(i).getDuration());
-        etFrequency.setText(entities.get(i).getFrequency());
+    private void updateConfig(CtrlIntervalEntity intervalEntity) {
+        etGap.setText(intervalEntity.getGap());
+        etDuration.setText(intervalEntity.getDuration());
+        etFrequency.setText(intervalEntity.getFrequency());
     }
 
     @Override

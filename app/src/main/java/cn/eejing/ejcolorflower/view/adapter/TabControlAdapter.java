@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,6 +61,7 @@ import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_INTERVAL;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_RIDE;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_STREAM;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
+import static cn.eejing.ejcolorflower.app.AppConstant.EMPTY;
 
 /**
  * 控制模块适配器
@@ -173,10 +175,18 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         @BindView(R.id.sb_type_puff)              SuperButton sbType;
         @BindView(R.id.sb_config_puff)            SuperButton sbConfig;
 
+        // 服务器分组名称、ID
         String groupName;
         int groupId;
         // 时间戳
-        long streamMillis, rideMillis, intervalMillis, togetherMillis;
+        long flagMillis = 0;
+        // 默认配置
+        String strConfigType = EMPTY;
+        // 数据库保存信息
+        List<CtrlStreamEntity> streamDBList;
+        List<CtrlRideEntity> rideDBList;
+        List<CtrlIntervalEntity> intervalDBList;
+        List<CtrlTogetherEntity> togetherDBList;
 
         ItemViewHolder(View itemView) {
             super(itemView);
@@ -205,129 +215,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             );
 
             // 数据库中查询是否保存信息
-            List<CtrlStreamEntity> streamDBList = LitePal.findAll(CtrlStreamEntity.class);
-            List<CtrlRideEntity> rideDBList = LitePal.findAll(CtrlRideEntity.class);
-            List<CtrlIntervalEntity> intervalDBList = LitePal.findAll(CtrlIntervalEntity.class);
-            List<CtrlTogetherEntity> togetherDBList = LitePal.findAll(CtrlTogetherEntity.class);
-            Log.i("SLN", "streamDBList: " + streamDBList.size());
-
-            String type="流水灯";
-            long tempTime = 0;
-            if (mPostGroupId != 0) {
-                if (streamDBList.size() != 0) {
-                    for (CtrlStreamEntity streamBean : streamDBList) {
-                        Log.e("SLN", streamBean.getConfigType() + " 服务器 Id: " + groupId);
-                        Log.i("SLN", streamBean.getConfigType() + " 界面传 Id: " + mPostGroupId);
-                        Log.i("SLN", streamBean.getConfigType() + " 数据库 Id: " + streamBean.getGroupId());
-                        if (mConfigType != null) {
-                            if (mConfigType.equals(streamBean.getConfigType())) {
-                                if (groupId == streamBean.getGroupId()) {
-                                    // 如果服务器的 groupId 和数据库中的一致，显示数据库中的相关数据
-                                    sbType.setText(streamBean.getConfigType());
-                                } else if (groupId == mPostGroupId) {
-                                    sbType.setText(mConfigType);
-                                }
-                            }
-                        } else {
-                            defaultShow();
-                        }
-                    }
-                } else {
-                    defaultShow();
-                }
-            } else {
-                // TODO: mPostGroupId == 0 情况  size > 0 暂时写了四个循环，可能不好使
-                if (streamDBList.size() != 0) {
-                    for (CtrlStreamEntity streamBean : streamDBList) {
-                        Log.e("SLN", streamBean.getConfigType() + " 服务器 Id: " + groupId);
-                        Log.i("SLN", streamBean.getConfigType() + " 数据库 Id: " + streamBean.getGroupId());
-
-                        Log.i("SLN", "streamBean.getConfigType(): " + streamBean.getConfigType());
-                        Log.i("SLN", "streamBean.时间戳(): " + streamBean.getMillis());
-                        if (groupId == streamBean.getGroupId()) {
-                            streamMillis = streamBean.getMillis();
-                            if (streamMillis > tempTime) {
-                                tempTime = streamMillis;
-                                type = streamBean.getConfigType();
-                            }
-                            // 如果服务器的 groupId 和数据库中的一致
-//                                sbType.setText(streamBean.getConfigType());
-                            break;
-                        }
-                    }
-                } else {
-                    defaultShow();
-                }
-
-                if (rideDBList.size() != 0) {
-                    for (CtrlRideEntity rideBean : rideDBList) {
-                        Log.e("SLN", rideBean.getConfigType() + " 服务器 Id: " + groupId);
-                        Log.i("SLN", rideBean.getConfigType() + " 数据库 Id: " + rideBean.getGroupId());
-
-                        Log.i("SLN", "rideBean.getConfigType(): " + rideBean.getConfigType());
-                        Log.i("SLN", "rideBean.时间戳(): " + rideBean.getMillis());
-                        if (groupId == rideBean.getGroupId()) {
-                            rideMillis = rideBean.getMillis();
-                            if (rideMillis > tempTime) {
-                                tempTime = rideMillis;
-                                type = rideBean.getConfigType();
-                            }
-                            // 如果服务器的 groupId 和数据库中的一致
-//                                sbType.setText(rideBean.getConfigType());
-                            break;
-                        }
-                    }
-                } else {
-                    defaultShow();
-                }
-
-                if (intervalDBList.size() != 0) {
-                    for (CtrlIntervalEntity intervalBean : intervalDBList) {
-                        Log.e("SLN", intervalBean.getConfigType() + " 服务器 Id: " + groupId);
-                        Log.i("SLN", intervalBean.getConfigType() + " 数据库 Id: " + intervalBean.getGroupId());
-
-                        Log.i("SLN", "intervalBean.getConfigType(): " + intervalBean.getConfigType());
-                        Log.i("SLN", "intervalBean.时间戳(): " + intervalBean.getMillis());
-                        if (groupId == intervalBean.getGroupId()) {
-                            intervalMillis = intervalBean.getMillis();
-                            if (intervalMillis > tempTime) {
-                                tempTime = intervalMillis;
-                                type = intervalBean.getConfigType();
-                            }
-                            // 如果服务器的 groupId 和数据库中的一致
-//                                sbType.setText(intervalBean.getConfigType());
-                            break;
-                        }
-                    }
-                } else {
-                    defaultShow();
-                }
-
-                if (togetherDBList.size() != 0) {
-                    for (CtrlTogetherEntity togetherBean : togetherDBList) {
-                        Log.e("SLN", togetherBean.getConfigType() + " 服务器 Id: " + groupId);
-                        Log.i("SLN", togetherBean.getConfigType() + " 数据库 Id: " + togetherBean.getGroupId());
-
-                        Log.i("SLN", "togetherBean.getConfigType(): " + togetherBean.getConfigType());
-                        Log.i("SLN", "togetherBean.时间戳(): " + togetherBean.getMillis());
-                        if (groupId == togetherBean.getGroupId()) {
-                            togetherMillis = togetherBean.getMillis();
-                            if (togetherMillis > tempTime) {
-                                tempTime = intervalMillis;
-                                type = togetherBean.getConfigType();
-                            }
-                            togetherMillis = togetherBean.getMillis();
-//                            // 如果服务器的 groupId 和数据库中的一致
-//                                sbType.setText(togetherBean.getConfigType());
-                            break;
-                        }
-                    }
-                } else {
-                    defaultShow();
-                }
-
-                sbType.setText(type);
-            }
+            isSavaDBInfo();
 
             Log.i("LJQ", "setData"
                     + "\n设备 MAC: " + mConnDevMac
@@ -346,6 +234,68 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             } else {
                 tvInfo.setVisibility(View.VISIBLE);
                 rvGroup.setVisibility(View.INVISIBLE);
+            }
+        }
+
+        /** 数据库中查询是否保存信息 */
+        private void isSavaDBInfo() {
+            streamDBList = LitePal.select("configType", "millis").where("groupId = ?", String.valueOf(groupId)).find(CtrlStreamEntity.class);
+            rideDBList = LitePal.select("configType", "millis").where("groupId = ?", String.valueOf(groupId)).find(CtrlRideEntity.class);
+            intervalDBList = LitePal.select("configType", "millis").where("groupId = ?", String.valueOf(groupId)).find(CtrlIntervalEntity.class);
+            togetherDBList = LitePal.select("configType", "millis").where("groupId = ?", String.valueOf(groupId)).find(CtrlTogetherEntity.class);
+
+            switch (mPostGroupId) {
+                case 0:
+                    // 默认进入控制模块
+                    defEnterConfig();
+                    break;
+                default:
+                    // 从编辑界面跳转回来
+                    jumpBackConfig();
+                    break;
+            }
+        }
+
+        /** 默认进入控制模块 */
+        private void defEnterConfig() {
+            if (streamDBList.size() != 0) {
+                compareTime(streamDBList.get(0).getMillis(), streamDBList.get(0).getConfigType());
+            }
+
+            if (rideDBList.size() != 0) {
+                compareTime(rideDBList.get(0).getMillis(), rideDBList.get(0).getConfigType());
+            }
+
+            if (intervalDBList.size() != 0) {
+                compareTime(intervalDBList.get(0).getMillis(), intervalDBList.get(0).getConfigType());
+            }
+
+            if (togetherDBList.size() != 0) {
+                compareTime(togetherDBList.get(0).getMillis(), togetherDBList.get(0).getConfigType());
+            }
+
+            isEmptyConfigType(strConfigType);
+        }
+
+        /** 从编辑界面跳转回来 */
+        private void jumpBackConfig() {
+            if (groupId == mPostGroupId) {
+                isEmptyConfigType(mConfigType);
+            }
+        }
+
+        private void compareTime(long millis, String configType) {
+            if (millis > flagMillis) {
+                flagMillis = millis;
+                strConfigType = configType;
+            }
+        }
+
+        private void isEmptyConfigType(String configType) {
+            if (TextUtils.isEmpty(configType)) {
+                defaultShow();
+            } else {
+                sbType.setText(configType);
             }
         }
 
@@ -464,28 +414,16 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     }
                     switch (v.getId()) {
                         case R.id.pop_config_stream:
-                            mContext.startActivity(new Intent(mContext, CoConfigStreamActivity.class)
-                                    .putExtra("group_id", groupId)
-                                    .putExtra("config_type", CONFIG_STREAM)
-                            );
+                            mContext.startActivity(new Intent(mContext, CoConfigStreamActivity.class).putExtra("group_id", groupId));
                             break;
                         case R.id.pop_config_ride:
-                            mContext.startActivity(new Intent(mContext, CoConfigRideActivity.class)
-                                    .putExtra("group_id", groupId)
-                                    .putExtra("config_type", CONFIG_RIDE)
-                            );
+                            mContext.startActivity(new Intent(mContext, CoConfigRideActivity.class).putExtra("group_id", groupId));
                             break;
                         case R.id.pop_config_interval:
-                            mContext.startActivity(new Intent(mContext, CoConfigIntervalActivity.class)
-                                    .putExtra("group_id", groupId)
-                                    .putExtra("config_type", CONFIG_INTERVAL)
-                            );
+                            mContext.startActivity(new Intent(mContext, CoConfigIntervalActivity.class).putExtra("group_id", groupId));
                             break;
                         case R.id.pop_config_together:
-                            mContext.startActivity(new Intent(mContext, CoConfigTogetherActivity.class)
-                                    .putExtra("group_id", groupId)
-                                    .putExtra("config_type", CONFIG_TOGETHER)
-                            );
+                            mContext.startActivity(new Intent(mContext, CoConfigTogetherActivity.class).putExtra("group_id", groupId));
                             break;
                         default:
                             break;

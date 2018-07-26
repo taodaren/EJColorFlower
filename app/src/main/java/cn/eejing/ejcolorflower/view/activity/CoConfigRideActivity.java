@@ -4,7 +4,6 @@ import android.os.Build;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.RequiresApi;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -54,7 +53,6 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
     private boolean mLrChecked, mBcChecked, mRlChecked, mCbChecked;
 
     private int mGroupId;
-    private String mConfigType;
 
     @Override
     protected int layoutViewId() {
@@ -67,7 +65,6 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
         setToolbar(CONFIG_RIDE, View.VISIBLE);
 
         mGroupId = getIntent().getIntExtra("group_id", 0);
-        mConfigType = getIntent().getStringExtra("config_type");
 
         mLrBtnListener = new BtnSelected(LEFT_TO_RIGHT);
         mBcBtnListener = new BtnSelected(BORDER_TO_CENTER);
@@ -79,18 +76,17 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void initConfigDB() {
-        List<CtrlRideEntity> entities = LitePal.findAll(CtrlRideEntity.class);
-        if (entities.size() == 0) {
-            // 默认配置
-            defaultConfig();
-        } else {
-            // 更新配置
-            for (int i = 0; i < entities.size(); i++) {
-                if (mGroupId == entities.get(i).getGroupId() && mConfigType.equals(entities.get(i).getConfigType())) {
-                    updateConfig(entities, i);
-                    break;
-                }
-            }
+        List<CtrlRideEntity> entities = LitePal.where("groupId = ?", String.valueOf(mGroupId)).find(CtrlRideEntity.class);
+
+        switch (entities.size()) {
+            case 0:
+                // 默认配置
+                defaultConfig();
+                break;
+            default:
+                // 更新配置
+                updateConfig(entities.get(0));
+                break;
         }
     }
 
@@ -109,8 +105,8 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
-    private void updateConfig(List<CtrlRideEntity> entities, int i) {
-        switch (entities.get(i).getDirection()) {
+    private void updateConfig(CtrlRideEntity rideEntity) {
+        switch (rideEntity.getDirection()) {
             case LEFT_TO_RIGHT:
                 btnChangeState(
                         R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click,
@@ -140,13 +136,19 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
                 );
                 break;
             default:
+                strBtnDirection = LEFT_TO_RIGHT;
+                btnChangeState(
+                        R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click,
+                        R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick,
+                        true, false, false, false
+                );
                 break;
         }
 
-        etGap.setText(entities.get(i).getGap());
-        etDuration.setText(entities.get(i).getDuration());
-        etGapBig.setText(entities.get(i).getGapBig());
-        etLoop.setText(entities.get(i).getLoop());
+        etGap.setText(rideEntity.getGap());
+        etDuration.setText(rideEntity.getDuration());
+        etGapBig.setText(rideEntity.getGapBig());
+        etLoop.setText(rideEntity.getLoop());
     }
 
     @Override
