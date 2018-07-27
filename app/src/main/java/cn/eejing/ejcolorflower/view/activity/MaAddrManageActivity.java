@@ -84,7 +84,7 @@ public class MaAddrManageActivity extends BaseActivity {
         // 设置布局
         rvAddress.setLinearLayout();
         // 绑定适配器
-        mAdapter = new AddrManageAdapter(this, mList);
+        mAdapter = new AddrManageAdapter(this, mList, mMemberId, mToken);
         rvAddress.setAdapter(mAdapter);
 
         // 不需要上拉刷新

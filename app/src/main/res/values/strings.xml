@@ -100,6 +100,7 @@
     <string name="slide_left_to_delete">左滑删除</string>
     <string name="btn_edit">编辑</string>
     <string name="btn_save">保存</string>
+    <string name="btn_del">删除</string>
     <string name="connected_true">已连接</string>
     <string name="connected_false">未连接</string>
     <string name="text_temp">温度</string>
@@ -158,4 +159,5 @@
     <string name="text_gap_big">大间隔时间</string>
     <string name="text_loop">循环次数</string>
     <string name="text_frequency">次数</string>
+    <string name="def_addr">默认地址</string>
 </resources>

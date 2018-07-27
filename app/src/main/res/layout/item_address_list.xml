@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -15,7 +16,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="4dp"
-            android:text="zhangsan"
             android:textColor="@color/colorBlack" />
 
         <TextView
@@ -24,8 +24,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:padding="4dp"
-            android:text="12345645678"
-            android:textColor="@color/colorBlack" />
+            android:textColor="@color/colorBlack"
+            tools:ignore="RelativeOverlap" />
     </RelativeLayout>
 
     <TextView
@@ -36,7 +36,6 @@
         android:paddingBottom="8dp"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
-        android:text="a;lsdfj;lakej;lksdvfldlskjtlasnflkjsdsdldfjlasjdflaslkalsdkf;alsnflnlasdnkflnsfa;sldnf"
         android:textColor="@color/colorTitleName" />
 
     <RelativeLayout
@@ -51,8 +50,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:text="默认地址"
-            android:textSize="12sp" />
+            android:text="@string/def_addr"
+            android:textSize="10sp"
+            android:textStyle="italic"
+            tools:ignore="RelativeOverlap,SmallSp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -66,9 +67,10 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
                 android:background="@drawable/shape_btn_color_primary"
-                android:text="编辑"
+                android:text="@string/btn_edit"
                 android:textColor="@color/colorPrimary"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                tools:ignore="ButtonStyle" />
 
             <Button
                 android:id="@+id/btn_address_list_del"
@@ -76,9 +78,10 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
                 android:background="@drawable/shape_btn_color_no"
-                android:text="删除"
+                android:text="@string/btn_del"
                 android:textColor="@color/colorNoClick"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                tools:ignore="ButtonStyle" />
         </LinearLayout>
     </RelativeLayout>
 </LinearLayout>
