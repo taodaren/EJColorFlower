@@ -7,6 +7,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.allen.library.SuperButton;
 import com.flyco.tablayout.SegmentTabLayout;
@@ -41,8 +43,11 @@ import static cn.eejing.ejcolorflower.app.AppConstant.REQUEST_CODE_QRCODE_PERMIS
 
 public class DeDeviceDetailsActivity extends BaseActivity implements View.OnClickListener, EasyPermissions.PermissionCallbacks {
 
-    @BindView(R.id.btn_add_material)         SuperButton btnAddMaterial;
-    @BindView(R.id.btn_remove_device)        SuperButton btnRemoveDevice;
+    @BindView(R.id.tv_title_device_del)        TextView tvTitle;
+    @BindView(R.id.img_back_device_del)        ImageView imgBack;
+    @BindView(R.id.tv_mode_device_del)         TextView tvMode;
+    @BindView(R.id.btn_add_material)           SuperButton btnAddMaterial;
+    @BindView(R.id.btn_remove_device)          SuperButton btnRemoveDevice;
 
     private String[] mTitles = {"温度", "DMX地址", "剩余时间"};
     private SegmentTabLayout mTabLayout;
@@ -73,7 +78,7 @@ public class DeDeviceDetailsActivity extends BaseActivity implements View.OnClic
         mDeviceId = getIntent().getStringExtra("device_id");
         mMemberId = getIntent().getStringExtra("member_id");
         mToken = getIntent().getStringExtra("token");
-        setToolbar(mDeviceId, View.VISIBLE);
+        tvTitle.setText(mDeviceId);
 
         int temp, dmx, time, tempThresholdHigh;
         temp = getIntent().getIntExtra("device_temp", 0);
@@ -95,6 +100,8 @@ public class DeDeviceDetailsActivity extends BaseActivity implements View.OnClic
 
     @Override
     public void initListener() {
+        imgBack.setOnClickListener(this);
+        tvMode.setOnClickListener(this);
         btnAddMaterial.setOnClickListener(this);
         btnRemoveDevice.setOnClickListener(this);
     }
@@ -102,6 +109,12 @@ public class DeDeviceDetailsActivity extends BaseActivity implements View.OnClic
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.img_back_device_del:
+                finish();
+                break;
+            case R.id.tv_mode_device_del:
+                jumpToActivity(DeMasterModeActivity.class);
+                break;
             case R.id.btn_add_material:
                 Intent intent = new Intent(this, DeQrAddMaterialActivity.class);
                 intent.putExtra("device_id", mDeviceId);

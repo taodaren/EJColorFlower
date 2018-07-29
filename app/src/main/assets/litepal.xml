@@ -33,6 +33,7 @@
         <mapping class="cn.eejing.ejcolorflower.model.lite.CtrlRideEntity" />
         <mapping class="cn.eejing.ejcolorflower.model.lite.CtrlIntervalEntity" />
         <mapping class="cn.eejing.ejcolorflower.model.lite.CtrlTogetherEntity" />
+        <mapping class="cn.eejing.ejcolorflower.model.lite.MasterModeEntity" />
     </list>
 
     <!--

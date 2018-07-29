@@ -78,6 +78,7 @@
     <string name="current_psd_hint">请输入原密码</string>
     <string name="reset_psd_hint">请输入新密码</string>
     <string name="add_device">添加设备</string>
+    <string name="add_jet_effect">添加喷射效果</string>
     <string name="rmb">￥ </string>
     <string name="yuan">元</string>
     <string name="sold">已售</string>
@@ -139,6 +140,7 @@
     <string name="text_shipping_address">收货地址：</string>
     <string name="text_consignee">收货人：</string>
     <string name="text_manage">管理</string>
+    <string name="text_master_mode">主控模式</string>
     <string name="text_order_num">订单编号：</string>
     <string name="text_order_time">下单时间：</string>
     <string name="text_multiply">×</string>
@@ -159,5 +161,7 @@
     <string name="text_gap_big">大间隔时间</string>
     <string name="text_loop">循环次数</string>
     <string name="text_frequency">次数</string>
+    <string name="text_dev_num">设备数量</string>
+    <string name="text_start_dmx">起始 DMX</string>
     <string name="def_addr">默认地址</string>
 </resources>

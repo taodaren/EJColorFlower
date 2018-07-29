@@ -62,6 +62,10 @@
             android:name=".view.activity.DeQrAddMaterialActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".view.activity.DeMasterModeActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
             android:name=".view.activity.CoDeviceActivity"
             android:screenOrientation="portrait" />
         <activity
@@ -104,6 +108,9 @@
             android:name=".view.activity.MaAddrCitysActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".view.activity.MaAddrModifyActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".view.activity.MiOpinionActivity"
             android:screenOrientation="portrait" />
         <activity
@@ -144,7 +151,6 @@
             android:name=".wxapi.WXPayEntryActivity"
             android:exported="true"
             android:launchMode="singleTop" />
-        <activity android:name=".view.activity.MaAddrModifyActivity"></activity>
     </application>
 
 </manifest>

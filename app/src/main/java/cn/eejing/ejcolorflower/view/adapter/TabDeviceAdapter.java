@@ -93,13 +93,15 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE_ITEM) {
-            if (mConnectDeviceMac != null && mState != null && mConfig != null) {
-                // 如果硬件设备已连接且信息不为空，展示硬件信息
-                ((ItemViewHolder) holder).setData(mList.get(position), mConnectDeviceMac, mState, mConfig, position);
-            } else {
-                // 如果硬件设备信息为空，则只展示服务器中的设备 ID
-                ((ItemViewHolder) holder).tvDeviceId.setText(mList.get(position).getId());
-                ((ItemViewHolder) holder).setClickListener(null, null, null, position);
+            if (mList != null) {
+                if (mConnectDeviceMac != null && mState != null && mConfig != null) {
+                    // 如果硬件设备已连接且信息不为空，展示硬件信息
+                    ((ItemViewHolder) holder).setData(mList.get(position), mConnectDeviceMac, mState, mConfig, position);
+                } else {
+                    // 如果硬件设备信息为空，则只展示服务器中的设备 ID
+                    ((ItemViewHolder) holder).tvDeviceId.setText(mList.get(position).getId());
+                    ((ItemViewHolder) holder).setClickListener(null, null, null, position);
+                }
             }
         }
 
@@ -169,7 +171,11 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         mTime = event.getState().mRestTime;
         mThresholdHigh = event.getConfig().mTemperatureThresholdHigh;
 
-        Log.i("UPDMX", "Device Info: " + "\nmTemp--->" + mTemp + "\nmDMX--->" + mDMX + "\nmTime--->" + mTime + "\nmThresholdHigh--->" + mThresholdHigh);
+        Log.i("JLTHTYC", "Device Info: " +
+                "\nmTemp--->" + mTemp
+                + "\nmDMX--->" + mDMX
+                + "\nmTime--->" + mTime
+                + "\nmThresholdHigh--->" + mThresholdHigh);
 
         notifyDataSetChanged();
     }

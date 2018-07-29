@@ -228,10 +228,8 @@ public class AppActivity extends BLEActivity implements ISendCommand, BottomNavi
                             send(mac, BleDeviceProtocol.get_status_package(id));
                         }
 
-                        if (findDeviceById(id) != null) {
-                            // 已经连接的设备不为空，发送相关数据
-                            EventBus.getDefault().post(new DeviceConnectEvent(DEVICE_CONNECT_YES, mac, device.getState(), device.getConfig()));
-                        }
+                        // 发送设备相关数据
+                        EventBus.getDefault().post(new DeviceConnectEvent(DEVICE_CONNECT_YES, mac, device.getState(), device.getConfig()));
                     }
                 }
             }, 2000);

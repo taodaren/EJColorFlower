@@ -34,14 +34,10 @@ import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 public class MaAddrSelectActivity extends BaseActivity implements View.OnClickListener {
 
-    @BindView(R.id.tv_title_shipping_address)
-    TextView tvTitle;
-    @BindView(R.id.img_back_shipping_address)
-    ImageView imgBack;
-    @BindView(R.id.tv_manage_shipping_address)
-    TextView tvManage;
-    @BindView(R.id.rv_shipping_address)
-    PullLoadMoreRecyclerView rvAddress;
+    @BindView(R.id.tv_title_shipping_address)         TextView tvTitle;
+    @BindView(R.id.img_back_shipping_address)         ImageView imgBack;
+    @BindView(R.id.tv_manage_shipping_address)        TextView tvManage;
+    @BindView(R.id.rv_shipping_address)               PullLoadMoreRecyclerView rvAddress;
 
     private Gson mGson;
     private String mMemberId, mToken;
