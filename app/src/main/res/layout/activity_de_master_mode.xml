@@ -38,12 +38,11 @@
             android:textSize="12sp" />
 
         <ImageView
-            android:id="@+id/img_dev_num"
+            android:id="@+id/img_start_or_stop"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_margin="4dp"
-            android:src="@drawable/ic_jet_start"
-            android:textColor="@color/colorNoClick" />
+            android:src="@drawable/ic_jet_start" />
     </LinearLayout>
 
     <LinearLayout
@@ -75,42 +74,51 @@
             android:textSize="12sp" />
 
         <ImageView
-            android:id="@+id/img_start_dmx"
+            android:id="@+id/img_pause_or_goon"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_margin="4dp"
-            android:src="@drawable/ic_jet_pause"
-            android:textColor="@color/colorNoClick" />
+            android:src="@drawable/ic_jet_pause_cannot" />
     </LinearLayout>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_master_mode"
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:paddingBottom="0.5dp"
-        android:layout_height="wrap_content"
-        android:background="@color/colorGroupLine" />
+        android:layout_height="wrap_content">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="100dp">
-
-        <ImageView
-            android:id="@+id/img_add_master_mode"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="24dp"
-            android:src="@drawable/ic_new_group" />
-
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/img_add_master_mode"
-            android:layout_centerInParent="true"
-            android:layout_margin="8dp"
-            android:text="@string/add_jet_effect"
-            android:textColor="@color/colorTitleName"
-            android:textSize="12sp" />
-    </RelativeLayout>
+            android:orientation="vertical">
 
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_master_mode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorGroupLine"
+                android:paddingBottom="0.5dp" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="130dp">
+
+                <ImageView
+                    android:id="@+id/img_add_master_mode"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="32dp"
+                    android:src="@drawable/ic_new_group" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/img_add_master_mode"
+                    android:layout_centerInParent="true"
+                    android:layout_margin="8dp"
+                    android:text="@string/add_jet_effect"
+                    android:textColor="@color/colorTitleName"
+                    android:textSize="12sp" />
+            </RelativeLayout>
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
 </LinearLayout>

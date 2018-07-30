@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +19,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.OnLongClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.model.lite.MasterModeEntity;
 import cn.eejing.ejcolorflower.model.request.AddMasterModeBean;
@@ -28,7 +27,6 @@ import cn.eejing.ejcolorflower.view.activity.CoConfigIntervalActivity;
 import cn.eejing.ejcolorflower.view.activity.CoConfigRideActivity;
 import cn.eejing.ejcolorflower.view.activity.CoConfigStreamActivity;
 import cn.eejing.ejcolorflower.view.activity.CoConfigTogetherActivity;
-import cn.eejing.ejcolorflower.view.activity.DeMasterModeActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_INTERVAL;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_RIDE;
@@ -55,6 +53,7 @@ public class DeMasterModeAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        Log.i("JLTHMODE", "onBindViewHolder: " + mList.get(position).getMode());
         ((MasterModeHolder) holder).setData(mList.get(position));
     }
 
@@ -92,7 +91,7 @@ public class DeMasterModeAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             layoutJet.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    showDialog(bean.getMode());
+                    showDialog(bean);
                     return true;
                 }
             });
@@ -102,18 +101,21 @@ public class DeMasterModeAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             layoutJet.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    int millis = (int) mList.get(getAdapterPosition()).getMillis();
+                    Log.i("JLTHMODE", "millis_to_groupId: " + millis);
+
                     switch (bean.getMode()) {
                         case CONFIG_STREAM:
-                            mContext.startActivity(new Intent(mContext, CoConfigStreamActivity.class));
+                            mContext.startActivity(new Intent(mContext, CoConfigStreamActivity.class).putExtra("group_id", millis));
                             break;
                         case CONFIG_RIDE:
-                            mContext.startActivity(new Intent(mContext, CoConfigRideActivity.class));
+                            mContext.startActivity(new Intent(mContext, CoConfigRideActivity.class).putExtra("group_id", millis));
                             break;
                         case CONFIG_INTERVAL:
-                            mContext.startActivity(new Intent(mContext, CoConfigIntervalActivity.class));
+                            mContext.startActivity(new Intent(mContext, CoConfigIntervalActivity.class).putExtra("group_id", millis));
                             break;
                         case CONFIG_TOGETHER:
-                            mContext.startActivity(new Intent(mContext, CoConfigTogetherActivity.class));
+                            mContext.startActivity(new Intent(mContext, CoConfigTogetherActivity.class).putExtra("group_id", millis));
                             break;
                         default:
                             break;
@@ -145,13 +147,15 @@ public class DeMasterModeAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             onLongClickRemove(bean);
         }
 
-        private void showDialog(final String mode) {
+        private void showDialog(final AddMasterModeBean bean) {
             dialog = new SelfDialogBase(mContext);
             dialog.setTitle("确定要删除");
             dialog.setYesOnclickListener("确定", new SelfDialogBase.onYesOnclickListener() {
                 @Override
                 public void onYesClick() {
                     // 删除喷射效果
+                    Log.i("JLTHMODE", "bean: " + bean.getMode());
+                    LitePal.deleteAll(MasterModeEntity.class, "millis = ?", String.valueOf(mList.get(getAdapterPosition()).getMillis()));
                     mList.remove(getAdapterPosition());
                     notifyDataSetChanged();
                     dialog.dismiss();
@@ -165,7 +169,6 @@ public class DeMasterModeAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             });
             dialog.show();
         }
-
     }
 
 }

@@ -6,6 +6,7 @@ import android.support.annotation.DrawableRes;
 import android.support.annotation.RequiresApi;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -93,6 +94,9 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
         setToolbar(CONFIG_STREAM, View.VISIBLE);
 
         mGroupId = getIntent().getIntExtra("group_id", 0);
+
+        Log.i("JLTHMODE", "initView");
+        Log.i("JLTHMODE", "mGroupId: " + mGroupId);
 
         mLrBtnListener = new BtnSelected(LEFT_TO_RIGHT);
         mBcBtnListener = new BtnSelected(BORDER_TO_CENTER);

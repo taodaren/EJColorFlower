@@ -16,7 +16,7 @@
         android:layout_height="50dp"
         android:layout_marginStart="25dp"
         android:layout_marginTop="25dp"
-        android:src="@drawable/ic_add_solid"
+        android:src="@drawable/ic_jet_pause_goon"
         tools:ignore="ContentDescription" />
 
     <RelativeLayout
