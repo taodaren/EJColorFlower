@@ -113,12 +113,10 @@ public class DeDeviceDetailsActivity extends BaseActivity implements View.OnClic
                 finish();
                 break;
             case R.id.tv_mode_device_del:
-                jumpToActivity(DeMasterModeActivity.class);
+                jumpToActivity(new Intent(this, DeMasterModeActivity.class).putExtra("device_id", mDeviceId));
                 break;
             case R.id.btn_add_material:
-                Intent intent = new Intent(this, DeQrAddMaterialActivity.class);
-                intent.putExtra("device_id", mDeviceId);
-                jumpToActivity(intent);
+                jumpToActivity(new Intent(this, DeQrAddMaterialActivity.class).putExtra("device_id", mDeviceId));
                 finish();
                 break;
             case R.id.btn_remove_device:
