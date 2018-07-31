@@ -25,6 +25,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
+import cn.eejing.ejcolorflower.model.device.MasterOutputManager;
+import cn.eejing.ejcolorflower.model.device.MasterOutputStreamManager;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
 import cn.eejing.ejcolorflower.model.lite.MasterCtrlModeEntity;
 import cn.eejing.ejcolorflower.model.lite.MasterCtrlNumEntity;
@@ -57,7 +59,10 @@ public class DeMasterModeActivity extends BaseActivity {
     private CustomPopWindow mPopWindow;
     private DeMasterModeAdapter mAdapter;
     private List<MasterCtrlModeEntity> mList;
+
+    private List<MasterOutputManager> mManagerList; // 主控输出集合
     private Handler mHandler;
+    private int mCurrMasterId, mFlagId;
 
     private String mConfigType;
     private long mMillis;
@@ -67,9 +72,8 @@ public class DeMasterModeActivity extends BaseActivity {
     private Runnable mRunnableMaster = new Runnable() {
         @Override
         public void run() {
-            // 定时调用方法
-//            updateWithDataOut();
-            // 每 0.1 秒调用一次方法
+            // 定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息）
+            timerCallingMethod();
             mHandler.postDelayed(this, 100);
         }
     };
@@ -85,6 +89,7 @@ public class DeMasterModeActivity extends BaseActivity {
         mDeviceId = getIntent().getStringExtra("device_id");
 
         mList = new ArrayList<>();
+        mManagerList = new ArrayList<>();
         mHandler = new Handler();
 
         initConfigDB();
@@ -145,7 +150,14 @@ public class DeMasterModeActivity extends BaseActivity {
                 imgStartStop.setImageDrawable(getResources().getDrawable(R.drawable.ic_jet_start));
                 isPause = PAUSE_STATUS_CANNOT;
                 imgPauseGoon.setImageDrawable(getResources().getDrawable(R.drawable.ic_jet_pause_cannot));
-            }else {
+                // TODO: 2018/7/31  
+                for (int i = 0; i < mManagerList.size(); i++) {
+                    MasterOutputManager addds = new MasterOutputStreamManager();
+                    mManagerList.add(addds);
+                }
+                mCurrMasterId = 0;
+                // TODO: 2018/7/31
+            } else {
                 // 如果是停止喷射状态，点击变为开始状态，暂停可点击
                 isStart = true;
                 imgStartStop.setImageDrawable(getResources().getDrawable(R.drawable.ic_jet_stop));
@@ -157,6 +169,43 @@ public class DeMasterModeActivity extends BaseActivity {
                 mHandler.postDelayed(mRunnableMaster, 100);
             }
         }
+    }
+
+    /** 定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息）*/
+    private void timerCallingMethod() {
+        // 事件处理 传 mCurrMasterId
+        if (mFlagId != mCurrMasterId) {
+            // 如果当前运行的 ID 与 flag 不同，让其相等
+            mFlagId = mCurrMasterId;
+            getCurrentManager(mCurrMasterId);
+        }
+
+        // BLE 数据发送处理
+        byte[] dataOut = new byte[300];
+        boolean isFinish = mManagerList.get(mCurrMasterId).updateWithDataOut(dataOut);
+//        real_time_ctrl_mode(  );
+        if (isFinish) {
+            // 需要执行下一个
+            mCurrMasterId++;
+            if (mCurrMasterId >= mManagerList.size()) {
+                // 整个喷射过程完成，停止计时器
+                mHandler.removeCallbacks(mRunnableMaster);
+                // 发送喷射停止命令
+
+                // 按钮状态初始化
+                isStart = false;
+                imgStartStop.setImageDrawable(getResources().getDrawable(R.drawable.ic_jet_start));
+                isPause = PAUSE_STATUS_CANNOT;
+                imgPauseGoon.setImageDrawable(getResources().getDrawable(R.drawable.ic_jet_pause_cannot));
+            }
+        }
+    }
+
+    /** 获取当前的喷射控制类 */
+    private MasterOutputManager getCurrentManager(int currMasterId) {
+        MasterOutputManager masterOutputManager = mManagerList.get(mCurrMasterId);
+
+        return null;
     }
 
     /** 配置喷射样式 */

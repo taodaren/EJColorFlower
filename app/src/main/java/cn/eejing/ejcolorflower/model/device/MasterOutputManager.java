@@ -20,7 +20,8 @@ public class MasterOutputManager {
      * @return 当前组是否完成喷射(false 表示继续, true 表示已经完成)
      */
     public boolean updateWithDataOut(byte[] dataOut) {
-        return true; //默认是完成当前组输出，进入到下一组
+        // 默认是完成当前组输出，进入到下一组
+        return true;
     }
 
 }

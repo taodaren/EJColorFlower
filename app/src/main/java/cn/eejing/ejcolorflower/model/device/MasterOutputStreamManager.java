@@ -20,10 +20,13 @@ public class MasterOutputStreamManager extends MasterOutputManager {
     @Override
     public boolean updateWithDataOut(byte[] dataOut) {
         this.currentTime++;
+        // 一次运行时间
         long outputTime = 0;
+        long iMax;
+
         switch (this.direction) {
-            case 0://从左到右
-            {
+            // 从左到右
+            case 0:
                 outputTime = this.intervalTime * (this.deviceCount - 1) + this.durationTime;
                 for (int i = 0; i < this.deviceCount; i++) {
                     dataOut[i] = (this.currentTime <= this.intervalTime * i || this.currentTime > outputTime) ? 0 : this.outHigh;
@@ -32,10 +35,9 @@ public class MasterOutputStreamManager extends MasterOutputManager {
                     this.loopId++;
                     this.currentTime = 0;
                 }
-            }
-            break;
-            case 1://从右到左
-            {
+                break;
+            // 从右到左
+            case 1:
                 outputTime = this.intervalTime * (this.deviceCount - 1) + this.durationTime;
                 for (int i = 0; i < this.deviceCount; i++) {
                     dataOut[i] = (this.currentTime <= this.intervalTime * (this.deviceCount - i - 1) || this.currentTime > outputTime) ? 0 : this.outHigh;
@@ -44,11 +46,10 @@ public class MasterOutputStreamManager extends MasterOutputManager {
                     this.loopId++;
                     this.currentTime = 0;
                 }
-            }
-            break;
-            case 2://从两端到中间
-            {
-                long iMax = (this.deviceCount + 1) >> 1;
+                break;
+            // 从两端到中间
+            case 2:
+                iMax = (this.deviceCount + 1) >> 1;
                 outputTime = this.intervalTime * (iMax - 1) + this.durationTime;
                 for (int i = 0; i < this.deviceCount; i++) {
                     if (this.currentTime > outputTime) {
@@ -65,11 +66,10 @@ public class MasterOutputStreamManager extends MasterOutputManager {
                     this.loopId++;
                     this.currentTime = 0;
                 }
-            }
-            break;
-            case 3://从中间到两端
-            {
-                long iMax = (this.deviceCount + 1) >> 1;
+                break;
+            // 从中间到两端
+            case 3:
+                iMax = (this.deviceCount + 1) >> 1;
                 outputTime = this.intervalTime * (iMax - 1) + this.durationTime;
                 for (int i = 0; i < this.deviceCount; i++) {
                     long timeOutId;
@@ -90,9 +90,7 @@ public class MasterOutputStreamManager extends MasterOutputManager {
                     this.loopId++;
                     this.currentTime = 0;
                 }
-            }
-            break;
-
+                break;
             default:
                 break;
         }

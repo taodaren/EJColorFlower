@@ -33,6 +33,7 @@ public class BleDeviceProtocol {
     private final static int CMD_SET_GUALIAO_TIME = 11;
     private final static int CMD_GET_MATERIAL_STATUS = 12;
     private final static int CMD_CLEAR_MATERIAL_INFO = 13;
+    private final static int CMD_REAL_TIME_CTRL_MODE = 16;
 
     private final static int HEADER_LEN = 7;
     private final byte[] pkg = new byte[MAX_PKG_LEN];
@@ -394,10 +395,22 @@ public class BleDeviceProtocol {
         data[5] = (byte) ((material_id >> 8) & 0xff);
         data[6] = (byte) ((material_id >> 16) & 0xff);
         data[7] = (byte) ((material_id >> 24) & 0xff);
-        data[7] = (byte) ((material_id >> 32) & 0xff);
-        data[7] = (byte) ((material_id >> 40) & 0xff);
+        data[8] = (byte) ((material_id >> 32) & 0xff);
+        data[9] = (byte) ((material_id >> 40) & 0xff);
 
         return command_package(CMD_CLEAR_MATERIAL_INFO, id, data);
+    }
+
+    // 进入在线实时控制模式
+    @NonNull
+    public static byte[] real_time_ctrl_mode(long id, int devNum, int startAddr, byte[] high) {
+        byte[] data = new byte[2 + devNum];
+        data[0] = (byte) (devNum & 0xff);
+        data[1] = (byte) (startAddr & 0xff);
+        for (int i = 0; i < devNum; i++) {
+            data[1 + i] = high[i];
+        }
+        return command_package(CMD_REAL_TIME_CTRL_MODE, id, data);
     }
 
 
