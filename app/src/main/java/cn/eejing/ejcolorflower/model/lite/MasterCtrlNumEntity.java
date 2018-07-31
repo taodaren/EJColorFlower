@@ -2,7 +2,7 @@ package cn.eejing.ejcolorflower.model.lite;
 
 import org.litepal.crud.LitePalSupport;
 
-public class SetMasterCtrlEntity extends LitePalSupport {
+public class MasterCtrlNumEntity extends LitePalSupport {
     private String devId;          // 设备 ID
     private String devNum;         // 设备数量
     private String starDmx;        // 起始 DMX

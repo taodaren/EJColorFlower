@@ -20,8 +20,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.model.lite.MasterModeEntity;
-import cn.eejing.ejcolorflower.model.request.AddMasterModeBean;
+import cn.eejing.ejcolorflower.model.lite.MasterCtrlModeEntity;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
 import cn.eejing.ejcolorflower.view.activity.CoConfigIntervalActivity;
 import cn.eejing.ejcolorflower.view.activity.CoConfigRideActivity;
@@ -33,12 +32,16 @@ import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_RIDE;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_STREAM;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
 
+/**
+ * 主控模式适配器
+ */
+
 public class DeMasterModeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context mContext;
     private LayoutInflater mLayoutInflater;
-    private List<AddMasterModeBean> mList;
+    private List<MasterCtrlModeEntity> mList;
 
-    public DeMasterModeAdapter(Context context, List<AddMasterModeBean> list) {
+    public DeMasterModeAdapter(Context context, List<MasterCtrlModeEntity> list) {
         this.mContext = context;
         this.mLayoutInflater = LayoutInflater.from(context);
         this.mList = new ArrayList<>();
@@ -53,7 +56,6 @@ public class DeMasterModeAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        Log.i("JLTHMODE", "onBindViewHolder: " + mList.get(position).getMode());
         ((MasterModeHolder) holder).setData(mList.get(position));
     }
 
@@ -62,14 +64,14 @@ public class DeMasterModeAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         return mList.size();
     }
 
-    public void refreshList(List<AddMasterModeBean> list) {
+    public void refreshList(List<MasterCtrlModeEntity> list) {
         if (list != null) {
             mList.clear();
             addList(list);
         }
     }
 
-    private void addList(List<AddMasterModeBean> list) {
+    private void addList(List<MasterCtrlModeEntity> list) {
         mList.addAll(list);
         notifyDataSetChanged();
     }
@@ -87,7 +89,7 @@ public class DeMasterModeAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             ButterKnife.bind(this, itemView);
         }
 
-        private void onLongClickRemove(final AddMasterModeBean bean) {
+        private void onLongClickRemove(final MasterCtrlModeEntity bean) {
             layoutJet.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
@@ -97,14 +99,13 @@ public class DeMasterModeAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             });
         }
 
-        private void onClickModeJet(final AddMasterModeBean bean) {
+        private void onClickModeJet(final MasterCtrlModeEntity bean) {
             layoutJet.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int millis = (int) mList.get(getAdapterPosition()).getMillis();
-                    Log.i("JLTHMODE", "millis_to_groupId: " + millis);
 
-                    switch (bean.getMode()) {
+                    switch (bean.getType()) {
                         case CONFIG_STREAM:
                             mContext.startActivity(new Intent(mContext, CoConfigStreamActivity.class).putExtra("group_id", millis));
                             break;
@@ -124,9 +125,9 @@ public class DeMasterModeAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             });
         }
 
-        public void setData(final AddMasterModeBean bean) {
-            textJetEffect.setText(bean.getMode());
-            switch (bean.getMode()) {
+        public void setData(final MasterCtrlModeEntity bean) {
+            textJetEffect.setText(bean.getType());
+            switch (bean.getType()) {
                 case CONFIG_STREAM:
                     imgJetEffect.setImageResource(R.drawable.ic_config_stream);
                     break;
@@ -147,15 +148,14 @@ public class DeMasterModeAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             onLongClickRemove(bean);
         }
 
-        private void showDialog(final AddMasterModeBean bean) {
+        private void showDialog(final MasterCtrlModeEntity bean) {
             dialog = new SelfDialogBase(mContext);
             dialog.setTitle("确定要删除");
             dialog.setYesOnclickListener("确定", new SelfDialogBase.onYesOnclickListener() {
                 @Override
                 public void onYesClick() {
                     // 删除喷射效果
-                    Log.i("JLTHMODE", "bean: " + bean.getMode());
-                    LitePal.deleteAll(MasterModeEntity.class, "millis = ?", String.valueOf(mList.get(getAdapterPosition()).getMillis()));
+                    LitePal.deleteAll(MasterCtrlModeEntity.class, "millis = ?", String.valueOf(mList.get(getAdapterPosition()).getMillis()));
                     mList.remove(getAdapterPosition());
                     notifyDataSetChanged();
                     dialog.dismiss();

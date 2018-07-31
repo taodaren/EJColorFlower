@@ -26,9 +26,8 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
-import cn.eejing.ejcolorflower.model.lite.MasterModeEntity;
-import cn.eejing.ejcolorflower.model.lite.SetMasterCtrlEntity;
-import cn.eejing.ejcolorflower.model.request.AddMasterModeBean;
+import cn.eejing.ejcolorflower.model.lite.MasterCtrlModeEntity;
+import cn.eejing.ejcolorflower.model.lite.MasterCtrlNumEntity;
 import cn.eejing.ejcolorflower.view.adapter.DeMasterModeAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
@@ -55,9 +54,9 @@ public class DeMasterModeActivity extends BaseActivity {
     private boolean isStart;
     private int isPause;
     private String mDeviceId;
-    private CustomPopWindow mCustomPopWindow;
+    private CustomPopWindow mPopWindow;
     private DeMasterModeAdapter mAdapter;
-    private List<AddMasterModeBean> mList;
+    private List<MasterCtrlModeEntity> mList;
     private Handler mHandler;
 
     private String mConfigType;
@@ -68,9 +67,7 @@ public class DeMasterModeActivity extends BaseActivity {
     private Runnable mRunnableMaster = new Runnable() {
         @Override
         public void run() {
-            // 要做的事情
             // 定时调用方法
-            Log.i("JLTHMODE", "MODE");
 //            updateWithDataOut();
             // 每 0.1 秒调用一次方法
             mHandler.postDelayed(this, 100);
@@ -89,10 +86,8 @@ public class DeMasterModeActivity extends BaseActivity {
 
         mList = new ArrayList<>();
         mHandler = new Handler();
-        // 数据库中查询是否保存信息
-        isSaveDBInfo();
-        initConfigDB();
 
+        initConfigDB();
         initRecyclerView();
     }
 
@@ -112,7 +107,7 @@ public class DeMasterModeActivity extends BaseActivity {
                 clickPauseGoon();
                 break;
             case R.id.img_add_master_mode:
-                configJetStyle();
+                clickJetStyle();
                 break;
             default:
                 break;
@@ -164,12 +159,35 @@ public class DeMasterModeActivity extends BaseActivity {
         }
     }
 
-    private void setSQLiteData() {
-        List<SetMasterCtrlEntity> groupIdList = LitePal
-                .where("devId=?", String.valueOf(mDeviceId))
-                .find(SetMasterCtrlEntity.class);
+    /** 配置喷射样式 */
+    private void clickJetStyle() {
+        // 显示 PopupWindow 同时背景变暗
+        @SuppressLint("InflateParams")
+        View inflate = LayoutInflater.from(this).inflate(R.layout.layout_selec_jet_mode_master, null, false);
+        logicHandle(inflate);
+        // 创建并显示 popWindow
+        mPopWindow = new CustomPopWindow.PopupWindowBuilder(this)
+                .setView(inflate)
+                // 弹出 popWindow 时，背景是否变暗
+                .enableBackgroundDark(true)
+                // 控制亮度
+                .setBgDarkAlpha(0.7f)
+                .setOnDissmissListener(new PopupWindow.OnDismissListener() {
+                    @Override
+                    public void onDismiss() {
+                    }
+                })
+                .create()
+                // 设置 pop 位置为中央显示
+                .showAtLocation(this.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
+    }
 
-        SetMasterCtrlEntity entity = new SetMasterCtrlEntity();
+    private void setSQLiteData() {
+        List<MasterCtrlNumEntity> groupIdList = LitePal
+                .where("devId=?", String.valueOf(mDeviceId))
+                .find(MasterCtrlNumEntity.class);
+
+        MasterCtrlNumEntity entity = new MasterCtrlNumEntity();
         if (groupIdList.size() == 0) {
             // 增
             setEntity(entity);
@@ -181,61 +199,49 @@ public class DeMasterModeActivity extends BaseActivity {
         }
     }
 
-    private void setEntity(SetMasterCtrlEntity entity) {
+    private void setEntity(MasterCtrlNumEntity entity) {
         entity.setDevId(mDeviceId);
         entity.setDevNum(etDevNum.getText().toString());
         entity.setStarDmx(etStarDmx.getText().toString());
     }
 
-    private void isSaveDBInfo() {
-        List<MasterModeEntity> entities = LitePal.findAll(MasterModeEntity.class);
-        if (entities != null && entities.size() > 0) {
-            for (int i = 0; i < entities.size(); i++) {
-                mList.add(new AddMasterModeBean(entities.get(i).getMode(), entities.get(i).getMillis()));
+    /** 初始化数据库信息 */
+    private void initConfigDB() {
+        List<MasterCtrlNumEntity> jetNumes = LitePal.where("devId = ?", String.valueOf(mDeviceId)).find(MasterCtrlNumEntity.class);
+        List<MasterCtrlModeEntity> jetModes = LitePal.where("devId = ?", String.valueOf(mDeviceId)).find(MasterCtrlModeEntity.class);
+
+        // 设备数量及起始 DMX
+        if (jetNumes.size() != 0) {
+            etDevNum.setText(jetNumes.get(0).getDevNum());
+            etStarDmx.setText(jetNumes.get(0).getStarDmx());
+        }
+        // 喷射效果列表
+        if (jetModes != null && jetModes.size() > 0) {
+            for (int i = 0; i < jetModes.size(); i++) {
+                mList.add(new MasterCtrlModeEntity(jetModes.get(i).getType(), jetModes.get(i).getMillis()));
             }
         }
     }
 
-    private void initConfigDB() {
-        List<SetMasterCtrlEntity> entities = LitePal.where("devId = ?", String.valueOf(mDeviceId)).find(SetMasterCtrlEntity.class);
+    private void initRecyclerView() {
+        // 解决滑动冲突
+        rvMasterMode.setNestedScrollingEnabled(false);
 
-        if (entities.size() != 0) {
-            etDevNum.setText(entities.get(0).getDevNum());
-            etStarDmx.setText(entities.get(0).getStarDmx());
-        }
+        LinearLayoutManager manager = new LinearLayoutManager(this);
+        rvMasterMode.setLayoutManager(manager);
+        // 绑定适配器
+        mAdapter = new DeMasterModeAdapter(this, mList);
+        rvMasterMode.setAdapter(mAdapter);
     }
 
-    /** 配置喷射样式 */
-    private void configJetStyle() {
-        // 显示 PopupWindow 同时背景变暗
-        @SuppressLint("InflateParams")
-        View contentView = LayoutInflater.from(this).inflate(R.layout.layout_selec_jet_mode_master, null, false);
-        handleLogic(contentView);
-        // 创建并显示 popWindow
-        mCustomPopWindow = new CustomPopWindow.PopupWindowBuilder(this)
-                .setView(contentView)
-                // 弹出 popWindow 时，背景是否变暗
-                .enableBackgroundDark(true)
-                // 控制亮度
-                .setBgDarkAlpha(0.7f)
-                .setOnDissmissListener(new PopupWindow.OnDismissListener() {
-                    @Override
-                    public void onDismiss() {
-                        Log.e("TAG", "onDismiss");
-                    }
-                })
-                .create()
-                // 设置 pop 位置
-                .showAtLocation(this.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
-    }
-
-    private void handleLogic(View contentView) {
+    /** 处理 PopWindow 逻辑 */
+    private void logicHandle(View view) {
         View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 long millis = System.currentTimeMillis();
-                if (mCustomPopWindow != null) {
-                    mCustomPopWindow.dissmiss();
+                if (mPopWindow != null) {
+                    mPopWindow.dissmiss();
                 }
                 switch (v.getId()) {
                     case R.id.master_mode_stream:
@@ -256,31 +262,24 @@ public class DeMasterModeActivity extends BaseActivity {
             }
 
             private void setMasterCtrl(String type, long millis) {
-                MasterModeEntity entity = new MasterModeEntity(type);
-                entity.setMode(type);
+                // 保存主控喷射效果
+                MasterCtrlModeEntity entity = new MasterCtrlModeEntity(type);
+                entity.setDevId(mDeviceId);
+                entity.setType(type);
                 entity.setMillis(millis);
                 entity.save();
-                mList.add(new AddMasterModeBean(type, millis));
+                // 添加一条数据到集合，并刷新
+                mList.add(new MasterCtrlModeEntity(type, millis));
                 mAdapter.refreshList(mList);
             }
         };
-        contentView.findViewById(R.id.master_mode_stream).setOnClickListener(listener);
-        contentView.findViewById(R.id.master_mode_ride).setOnClickListener(listener);
-        contentView.findViewById(R.id.master_mode_interval).setOnClickListener(listener);
-        contentView.findViewById(R.id.master_mode_together).setOnClickListener(listener);
+        view.findViewById(R.id.master_mode_stream).setOnClickListener(listener);
+        view.findViewById(R.id.master_mode_ride).setOnClickListener(listener);
+        view.findViewById(R.id.master_mode_interval).setOnClickListener(listener);
+        view.findViewById(R.id.master_mode_together).setOnClickListener(listener);
     }
 
-    private void initRecyclerView() {
-        // 解决滑动冲突
-        rvMasterMode.setNestedScrollingEnabled(false);
-
-        LinearLayoutManager manager = new LinearLayoutManager(this);
-        rvMasterMode.setLayoutManager(manager);
-        // 绑定适配器
-        mAdapter = new DeMasterModeAdapter(this, mList);
-        rvMasterMode.setAdapter(mAdapter);
-    }
-
+    /** 配置喷射信息界面返回数据 */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventJetStatus(JetStatusEvent event) {
         mConfigType = event.getType();
