@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 @SuppressWarnings("unused")
 public class Device {
     DeviceConfig config = null;
-    DeviceState state = null;
+    DeviceStatus state = null;
     DeviceMaterialStatus materialStatus = null;
 
     private final String address;
@@ -39,7 +39,7 @@ public class Device {
         this.state = null;
     }
 
-    public DeviceState getState() {
+    public DeviceStatus getState() {
         return state;
     }
 
@@ -52,7 +52,7 @@ public class Device {
         this.config = config;
     }
 
-    public void setState(DeviceState mState) {
+    public void setState(DeviceStatus mState) {
         this.state = mState;
     }
 

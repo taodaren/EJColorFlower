@@ -24,7 +24,7 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
-import cn.eejing.ejcolorflower.device.DeviceState;
+import cn.eejing.ejcolorflower.device.DeviceStatus;
 import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
 import cn.eejing.ejcolorflower.presenter.ISendCommand;
@@ -223,9 +223,9 @@ public class AppActivity extends BLEActivity implements ISendCommand, BottomNavi
                         DeviceConfig config = device.getConfig();
                         long id = (config == null) ? 0 : config.mID;
                         if (config == null || mRequestConfig) {
-                            mRequestConfig = !send(mac, BleDeviceProtocol.get_config_package(id));
+                            mRequestConfig = !send(mac, BleDeviceProtocol.pkgGetConfig(id));
                         } else {
-                            send(mac, BleDeviceProtocol.get_status_package(id));
+                            send(mac, BleDeviceProtocol.pkgGetStatus(id));
                         }
 
                         // 发送设备相关数据
@@ -358,17 +358,17 @@ public class AppActivity extends BLEActivity implements ISendCommand, BottomNavi
         }
 
         @Override
-        protected void onReceivePackage(@NonNull final DeviceState state) {
-            device.setState(state);
+        protected void receivePkg(@NonNull final DeviceStatus status) {
+            device.setState(status);
         }
 
         @Override
-        protected void onReceivePackage(@NonNull final DeviceConfig config) {
+        protected void receivePkg(@NonNull final DeviceConfig config) {
             device.setConfig(config);
         }
 
         @Override
-        protected void onReceivePackage(@NonNull final byte[] pkg, int pkg_len) {
+        protected void receivePkg(@NonNull final byte[] pkg, int pkg_len) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

@@ -614,7 +614,7 @@ public class BLEActivity extends BaseActivity {
         if (mShutdown) {
             return false;
         }
-        data = BleDeviceProtocol.wrapped_package(data);
+        data = BleDeviceProtocol.wrappedPackage(data);
         DeviceManager mgr = mDeviceManagerSet.get(mac);
         return mgr != null && mgr.sendData(data, revCb);
     }
@@ -680,13 +680,13 @@ public class BLEActivity extends BaseActivity {
         }
 
         // 接收到蓝牙数据的处理函数
-        void dealRecieveDataByProtocol(byte[] data) {
+        void dealReceiveDataByProtocol(byte[] data) {
             if (bleDeviceProtocol != null) {
-                bleDeviceProtocol.onReceive(data);
+                bleDeviceProtocol.bleReceive(data);
             }
         }
 
-        // 接收到匹配的蓝牙设备发送的数据包后，需要进行的回调处理
+        /** 接收到匹配的蓝牙设备发送的数据包后，需要进行的回调处理 */
         public void doMatchPackage(byte[] ack_pkg) {
             if (callBack == null) {
                 return;
@@ -860,7 +860,7 @@ public class BLEActivity extends BaseActivity {
         Log.i(TAG, "recv from " + mac + "  : " + Util.hex(data, data.length));
         DeviceManager dev = mDeviceManagerSet.get(mac);
         if (dev != null) {
-            dev.dealRecieveDataByProtocol(data);
+            dev.dealReceiveDataByProtocol(data);
         }
     }
 

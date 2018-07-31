@@ -20,40 +20,43 @@ import cn.eejing.ejcolorflower.util.Util;
 public class BleDeviceProtocol {
     private final static String TAG = "BleDeviceProtocol";
     private final static int MAX_PKG_LEN = 0x80;
-    private final static int CMD_STATUS = 1;
-    private final static int CMD_CONFIG = 2;
-    private final static int CMD_SET_TEMP_THRESHOLD = 3;
-    private final static int CMD_SET_MOTOR_SPEED = 4;
-    private final static int CMD_SET_ID = 5;
-    private final static int CMD_SET_DMX_ADDRESS = 6;
-    private final static int CMD_JET = 7;
-    private final static int CMD_ADD_MATERIAL = 8;
-    private final static int CMD_GET_TIMESTAMP = 9;
-    private final static int CMD_STOP_JET = 10;
-    private final static int CMD_SET_GUALIAO_TIME = 11;
-    private final static int CMD_GET_MATERIAL_STATUS = 12;
-    private final static int CMD_CLEAR_MATERIAL_INFO = 13;
-    private final static int CMD_REAL_TIME_CTRL_MODE = 16;
+    private final static int CMD_GET_STATUS = 1;                                // 获取内部状态
+    private final static int CMD_GET_CONFIG = 2;                                // 获取配置
+    private final static int CMD_SET_TEMP_THRESHOLD = 3;                        // 设置温度阈值
+    private final static int CMD_SET_MOTOR_SPEED = 4;                           // 设置电机默认速度
+    private final static int CMD_SET_DEV_ID = 5;                                // 设置设备ID
+    private final static int CMD_SET_DMX_ADDRESS = 6;                           // 设置DMX地址
+    private final static int CMD_JET_START = 7;                                 // 开始喷射
+    private final static int CMD_ADD_MATERIAL = 8;                              // 加料
+    private final static int CMD_GET_TIMESTAMP = 9;                             // 获取时间戳
+    private final static int CMD_JET_STOP = 10;                                 // 停止喷射
+    private final static int CMD_SET_SCRAPE_MATERIAL_TIME = 11;                 // 设置刮料时间
+    private final static int CMD_GET_ADD_MATERIAL_STATUS = 12;                  // 获取加料状态
+    private final static int CMD_CLEAR_ADD_MATERIAL_INFO = 13;                  // 清除加料信息
+    private final static int CMD_ENTER_LCD_OPERATING_MODE = 14;                 // 进入液晶屏操作模式
+    private final static int CMD_QR_DATA_SEPARATE_PKG = 15;                     // 二维码数据（分包）
+    private final static int CMD_ENTER_REAL_TIME_CTRL_MODE = 16;                // 进入在线实时控制模式
+    private final static int CMD_EXIT_REAL_TIME_CTRL_MODE = 17;                 // 退出实时控制模式
 
     private final static int HEADER_LEN = 7;
     private final byte[] pkg = new byte[MAX_PKG_LEN];
-    private int pkg_len = 0;
-    private boolean translate = false;
+    private int mPkgLen = 0;
+    private boolean mTranslate;
 
-    public void onReceive(byte[] data) {
+    /** 接收 */
+    public void bleReceive(byte[] data) {
         for (byte b : data) {
             onByte(b);
-//            onByteLevel2(b, false);
         }
     }
 
-    // 反转义
+    /** 反转义 */
     private void onByte(byte b) {
-        if (translate) {
-            translate = false;
+        if (mTranslate) {
+            mTranslate = false;
             onByteLevel2((byte) (((int) b & 0xff) ^ 0xFF), true);
         } else if (b == (byte) 0xFE) {
-            translate = true;
+            mTranslate = true;
         } else {
             onByteLevel2(b, false);
         }
@@ -86,7 +89,7 @@ public class BleDeviceProtocol {
         return map(S, i, d);
     }
 
-    // 解密
+    /** 解密 */
     private void onByteLevel2(byte b, boolean is_translated) {
         if (b == (byte) 0xDC && !is_translated) {
             s = 1;
@@ -103,78 +106,84 @@ public class BleDeviceProtocol {
             Sn++;
             if (Sn >= S.length) {
                 s = 3;
-                pkg_len = 0;
+                mPkgLen = 0;
             }
         } else if (s == 3) {
-            pkg[pkg_len] = map(pkg_len, b);
-            pkg_len++;
-            if (pkg_len >= data_len) {
+            pkg[mPkgLen] = map(mPkgLen, b);
+            mPkgLen++;
+            if (mPkgLen >= data_len) {
                 s = 0;
-                onPackage();
+                validatePkg();
             }
         }
     }
 
-    private void onPackage() {
-        if (pkg_len >= 9 && pkg[0] == (byte) 0xCD) {
-            int data_len = (int) pkg[1] & 0xff;
-            if (data_len + 9 == pkg_len) {
-                onPackageLengthValidated();
+    /** 验证 PKG */
+    private void validatePkg() {
+        if (mPkgLen >= 9 && pkg[0] == (byte) 0xCD) {
+            int dataLen = (int) pkg[1] & 0xff;
+            if (dataLen + 9 == mPkgLen) {
+                pkgLengthValidated();
                 return;
             }
         }
-        Log.e(TAG, "malformed package " + Util.hex(pkg, pkg_len));
+        Log.e(TAG, "格式错误的 PKG--->" + Util.hex(pkg, mPkgLen));
     }
 
     public byte[] getPkg() {
-        return Arrays.copyOfRange(pkg, 0, pkg_len);
+        return Arrays.copyOfRange(pkg, 0, mPkgLen);
     }
 
-    private void onPackageLengthValidated() {
-        if (CRC16.validate(pkg, pkg_len - 2)) {
+    /** PKG 长度已验证 */
+    private void pkgLengthValidated() {
+        if (CRC16.validate(pkg, mPkgLen - 2)) {
             if ((pkg[2] & 0x80) != 0) {
-                Log.i(TAG, "ack package   " + Util.hex(pkg, pkg_len));
-                onAckPackage();
+                Log.i(TAG, "ack package   " + Util.hex(pkg, mPkgLen));
+                ackPkg();
             } else {
-                Log.e(TAG, "drop command package " + Util.hex(pkg, pkg_len));
+                Log.e(TAG, "drop command package " + Util.hex(pkg, mPkgLen));
             }
         } else {
-            Log.e(TAG, "CRC wrong package " + Util.hex(pkg, pkg_len));
+            Log.e(TAG, "CRC wrong package " + Util.hex(pkg, mPkgLen));
         }
     }
 
-    private void onAckPackage() {
+    private void ackPkg() {
         int cmd = pkg[2] & 0x7F;
-//        long id = parseID(pkg, pkg_len);
+//        long id = parseID(pkg, mPkgLen);
         switch (cmd) {
-            case CMD_STATUS:
-                DeviceState ds = parseStatus(pkg, pkg_len);
+            case CMD_GET_STATUS:
+                DeviceStatus ds = parseStatus(pkg, mPkgLen);
                 if (ds != null) {
-                    onReceivePackage(ds);
+                    receivePkg(ds);
                 }
                 break;
-            case CMD_CONFIG:
-                DeviceConfig config = parseConfig(pkg, pkg_len);
+            case CMD_GET_CONFIG:
+                DeviceConfig config = parseConfig(pkg, mPkgLen);
                 if (config != null) {
-                    onReceivePackage(config);
+                    receivePkg(config);
                 }
                 break;
             default:
-                onReceivePackage(pkg, pkg_len);
+                receivePkg(pkg, mPkgLen);
                 break;
         }
     }
 
-    protected void onReceivePackage(@NonNull DeviceState state) {
+    /** 接收包-状态 */
+    protected void receivePkg(@NonNull DeviceStatus status) {
     }
 
-    protected void onReceivePackage(@NonNull DeviceConfig config) {
+    /** 接收包-配置 */
+    protected void receivePkg(@NonNull DeviceConfig config) {
     }
 
-    protected void onReceivePackage(@NonNull byte[] pkg, int pkg_len) {
-        Log.e(TAG, "receive package " + Util.hex(pkg, pkg_len));
+    /** 接收包-其它 */
+    protected void receivePkg(@NonNull byte[] pkg, int pkg_len) {
+        Log.e(TAG, "接收 PKG--->" + Util.hex(pkg, pkg_len));
     }
 
+    /** 是否匹配 */
     public static boolean isMatch(@NonNull byte[] cmd_pkg, @NonNull byte[] ack_pkg) {
         return (cmd_pkg[2] | (byte) 0x80) == ack_pkg[2] &&
                 ((cmd_pkg[3] == 0 && cmd_pkg[4] == 0 && cmd_pkg[5] == 0 && cmd_pkg[6] == 0) ||
@@ -182,33 +191,33 @@ public class BleDeviceProtocol {
                                 cmd_pkg[5] == ack_pkg[5] && cmd_pkg[6] == ack_pkg[6]));
     }
 
+    /** 命令包 */
     @NonNull
-    public static byte[] command_package(int command, long id, @Nullable byte[] data) {
-        final int data_len = (data == null) ? 0 : data.length;
-        final byte[] pkg = new byte[9 + data_len];
+    private static byte[] cmdPkg(int cmd, long id, @Nullable byte[] data) {
+        final int dataLen = (data == null) ? 0 : data.length;
+        final byte[] pkg = new byte[9 + dataLen];
         pkg[0] = (byte) 0xCD;
-        pkg[1] = (byte) data_len;
-        pkg[2] = (byte) command;
+        pkg[1] = (byte) dataLen;
+        pkg[2] = (byte) cmd;
         pkg[3] = (byte) (id & 0xff);
         pkg[4] = (byte) ((id >> 8) & 0xff);
         pkg[5] = (byte) ((id >> 16) & 0xff);
         pkg[6] = (byte) ((id >> 24) & 0xff);
         if (data != null) {
-            System.arraycopy(data, 0, pkg, 7, data_len);
+            System.arraycopy(data, 0, pkg, 7, dataLen);
         }
-        int crc = CRC16.calculate(pkg, 7 + data_len);
-        pkg[7 + data_len] = (byte) (crc & 0xff);
-        pkg[8 + data_len] = (byte) ((crc >> 8) & 0xff);
+        int crc = CRC16.calculate(pkg, 7 + dataLen);
+        pkg[7 + dataLen] = (byte) (crc & 0xff);
+        pkg[8 + dataLen] = (byte) ((crc >> 8) & 0xff);
 
-        Log.i(TAG, "command_package " + Util.hex(pkg, pkg.length));
+        Log.i(TAG, "CMD PKG--->" + Util.hex(pkg, pkg.length));
         return pkg;
     }
 
-
-    private static final SecureRandom seedGen = new SecureRandom();
-
+    /** 加密包 */
     @NonNull
-    private static byte[] encrypt_package(@NonNull byte[] d) {
+    private static byte[] encryptPkg(@NonNull byte[] d) {
+        final SecureRandom seedGen = new SecureRandom();
         final byte[] pkg = new byte[8 + d.length];
         final byte[] S = new byte[6];
         seedGen.nextBytes(S);
@@ -223,17 +232,11 @@ public class BleDeviceProtocol {
 
     private final static byte TRANSLATE_LEAD = (byte) 0xFE;
 
-    private static boolean should_translate(byte b) {
-        return b == (byte) 0xCD ||
-                b == (byte) 0xDC ||
-                b == TRANSLATE_LEAD;
-    }
-
     @NonNull
     private static byte[] translate(@NonNull byte[] d) {
         int c = 0;
         for (int i = 1; i < d.length; i++) {
-            if (should_translate(d[i])) {
+            if (shouldTranslate(d[i])) {
                 c++;
             }
         }
@@ -243,7 +246,7 @@ public class BleDeviceProtocol {
             pkg[0] = d[0];
             int j = 1;
             for (int i = 1; i < d.length; i++) {
-                if (should_translate(d[i])) {
+                if (shouldTranslate(d[i])) {
                     pkg[j++] = TRANSLATE_LEAD;
                     pkg[j++] = (byte) ((int) d[i] ^ 0xff);
                 } else {
@@ -256,134 +259,161 @@ public class BleDeviceProtocol {
         }
     }
 
+    private static boolean shouldTranslate(byte b) {
+        return b == (byte) 0xCD ||
+                b == (byte) 0xDC ||
+                b == TRANSLATE_LEAD;
+    }
+
     @NonNull
-    public static byte[] wrapped_package(@NonNull byte[] data) {
-        return translate(encrypt_package(data));
+    public static byte[] wrappedPackage(@NonNull byte[] data) {
+        return translate(encryptPkg(data));
     }
 
     // TODO: /**<-------------------- 以下发送数据（打包） -------------------->**/
-    // 获取内部状态
+    /** 获取内部状态 */
     @NonNull
-    public static byte[] get_status_package(long id) {
-        return command_package(CMD_STATUS, id, null);
+    public static byte[] pkgGetStatus(long id) {
+        return cmdPkg(CMD_GET_STATUS, id, null);
     }
 
-    // 获取配置
+    /** 获取配置 */
     @NonNull
-    public static byte[] get_config_package(long id) {
-        return command_package(CMD_CONFIG, id, null);
+    public static byte[] pkgGetConfig(long id) {
+        return cmdPkg(CMD_GET_CONFIG, id, null);
     }
 
-    // 设置温度阈值
+    /** 设置温度阈值 */
     @NonNull
-    public static byte[] set_temperature_threshold_package(long id, int low, int height) {
+    public static byte[] pkgSetTempThreshold(long devId, int low, int height) {
         byte[] data = new byte[4];
+
         data[0] = (byte) (low & 0xff);
         data[1] = (byte) ((low >> 8) & 0xff);
         data[2] = (byte) (height & 0xff);
         data[3] = (byte) ((height >> 8) & 0xff);
-        return command_package(CMD_SET_TEMP_THRESHOLD, id, data);
+
+        return cmdPkg(CMD_SET_TEMP_THRESHOLD, devId, data);
     }
 
-    // 设置电机默认速度
+    /** 设置电机默认速度 */
     @NonNull
-    public static byte[] set_motor_default_speed_package(long id, int[] speeds) {
+    public static byte[] pkgSetMotorDefSpeed(long devId, int[] speeds) {
         byte[] data = new byte[4];
+
         data[0] = (byte) (speeds[0] & 0xff);
         data[1] = (byte) (speeds[1] & 0xff);
         data[2] = (byte) (speeds[2] & 0xff);
         data[3] = (byte) (speeds[3] & 0xff);
-        return command_package(CMD_SET_MOTOR_SPEED, id, data);
+
+        return cmdPkg(CMD_SET_MOTOR_SPEED, devId, data);
     }
 
-    // 设置设备ID
+    /** 设置设备 ID */
     @NonNull
-    public static byte[] set_id_package(long id, long new_id) {
+    public static byte[] pkgSetDevId(long devId, long newId) {
         byte[] data = new byte[4];
-        data[0] = (byte) (new_id & 0xff);
-        data[1] = (byte) ((new_id >> 8) & 0xff);
-        data[2] = (byte) ((new_id >> 16) & 0xff);
-        data[3] = (byte) ((new_id >> 24) & 0xff);
-        return command_package(CMD_SET_ID, id, data);
+
+        data[0] = (byte) (newId & 0xff);
+        data[1] = (byte) ((newId >> 8) & 0xff);
+        data[2] = (byte) ((newId >> 16) & 0xff);
+        data[3] = (byte) ((newId >> 24) & 0xff);
+
+        return cmdPkg(CMD_SET_DEV_ID, devId, data);
     }
 
-    // 设置 DMX 地址
+    /** 设置 DMX 地址 */
     @NonNull
-    public static byte[] set_dmx_address_package(long id, int dmx_address) {
+    public static byte[] pkgSetDmxAddress(long devId, int dmxAddress) {
         byte[] data = new byte[2];
-        data[0] = (byte) (dmx_address & 0xff);
-        data[1] = (byte) ((dmx_address >> 8) & 0xff);
-        return command_package(CMD_SET_DMX_ADDRESS, id, data);
+
+        data[0] = (byte) (dmxAddress & 0xff);
+        data[1] = (byte) ((dmxAddress >> 8) & 0xff);
+
+        return cmdPkg(CMD_SET_DMX_ADDRESS, devId, data);
     }
 
-    // 开始喷射
+    /** 开始喷射 */
     @NonNull
-    public static byte[] jet_start_package(long id, int delay, int duration, int high) {
+    public static byte[] pkgJetStart(long devId, int delay, int duration, int high) {
         byte[] data = new byte[5];
+
         data[0] = (byte) (delay & 0xff);
         data[1] = (byte) ((delay >> 8) & 0xff);
+
         data[2] = (byte) (duration & 0xff);
         data[3] = (byte) ((duration >> 8) & 0xff);
+
         data[4] = (byte) (high & 0xff);
-        return command_package(CMD_JET, id, data);
+
+        return cmdPkg(CMD_JET_START, devId, data);
     }
 
-    // 加料
+    /** 加料 */
     @NonNull
-    public static byte[] add_material(long id, int time, long stamp, long user_id, long material_id) {
-        byte[] data = new byte[16];
+    public static byte[] pkgAddMaterial(long devId, int time, long timestamp, long userId, long materialId) {
+        byte[] data = new byte[14];
+
         data[0] = (byte) (time & 0xff);
         data[1] = (byte) ((time >> 8) & 0xff);
-        data[2] = (byte) (stamp & 0xff);
-        data[3] = (byte) ((stamp >> 8) & 0xff);
-        data[4] = (byte) ((stamp >> 16) & 0xff);
-        data[5] = (byte) ((stamp >> 24) & 0xff);
 
-        data[6] = (byte) (user_id & 0xff);
-        data[7] = (byte) ((user_id >> 8) & 0xff);
-        data[8] = (byte) ((user_id >> 16) & 0xff);
-        data[9] = (byte) ((user_id >> 24) & 0xff);
+        data[2] = (byte) (timestamp & 0xff);
+        data[3] = (byte) ((timestamp >> 8) & 0xff);
+        data[4] = (byte) ((timestamp >> 16) & 0xff);
+        data[5] = (byte) ((timestamp >> 24) & 0xff);
+
+        data[6] = (byte) (userId & 0xff);
+        data[7] = (byte) ((userId >> 8) & 0xff);
+        data[8] = (byte) ((userId >> 16) & 0xff);
+        data[9] = (byte) ((userId >> 24) & 0xff);
 
 
-        data[10] = (byte) (material_id & 0xff);
-        data[11] = (byte) ((material_id >> 8) & 0xff);
-        data[12] = (byte) ((material_id >> 16) & 0xff);
-        data[13] = (byte) ((material_id >> 24) & 0xff);
-        data[13] = (byte) ((material_id >> 32) & 0xff);
-        data[13] = (byte) ((material_id >> 40) & 0xff);
+        data[10] = (byte) (materialId & 0xff);
+        data[11] = (byte) ((materialId >> 8) & 0xff);
+        data[12] = (byte) ((materialId >> 16) & 0xff);
+        data[13] = (byte) ((materialId >> 24) & 0xff);
 
-        return command_package(CMD_ADD_MATERIAL, id, data);
+        return cmdPkg(CMD_ADD_MATERIAL, devId, data);
     }
 
-    // 获取一个时间戳
+    /** 获取时间戳 */
     @NonNull
-    public static byte[] get_timestamp_package(long id) {
-        return command_package(CMD_GET_TIMESTAMP, id, null);
+    public static byte[] pkgGetTimestamp(long devId,long timestamp) {
+        byte[] data = new byte[4];
+
+        data[0] = (byte) (timestamp & 0xff);
+        data[1] = (byte) ((timestamp >> 8) & 0xff);
+        data[2] = (byte) ((timestamp >> 16) & 0xff);
+        data[3] = (byte) ((timestamp >> 24) & 0xff);
+
+        return cmdPkg(CMD_GET_TIMESTAMP, devId, data);
     }
 
-    // 停止喷射
+    /** 停止喷射 */
     @NonNull
-    public static byte[] jet_stop_package(long id) {
-        return command_package(CMD_STOP_JET, id, null);
+    public static byte[] pkgJetStop(long id) {
+        return cmdPkg(CMD_JET_STOP, id, null);
     }
 
-    // 设置刮料时间
+    /** 设置刮料时间 */
     @NonNull
-    public static byte[] set_gualiao_time_package(long id, int time) {
+    public static byte[] pkgSetScrapeMaterialTime(long id, int time) {
         byte[] data = new byte[1];
+
         data[0] = (byte) (time & 0xff);
-        return command_package(CMD_SET_GUALIAO_TIME, id, data);
+
+        return cmdPkg(CMD_SET_SCRAPE_MATERIAL_TIME, id, data);
     }
 
-    // 获取加料状态
+    /** 获取加料状态 */
     @NonNull
-    public static byte[] get_material_status(long id) {
-        return command_package(CMD_GET_MATERIAL_STATUS, id, null);
+    public static byte[] pkgGetAddMaterialStatus(long id) {
+        return cmdPkg(CMD_GET_ADD_MATERIAL_STATUS, id, null);
     }
 
-    // 清除加料信息
+    /** 清除加料信息 */
     @NonNull
-    public static byte[] clear_material_info(long id, long user_id, long material_id) {
+    public static byte[] pkgClearAddMaterialInfo(long id, long user_id, long material_id) {
         byte[] data = new byte[10];
 
         data[0] = (byte) (user_id & 0xff);
@@ -398,26 +428,26 @@ public class BleDeviceProtocol {
         data[8] = (byte) ((material_id >> 32) & 0xff);
         data[9] = (byte) ((material_id >> 40) & 0xff);
 
-        return command_package(CMD_CLEAR_MATERIAL_INFO, id, data);
+        return cmdPkg(CMD_CLEAR_ADD_MATERIAL_INFO, id, data);
     }
 
-    // 进入在线实时控制模式
+    /** 进入在线实时控制模式 */
     @NonNull
-    public static byte[] real_time_ctrl_mode(long id, int devNum, int startAddr, byte[] high) {
+    public static byte[] pkgEnterRealTimeCtrlMode(long id, int devNum, int startAddress, byte[] high) {
         byte[] data = new byte[2 + devNum];
         data[0] = (byte) (devNum & 0xff);
-        data[1] = (byte) (startAddr & 0xff);
+        data[1] = (byte) (startAddress & 0xff);
         for (int i = 0; i < devNum; i++) {
             data[1 + i] = high[i];
         }
-        return command_package(CMD_REAL_TIME_CTRL_MODE, id, data);
+        return cmdPkg(CMD_ENTER_REAL_TIME_CTRL_MODE, id, data);
     }
 
 
     // TODO: /**<-------------------- 以下蓝牙接收数据（解析） -------------------->**/
     @Nullable
-    public static DeviceState parseStatus(@NonNull byte[] pkg, int pkg_len) {
-        DeviceState ds = new DeviceState();
+    private static DeviceStatus parseStatus(@NonNull byte[] pkg, int pkg_len) {
+        DeviceStatus ds = new DeviceStatus();
         BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkg_len));
         try {
             reader.skip(HEADER_LEN);
@@ -438,7 +468,7 @@ public class BleDeviceProtocol {
     }
 
     @Nullable
-    public static DeviceConfig parseConfig(@NonNull byte[] pkg, int pkg_len) {
+    private static DeviceConfig parseConfig(@NonNull byte[] pkg, int pkg_len) {
         DeviceConfig config = new DeviceConfig();
         BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkg_len));
         try {

@@ -232,7 +232,7 @@ public class PageDeviceInfoFragment extends BaseFragment {
         // 清空设备配置
         AppActivity.getAppCtrl().clearDeviceConfig(mDevId);
         // 发送更新 DMX 命令
-        byte[] pkg = BleDeviceProtocol.set_dmx_address_package(mDevId, niDmx);
+        byte[] pkg = BleDeviceProtocol.pkgSetDmxAddress(mDevId, niDmx);
         mDevCtrl.sendCommand(mDevId, pkg);
         // 更新显示
         tvDmxAddress.setText(String.valueOf(niDmx));

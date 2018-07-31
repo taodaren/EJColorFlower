@@ -2,13 +2,13 @@ package cn.eejing.ejcolorflower.model.event;
 
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
-import cn.eejing.ejcolorflower.device.DeviceState;
+import cn.eejing.ejcolorflower.device.DeviceStatus;
 
 public class DeviceConnectEvent {
     private String info;
     private Device device;
     private String mac;
-    private DeviceState state;
+    private DeviceStatus state;
     private DeviceConfig config;
 
     public DeviceConnectEvent(String mac) {
@@ -25,7 +25,7 @@ public class DeviceConnectEvent {
         this.mac = mac;
     }
 
-    public DeviceConnectEvent(String info, String mac, DeviceState state, DeviceConfig config) {
+    public DeviceConnectEvent(String info, String mac, DeviceStatus state, DeviceConfig config) {
         this.info = info;
         this.mac = mac;
         this.state = state;
@@ -40,11 +40,11 @@ public class DeviceConnectEvent {
         this.device = device;
     }
 
-    public DeviceState getState() {
+    public DeviceStatus getState() {
         return state;
     }
 
-    public void setState(DeviceState state) {
+    public void setState(DeviceStatus state) {
         this.state = state;
     }
 

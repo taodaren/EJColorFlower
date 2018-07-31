@@ -38,7 +38,7 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
-import cn.eejing.ejcolorflower.device.DeviceState;
+import cn.eejing.ejcolorflower.device.DeviceStatus;
 import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
 import cn.eejing.ejcolorflower.model.lite.CtrlIntervalEntity;
@@ -81,7 +81,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     // 硬件相关
     private AppActivity.FireworkDevCtrl mDevCtrl;
-    private DeviceState mState;
+    private DeviceStatus mState;
     private DeviceConfig mConfig;
     private String mConnInfo, mConnDevMac;
     private long mConnDevID;
@@ -454,7 +454,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 Log.i("SWITCH_CTRL", "list.size() - i: " + (list.size() - i));
                 switch (mConfigType) {
                     case CONFIG_STREAM:
-                        final byte[] pkgStream = BleDeviceProtocol.jet_start_package(list.get(i),// from device
+                        final byte[] pkgStream = BleDeviceProtocol.pkgJetStart(list.get(i),// from device
                                 mGap * i, (list.size() - i) * mDuration, mHigh);
 
                         // 循环 loop 次
@@ -507,7 +507,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                         Log.i("SWITCH_CTRL", "RIDE_大间隔时间: " + mGapBig);
                         Log.i("SWITCH_CTRL", "RIDE_循环次数: " + mLoop);
 
-                        byte[] pkgRide = BleDeviceProtocol.jet_start_package(list.get(i),// from device
+                        byte[] pkgRide = BleDeviceProtocol.pkgJetStart(list.get(i),// from device
                                 (mDirection / 10 + mGap / 1000) * 1000 * i, mDuration, mHigh);
                         break;
                     case CONFIG_INTERVAL:
@@ -545,7 +545,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             try {
                 if (i % 2 == 0) {
                     // 如果设备是第偶数个，高度100
-                    pkgInterval = BleDeviceProtocol.jet_start_package(list.get(i),// from device
+                    pkgInterval = BleDeviceProtocol.pkgJetStart(list.get(i),// from device
                             0, mDuration, mHigh);
                     frequencyInterval(list, i, pkgInterval);
                     Thread.sleep(1);
@@ -557,7 +557,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
             if (i % 2 == 1) {
                 // 如果设备是第奇数个，高度60
-                pkgInterval = BleDeviceProtocol.jet_start_package(list.get(i),// from device
+                pkgInterval = BleDeviceProtocol.pkgJetStart(list.get(i),// from device
                         0, mDuration, 60);
                 frequencyInterval(list, i, pkgInterval);
             }
@@ -568,7 +568,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             Log.i("SWITCH_CTRL", "TOGETHER_喷射时间: " + mDuration);
             Log.i("SWITCH_CTRL", "TOGETHER_高度: " + mHigh);
 
-            byte[] pkgTogether = BleDeviceProtocol.jet_start_package(list.get(i),// from device
+            byte[] pkgTogether = BleDeviceProtocol.pkgJetStart(list.get(i),// from device
                     mGap, mDuration, mHigh);
             try {
                 jetStart(list.get(i), pkgTogether);

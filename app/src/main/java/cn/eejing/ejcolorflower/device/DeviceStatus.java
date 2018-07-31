@@ -4,10 +4,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * DeviceState information
+ * DeviceStatus information
  */
 
-public class DeviceState implements Parcelable {
+public class DeviceStatus implements Parcelable {
     public int mTemperature = 20;
     public float mSupplyVoltage = 12;
     public int[] mMotorSpeed = new int[]{20, 10, 15, 200};
@@ -16,18 +16,18 @@ public class DeviceState implements Parcelable {
     public int mInfraredDistance = 60;
     public int mRestTime = 0;
 
-    public DeviceState() {
+    public DeviceStatus() {
     }
 
-    public static final Creator<DeviceState> CREATOR = new Creator<DeviceState>() {
+    public static final Creator<DeviceStatus> CREATOR = new Creator<DeviceStatus>() {
         @Override
-        public DeviceState createFromParcel(Parcel in) {
-            return new DeviceState(in);
+        public DeviceStatus createFromParcel(Parcel in) {
+            return new DeviceStatus(in);
         }
 
         @Override
-        public DeviceState[] newArray(int size) {
-            return new DeviceState[size];
+        public DeviceStatus[] newArray(int size) {
+            return new DeviceStatus[size];
         }
     };
 
@@ -65,7 +65,7 @@ public class DeviceState implements Parcelable {
         return sb.toString();
     }
 
-    private DeviceState(Parcel in) {
+    private DeviceStatus(Parcel in) {
         this.mTemperature = in.readInt();
         this.mSupplyVoltage = in.readFloat();
         this.mMotorSpeed = in.createIntArray();
@@ -78,13 +78,13 @@ public class DeviceState implements Parcelable {
 //    @SuppressWarnings("unused")
 //    public static final Parcelable.Creator<DeviceConfig> CREATOR = new Parcelable.Creator<DeviceConfig>() {
 //        @Override
-//        public DeviceState createFromParcel(Parcel source) {
-//            return new DeviceState(source);
+//        public DeviceStatus createFromParcel(Parcel source) {
+//            return new DeviceStatus(source);
 //        }
 //
 //        @Override
-//        public DeviceState[] newArray(int size) {
-//            return new DeviceState[size];
+//        public DeviceStatus[] newArray(int size) {
+//            return new DeviceStatus[size];
 //        }
 //    };
 

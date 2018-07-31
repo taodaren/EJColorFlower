@@ -36,7 +36,7 @@ import butterknife.OnLongClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
-import cn.eejing.ejcolorflower.device.DeviceState;
+import cn.eejing.ejcolorflower.device.DeviceStatus;
 import cn.eejing.ejcolorflower.model.event.DelDeviceEvent;
 import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
 import cn.eejing.ejcolorflower.model.event.DeviceEvent;
@@ -63,7 +63,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private String mMemberId, mToken;
 
     // 硬件相关
-    private DeviceState mState;
+    private DeviceStatus mState;
     private DeviceConfig mConfig;
     private String mConnectDeviceMac;
     private int mTemp, mDMX, mTime, mThresholdHigh;
@@ -193,7 +193,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             ButterKnife.bind(this, itemView);
         }
 
-        void setData(DeviceListBean.DataBean.ListBean bean, String connectDeviceMac, DeviceState state, DeviceConfig config, int position) {
+        void setData(DeviceListBean.DataBean.ListBean bean, String connectDeviceMac, DeviceStatus state, DeviceConfig config, int position) {
             if (bean.getMac().equals(connectDeviceMac)) {
                 // 如果服务器设备列表中的 MAC 地址与设备 MAC 一致，设置已连接状态
                 tvDeviceId.setText(bean.getId());
@@ -219,7 +219,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             return true;
         }
 
-        private void setClickListener(final String deviceId, final DeviceState state, final DeviceConfig config, final int position) {
+        private void setClickListener(final String deviceId, final DeviceStatus state, final DeviceConfig config, final int position) {
             btnTemp.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -242,7 +242,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             });
         }
 
-        private void clickDeviceInfo(int type, int position, String deviceId, DeviceState state, DeviceConfig config) {
+        private void clickDeviceInfo(int type, int position, String deviceId, DeviceStatus state, DeviceConfig config) {
             if (state != null && config != null) {
                 // 将 deviceId 传到首页
                 EventBus.getDefault().post(new DeviceEvent(mList.get(position).getId()));
