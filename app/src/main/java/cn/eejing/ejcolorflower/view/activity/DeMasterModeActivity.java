@@ -25,9 +25,12 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.model.device.MasterOutputManager;
-import cn.eejing.ejcolorflower.model.device.MasterOutputStreamManager;
+import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
+import cn.eejing.ejcolorflower.model.lite.CtrlIntervalEntity;
+import cn.eejing.ejcolorflower.model.lite.CtrlRideEntity;
+import cn.eejing.ejcolorflower.model.lite.CtrlStreamEntity;
+import cn.eejing.ejcolorflower.model.lite.CtrlTogetherEntity;
 import cn.eejing.ejcolorflower.model.lite.MasterCtrlModeEntity;
 import cn.eejing.ejcolorflower.model.lite.MasterCtrlNumEntity;
 import cn.eejing.ejcolorflower.view.adapter.DeMasterModeAdapter;
@@ -60,7 +63,7 @@ public class DeMasterModeActivity extends BaseActivity {
     private DeMasterModeAdapter mAdapter;
     private List<MasterCtrlModeEntity> mList;
 
-    private List<MasterOutputManager> mManagerList; // 主控输出集合
+    private AppActivity.FireworkDevCtrl mDevCtrl;
     private Handler mHandler;
     private int mCurrMasterId, mFlagId;
 
@@ -77,6 +80,8 @@ public class DeMasterModeActivity extends BaseActivity {
             mHandler.postDelayed(this, 100);
         }
     };
+    private List<MasterCtrlModeEntity> mJetModes;
+    private MasterCtrlModeEntity mCurrentManager;
 
     @Override
     protected int layoutViewId() {
@@ -89,8 +94,8 @@ public class DeMasterModeActivity extends BaseActivity {
         mDeviceId = getIntent().getStringExtra("device_id");
 
         mList = new ArrayList<>();
-        mManagerList = new ArrayList<>();
         mHandler = new Handler();
+        mDevCtrl = AppActivity.getFireworksDevCtrl();
 
         initConfigDB();
         initRecyclerView();
@@ -150,13 +155,6 @@ public class DeMasterModeActivity extends BaseActivity {
                 imgStartStop.setImageDrawable(getResources().getDrawable(R.drawable.ic_jet_start));
                 isPause = PAUSE_STATUS_CANNOT;
                 imgPauseGoon.setImageDrawable(getResources().getDrawable(R.drawable.ic_jet_pause_cannot));
-                // TODO: 2018/7/31  
-                for (int i = 0; i < mManagerList.size(); i++) {
-                    MasterOutputManager addds = new MasterOutputStreamManager();
-                    mManagerList.add(addds);
-                }
-                mCurrMasterId = 0;
-                // TODO: 2018/7/31
             } else {
                 // 如果是停止喷射状态，点击变为开始状态，暂停可点击
                 isStart = true;
@@ -173,37 +171,109 @@ public class DeMasterModeActivity extends BaseActivity {
 
     /** 定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息）*/
     private void timerCallingMethod() {
+        mJetModes = LitePal.where("devId = ?", String.valueOf(mDeviceId)).find(MasterCtrlModeEntity.class);
+
         // 事件处理 传 mCurrMasterId
         if (mFlagId != mCurrMasterId) {
+            // 获取当前主控管理
+            mCurrentManager = getCurrentManager(mFlagId);
             // 如果当前运行的 ID 与 flag 不同，让其相等
             mFlagId = mCurrMasterId;
-            getCurrentManager(mCurrMasterId);
         }
 
-        // BLE 数据发送处理
+        // 发送进入在线实时控制模式命令
         byte[] dataOut = new byte[300];
-        boolean isFinish = mManagerList.get(mCurrMasterId).updateWithDataOut(dataOut);
-//        real_time_ctrl_mode(  );
-        if (isFinish) {
-            // 需要执行下一个
-            mCurrMasterId++;
-            if (mCurrMasterId >= mManagerList.size()) {
-                // 整个喷射过程完成，停止计时器
-                mHandler.removeCallbacks(mRunnableMaster);
-                // 发送喷射停止命令
+        mDevCtrl.sendCommand(Long.parseLong(mDeviceId), BleDeviceProtocol.pkgEnterRealTimeCtrlMode(
+                Long.parseLong(mDeviceId),
+                Integer.parseInt(etStarDmx.getText().toString()),
+                Integer.parseInt(etDevNum.getText().toString()),
+                dataOut)
+        );
 
-                // 按钮状态初始化
-                isStart = false;
-                imgStartStop.setImageDrawable(getResources().getDrawable(R.drawable.ic_jet_start));
-                isPause = PAUSE_STATUS_CANNOT;
-                imgPauseGoon.setImageDrawable(getResources().getDrawable(R.drawable.ic_jet_pause_cannot));
+        try {
+            // 调用方法判断当前组是否完成喷射
+            boolean isFinish;
+            if (mCurrentManager != null) {
+                isFinish = mCurrentManager.updateWithDataOut(dataOut);
+            } else {
+                isFinish = mJetModes.get(mCurrMasterId).updateWithDataOut(dataOut);
             }
+            if (isFinish) {
+                // 当前组喷射完成，进入到下一组，继续执行下一组
+                mCurrMasterId++;
+                if (mCurrMasterId >= mJetModes.size()) {
+                    // 整个喷射过程完成，停止计时器
+                    mHandler.removeCallbacks(mRunnableMaster);
+                    // 发送退出实时控制模式命令
+                    mDevCtrl.sendCommand(Long.parseLong(mDeviceId),BleDeviceProtocol.pkgExitRealTimeCtrlMode(
+                            Long.parseLong(mDeviceId),0x55
+                    ));
+                    // 按钮状态初始化
+                    isStart = false;
+                    imgStartStop.setImageDrawable(getResources().getDrawable(R.drawable.ic_jet_start));
+                    isPause = PAUSE_STATUS_CANNOT;
+                    imgPauseGoon.setImageDrawable(getResources().getDrawable(R.drawable.ic_jet_pause_cannot));
+                }
+            }
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
         }
+
     }
 
     /** 获取当前的喷射控制类 */
-    private MasterOutputManager getCurrentManager(int currMasterId) {
-        MasterOutputManager masterOutputManager = mManagerList.get(mCurrMasterId);
+    private MasterCtrlModeEntity getCurrentManager(int currMasterId) {
+        mJetModes = LitePal.where("devId = ?", String.valueOf(mDeviceId)).find(MasterCtrlModeEntity.class);
+
+        try {
+            String type = mJetModes.get(currMasterId).getType();
+            switch (type) {
+                case CONFIG_STREAM:
+                    CtrlStreamEntity mgrStream = new CtrlStreamEntity(type);
+                    mgrStream.setDevCount(Integer.parseInt(etDevNum.getText().toString()));
+                    mgrStream.currentTime = 0;
+                    mgrStream.loopId = 0;
+                    mgrStream.setLoop("2");
+                    mgrStream.setDirection("1");
+                    mgrStream.setGap("2");
+                    mgrStream.setDuration("2");
+                    mgrStream.setGapBig("2");
+                    mgrStream.setHigh("100");
+                    return mgrStream;
+                case CONFIG_RIDE:
+                    CtrlRideEntity mgrRide = new CtrlRideEntity(type);
+                    mgrRide.setDevCount(Integer.parseInt(etDevNum.getText().toString()));
+                    mgrRide.currentTime = 0;
+                    mgrRide.loopId = 0;
+                    mgrRide.setLoop("2");
+                    mgrRide.setDirection("1");
+                    mgrRide.setGap("2");
+                    mgrRide.setDuration("2");
+                    mgrRide.setGapBig("2");
+                    mgrRide.setHigh("100");
+                    return mgrRide;
+                case CONFIG_INTERVAL:
+                    CtrlIntervalEntity mgrInterval = new CtrlIntervalEntity(type);
+                    mgrInterval.setDevCount(Integer.parseInt(etDevNum.getText().toString()));
+                    mgrInterval.currentTime = 0;
+                    mgrInterval.loopId = 0;
+                    mgrInterval.setDuration("2");
+                    mgrInterval.setGap("2");
+                    mgrInterval.setFrequency("2");
+                    return mgrInterval;
+                case CONFIG_TOGETHER:
+                    CtrlTogetherEntity mgrTogether = new CtrlTogetherEntity(type);
+                    mgrTogether.setDevCount(Integer.parseInt(etDevNum.getText().toString()));
+                    mgrTogether.currentTime = 0;
+                    mgrTogether.setDuration("2");
+                    mgrTogether.setHigh("30");
+                    return mgrTogether;
+                default:
+                    break;
+            }
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+        }
 
         return null;
     }

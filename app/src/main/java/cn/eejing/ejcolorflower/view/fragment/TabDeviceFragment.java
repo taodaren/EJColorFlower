@@ -38,6 +38,7 @@ import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.Settings;
 import cn.eejing.ejcolorflower.view.activity.AppActivity;
+import cn.eejing.ejcolorflower.view.activity.BLEActivity;
 import cn.eejing.ejcolorflower.view.activity.SignInActivity;
 import cn.eejing.ejcolorflower.view.adapter.TabDeviceAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseFragment;
@@ -45,6 +46,7 @@ import cn.eejing.ejcolorflower.view.base.BaseFragment;
 import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_END_USED;
 import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_NO_USED;
 import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_WAIT_USED;
+import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_SERVICE;
 
 /**
  * 设备模块
@@ -170,7 +172,10 @@ public class TabDeviceFragment extends BaseFragment {
         rvTabDevice.setOnPullLoadMoreListener(new PullLoadMoreRecyclerView.PullLoadMoreListener() {
             @Override
             public void onRefresh() {
-//                mListener.scanDevice();
+                BLEActivity.getBleCtrl().addScanFilter(UUID_GATT_SERVICE);
+                // 配置当前 APP 处理的蓝牙设备名称
+                BLEActivity.getBleCtrl().setAllowedConnDevName("EEJING-CHJ");
+
                 getDataWithDeviceList();
             }
 

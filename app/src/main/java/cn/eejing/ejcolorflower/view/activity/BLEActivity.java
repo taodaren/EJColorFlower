@@ -808,7 +808,7 @@ public class BLEActivity extends BaseActivity {
     /**
      * 添加扫描过滤器
      */
-    void addScanFilter(ParcelUuid uuid) {
+    public void addScanFilter(ParcelUuid uuid) {
         ScanFilter filter = new ScanFilter.Builder()
                 .setServiceUuid(uuid)
                 .build();
