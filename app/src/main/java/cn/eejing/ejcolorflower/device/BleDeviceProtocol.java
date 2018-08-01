@@ -391,64 +391,116 @@ public class BleDeviceProtocol {
 
     /** 停止喷射 */
     @NonNull
-    public static byte[] pkgJetStop(long id) {
-        return cmdPkg(CMD_JET_STOP, id, null);
+    public static byte[] pkgJetStop(long devId) {
+        return cmdPkg(CMD_JET_STOP, devId, null);
     }
 
     /** 设置刮料时间 */
     @NonNull
-    public static byte[] pkgSetScrapeMaterialTime(long id, int time) {
+    public static byte[] pkgSetScrapeMaterialTime(long devId, int time) {
         byte[] data = new byte[1];
 
         data[0] = (byte) (time & 0xff);
 
-        return cmdPkg(CMD_SET_SCRAPE_MATERIAL_TIME, id, data);
+        return cmdPkg(CMD_SET_SCRAPE_MATERIAL_TIME, devId, data);
     }
 
     /** 获取加料状态 */
     @NonNull
-    public static byte[] pkgGetAddMaterialStatus(long id) {
-        return cmdPkg(CMD_GET_ADD_MATERIAL_STATUS, id, null);
+    public static byte[] pkgGetAddMaterialStatus(long devId, int isExist, long userId, long materialId) {
+        byte[] data = new byte[12];
+
+        data[0] = (byte) (isExist & 0xff);
+        data[1] = (byte) ((isExist >> 8) & 0xff);
+
+        data[2] = (byte) (userId & 0xff);
+        data[3] = (byte) ((userId >> 8) & 0xff);
+        data[4] = (byte) ((userId >> 16) & 0xff);
+        data[5] = (byte) ((userId >> 24) & 0xff);
+
+        data[6] = (byte) (materialId & 0xff);
+        data[7] = (byte) ((materialId >> 8) & 0xff);
+        data[8] = (byte) ((materialId >> 16) & 0xff);
+        data[9] = (byte) ((materialId >> 24) & 0xff);
+        data[10] = (byte) ((materialId >> 32) & 0xff);
+        data[11] = (byte) ((materialId >> 40) & 0xff);
+
+        return cmdPkg(CMD_GET_ADD_MATERIAL_STATUS, devId, data);
     }
 
     /** 清除加料信息 */
     @NonNull
-    public static byte[] pkgClearAddMaterialInfo(long id, long user_id, long material_id) {
+    public static byte[] pkgClearAddMaterialInfo(long devId, long userId, long materialId) {
         byte[] data = new byte[10];
 
-        data[0] = (byte) (user_id & 0xff);
-        data[1] = (byte) ((user_id >> 8) & 0xff);
-        data[2] = (byte) ((user_id >> 16) & 0xff);
-        data[3] = (byte) ((user_id >> 24) & 0xff);
+        data[0] = (byte) (userId & 0xff);
+        data[1] = (byte) ((userId >> 8) & 0xff);
+        data[2] = (byte) ((userId >> 16) & 0xff);
+        data[3] = (byte) ((userId >> 24) & 0xff);
 
-        data[4] = (byte) (material_id & 0xff);
-        data[5] = (byte) ((material_id >> 8) & 0xff);
-        data[6] = (byte) ((material_id >> 16) & 0xff);
-        data[7] = (byte) ((material_id >> 24) & 0xff);
-        data[8] = (byte) ((material_id >> 32) & 0xff);
-        data[9] = (byte) ((material_id >> 40) & 0xff);
+        data[4] = (byte) (materialId & 0xff);
+        data[5] = (byte) ((materialId >> 8) & 0xff);
+        data[6] = (byte) ((materialId >> 16) & 0xff);
+        data[7] = (byte) ((materialId >> 24) & 0xff);
+        data[8] = (byte) ((materialId >> 32) & 0xff);
+        data[9] = (byte) ((materialId >> 40) & 0xff);
 
-        return cmdPkg(CMD_CLEAR_ADD_MATERIAL_INFO, id, data);
+        return cmdPkg(CMD_CLEAR_ADD_MATERIAL_INFO, devId, data);
+    }
+
+    /** 进入液晶屏操作模式 */
+    @NonNull
+    public static byte[] pkgEnterLcdOperatingMode(long devId, int offset, long db) {
+        byte[] data = new byte[34];
+
+        data[0] = (byte) (offset & 0xff);
+        data[1] = (byte) ((offset >> 8) & 0xff);
+
+        data[2] = (byte) (db & 0xff);
+        for (int i = 0; i < 32; i++) {
+            data[i + 3] = (byte) ((db >> (8 * (i + 1))) & 0xff);
+        }
+
+        return cmdPkg(CMD_ENTER_LCD_OPERATING_MODE, devId, data);
+    }
+
+    /** 二维码数据（分包） */
+    @NonNull
+    public static byte[] pkgQrDataSeparatePkg(long devId) {
+        byte[] data = new byte[0];
+        return cmdPkg(CMD_QR_DATA_SEPARATE_PKG, devId, data);
     }
 
     /** 进入在线实时控制模式 */
     @NonNull
-    public static byte[] pkgEnterRealTimeCtrlMode(long id, int devNum, int startAddress, byte[] high) {
+    public static byte[] pkgEnterRealTimeCtrlMode(long devId, int startAddress, int devNum, byte[] high) {
         byte[] data = new byte[2 + devNum];
-        data[0] = (byte) (devNum & 0xff);
-        data[1] = (byte) (startAddress & 0xff);
+
+        data[0] = (byte) (startAddress & 0xff);
+        data[1] = (byte) (devNum & 0xff);
+
         for (int i = 0; i < devNum; i++) {
             data[1 + i] = high[i];
         }
-        return cmdPkg(CMD_ENTER_REAL_TIME_CTRL_MODE, id, data);
+        return cmdPkg(CMD_ENTER_REAL_TIME_CTRL_MODE, devId, data);
+    }
+
+    /** 退出在线实时控制模式 */
+    @NonNull
+    public static byte[] pkgExitRealTimeCtrlMode(long devId, int db) {
+        byte[] data = new byte[1];
+
+        data[0] = (byte) (db & 0xff);
+
+        return cmdPkg(CMD_EXIT_REAL_TIME_CTRL_MODE, devId, data);
     }
 
 
     // TODO: /**<-------------------- 以下蓝牙接收数据（解析） -------------------->**/
-    @Nullable
-    private static DeviceStatus parseStatus(@NonNull byte[] pkg, int pkg_len) {
+    /** 解析内部状态 */
+    private static DeviceStatus parseStatus( byte[] pkg, int pkgLen) {
         DeviceStatus ds = new DeviceStatus();
-        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkg_len));
+        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {
             reader.skip(HEADER_LEN);
             ds.mTemperature = reader.readSignedShortLSB();
@@ -467,10 +519,10 @@ public class BleDeviceProtocol {
         }
     }
 
-    @Nullable
-    private static DeviceConfig parseConfig(@NonNull byte[] pkg, int pkg_len) {
+    /** 解析配置 */
+    private static DeviceConfig parseConfig(byte[] pkg, int pkgLen) {
         DeviceConfig config = new DeviceConfig();
-        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkg_len));
+        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {
             reader.skip(HEADER_LEN);
             config.mID = reader.readUnsignedIntLSB();
@@ -488,8 +540,9 @@ public class BleDeviceProtocol {
         }
     }
 
-    private static long parseID(byte[] pkg, int pkg_len) {
-        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkg_len));
+    /** 解析设备 ID */
+    public static long parseSetDevID(byte[] pkg, int pkgLen) {
+        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {
             reader.skip(3);
             return reader.readUnsignedIntLSB();
@@ -498,8 +551,9 @@ public class BleDeviceProtocol {
         }
     }
 
-    public static int parseDmx(@NonNull byte[] pkg, int pkg_len) {
-        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkg_len));
+    /** 解析配置 DMX 地址 */
+    public static int parseSetDmxAddr(byte[] pkg, int pkgLen) {
+        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {
             reader.skip(HEADER_LEN);
             return reader.readUnsignedChar();
@@ -509,8 +563,31 @@ public class BleDeviceProtocol {
         }
     }
 
-    public static long parseTimestamp(@NonNull byte[] pkg, int pkg_len) {
-        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkg_len));
+    /** 解析开始喷射 */
+    public static int parseStartJet(byte[] pkg, int pkgLen) {
+        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
+        try {
+            reader.skip(HEADER_LEN);
+            return reader.readUnsignedChar();
+        } catch (IOException e) {
+            return -1;
+        }
+    }
+
+    /** 解析加料 */
+    public static int parseAddMaterial(byte[] pkg, int pkgLen) {
+        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
+        try {
+            reader.skip(HEADER_LEN);
+            return reader.readUnsignedChar();
+        } catch (IOException e) {
+            return -1;
+        }
+    }
+
+    /** 解析获取时间戳 */
+    public static long parseGetTimestamp(byte[] pkg, int pkgLen) {
+        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {
             reader.skip(HEADER_LEN);
             return reader.readUnsignedIntLSB();
@@ -519,10 +596,10 @@ public class BleDeviceProtocol {
         }
     }
 
-    @Nullable
-    public static DeviceMaterialStatus parseMaterialStatus(@NonNull byte[] pkg, int pkg_len) {
+    /** 解析加料状态 */
+    public static DeviceMaterialStatus parseAddMaterialStatus(byte[] pkg, int pkgLen) {
         DeviceMaterialStatus status = new DeviceMaterialStatus();
-        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkg_len));
+        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {
             reader.skip(HEADER_LEN);
             status.exist = reader.readUnsignedChar();
@@ -534,37 +611,15 @@ public class BleDeviceProtocol {
         }
     }
 
-    @Nullable
-    public static int parseAddMaterial(@NonNull byte[] pkg, int pkg_len) {
-        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkg_len));
-        try {
-            reader.skip(HEADER_LEN);
-            return reader.readUnsignedChar();
-        } catch (IOException e) {
-            return -1;
-        }
-    }
-
-    public static int parseStartJet(@NonNull byte[] pkg, int pkg_len) {
-        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkg_len));
-        try {
-            reader.skip(HEADER_LEN);
-            return reader.readUnsignedChar();
-        } catch (IOException e) {
-            return -1;
-        }
-    }
-
-    /**
-     * @return 错误代码，-1表示非法数据
-     */
-    public static int parseClearMaterialInfo(@NonNull byte[] pkg, int pkg_len) {
-        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkg_len));
+    /** 解析清除加料信息 */
+    public static int parseClearAddMaterialInfo(byte[] pkg, int pkgLen) {
+        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {
             reader.skip(HEADER_LEN);
             return reader.readUnsignedChar();
         } catch (IOException e) {
             e.printStackTrace();
+            // 错误代码，-1表示非法数据
             return -1;
         }
     }
