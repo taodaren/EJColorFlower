@@ -487,10 +487,10 @@ public class BleDeviceProtocol {
 
     /** 退出在线实时控制模式 */
     @NonNull
-    public static byte[] pkgExitRealTimeCtrlMode(long devId, int db) {
+    public static byte[] pkgExitRealTimeCtrlMode(long devId) {
         byte[] data = new byte[1];
 
-        data[0] = (byte) (db & 0xff);
+        data[0] = (byte) (0x55);
 
         return cmdPkg(CMD_EXIT_REAL_TIME_CTRL_MODE, devId, data);
     }
@@ -613,6 +613,19 @@ public class BleDeviceProtocol {
 
     /** 解析清除加料信息 */
     public static int parseClearAddMaterialInfo(byte[] pkg, int pkgLen) {
+        BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
+        try {
+            reader.skip(HEADER_LEN);
+            return reader.readUnsignedChar();
+        } catch (IOException e) {
+            e.printStackTrace();
+            // 错误代码，-1表示非法数据
+            return -1;
+        }
+    }
+
+    /** 解析退出在线实时控制模式 */
+    public static int parseExitRealTimeCtrlMode(byte[] pkg, int pkgLen) {
         BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {
             reader.skip(HEADER_LEN);

@@ -10,6 +10,7 @@ import java.util.UUID;
 
 public class AppConstant {
     public static final String TAG = "taodaren";
+    public static final String TAG_DEV = "hardware_device";
     public static final String EMPTY = "";
 
     public static final String APP_ID = "wx6a32217e1e3ae4f4";

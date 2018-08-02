@@ -2,6 +2,7 @@ package cn.eejing.ejcolorflower.view.activity;
 
 import android.annotation.SuppressLint;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,8 +16,6 @@ import android.widget.Toast;
 
 import com.example.zhouwei.library.CustomPopWindow;
 
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 import org.litepal.LitePal;
 
 import java.util.ArrayList;
@@ -26,13 +25,18 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
-import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
 import cn.eejing.ejcolorflower.model.lite.CtrlIntervalEntity;
 import cn.eejing.ejcolorflower.model.lite.CtrlRideEntity;
 import cn.eejing.ejcolorflower.model.lite.CtrlStreamEntity;
 import cn.eejing.ejcolorflower.model.lite.CtrlTogetherEntity;
 import cn.eejing.ejcolorflower.model.lite.MasterCtrlModeEntity;
 import cn.eejing.ejcolorflower.model.lite.MasterCtrlNumEntity;
+import cn.eejing.ejcolorflower.model.manager.MasterOutputManager;
+import cn.eejing.ejcolorflower.model.manager.MgrIntervalMaster;
+import cn.eejing.ejcolorflower.model.manager.MgrRideMaster;
+import cn.eejing.ejcolorflower.model.manager.MgrStreamMaster;
+import cn.eejing.ejcolorflower.model.manager.MgrTogetherMaster;
+import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.view.adapter.DeMasterModeAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
@@ -40,6 +44,7 @@ import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_INTERVAL;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_RIDE;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_STREAM;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
+import static cn.eejing.ejcolorflower.app.AppConstant.TAG_DEV;
 
 /**
  * 设置主控模式
@@ -65,11 +70,8 @@ public class DeMasterModeActivity extends BaseActivity {
 
     private AppActivity.FireworkDevCtrl mDevCtrl;
     private Handler mHandler;
-    private int mCurrMasterId, mFlagId;
-
-    private String mConfigType;
-    private long mMillis;
-    private int mPostGroupId, mGap, mDirection, mDuration, mGapBig, mLoop, mFrequency, mHigh;
+    // 当前主控喷射效果ID及标志位
+    private int mCurrMasterId, mFlagCurrId;
 
     // 主控输入控制
     private Runnable mRunnableMaster = new Runnable() {
@@ -80,8 +82,9 @@ public class DeMasterModeActivity extends BaseActivity {
             mHandler.postDelayed(this, 100);
         }
     };
+    private MasterOutputManager mCurrentManager;
     private List<MasterCtrlModeEntity> mJetModes;
-    private MasterCtrlModeEntity mCurrentManager;
+    private List<MasterOutputManager> mMasterCtrlMgrList;
 
     @Override
     protected int layoutViewId() {
@@ -94,6 +97,7 @@ public class DeMasterModeActivity extends BaseActivity {
         mDeviceId = getIntent().getStringExtra("device_id");
 
         mList = new ArrayList<>();
+        mMasterCtrlMgrList = new ArrayList<>();
         mHandler = new Handler();
         mDevCtrl = AppActivity.getFireworksDevCtrl();
 
@@ -155,6 +159,24 @@ public class DeMasterModeActivity extends BaseActivity {
                 imgStartStop.setImageDrawable(getResources().getDrawable(R.drawable.ic_jet_start));
                 isPause = PAUSE_STATUS_CANNOT;
                 imgPauseGoon.setImageDrawable(getResources().getDrawable(R.drawable.ic_jet_pause_cannot));
+                // 发送退出实时控制模式命令
+                Log.e("CMCML", "发送退出实时控制模式命令");
+                mDevCtrl.sendCommand(Long.parseLong(mDeviceId), BleDeviceProtocol.pkgExitRealTimeCtrlMode(Long.parseLong(mDeviceId)),
+                        new OnReceivePackage() {
+                            @Override
+                            public void ack(@NonNull byte[] pkg) {
+                                Log.e("CMCML", "FLAG");
+
+                                int info = BleDeviceProtocol.parseExitRealTimeCtrlMode(pkg, pkg.length);
+                                Log.e("CMCML", "exit ack: " + info);
+                            }
+
+                            @Override
+                            public void timeout() {
+                                Log.e("CMCML", "退出实时控制模式命令超时！");
+//                        Log.e(TAG_DEV, "退出实时控制模式命令超时！");
+                            }
+                        });
             } else {
                 // 如果是停止喷射状态，点击变为开始状态，暂停可点击
                 isStart = true;
@@ -171,14 +193,16 @@ public class DeMasterModeActivity extends BaseActivity {
 
     /** 定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息）*/
     private void timerCallingMethod() {
-        mJetModes = LitePal.where("devId = ?", String.valueOf(mDeviceId)).find(MasterCtrlModeEntity.class);
-
-        // 事件处理 传 mCurrMasterId
-        if (mFlagId != mCurrMasterId) {
-            // 获取当前主控管理
-            mCurrentManager = getCurrentManager(mFlagId);
+        if (mFlagCurrId != mCurrMasterId) {
+            mCurrentManager = getCurrentManager(mFlagCurrId);
             // 如果当前运行的 ID 与 flag 不同，让其相等
-            mFlagId = mCurrMasterId;
+            mFlagCurrId = mCurrMasterId;
+        }
+
+        // 创建主控管理集合
+        if (mMasterCtrlMgrList.size() == 0) {
+            // 如果主控管理集合没有数据，创建添加
+            createMasterCtrlMgrList();
         }
 
         // 发送进入在线实时控制模式命令
@@ -196,17 +220,17 @@ public class DeMasterModeActivity extends BaseActivity {
             if (mCurrentManager != null) {
                 isFinish = mCurrentManager.updateWithDataOut(dataOut);
             } else {
-                isFinish = mJetModes.get(mCurrMasterId).updateWithDataOut(dataOut);
+                isFinish = getCurrentManager(0).updateWithDataOut(dataOut);
             }
             if (isFinish) {
                 // 当前组喷射完成，进入到下一组，继续执行下一组
                 mCurrMasterId++;
-                if (mCurrMasterId >= mJetModes.size()) {
+                if (mCurrMasterId >= mMasterCtrlMgrList.size()) {
                     // 整个喷射过程完成，停止计时器
                     mHandler.removeCallbacks(mRunnableMaster);
                     // 发送退出实时控制模式命令
-                    mDevCtrl.sendCommand(Long.parseLong(mDeviceId),BleDeviceProtocol.pkgExitRealTimeCtrlMode(
-                            Long.parseLong(mDeviceId),0x55
+                    mDevCtrl.sendCommand(Long.parseLong(mDeviceId), BleDeviceProtocol.pkgExitRealTimeCtrlMode(
+                            Long.parseLong(mDeviceId)
                     ));
                     // 按钮状态初始化
                     isStart = false;
@@ -221,58 +245,96 @@ public class DeMasterModeActivity extends BaseActivity {
 
     }
 
-    /** 获取当前的喷射控制类 */
-    private MasterCtrlModeEntity getCurrentManager(int currMasterId) {
+    private void createMasterCtrlMgrList() {
+        // 查询数据库保存信息
         mJetModes = LitePal.where("devId = ?", String.valueOf(mDeviceId)).find(MasterCtrlModeEntity.class);
 
-        try {
-            String type = mJetModes.get(currMasterId).getType();
-            switch (type) {
+        Log.e("CMCML", "JetMode SIZE: " + mJetModes.size());
+
+        // 给主控管理集合添加数据
+        for (int i = 0; i < mJetModes.size(); i++) {
+            switch (mJetModes.get(i).getType()) {
                 case CONFIG_STREAM:
-                    CtrlStreamEntity mgrStream = new CtrlStreamEntity(type);
+                    List<CtrlStreamEntity> streamEntities =
+                            LitePal.where("groupId = ?", String.valueOf((int) mJetModes.get(i).getMillis())).find(CtrlStreamEntity.class);
+
+                    MgrStreamMaster mgrStream = new MgrStreamMaster();
                     mgrStream.setDevCount(Integer.parseInt(etDevNum.getText().toString()));
-                    mgrStream.currentTime = 0;
-                    mgrStream.loopId = 0;
-                    mgrStream.setLoop("2");
-                    mgrStream.setDirection("1");
-                    mgrStream.setGap("2");
-                    mgrStream.setDuration("2");
-                    mgrStream.setGapBig("2");
-                    mgrStream.setHigh("100");
-                    return mgrStream;
+                    mgrStream.setCurrentTime(0);
+                    mgrStream.setLoopId(0);
+                    mgrStream.setDirection(Integer.parseInt(streamEntities.get(0).getDirection()));
+                    mgrStream.setGap(Integer.parseInt(streamEntities.get(0).getGap()));
+                    mgrStream.setDuration(Integer.parseInt(streamEntities.get(0).getDuration()));
+                    mgrStream.setGapBig(Integer.parseInt(streamEntities.get(0).getGapBig()));
+                    mgrStream.setLoop(Integer.parseInt(streamEntities.get(0).getLoop()));
+                    mgrStream.setHigh((byte) Integer.parseInt(streamEntities.get(0).getHigh()));
+
+                    mMasterCtrlMgrList.add(mgrStream);
+                    break;
                 case CONFIG_RIDE:
-                    CtrlRideEntity mgrRide = new CtrlRideEntity(type);
+                    List<CtrlRideEntity> rideEntities =
+                            LitePal.where("groupId = ?", String.valueOf((int) mJetModes.get(i).getMillis())).find(CtrlRideEntity.class);
+
+                    MgrRideMaster mgrRide = new MgrRideMaster();
                     mgrRide.setDevCount(Integer.parseInt(etDevNum.getText().toString()));
-                    mgrRide.currentTime = 0;
-                    mgrRide.loopId = 0;
-                    mgrRide.setLoop("2");
-                    mgrRide.setDirection("1");
-                    mgrRide.setGap("2");
-                    mgrRide.setDuration("2");
-                    mgrRide.setGapBig("2");
-                    mgrRide.setHigh("100");
-                    return mgrRide;
+                    mgrRide.setCurrentTime(0);
+                    mgrRide.setLoopId(0);
+                    mgrRide.setDirection(Integer.parseInt(rideEntities.get(0).getDirection()));
+                    mgrRide.setGap(Integer.parseInt(rideEntities.get(0).getGap()));
+                    mgrRide.setDuration(Integer.parseInt(rideEntities.get(0).getDuration()));
+                    mgrRide.setGapBig(Integer.parseInt(rideEntities.get(0).getGapBig()));
+                    mgrRide.setLoop(Integer.parseInt(rideEntities.get(0).getLoop()));
+                    mgrRide.setHigh((byte) Integer.parseInt(rideEntities.get(0).getHigh()));
+
+                    mMasterCtrlMgrList.add(mgrRide);
+                    break;
                 case CONFIG_INTERVAL:
-                    CtrlIntervalEntity mgrInterval = new CtrlIntervalEntity(type);
+                    List<CtrlIntervalEntity> intervalEntities =
+                            LitePal.where("groupId = ?", String.valueOf((int) mJetModes.get(i).getMillis())).find(CtrlIntervalEntity.class);
+
+                    MgrIntervalMaster mgrInterval = new MgrIntervalMaster();
                     mgrInterval.setDevCount(Integer.parseInt(etDevNum.getText().toString()));
-                    mgrInterval.currentTime = 0;
-                    mgrInterval.loopId = 0;
-                    mgrInterval.setDuration("2");
-                    mgrInterval.setGap("2");
-                    mgrInterval.setFrequency("2");
-                    return mgrInterval;
+                    mgrInterval.setCurrentTime(0);
+                    mgrInterval.setLoopId(0);
+                    mgrInterval.setGapBig(Integer.parseInt(intervalEntities.get(0).getGap()));
+                    mgrInterval.setDuration(Integer.parseInt(intervalEntities.get(0).getDuration()));
+                    mgrInterval.setLoop(Integer.parseInt(intervalEntities.get(0).getFrequency()));
+
+                    mMasterCtrlMgrList.add(mgrInterval);
+                    break;
                 case CONFIG_TOGETHER:
-                    CtrlTogetherEntity mgrTogether = new CtrlTogetherEntity(type);
+                    List<CtrlTogetherEntity> togetherEntities =
+                            LitePal.where("groupId = ?", String.valueOf((int) mJetModes.get(i).getMillis())).find(CtrlTogetherEntity.class);
+
+                    MgrTogetherMaster mgrTogether = new MgrTogetherMaster();
                     mgrTogether.setDevCount(Integer.parseInt(etDevNum.getText().toString()));
-                    mgrTogether.currentTime = 0;
-                    mgrTogether.setDuration("2");
-                    mgrTogether.setHigh("30");
-                    return mgrTogether;
+                    mgrTogether.setCurrentTime(0);
+                    mgrTogether.setDuration(Integer.parseInt(togetherEntities.get(0).getDuration()));
+                    mgrTogether.setHigh((byte) Integer.parseInt(togetherEntities.get(0).getHigh()));
+
+                    mMasterCtrlMgrList.add(mgrTogether);
                 default:
                     break;
             }
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
+        }
+    }
+
+    /** 获取当前的喷射控制类 */
+    private MasterOutputManager getCurrentManager(int currMasterId) {
+        mJetModes = LitePal.where("devId = ?", String.valueOf(mDeviceId)).find(MasterCtrlModeEntity.class);
+        Log.i("CMCML", "MasterCtrlMgrList SIZE: " + mJetModes.size());
+        Log.i("CMCML", "MasterCtrlMgrList SIZE: " + mMasterCtrlMgrList.size());
+        switch (mJetModes.get(currMasterId).getType()) {
+            case CONFIG_STREAM:
+                return new MgrStreamMaster();
+            case CONFIG_RIDE:
+                return new MgrRideMaster();
+            case CONFIG_INTERVAL:
+                return new MgrIntervalMaster();
+            case CONFIG_TOGETHER:
+                return new MgrTogetherMaster();
+            default:
+                break;
         }
 
         return null;
@@ -397,65 +459,4 @@ public class DeMasterModeActivity extends BaseActivity {
         view.findViewById(R.id.master_mode_interval).setOnClickListener(listener);
         view.findViewById(R.id.master_mode_together).setOnClickListener(listener);
     }
-
-    /** 配置喷射信息界面返回数据 */
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventJetStatus(JetStatusEvent event) {
-        mConfigType = event.getType();
-        Log.i("JET_STATUS", "onEventJetStatus: " + mConfigType);
-        switch (mConfigType) {
-            case CONFIG_STREAM:
-            case CONFIG_RIDE:
-                initStatus();
-                mPostGroupId = event.getGroupId();
-                mGap = event.getGap() * 1000;
-                mDuration = event.getDuration() * 10;
-                mGapBig = event.getGapBig();
-                mLoop = event.getLoop();
-                mHigh = event.getHigh();
-                mDirection = event.getmDirection();
-                mMillis = event.getMillis();
-                break;
-            case CONFIG_INTERVAL:
-                initStatus();
-                mPostGroupId = event.getGroupId();
-                mGap = event.getGap() * 1000;
-                mDuration = event.getDuration() * 10;
-                mFrequency = event.getFrequency();
-                mHigh = event.getHigh();
-                mMillis = event.getMillis();
-                break;
-            case CONFIG_TOGETHER:
-                initStatus();
-                mPostGroupId = event.getGroupId();
-                mDuration = event.getDuration() * 10;
-                mHigh = event.getHigh();
-                mMillis = event.getMillis();
-                break;
-            default:
-                break;
-        }
-
-        Log.i("JET_STATUS", "mPostGroupId: " + mPostGroupId);
-        Log.i("JET_STATUS", "configType: " + mConfigType);
-        Log.i("JET_STATUS", "direction: 方向--->" + mDirection);
-        Log.i("JET_STATUS", "gap: 间隔时间--->" + mGap);
-        Log.i("JET_STATUS", "duration: 持续时间--->" + mDuration);
-        Log.i("JET_STATUS", "gapBig: 大间隔时间--->" + mGapBig);
-        Log.i("JET_STATUS", "loop: 循环次数--->" + mLoop);
-        Log.i("JET_STATUS", "frequency: 次数（换向）--->" + mFrequency);
-        Log.i("JET_STATUS", "high: 高度--->" + mHigh);
-        Log.i("JET_STATUS", "millis: 时间戳--->" + mMillis);
-    }
-
-    private void initStatus() {
-        mDirection = 0;
-        mGap = 0;
-        mDuration = 0;
-        mGapBig = 0;
-        mLoop = 0;
-        mFrequency = 0;
-        mHigh = 0;
-    }
-
 }
