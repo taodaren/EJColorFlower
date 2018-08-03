@@ -9,6 +9,7 @@ public class MasterOutputManager {
     int loop;           // 当前循环的次数
     int loopId;
     int currentTime;
+    String type;        // 喷射效果
 
     public void setDevCount(int devCount) {
         this.devCount = devCount;
@@ -24,6 +25,14 @@ public class MasterOutputManager {
 
     public void setCurrentTime(int currentTime) {
         this.currentTime = currentTime;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     /**

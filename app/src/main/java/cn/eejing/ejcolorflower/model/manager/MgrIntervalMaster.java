@@ -1,5 +1,7 @@
 package cn.eejing.ejcolorflower.model.manager;
 
+import android.util.Log;
+
 /**
  * 间隔高低管理
  */
@@ -10,6 +12,8 @@ public class MgrIntervalMaster extends MasterOutputManager {
 
     @Override
     public boolean updateWithDataOut(byte[] dataOut) {
+        Log.i("CMCML", "updateWithDataOut: 老子进入齐喷了");
+
         this.currentTime++;
         long outputTime = this.duration;
         for (int i = 0; i < this.devCount; i++) {
@@ -29,6 +33,10 @@ public class MgrIntervalMaster extends MasterOutputManager {
             this.currentTime = 0;
         }
 
+        Log.i("CMCML", "update over currentTime: " + currentTime);
+        Log.i("CMCML", "update over outputTime: " + outputTime);
+        Log.i("CMCML", "update over loopId: " + loopId);
+        Log.i("CMCML", "update over loop: " + loop);
         // 等最后一次循环完毕
         return this.currentTime > outputTime && this.loopId >= this.loop;
     }

@@ -1,5 +1,7 @@
 package cn.eejing.ejcolorflower.model.manager;
 
+import android.util.Log;
+
 /**
  * 流水灯管理
  */
@@ -13,15 +15,17 @@ public class MgrStreamMaster extends MasterOutputManager {
 
     @Override
     public boolean updateWithDataOut(byte[] dataOut) {
+        Log.i("CMCML", "updateWithDataOut: 老子进入流水灯了");
         this.currentTime++;
         // 一次运行时间
         long outputTime = 0;
         switch (this.direction) {
-            case 0:
+            case 1:
                 // 从左到右
                 outputTime = leftToRight(dataOut);
+                Log.i("CMCML", "update outputTime: " + outputTime);
                 break;
-            case 1:
+            case 3:
                 // 从右到左
                 outputTime = rightToLeft(dataOut);
                 break;
@@ -29,13 +33,18 @@ public class MgrStreamMaster extends MasterOutputManager {
                 // 从两端到中间
                 outputTime = endsToMiddle(dataOut);
                 break;
-            case 3:
+            case 4:
                 // 从中间到两端
                 outputTime = middleToEnds(dataOut);
                 break;
             default:
                 break;
         }
+
+        Log.i("CMCML", "update over currentTime: " + currentTime);
+        Log.i("CMCML", "update over outputTime: " + outputTime);
+        Log.i("CMCML", "update over loopId: " + loopId);
+        Log.i("CMCML", "update over loop: " + loop);
 
         // 等最后一次循环完毕
         return this.currentTime > outputTime && this.loopId >= this.loop;
@@ -105,12 +114,16 @@ public class MgrStreamMaster extends MasterOutputManager {
     }
 
     private long leftToRight(byte[] dataOut) {
+        Log.i("CMCML", "update  BIG: " + gapBig);
+
         long outputTime;
         outputTime = this.gap * (this.devCount - 1) + this.duration;
         for (int i = 0; i < this.devCount; i++) {
             dataOut[i] = (this.currentTime <= this.gap * i || this.currentTime > outputTime) ? 0 : this.high;
         }
         if (this.currentTime >= (outputTime + this.gapBig)) {
+            Log.i("CMCML", "update ==== currentTime: " + currentTime);
+
             this.loopId++;
             this.currentTime = 0;
         }

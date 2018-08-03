@@ -1,5 +1,7 @@
 package cn.eejing.ejcolorflower.model.manager;
 
+import android.util.Log;
+
 /**
  * 跑马灯管理
  */
@@ -13,6 +15,8 @@ public class MgrRideMaster extends MasterOutputManager {
 
     @Override
     public boolean updateWithDataOut(byte[] dataOut) {
+        Log.i("CMCML", "updateWithDataOut: 老子进入跑马灯了");
+
         this.currentTime++;
         // 一次运行时间
         long outputTime = 0;
@@ -37,6 +41,10 @@ public class MgrRideMaster extends MasterOutputManager {
                 break;
         }
 
+        Log.i("CMCML", "update over currentTime: " + currentTime);
+        Log.i("CMCML", "update over outputTime: " + outputTime);
+        Log.i("CMCML", "update over loopId: " + loopId);
+        Log.i("CMCML", "update over loop: " + loop);
         // 等最后一次循环完毕
         return this.currentTime > outputTime && this.loopId >= this.loop;
     }
