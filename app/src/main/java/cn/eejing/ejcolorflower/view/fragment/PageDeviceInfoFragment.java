@@ -103,6 +103,11 @@ public class PageDeviceInfoFragment extends BaseFragment {
         EventBus.getDefault().unregister(this);
     }
 
+    @OnClick(R.id.tv_dmx_address)
+    public void onClickDmxAddr() {
+        showDialog();
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void getDeviceConnect(DeviceConnectEvent event) {
         // 接收硬件传过来的已连接设备信息添加到 HashSet
@@ -173,11 +178,6 @@ public class PageDeviceInfoFragment extends BaseFragment {
         if (mDevInfo == mDevTime) {
             layoutDeviceTime.setVisibility(View.VISIBLE);
         }
-    }
-
-    @OnClick(R.id.tv_dmx_address)
-    public void onClickDmxAddr() {
-        showDialog();
     }
 
     private void showDialog() {
