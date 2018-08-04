@@ -28,9 +28,12 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
+import cn.eejing.ejcolorflower.model.event.DmxZeroEvent;
 import cn.eejing.ejcolorflower.util.SelfDialog;
 import cn.eejing.ejcolorflower.view.activity.AppActivity;
 import cn.eejing.ejcolorflower.view.base.BaseFragment;
+
+import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_YES;
 
 /**
  * 设备信息
@@ -180,14 +183,14 @@ public class PageDeviceInfoFragment extends BaseFragment {
     private void showDialog() {
         mDialog = new SelfDialog(getContext());
         mDialog.setTitle("修改设备 DMX 地址");
-        mDialog.setMessage("设置 DMX 地址和取值范围1~511");
+        mDialog.setMessage("设置 DMX 地址和取值范围0~511");
         mDialog.setYesOnclickListener("确定", new SelfDialog.onYesOnclickListener() {
             @Override
             public void onYesClick() {
                 if (!(mDialog.getEditTextStr().equals(""))) {
                     try {
                         final int niDmx = Integer.parseInt(mDialog.getEditTextStr());
-                        if (!(niDmx > 0 && niDmx < 512)) {
+                        if (!(niDmx >= 0 && niDmx < 512)) {
                             // 如果输入的 DMX 不在 1~511 之间，提示用户
                             Toast.makeText(getContext(), "您设置的 DMX 地址超出范围\n请重新设置", Toast.LENGTH_SHORT).show();
                             mDialog.dismiss();
@@ -236,6 +239,8 @@ public class PageDeviceInfoFragment extends BaseFragment {
         mDevCtrl.sendCommand(mDevId, pkg);
         // 更新显示
         tvDmxAddress.setText(String.valueOf(niDmx));
+        // 发送 DMX 地址 0
+        EventBus.getDefault().post(new DmxZeroEvent(niDmx));
         mDialog.dismiss();
     }
 

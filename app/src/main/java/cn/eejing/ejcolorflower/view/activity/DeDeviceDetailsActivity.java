@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.allen.library.SuperButton;
 import com.flyco.tablayout.SegmentTabLayout;
@@ -18,6 +19,8 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +29,7 @@ import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.event.DelDeviceEvent;
+import cn.eejing.ejcolorflower.model.event.DmxZeroEvent;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
 import cn.eejing.ejcolorflower.util.ViewFindUtils;
@@ -58,6 +62,9 @@ public class DeDeviceDetailsActivity extends BaseActivity implements View.OnClic
     private int mPageType;
     private String mDeviceId, mMemberId, mToken;
     private SelfDialogBase mDialog;
+    private int mDmx;
+    // 是否可以进入主控模式
+    private boolean isEnterMasterCtrl;
 
     public DeDeviceDetailsActivity() {
     }
@@ -75,20 +82,24 @@ public class DeDeviceDetailsActivity extends BaseActivity implements View.OnClic
 
     @Override
     public void initView() {
+        EventBus.getDefault().register(this);
         mDeviceId = getIntent().getStringExtra("device_id");
         mMemberId = getIntent().getStringExtra("member_id");
         mToken = getIntent().getStringExtra("token");
         tvTitle.setText(mDeviceId);
 
-        int temp, dmx, time, tempThresholdHigh;
+        int temp, time, tempThresholdHigh;
         temp = getIntent().getIntExtra("device_temp", 0);
-        dmx = getIntent().getIntExtra("device_dmx", 0);
+        mDmx = getIntent().getIntExtra("device_dmx", 0);
         time = getIntent().getIntExtra("device_time", 0);
         tempThresholdHigh = getIntent().getIntExtra("device_threshold", 0);
 
+        // 如果 DMX 为 0，true；反之 false
+        isEnterMasterCtrl = mDmx == 0;
+
         mFragments = new ArrayList<>();
         mFragments.add(PageDeviceInfoFragment.newInstance(temp, tempThresholdHigh, AppConstant.TYPE_TEMP, Long.parseLong(mDeviceId)));
-        mFragments.add(PageDeviceInfoFragment.newInstance(dmx, tempThresholdHigh, AppConstant.TYPE_DMX, Long.parseLong(mDeviceId)));
+        mFragments.add(PageDeviceInfoFragment.newInstance(mDmx, tempThresholdHigh, AppConstant.TYPE_DMX, Long.parseLong(mDeviceId)));
         mFragments.add(PageDeviceInfoFragment.newInstance(time, tempThresholdHigh, AppConstant.TYPE_TIME, Long.parseLong(mDeviceId)));
 
         mDecorView = getWindow().getDecorView();
@@ -107,13 +118,23 @@ public class DeDeviceDetailsActivity extends BaseActivity implements View.OnClic
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.img_back_device_del:
                 finish();
                 break;
             case R.id.tv_mode_device_del:
-                jumpToActivity(new Intent(this, DeMasterModeActivity.class).putExtra("device_id", mDeviceId));
+                if (isEnterMasterCtrl) {
+                    jumpToActivity(new Intent(this, DeMasterModeActivity.class).putExtra("device_id", mDeviceId));
+                } else {
+                    Toast.makeText(this, "DMX 为 0 方可进入主控模式", Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.btn_add_material:
                 jumpToActivity(new Intent(this, DeQrAddMaterialActivity.class).putExtra("device_id", mDeviceId));
@@ -226,4 +247,11 @@ public class DeDeviceDetailsActivity extends BaseActivity implements View.OnClic
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventDexZero(DmxZeroEvent event) {
+        // 接收硬件传过来的已连接设备信息
+        mDmx = event.getNiDmx();
+        // 如果传过来的 DMX 地址为 0，可以进入主控；反之不可以
+        isEnterMasterCtrl = mDmx == 0;
+    }
 }
