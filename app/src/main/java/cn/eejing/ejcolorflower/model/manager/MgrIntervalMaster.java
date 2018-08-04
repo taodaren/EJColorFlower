@@ -12,7 +12,7 @@ public class MgrIntervalMaster extends MasterOutputManager {
 
     @Override
     public boolean updateWithDataOut(byte[] dataOut) {
-        Log.i("CMCML", "updateWithDataOut: 老子进入齐喷了");
+        Log.i("CMCML", "updateWithDataOut: 老子进入间隔高低了");
 
         this.currentTime++;
         long outputTime = this.duration;

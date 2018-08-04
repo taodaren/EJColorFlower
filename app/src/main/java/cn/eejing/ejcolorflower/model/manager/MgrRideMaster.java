@@ -21,21 +21,29 @@ public class MgrRideMaster extends MasterOutputManager {
         // 一次运行时间
         long outputTime = 0;
         switch (this.direction) {
-            case 0:
-                // 从左到右
-                outputTime = leftToRight(dataOut);
-                break;
             case 1:
+                // 从左到右
+                Log.i("CMCML", "进入从左到右");
+                outputTime = leftToRight(dataOut);
+                Log.i("CMCML", "从左到右 outputTime: " + outputTime);
+                break;
+            case 3:
                 // 从右到左
+                Log.i("CMCML", "进入从右到左");
                 outputTime = rightToLeft(dataOut);
+                Log.i("CMCML", "从右到左 outputTime: " + outputTime);
                 break;
             case 2:
                 // 从两端到中间
+                Log.i("CMCML", "进入从两端到中间");
                 outputTime = endsToMiddle(dataOut);
+                Log.i("CMCML", "从两端到中间 outputTime: " + outputTime);
                 break;
-            case 3:
+            case 4:
                 // 从中间到两端
+                Log.i("CMCML", "进入从中间到两端");
                 outputTime = middleToEnds(dataOut);
+                Log.i("CMCML", "从中间到两端 outputTime: " + outputTime);
                 break;
             default:
                 break;
