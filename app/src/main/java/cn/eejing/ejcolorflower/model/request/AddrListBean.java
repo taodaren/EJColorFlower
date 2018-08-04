@@ -1,5 +1,6 @@
 package cn.eejing.ejcolorflower.model.request;
 
+import java.io.Serializable;
 import java.util.List;
 
 public class AddrListBean {
@@ -38,7 +39,7 @@ public class AddrListBean {
         this.data = data;
     }
 
-    public static class DataBean {
+    public static class DataBean implements Serializable {
         /**
          * id : 1
          * member_id : 15

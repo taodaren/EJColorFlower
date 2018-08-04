@@ -1,6 +1,6 @@
 package cn.eejing.ejcolorflower.view.activity;
 
-import android.annotation.SuppressLint;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -15,6 +15,8 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -22,14 +24,9 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.event.AddrAddEvent;
 import cn.eejing.ejcolorflower.model.request.AddrAddBean;
-import cn.eejing.ejcolorflower.model.session.AddrSession;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.Settings;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
-
-import static cn.eejing.ejcolorflower.app.AppConstant.ADDRESS_AREAS;
-import static cn.eejing.ejcolorflower.app.AppConstant.ADDRESS_CITYS;
-import static cn.eejing.ejcolorflower.app.AppConstant.ADDRESS_PROVINCESS;
 
 /**
  * 添加收货地址
@@ -46,8 +43,7 @@ public class MaAddrAddActivity extends BaseActivity {
     private int mFlag;
     private Gson mGson;
     private String mMemberId, mToken;
-    // 省、市、县、地址
-    private String mProvincess, mCity, mAreas, mAddress;
+    private String mAddress;
 
     @Override
     protected int layoutViewId() {
@@ -56,47 +52,12 @@ public class MaAddrAddActivity extends BaseActivity {
 
     @Override
     public void initView() {
+        EventBus.getDefault().register(this);
         mGson = new Gson();
         mMemberId = String.valueOf(Settings.getLoginSessionInfo(this).getMember_id());
         mToken = Settings.getLoginSessionInfo(this).getToken();
 
-        mProvincess = getIntent().getStringExtra(ADDRESS_PROVINCESS);
-        mCity = getIntent().getStringExtra(ADDRESS_CITYS);
-        mAreas = getIntent().getStringExtra(ADDRESS_AREAS);
-
-        AddrSession session = Settings.getAddrSessionInfo(this);
-        String consignee = session.getConsignee();
-        String phone = session.getPhone();
-        String address = session.getAddress();
-        if (consignee != null) {
-            etConsignee.setText(consignee);
-        }
-        if (phone != null) {
-            etPhone.setText(phone);
-        }
-        if (address != null) {
-            etAddress.setText(address);
-        }
-
         setToolbar("添加收货地址", View.VISIBLE);
-
-        // 显示收货人、手机号码、详细地址
-        if (mProvincess != null && mCity != null && mAreas != null) {
-            // 如果省市县不为空（已选择）
-            if (consignee != null) {
-                // 如果收货人已输入过，显示收货人
-                etConsignee.setText(consignee);
-            }
-            if (phone != null) {
-                // 如果手机号已输入过，显示手机号
-                etPhone.setText(phone);
-            }
-            if (address != null) {
-                // 如果详细地址已输入过，显示详细地址
-                etAddress.setText(address);
-            }
-        }
-        setAddress();
     }
 
     @Override
@@ -120,59 +81,24 @@ public class MaAddrAddActivity extends BaseActivity {
 
     @OnClick(R.id.btn_address_add_save)
     public void clickSave() {
-        if (mProvincess == null || mCity == null || mAreas == null) {
+        if (TextUtils.isEmpty(etConsignee.getText().toString().trim())) {
+            Toast.makeText(this, "请输入收货人姓名", Toast.LENGTH_SHORT).show();
+        } else if (TextUtils.isEmpty(etPhone.getText().toString().trim())) {
+            Toast.makeText(this, "请输入手机号", Toast.LENGTH_SHORT).show();
+        } else if (tvAddress.getText().toString().trim().equals("请选择")
+                || TextUtils.isEmpty(tvAddress.getText().toString().trim())) {
             Toast.makeText(this, "请您选择所在地区", Toast.LENGTH_SHORT).show();
-        } else if ((etConsignee.getText() != null || etPhone.getText() != null || etAddress.getText() != null)
-                && etAddress.getText() == null
-                ) {
+        } else if (TextUtils.isEmpty(etAddress.getText().toString().trim())) {
             Toast.makeText(this, "请您填写详细地址", Toast.LENGTH_SHORT).show();
         } else {
-            setSession();
+            mAddress = tvAddress.getText().toString().trim() + " " + etAddress.getText().toString().trim();
             getDataWithAddressAdd();
         }
     }
 
     @OnClick(R.id.layout_address_add_select)
     public void clickAddSelect() {
-        if (etConsignee.getText() != null || etPhone.getText() != null || etAddress.getText() != null) {
-            // 如果输入过信息，保存起来
-            Settings.saveAddressInfo(this, new AddrSession(
-                    etConsignee.getText().toString(),
-                    etPhone.getText().toString(),
-                    etAddress.getText().toString()
-            ));
-        }
-
         jumpToActivity(MaAddrProvincesActivity.class);
-    }
-
-    @SuppressLint("SetTextI18n")
-    private void setAddress() {
-        if (mProvincess != null && mCity != null && mAreas != null) {
-            setSession();
-            // 如果省市县已选择，则展示地址
-            tvAddress.setText(mProvincess + " " + mCity + " " + mAreas);
-        }
-        if (etAddress.getText() != null) {
-            // 如果输入详细地址栏为不为空，设置展示地址
-            mAddress = mProvincess + " " + mCity + " " + mAreas + etAddress.getText().toString();
-        }
-    }
-
-    private void setSession() {
-        AddrSession session = Settings.getAddrSessionInfo(this);
-        String consignee = session.getConsignee();
-        String phone = session.getPhone();
-        String address = session.getAddress();
-        if (consignee != null) {
-            etConsignee.setText(consignee);
-        }
-        if (phone != null) {
-            etPhone.setText(phone);
-        }
-        if (address != null) {
-            etAddress.setText(address);
-        }
     }
 
     private void getDataWithAddressAdd() {
@@ -222,4 +148,15 @@ public class MaAddrAddActivity extends BaseActivity {
                 );
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void receiverAddressInfo(String address) {
+        tvAddress.setText(address);
+        etAddress.setText("");
+    }
 }

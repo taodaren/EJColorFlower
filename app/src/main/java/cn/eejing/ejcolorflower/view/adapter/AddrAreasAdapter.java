@@ -1,13 +1,14 @@
 package cn.eejing.ejcolorflower.view.adapter;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,11 +18,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.model.request.AddrAreasBean;
-import cn.eejing.ejcolorflower.view.activity.MaAddrAddActivity;
-
-import static cn.eejing.ejcolorflower.app.AppConstant.ADDRESS_AREAS;
-import static cn.eejing.ejcolorflower.app.AppConstant.ADDRESS_CITYS;
-import static cn.eejing.ejcolorflower.app.AppConstant.ADDRESS_PROVINCESS;
+import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 public class AddrAreasAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Activity mContext;
@@ -83,12 +80,16 @@ public class AddrAreasAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         @OnClick(R.id.layout_addr_citys)
         public void onViewClicked() {
-            Intent intent = new Intent(mContext, MaAddrAddActivity.class);
-            intent.putExtra(ADDRESS_PROVINCESS, mProvincess);
-            intent.putExtra(ADDRESS_CITYS, mCity);
-            intent.putExtra(ADDRESS_AREAS, areas);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            mContext.startActivity(intent);
+//            Intent intent = new Intent(mContext, MaAddrAddActivity.class);
+//            intent.putExtra(ADDRESS_PROVINCESS, mProvincess);
+//            intent.putExtra(ADDRESS_CITYS, mCity);
+//            intent.putExtra(ADDRESS_AREAS, areas);
+//            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//            mContext.startActivity(intent);
+            BaseActivity.delActivity("citys");
+            BaseActivity.delActivity("provinces");
+            mContext.finish();
+            EventBus.getDefault().post(mProvincess + "  " + mCity + "  " + areas);
         }
     }
 

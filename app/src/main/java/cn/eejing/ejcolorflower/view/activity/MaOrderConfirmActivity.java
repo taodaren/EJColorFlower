@@ -19,6 +19,7 @@ import com.lzy.okgo.model.Response;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
+import cn.eejing.ejcolorflower.model.request.AddrListBean;
 import cn.eejing.ejcolorflower.model.request.ConfirmOrderBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.Settings;
@@ -53,6 +54,7 @@ public class MaOrderConfirmActivity extends BaseActivity implements View.OnClick
     private String mMemberId, mToken;
     private int mGoodsId, mNumber;
     private double mTotalMoney;
+    private int mAddressId;
 
     @Override
     protected int layoutViewId() {
@@ -90,7 +92,7 @@ public class MaOrderConfirmActivity extends BaseActivity implements View.OnClick
                     Intent intent = new Intent(this, MaOrderPayActivity.class);
                     intent.putExtra("goods_id", mGoodsId);
                     intent.putExtra("quantity", mNumber);
-                    intent.putExtra("address_id", mBean.getAddress().getId());
+                    intent.putExtra("address_id", mAddressId);
                     intent.putExtra("member_id", mMemberId);
                     intent.putExtra("token", mToken);
                     intent.putExtra("money", mTotalMoney);
@@ -110,10 +112,26 @@ public class MaOrderConfirmActivity extends BaseActivity implements View.OnClick
                 }
                 break;
             case R.id.ll_confirm_order_address:
-                jumpToActivity(MaAddrSelectActivity.class);
+                    startActivityForResult(new Intent(this, MaAddrSelectActivity.class), 2018);
                 break;
             default:
                 break;
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            if (requestCode == 2018) {
+                AddrListBean.DataBean bean = (AddrListBean.DataBean) data.getSerializableExtra("address");
+
+                tvConsignee.setText(getString(R.string.text_consignee) + bean.getName());
+                tvPhone.setText(bean.getMobile());
+                tvAddress.setText(getString(R.string.text_shipping_address) + bean.getAddress_all());
+                mAddressId = bean.getId();
+            }
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
@@ -180,6 +198,7 @@ public class MaOrderConfirmActivity extends BaseActivity implements View.OnClick
         tvPostageFull.setText(getString(R.string.postage_before) + mBean.getGoods().getPostage() + getString(R.string.postage_after));
 
         mNumber = 1;
+        mAddressId = mBean.getAddress().getId();
         display(mNumber);
     }
 

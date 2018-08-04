@@ -3,7 +3,7 @@ package cn.eejing.ejcolorflower.view.adapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
@@ -81,12 +80,18 @@ public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     class AddressListHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.tv_address_list_name)           TextView       tvName;
-        @BindView(R.id.tv_address_list_phone)          TextView       tvPhone;
-        @BindView(R.id.tv_address_list_address)        TextView       tvAddress;
-        @BindView(R.id.rbt_address_list_def)           RadioButton    rbttDef;
-        @BindView(R.id.btn_address_list_edit)          Button         btnEdit;
-        @BindView(R.id.btn_address_list_del)           Button         btnDel;
+        @BindView(R.id.tv_address_list_name)
+        TextView tvName;
+        @BindView(R.id.tv_address_list_phone)
+        TextView tvPhone;
+        @BindView(R.id.tv_address_list_address)
+        TextView tvAddress;
+        @BindView(R.id.rbt_address_list_def)
+        RadioButton rbttDef;
+        @BindView(R.id.btn_address_list_edit)
+        Button btnEdit;
+        @BindView(R.id.btn_address_list_del)
+        Button btnDel;
 
         SelfDialogBase dialog;
 
@@ -125,7 +130,11 @@ public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         @OnClick(R.id.btn_address_list_edit)
         public void clickEdit() {
-            mContext.startActivity(new Intent(mContext, MaAddrModifyActivity.class).putExtra("address_id", mList.get(getAdapterPosition()).getId()));
+            Bundle bundle = new Bundle();
+            bundle.putString("type", "edit");
+            bundle.putSerializable("address_info", mList.get(getAdapterPosition()));
+
+            mContext.startActivity(new Intent(mContext, MaAddrModifyActivity.class).putExtras(bundle));
         }
 
         @OnClick(R.id.btn_address_list_del)

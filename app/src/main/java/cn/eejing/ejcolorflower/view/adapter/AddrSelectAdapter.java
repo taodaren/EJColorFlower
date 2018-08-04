@@ -2,14 +2,15 @@ package cn.eejing.ejcolorflower.view.adapter;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -21,6 +22,8 @@ import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.model.request.AddrListBean;
 import cn.eejing.ejcolorflower.util.TextColorSizeHelper;
+
+import static android.app.Activity.RESULT_OK;
 
 public class AddrSelectAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Activity mContext;
@@ -40,6 +43,7 @@ public class AddrSelectAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         return new AddressSelectHolder(mInflater.inflate(R.layout.item_address_select, parent, false));
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         ((AddressSelectHolder) holder).setData(mList.get(position));
@@ -63,14 +67,9 @@ public class AddrSelectAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     class AddressSelectHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.layout_address_select)
-        LinearLayout linearLayout;
-        @BindView(R.id.tv_address_select_name)
-        TextView tvName;
-        @BindView(R.id.tv_address_select_phone)
-        TextView tvPhone;
-        @BindView(R.id.tv_address_select_address)
-        TextView tvAddress;
+        @BindView(R.id.tv_address_select_name)           TextView tvName;
+        @BindView(R.id.tv_address_select_phone)          TextView tvPhone;
+        @BindView(R.id.tv_address_select_address)        TextView tvAddress;
 
         AddressSelectHolder(View itemView) {
             super(itemView);
@@ -86,7 +85,8 @@ public class AddrSelectAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             switch (bean.getStatus()) {
                 case 1:
                     // 默认地址
-                    tvAddress.setText(TextColorSizeHelper.getTextSpan(mContext, mContext.getColor(R.color.colorPrimary), defAddress, defColor));
+                    tvAddress.setText(TextColorSizeHelper.getTextSpan(mContext,
+                            mContext.getResources().getColor(R.color.colorPrimary), defAddress, defColor));
                     break;
                 default:
                     // 新增地址
@@ -99,6 +99,9 @@ public class AddrSelectAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         @OnClick(R.id.layout_address_select)
         public void clickLayout() {
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("address", mList.get(getAdapterPosition()));
+            mContext.setResult(RESULT_OK, new Intent().putExtras(bundle));
             mContext.finish();
         }
     }

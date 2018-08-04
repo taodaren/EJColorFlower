@@ -30,8 +30,7 @@ import static cn.eejing.ejcolorflower.app.AppConstant.ADDRESS_PROVINCESS;
 
 public class MaAddrAreasActivity extends BaseActivity {
 
-    @BindView(R.id.rv_citys)
-    PullLoadMoreRecyclerView rvCitys;
+    @BindView(R.id.rv_citys)        PullLoadMoreRecyclerView rvCitys;
 
     private List<AddrAreasBean.DataBean> mList;
     private AddrAreasAdapter mAdapter;

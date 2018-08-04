@@ -29,8 +29,7 @@ import static cn.eejing.ejcolorflower.app.AppConstant.ADDRESS_PROVINCESS;
 
 public class MaAddrCitysActivity extends BaseActivity {
 
-    @BindView(R.id.rv_citys)
-    PullLoadMoreRecyclerView rvCitys;
+    @BindView(R.id.rv_citys)        PullLoadMoreRecyclerView rvCitys;
 
     private List<AddrCitysBean.DataBean> mList;
     private AddrCitysAdapter mAdapter;
@@ -44,11 +43,18 @@ public class MaAddrCitysActivity extends BaseActivity {
     @Override
     public void initView() {
         setToolbar("选择地区", View.VISIBLE);
+        addActivity("citys", this);
         mList = new ArrayList<>();
         mProvincess = getIntent().getStringExtra(ADDRESS_PROVINCESS);
         mProvincessId = getIntent().getStringExtra(ADDRESS_ID_PROVINCESS);
 
         initRecyclerView();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        delActivity("citys");
     }
 
     @Override
