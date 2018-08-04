@@ -2,7 +2,6 @@ package cn.eejing.ejcolorflower.view.activity;
 
 import android.annotation.SuppressLint;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -36,7 +35,6 @@ import cn.eejing.ejcolorflower.model.manager.MgrIntervalMaster;
 import cn.eejing.ejcolorflower.model.manager.MgrRideMaster;
 import cn.eejing.ejcolorflower.model.manager.MgrStreamMaster;
 import cn.eejing.ejcolorflower.model.manager.MgrTogetherMaster;
-import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.view.adapter.DeMasterModeAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
@@ -60,7 +58,8 @@ public class DeMasterModeActivity extends BaseActivity {
     @BindView(R.id.et_dev_num)               EditText etDevNum;
     @BindView(R.id.et_start_dmx)             EditText etStarDmx;
 
-    private boolean isStart;
+    // 是否开始喷射，所有喷射是否停止
+    private boolean isStart, isStopRunnableMaster;
     private int isPause;
     private String mDeviceId;
     private CustomPopWindow mPopWindow;
@@ -72,7 +71,6 @@ public class DeMasterModeActivity extends BaseActivity {
     private int mCurrMasterId, mFlagCurrId;
 
     private Handler mHandler;
-    private boolean isStopRunnableMaster = false;
     // 主控输入控制
     private final Runnable mRunnableMaster = new Runnable() {
         @Override
@@ -80,6 +78,7 @@ public class DeMasterModeActivity extends BaseActivity {
             // 定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息）
             timerCallingMethod();
             if (!isStopRunnableMaster) {
+                // 如果整体循环没有结束，继续发送
                 mHandler.postDelayed(this, 100);
             }
         }
@@ -130,14 +129,20 @@ public class DeMasterModeActivity extends BaseActivity {
         }
     }
 
+    /** 点击暂停或继续 */
     private void clickPauseGoon() {
         switch (isPause) {
             case PAUSE_STATUS_ING:
                 // 如果是暂停状态，点击变为恢复状态，可以继续喷射
                 isPause = PAUSE_STATUS_GOON;
                 imgPauseGoon.setImageDrawable(getResources().getDrawable(R.drawable.ic_jet_pause));
+                // 启动计时器，0.1 秒
+                isStopRunnableMaster = false;
+                mHandler.post(mRunnableMaster);
                 break;
             case PAUSE_STATUS_GOON:
+                // 齐喷五次
+                togetherFiveStopPause();
                 // 如果是恢复状态，点击变为暂停状态，暂停喷射
                 isPause = PAUSE_STATUS_ING;
                 imgPauseGoon.setImageDrawable(getResources().getDrawable(R.drawable.ic_jet_pause_goon));
@@ -147,6 +152,7 @@ public class DeMasterModeActivity extends BaseActivity {
         }
     }
 
+    /** 点击开始或停止 */
     private void clickStartStop() {
         if (etDevNum.length() == 0) {
             Toast.makeText(this, "请您设置设备数量", Toast.LENGTH_SHORT).show();
@@ -156,24 +162,9 @@ public class DeMasterModeActivity extends BaseActivity {
             Toast.makeText(this, "请添加喷射效果", Toast.LENGTH_SHORT).show();
         } else {
             if (isStart) {
-                // 发送退出实时控制模式命令
-                Log.e("CMCML", "发送退出实时控制模式命令");
-                mDevCtrl.sendCommand(Long.parseLong(mDeviceId), BleDeviceProtocol.pkgExitRealTimeCtrlMode(Long.parseLong(mDeviceId)),
-                        new OnReceivePackage() {
-                            @Override
-                            public void ack(@NonNull byte[] pkg) {
-                                Log.e("CMCML", "FLAG");
+                // 齐喷五次
+                togetherFiveStopPause();
 
-                                int info = BleDeviceProtocol.parseExitRealTimeCtrlMode(pkg, pkg.length);
-                                Log.e("CMCML", "exit ack: " + info);
-                            }
-
-                            @Override
-                            public void timeout() {
-                                Log.e("CMCML", "退出实时控制模式命令超时！");
-//                        Log.e(TAG_DEV, "退出实时控制模式命令超时！");
-                            }
-                        });
                 // 如果是开始喷射状态，点击变为停止状态，暂停不可点击
                 isStart = false;
                 imgStartStop.setImageDrawable(getResources().getDrawable(R.drawable.ic_jet_start));
@@ -181,6 +172,12 @@ public class DeMasterModeActivity extends BaseActivity {
                 imgPauseGoon.setImageDrawable(getResources().getDrawable(R.drawable.ic_jet_pause_cannot));
             } else {
                 // 如果是停止喷射状态，点击变为开始状态，暂停可点击
+                mCurrMasterId = 0;
+                mFlagCurrId = 0;
+
+                mCurrentManager = null;
+                mMasterCtrlMgrList.clear();
+                isStopRunnableMaster = false;
                 isStart = true;
                 imgStartStop.setImageDrawable(getResources().getDrawable(R.drawable.ic_jet_stop));
                 isPause = PAUSE_STATUS_GOON;
@@ -192,6 +189,34 @@ public class DeMasterModeActivity extends BaseActivity {
                 mHandler.post(mRunnableMaster);
             }
         }
+    }
+
+    /** 发送喷射五次命令 */
+    private void togetherFiveStopPause() {
+        byte[] dataOut = new byte[300];
+        // 喷射 5 次高度为 0，持续时间 0.1s 齐喷效果
+        MgrTogetherMaster mgrStop = new MgrTogetherMaster();
+        mgrStop.setType(CONFIG_TOGETHER);
+        mgrStop.setDevCount(Integer.parseInt(etDevNum.getText().toString()));
+        mgrStop.setCurrentTime(0);
+        mgrStop.setDuration(1);
+        mgrStop.setHigh((byte) 0);
+        mgrStop.updateWithDataOut(dataOut);
+        for (int i = 0; i < 5; i++) {
+            Log.i("CMCML", "第" + (i + 1) + "次停止喷射命令 star！");
+
+            mDevCtrl.sendCommand(Long.parseLong(mDeviceId), BleDeviceProtocol.pkgEnterRealTimeCtrlMode(
+                    Long.parseLong(mDeviceId),
+                    Integer.parseInt(etStarDmx.getText().toString()),
+                    Integer.parseInt(etDevNum.getText().toString()),
+                    dataOut)
+            );
+
+            Log.i("CMCML", "第" + (i + 1) + "次停止喷射命令 over！");
+        }
+
+        // 发送退出实时控制模式命令
+        isStopRunnableMaster = true;
     }
 
     /** 定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息）*/
@@ -219,16 +244,9 @@ public class DeMasterModeActivity extends BaseActivity {
 
         // 发送进入在线实时控制模式命令
         byte[] dataOut = new byte[300];
-        mDevCtrl.sendCommand(Long.parseLong(mDeviceId), BleDeviceProtocol.pkgEnterRealTimeCtrlMode(
-                Long.parseLong(mDeviceId),
-                Integer.parseInt(etStarDmx.getText().toString()),
-                Integer.parseInt(etDevNum.getText().toString()),
-                dataOut)
-        );
-
-        try {
-            // 调用方法判断当前组是否完成喷射
-            boolean isFinish;
+        // 调用方法判断当前组是否完成喷射
+        boolean isFinish = false;
+        if (!isStopRunnableMaster) {
             if (mCurrentManager != null) {
                 Log.e("CMCML", "Current Manager have: " + mCurrentManager.getType());
                 isFinish = mCurrentManager.updateWithDataOut(dataOut);
@@ -240,30 +258,30 @@ public class DeMasterModeActivity extends BaseActivity {
                 isFinish = mCurrentManager.updateWithDataOut(dataOut);
                 Log.i("CMCML", "isFinish: " + isFinish);
             }
-            if (isFinish) {
-                // 当前组喷射完成，进入到下一组，继续执行下一组
-                mCurrMasterId++;
-                if (mCurrMasterId >= mMasterCtrlMgrList.size()) {
-                    Log.i("CMCML", "老子终于喷完了！！！");
+        }
 
-                    // 整个喷射过程完成，停止计时器
-                    isStopRunnableMaster = true;
-                    // 发送退出实时控制模式命令
-                    mDevCtrl.sendCommand(Long.parseLong(mDeviceId), BleDeviceProtocol.pkgExitRealTimeCtrlMode(
-                            Long.parseLong(mDeviceId)
-                    ));
+        mDevCtrl.sendCommand(Long.parseLong(mDeviceId), BleDeviceProtocol.pkgEnterRealTimeCtrlMode(
+                Long.parseLong(mDeviceId),
+                Integer.parseInt(etStarDmx.getText().toString()),
+                Integer.parseInt(etDevNum.getText().toString()),
+                dataOut)
+        );
 
-                    Log.i("CMCML", "通过发送命令！！！");
-                    // 按钮状态初始化
-                    isStart = false;
-                    imgStartStop.setImageDrawable(getResources().getDrawable(R.drawable.ic_jet_start));
-                    isPause = PAUSE_STATUS_CANNOT;
-                    imgPauseGoon.setImageDrawable(getResources().getDrawable(R.drawable.ic_jet_pause_cannot));
-                    Log.i("CMCML", "通过按钮状态初始化！！！");
-                }
+        if (isFinish) {
+            // 当前组喷射完成，进入到下一组，继续执行下一组
+            mCurrMasterId++;
+            if (mCurrMasterId >= mMasterCtrlMgrList.size()) {
+                Log.i("CMCML", "老子终于喷完了！！！");
+
+                // 齐喷五次
+                togetherFiveStopPause();
+
+                // 按钮状态初始化
+                isStart = false;
+                imgStartStop.setImageDrawable(getResources().getDrawable(R.drawable.ic_jet_start));
+                isPause = PAUSE_STATUS_CANNOT;
+                imgPauseGoon.setImageDrawable(getResources().getDrawable(R.drawable.ic_jet_pause_cannot));
             }
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
         }
 
     }
@@ -276,67 +294,23 @@ public class DeMasterModeActivity extends BaseActivity {
         for (int i = 0; i < mJetModes.size(); i++) {
             switch (mJetModes.get(i).getType()) {
                 case CONFIG_STREAM:
-                    List<CtrlStreamEntity> streamEntities =
-                            LitePal.where("groupId = ?", String.valueOf((int) mJetModes.get(i).getMillis())).find(CtrlStreamEntity.class);
-
                     MgrStreamMaster mgrStream = new MgrStreamMaster();
                     mgrStream.setType(CONFIG_STREAM);
-                    mgrStream.setDevCount(Integer.parseInt(etDevNum.getText().toString()));
-                    mgrStream.setCurrentTime(0);
-                    mgrStream.setLoopId(0);
-                    mgrStream.setDirection(Integer.parseInt(streamEntities.get(0).getDirection()));
-                    mgrStream.setGap(Integer.parseInt(streamEntities.get(0).getGap()));
-                    mgrStream.setDuration(Integer.parseInt(streamEntities.get(0).getDuration()));
-                    mgrStream.setGapBig(Integer.parseInt(streamEntities.get(0).getGapBig()));
-                    mgrStream.setLoop(Integer.parseInt(streamEntities.get(0).getLoop()));
-                    mgrStream.setHigh((byte) Integer.parseInt(streamEntities.get(0).getHigh()));
-
                     mMasterCtrlMgrList.add(mgrStream);
                     break;
                 case CONFIG_RIDE:
-                    List<CtrlRideEntity> rideEntities =
-                            LitePal.where("groupId = ?", String.valueOf((int) mJetModes.get(i).getMillis())).find(CtrlRideEntity.class);
-
                     MgrRideMaster mgrRide = new MgrRideMaster();
                     mgrRide.setType(CONFIG_RIDE);
-                    mgrRide.setDevCount(Integer.parseInt(etDevNum.getText().toString()));
-                    mgrRide.setCurrentTime(0);
-                    mgrRide.setLoopId(0);
-                    mgrRide.setDirection(Integer.parseInt(rideEntities.get(0).getDirection()));
-                    mgrRide.setGap(Integer.parseInt(rideEntities.get(0).getGap()));
-                    mgrRide.setDuration(Integer.parseInt(rideEntities.get(0).getDuration()));
-                    mgrRide.setGapBig(Integer.parseInt(rideEntities.get(0).getGapBig()));
-                    mgrRide.setLoop(Integer.parseInt(rideEntities.get(0).getLoop()));
-                    mgrRide.setHigh((byte) Integer.parseInt(rideEntities.get(0).getHigh()));
-
                     mMasterCtrlMgrList.add(mgrRide);
                     break;
                 case CONFIG_INTERVAL:
-                    List<CtrlIntervalEntity> intervalEntities =
-                            LitePal.where("groupId = ?", String.valueOf((int) mJetModes.get(i).getMillis())).find(CtrlIntervalEntity.class);
-
                     MgrIntervalMaster mgrInterval = new MgrIntervalMaster();
                     mgrInterval.setType(CONFIG_INTERVAL);
-                    mgrInterval.setDevCount(Integer.parseInt(etDevNum.getText().toString()));
-                    mgrInterval.setCurrentTime(0);
-                    mgrInterval.setLoopId(0);
-                    mgrInterval.setGapBig(Integer.parseInt(intervalEntities.get(0).getGap()));
-                    mgrInterval.setDuration(Integer.parseInt(intervalEntities.get(0).getDuration()));
-                    mgrInterval.setLoop(Integer.parseInt(intervalEntities.get(0).getFrequency()));
-
                     mMasterCtrlMgrList.add(mgrInterval);
                     break;
                 case CONFIG_TOGETHER:
-                    List<CtrlTogetherEntity> togetherEntities =
-                            LitePal.where("groupId = ?", String.valueOf((int) mJetModes.get(i).getMillis())).find(CtrlTogetherEntity.class);
-
                     MgrTogetherMaster mgrTogether = new MgrTogetherMaster();
                     mgrTogether.setType(CONFIG_TOGETHER);
-                    mgrTogether.setDevCount(Integer.parseInt(etDevNum.getText().toString()));
-                    mgrTogether.setCurrentTime(0);
-                    mgrTogether.setDuration(Integer.parseInt(togetherEntities.get(0).getDuration()));
-                    mgrTogether.setHigh((byte) Integer.parseInt(togetherEntities.get(0).getHigh()));
-
                     mMasterCtrlMgrList.add(mgrTogether);
                 default:
                     break;
