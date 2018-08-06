@@ -126,6 +126,7 @@ public class PageDeviceInfoFragment extends BaseFragment {
         croller.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                v.getParent().requestDisallowInterceptTouchEvent(false);
                 return true;
             }
         });
