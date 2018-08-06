@@ -480,7 +480,7 @@ public class BleDeviceProtocol {
         data[1] = (byte) (devNum & 0xff);
 
         for (int i = 0; i < devNum; i++) {
-            data[1 + i] = high[i];
+            data[2 + i] = high[i];
         }
         return cmdPkg(CMD_ENTER_REAL_TIME_CTRL_MODE, devId, data);
     }

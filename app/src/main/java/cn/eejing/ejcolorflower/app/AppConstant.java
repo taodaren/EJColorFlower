@@ -65,6 +65,10 @@ public class AppConstant {
     public static final String RIGHT_TO_LEFT = "3";
     public static final String CENTER_TO_BORDER = "4";
 
+    // 当前时间和循环 ID
+    public static final int CURRENT_TIME = 0;
+    public static final int LOOP_ID = 0;
+
     // 配置设备喷射默认值
     public static final String DEFAULT_STREAM_RIDE_GAP = "2";
     public static final String DEFAULT_STREAM_RIDE_DURATION = "3";

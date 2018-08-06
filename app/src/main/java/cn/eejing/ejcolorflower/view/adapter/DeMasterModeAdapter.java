@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +39,7 @@ public class DeMasterModeAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private Context mContext;
     private LayoutInflater mLayoutInflater;
     private List<MasterCtrlModeEntity> mList;
+    private boolean isClickItem = true;
 
     public DeMasterModeAdapter(Context context, List<MasterCtrlModeEntity> list) {
         this.mContext = context;
@@ -76,6 +76,11 @@ public class DeMasterModeAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         notifyDataSetChanged();
     }
 
+    public void isClickItem(boolean isClick) {
+        isClickItem = isClick;
+        notifyDataSetChanged();
+    }
+
     class MasterModeHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.layout_mode_jet)            LinearLayout layoutJet;
@@ -90,39 +95,47 @@ public class DeMasterModeAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
 
         private void onLongClickRemove(final MasterCtrlModeEntity bean) {
-            layoutJet.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    showDialog(bean);
-                    return true;
-                }
-            });
+            if (isClickItem) {
+                layoutJet.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        showDialog(bean);
+                        return true;
+                    }
+                });
+            } else {
+                layoutJet.setOnLongClickListener(null);
+            }
         }
 
         private void onClickModeJet(final MasterCtrlModeEntity bean) {
-            layoutJet.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int millis = (int) mList.get(getAdapterPosition()).getMillis();
+            if (isClickItem) {
+                layoutJet.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        int millis = (int) mList.get(getAdapterPosition()).getMillis();
 
-                    switch (bean.getType()) {
-                        case CONFIG_STREAM:
-                            mContext.startActivity(new Intent(mContext, CoConfigStreamActivity.class).putExtra("group_id", millis));
-                            break;
-                        case CONFIG_RIDE:
-                            mContext.startActivity(new Intent(mContext, CoConfigRideActivity.class).putExtra("group_id", millis));
-                            break;
-                        case CONFIG_INTERVAL:
-                            mContext.startActivity(new Intent(mContext, CoConfigIntervalActivity.class).putExtra("group_id", millis));
-                            break;
-                        case CONFIG_TOGETHER:
-                            mContext.startActivity(new Intent(mContext, CoConfigTogetherActivity.class).putExtra("group_id", millis));
-                            break;
-                        default:
-                            break;
+                        switch (bean.getType()) {
+                            case CONFIG_STREAM:
+                                mContext.startActivity(new Intent(mContext, CoConfigStreamActivity.class).putExtra("group_id", millis));
+                                break;
+                            case CONFIG_RIDE:
+                                mContext.startActivity(new Intent(mContext, CoConfigRideActivity.class).putExtra("group_id", millis));
+                                break;
+                            case CONFIG_INTERVAL:
+                                mContext.startActivity(new Intent(mContext, CoConfigIntervalActivity.class).putExtra("group_id", millis));
+                                break;
+                            case CONFIG_TOGETHER:
+                                mContext.startActivity(new Intent(mContext, CoConfigTogetherActivity.class).putExtra("group_id", millis));
+                                break;
+                            default:
+                                break;
+                        }
                     }
-                }
-            });
+                });
+            } else {
+                layoutJet.setOnClickListener(null);
+            }
         }
 
         public void setData(final MasterCtrlModeEntity bean) {
