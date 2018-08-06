@@ -244,6 +244,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             intervalDBList = LitePal.select("configType", "millis").where("groupId = ?", String.valueOf(groupId)).find(CtrlIntervalEntity.class);
             togetherDBList = LitePal.select("configType", "millis").where("groupId = ?", String.valueOf(groupId)).find(CtrlTogetherEntity.class);
 
+            Log.i("CFG_GUB", "isSavaDBInfo mPostGroupId: " + mPostGroupId);
             switch (mPostGroupId) {
                 case 0:
                     // 默认进入控制模块
@@ -258,6 +259,10 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         /** 默认进入控制模块 */
         private void defEnterConfig() {
+            Log.i("CFG_GUB", "stream size: " + streamDBList.size());
+            Log.i("CFG_GUB", "ride size: " + rideDBList.size());
+            Log.i("CFG_GUB", "interval size: " + intervalDBList.size());
+            Log.i("CFG_GUB", "together size: " + togetherDBList.size());
             if (streamDBList.size() != 0) {
                 compareTime(streamDBList.get(0).getMillis(), streamDBList.get(0).getConfigType());
             }
