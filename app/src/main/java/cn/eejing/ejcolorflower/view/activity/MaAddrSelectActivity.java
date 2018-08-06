@@ -71,9 +71,9 @@ public class MaAddrSelectActivity extends BaseActivity implements View.OnClickLi
         tvManage.setOnClickListener(this);
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(AddrAddEvent event) {
-        // 地址添加成功返回刷新列表
+    @Override
+    protected void onRestart() {
+        super.onRestart();
         getDataWithAddressList();
     }
 
@@ -89,6 +89,12 @@ public class MaAddrSelectActivity extends BaseActivity implements View.OnClickLi
             default:
                 break;
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(AddrAddEvent event) {
+        // 地址添加成功返回刷新列表
+        getDataWithAddressList();
     }
 
     private void initRecyclerView() {
