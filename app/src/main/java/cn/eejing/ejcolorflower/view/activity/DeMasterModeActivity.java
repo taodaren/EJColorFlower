@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
@@ -132,7 +133,7 @@ public class DeMasterModeActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 if (isStar) {
-                    showDialog();
+                    showExitDialog();
                 } else {
                     finish();
                 }
@@ -149,7 +150,7 @@ public class DeMasterModeActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         if (isStar) {
-            showDialog();
+            showExitDialog();
         } else {
             finish();
         }
@@ -600,6 +601,18 @@ public class DeMasterModeActivity extends BaseActivity {
         rvMasterMode.setLayoutManager(manager);
         // 绑定适配器
         mAdapter = new DeMasterModeAdapter(this, mList);
+        // 监听长按点击事件
+        mAdapter.setLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (!isStar) {
+                    int position = (int) v.getTag();
+                    showDelDialog(position);
+                }
+                return true;
+            }
+        });
+
         rvMasterMode.setAdapter(mAdapter);
     }
 
@@ -648,7 +661,29 @@ public class DeMasterModeActivity extends BaseActivity {
         view.findViewById(R.id.master_mode_together).setOnClickListener(listener);
     }
 
-    private void showDialog() {
+    private void showDelDialog(final int position) {
+        mDialog = new SelfDialogBase(this);
+        mDialog.setTitle("确定要删除");
+        mDialog.setYesOnclickListener("确定", new SelfDialogBase.onYesOnclickListener() {
+            @Override
+            public void onYesClick() {
+                // 删除喷射效果
+                LitePal.deleteAll(MasterCtrlModeEntity.class, "millis = ?", String.valueOf(mList.get(position).getMillis()));
+                mList.remove(position);
+                mAdapter.refreshList(mList);
+                mDialog.dismiss();
+            }
+        });
+        mDialog.setNoOnclickListener("取消", new SelfDialogBase.onNoOnclickListener() {
+            @Override
+            public void onNoClick() {
+                mDialog.dismiss();
+            }
+        });
+        mDialog.show();
+    }
+
+    private void showExitDialog() {
         mDialog = new SelfDialogBase(this);
         mDialog.setTitle("设备喷射中...若退出将停止喷射");
         mDialog.setYesOnclickListener("退出", new SelfDialogBase.onYesOnclickListener() {

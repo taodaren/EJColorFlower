@@ -41,6 +41,12 @@ public class DeMasterModeAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private List<MasterCtrlModeEntity> mList;
     private boolean isClickItem = true;
 
+    private View.OnLongClickListener mLongClickListener;
+
+    public void setLongClickListener(View.OnLongClickListener listener) {
+        mLongClickListener = listener;
+    }
+
     public DeMasterModeAdapter(Context context, List<MasterCtrlModeEntity> list) {
         this.mContext = context;
         this.mLayoutInflater = LayoutInflater.from(context);
@@ -87,25 +93,9 @@ public class DeMasterModeAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         @BindView(R.id.img_mode_jet_effect)        ImageView imgJetEffect;
         @BindView(R.id.tv_mode_jet_effect)         TextView textJetEffect;
 
-        SelfDialogBase dialog;
-
         MasterModeHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
-        }
-
-        private void onLongClickRemove(final MasterCtrlModeEntity bean) {
-            if (isClickItem) {
-                layoutJet.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        showDialog(bean);
-                        return true;
-                    }
-                });
-            } else {
-                layoutJet.setOnLongClickListener(null);
-            }
         }
 
         private void onClickModeJet(final MasterCtrlModeEntity bean) {
@@ -158,29 +148,9 @@ public class DeMasterModeAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             }
 
             onClickModeJet(bean);
-            onLongClickRemove(bean);
-        }
 
-        private void showDialog(final MasterCtrlModeEntity bean) {
-            dialog = new SelfDialogBase(mContext);
-            dialog.setTitle("确定要删除");
-            dialog.setYesOnclickListener("确定", new SelfDialogBase.onYesOnclickListener() {
-                @Override
-                public void onYesClick() {
-                    // 删除喷射效果
-                    LitePal.deleteAll(MasterCtrlModeEntity.class, "millis = ?", String.valueOf(mList.get(getAdapterPosition()).getMillis()));
-                    mList.remove(getAdapterPosition());
-                    notifyDataSetChanged();
-                    dialog.dismiss();
-                }
-            });
-            dialog.setNoOnclickListener("取消", new SelfDialogBase.onNoOnclickListener() {
-                @Override
-                public void onNoClick() {
-                    dialog.dismiss();
-                }
-            });
-            dialog.show();
+            itemView.setTag(getAdapterPosition());
+            itemView.setOnLongClickListener(mLongClickListener);
         }
     }
 
