@@ -11,15 +11,6 @@ public class DeviceConnectEvent {
     private DeviceStatus state;
     private DeviceConfig config;
 
-    public DeviceConnectEvent(String mac) {
-        this.mac = mac;
-    }
-
-    public DeviceConnectEvent(String info, Device device) {
-        this.info = info;
-        this.device = device;
-    }
-
     public DeviceConnectEvent(String info, String mac) {
         this.info = info;
         this.mac = mac;

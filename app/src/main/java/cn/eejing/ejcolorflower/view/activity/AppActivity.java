@@ -227,8 +227,7 @@ public class AppActivity extends BLEActivity implements ISendCommand, BottomNavi
                         } else {
                             send(mac, BleDeviceProtocol.pkgGetStatus(id));
                         }
-
-                        // 发送设备相关数据
+                        // 发送设备相关数据（设备已连接）
                         EventBus.getDefault().post(new DeviceConnectEvent(DEVICE_CONNECT_YES, mac, device.getState(), device.getConfig()));
                     }
                 }
@@ -239,13 +238,17 @@ public class AppActivity extends BLEActivity implements ISendCommand, BottomNavi
     /** 设备断开 */
     @Override
     void onDeviceDisconnect(String mac) {
-        unregisterPeriod(mac + "- 设备断开 status");
-        EventBus.getDefault().post(new DeviceConnectEvent(DEVICE_CONNECT_NO, mac));
+        Log.i(TAG, "设备断开 onDeviceDisconnect: mac = " + mac);
+
+        unRegisterPeriod(mac + "- 设备断开 status");
 
         Device device = getDevice(mac);
         if (device != null) {
             device.setConnected(false);
         }
+
+        // 发送设备相关数据（设备已断开）
+        EventBus.getDefault().post(new DeviceConnectEvent(DEVICE_CONNECT_NO, mac, device.getState(), device.getConfig()));
     }
 
     /** 找到并连接一台设备 */
@@ -350,7 +353,7 @@ public class AppActivity extends BLEActivity implements ISendCommand, BottomNavi
     }
 
     /** 设备与协议处理 */
-    private class ProtocolWithDevice extends BleDeviceProtocol {
+    public class ProtocolWithDevice extends BleDeviceProtocol {
         final Device device;
 
         ProtocolWithDevice(@NonNull Device device) {

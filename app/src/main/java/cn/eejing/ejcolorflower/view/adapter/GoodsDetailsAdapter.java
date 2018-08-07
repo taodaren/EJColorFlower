@@ -105,7 +105,7 @@ public class GoodsDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         public void setData(GoodsDetailsBean.DataBean bean) {
             /**
-             * 设置是否开启自动轮播，需要在 setData 方法之前调用，并且调了该方法后必须再调用一次 setData 方法
+             * 设置是否开启自动轮播，需要在 setDataConn 方法之前调用，并且调了该方法后必须再调用一次 setDataConn 方法
              * 例如根据图片当图片数量大于 1 时开启自动轮播，等于 1 时不开启自动轮播
              */
             bgaBanner.setAutoPlayAble(bean.getImage().size() > 1);

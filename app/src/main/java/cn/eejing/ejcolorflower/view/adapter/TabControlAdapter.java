@@ -61,6 +61,8 @@ import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_INTERVAL;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_RIDE;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_STREAM;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_NO;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_YES;
 import static cn.eejing.ejcolorflower.app.AppConstant.EMPTY;
 
 /**
@@ -83,7 +85,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private AppActivity.FireworkDevCtrl mDevCtrl;
     private DeviceStatus mState;
     private DeviceConfig mConfig;
-    private String mConnInfo, mConnDevMac;
+    private String mConnStatus, mConnDevMac;
     private long mConnDevID;
 
     private String mConfigType;
@@ -217,7 +219,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             // 数据库中查询是否保存信息
             isSavaDBInfo();
 
-            Log.i("LJQ", "setData"
+            Log.i("LJQ", "setDataConn"
                     + "\n设备 MAC: " + mConnDevMac
                     + "\n设备 ID: " + mConnDevID
                     + "\n设备 STATE: " + mState
@@ -662,7 +664,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         @Override
         public void onBindViewHolder(@NonNull DeviceHolder holder, int position) {
-            holder.setData();
+            holder.setData(position);
         }
 
         @Override
@@ -678,11 +680,26 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 ButterKnife.bind(this, itemView);
             }
 
-            public void setData() {
+            public void setData(int position) {
                 Log.e(AppConstant.TAG, "devList: " + devList.toString());
                 sbDevice.setText(devList.get(getAdapterPosition()));
                 // TODO: 2018/6/20  未连接显示不正常
-//                if (mConfig != null && mState != null) {
+                if (mConnStatus != null) {
+                    switch (mConnStatus) {
+                        case DEVICE_CONNECT_YES:
+                            if (devList.get(position).equals(String.valueOf(mConnDevID))) {
+                                sbDevice.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTransparent));
+                                sbDevice.setShapeStrokeColor(mContext.getResources().getColor(R.color.colorFrame));
+                                sbDevice.setUseShape();
+                            }
+                            break;
+                        case DEVICE_CONNECT_NO:
+                            sbDevice.setShapeSolidColor(mContext.getResources().getColor(R.color.colorFrame));
+                            sbDevice.setShapeStrokeColor(mContext.getResources().getColor(R.color.colorFrame));
+                            sbDevice.setUseShape();
+                            break;
+                    }
+                }
 //                    for (String devIdServer : devList) {
 //                        if (devIdServer.equals(String.valueOf(mConnDevID))) {
 //                            sbDevice.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTransparent));
@@ -690,7 +707,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 //                            sbDevice.setUseShape();
 //                        }
 //                    }
-//                }
             }
         }
     }
@@ -765,18 +781,21 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventDevConn(DeviceConnectEvent event) {
         // 接收硬件传过来的已连接设备信息
-        mConnInfo = event.getInfo();
         mConnDevMac = event.getMac();
-        mConnDevID = event.getConfig().mID;
+        mConnStatus = event.getInfo();
+
         mState = event.getState();
         mConfig = event.getConfig();
-        Log.e("LJQ", event.getInfo()
-                + "\nMAC--->" + mConnDevMac
-                + "\nDEV_ID--->" + mConnDevID
+        mConnDevID = event.getConfig().mID;
+
+        Log.i("JLTHYC", mConnStatus
+                + "\nConn Mac--->" + mConnDevMac
+                + "\nConn mConnDevID--->" + mConnDevID
                 + "\nTEMP--->" + mState.mTemperature
                 + "\nDMX--->" + mConfig.mDMXAddress
                 + "\nTIME--->" + mState.mRestTime
         );
+
         notifyDataSetChanged();
     }
 

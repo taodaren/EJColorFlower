@@ -360,7 +360,7 @@ public class BLEActivity extends BaseActivity {
             final DeviceManager mgr = getMatchedDeviceManager(gatt);
             if (mgr != null) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    Log.i(TAG, "状态连接 " + mgr.mac);
+                    Log.i(TAG, "状态已连接 " + mgr.mac);
                     mgr.connected = true;
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     Log.i(TAG, "状态已断开 " + mgr.mac);
@@ -370,7 +370,8 @@ public class BLEActivity extends BaseActivity {
                         @Override
                         public void run() {
                             onDeviceDisconnect(mgr.mac);
-                            mDeviceManagerSet.remove(mgr.mac);  //设备断开连接后，从已连接设备列表中移除
+                            // 设备断开连接后，从已连接设备列表中移除
+                            mDeviceManagerSet.remove(mgr.mac);
                         }
                     });
                 }
@@ -657,19 +658,19 @@ public class BLEActivity extends BaseActivity {
      * 包括数据 BLE 协议管理、数据发送管理、等待回复、超时
      */
     public static class DeviceManager {
-        final String                            mac;
-        final BluetoothDevice                   device;
-        BluetoothGatt                           gatt = null;
-        List<BluetoothGattCharacteristic>       characteristic = null;
-        BluetoothGattCharacteristic             write_characteristic = null;
-        boolean                                 connected = false;
-        boolean                                 discovering = false;
+        final String mac;
+        final BluetoothDevice device;
+        BluetoothGatt gatt = null;
+        List<BluetoothGattCharacteristic> characteristic = null;
+        BluetoothGattCharacteristic write_characteristic = null;
+        boolean connected = false;
+        boolean discovering = false;
 
-        int                                     waitTime = 1000;                     // 等待回复、超时
-        long                                    sendTime;                            // 数据发送时刻 用于判断是否超时
-        OnReceivePackage                        callBack;                            // 接收到数据包及超时的处理回调函数
-        byte[]                                  needCallbackCmdPkg;                  // 如果某个命令需要等待回复，记录命令包
-        BleDeviceProtocol                       bleDeviceProtocol = null;
+        int waitTime = 1000;                     // 等待回复、超时
+        long sendTime;                            // 数据发送时刻 用于判断是否超时
+        OnReceivePackage callBack;                            // 接收到数据包及超时的处理回调函数
+        byte[] needCallbackCmdPkg;                  // 如果某个命令需要等待回复，记录命令包
+        BleDeviceProtocol bleDeviceProtocol = null;
 
         public void setBleDeviceProtocol(BleDeviceProtocol bleDevPro) {
             bleDeviceProtocol = bleDevPro;
@@ -686,7 +687,9 @@ public class BLEActivity extends BaseActivity {
             }
         }
 
-        /** 接收到匹配的蓝牙设备发送的数据包后，需要进行的回调处理 */
+        /**
+         * 接收到匹配的蓝牙设备发送的数据包后，需要进行的回调处理
+         */
         public void doMatchPackage(byte[] ack_pkg) {
             if (callBack == null) {
                 return;
@@ -892,7 +895,7 @@ public class BLEActivity extends BaseActivity {
     /**
      * 取消注册期限
      */
-    void unregisterPeriod(@NonNull String tag) {
+    void unRegisterPeriod(@NonNull String tag) {
         if (mPeriodRunnable.containsKey(tag)) {
             Runnable old = mPeriodRunnable.get(tag).first;
             mHandler.removeCallbacks(old);

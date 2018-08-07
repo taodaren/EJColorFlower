@@ -47,6 +47,8 @@ import cn.eejing.ejcolorflower.view.activity.DeQrAddDeviceActivity;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
+import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_NO;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_YES;
 import static cn.eejing.ejcolorflower.app.AppConstant.REQUEST_CODE_QRCODE_PERMISSIONS;
 
 /**
@@ -65,7 +67,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     // 硬件相关
     private DeviceStatus mState;
     private DeviceConfig mConfig;
-    private String mConnectDeviceMac;
+    private String mConnDevMac, mConnStatus;
     private int mTemp, mDMX, mTime, mThresholdHigh;
 
     public TabDeviceAdapter(Context context, List<DeviceListBean.DataBean.ListBean> list, String memberId, String token) {
@@ -94,13 +96,22 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE_ITEM) {
             if (mList != null) {
-                if (mConnectDeviceMac != null && mState != null && mConfig != null) {
-                    // 如果硬件设备已连接且信息不为空，展示硬件信息
-                    ((ItemViewHolder) holder).setData(mList.get(position), mConnectDeviceMac, mState, mConfig, position);
+                Log.i("BGRZBUG", "position: " + position);
+                Log.i("BGRZBUG", "mConnStatus: " + mConnStatus);
+                Log.i("BGRZBUG", "mConnDevMac: " + mConnDevMac);
+                if (mConnStatus != null && mConnDevMac != null) {
+                    // 连接成功
+                    if (mConnDevMac.equals(mList.get(position).getMac()) && mConnStatus.equals(DEVICE_CONNECT_YES)) {
+                        ((ItemViewHolder) holder).setDataConn(position, mState, mConfig);
+                    }
+                    // 连接断开
+                    if (mConnDevMac.equals(mList.get(position).getMac()) && mConnStatus.equals(DEVICE_CONNECT_NO)) {
+                        ((ItemViewHolder) holder).setDataDisConn(position);
+                    }
                 } else {
-                    // 如果硬件设备信息为空，则只展示服务器中的设备 ID
-                    ((ItemViewHolder) holder).tvDeviceId.setText(mList.get(position).getId());
-                    ((ItemViewHolder) holder).setClickListener(null, null, null, position);
+                    // 未连接
+                    // 设备初始状态
+                    ((ItemViewHolder) holder).setDataDisConn(position);
                 }
             }
         }
@@ -160,9 +171,10 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventDeviceConnect(DeviceConnectEvent event) {
+    public void onEventDevConn(DeviceConnectEvent event) {
         // 接收硬件传过来的已连接设备信息
-        mConnectDeviceMac = event.getMac();
+        mConnDevMac = event.getMac();
+        mConnStatus = event.getInfo();
         mState = event.getState();
         mConfig = event.getConfig();
 
@@ -171,11 +183,13 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         mTime = event.getState().mRestTime;
         mThresholdHigh = event.getConfig().mTemperatureThresholdHigh;
 
-        Log.i("JLTHTYC", "Device Info: " +
-                "\nmTemp--->" + mTemp
-                + "\nmDMX--->" + mDMX
-                + "\nmTime--->" + mTime
-                + "\nmThresholdHigh--->" + mThresholdHigh);
+        Log.i("JLTHTYC", mConnStatus
+                + "\nConn Mac--->" + mConnDevMac
+                + "\nConn Temp--->" + mTemp
+                + "\nConn DMX--->" + mDMX
+                + "\nConn Time--->" + mTime
+                + "\nConn ThresholdHigh--->" + mThresholdHigh
+        );
 
         notifyDataSetChanged();
     }
@@ -193,21 +207,30 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             ButterKnife.bind(this, itemView);
         }
 
-        void setData(DeviceListBean.DataBean.ListBean bean, String connectDeviceMac, DeviceStatus state, DeviceConfig config, int position) {
-            if (bean.getMac().equals(connectDeviceMac)) {
-                // 如果服务器设备列表中的 MAC 地址与设备 MAC 一致，设置已连接状态
-                tvDeviceId.setText(bean.getId());
-                tvConnected.setText("已连接");
-                tvConnected.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
-                // 显示硬件数据
-                displayHardwareData();
-                // 设置点击事件
-                setClickListener(bean.getId(), state, config, position);
-            }
+        void setDataConn(int position, DeviceStatus state, DeviceConfig config) {
+            tvDeviceId.setText(mList.get(position).getId());
+            tvConnected.setText("已连接");
+            tvConnected.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
+            // 显示硬件数据
+            displayHardwareData();
+            // 设置点击事件
+            setClickListener(mList.get(position).getId(), state, config, position);
+        }
+
+        void setDataDisConn(int position) {
+            tvDeviceId.setText(mList.get(position).getId());
+            tvConnected.setText("未连接");
+            tvConnected.setTextColor(mContext.getResources().getColor(R.color.colorNoClick));
+            // 隐藏硬件数据
+            btnTemp.setBackgroundResource(R.drawable.ic_device_temp);
+            btnDmx.setText(null);
+            btnTime.setText(null);
+            // 设置点击事件
+            setClickListener(null, null, null, position);
         }
 
         @OnLongClick(R.id.layout_device_list)
-        public boolean onOutClicked() {
+        public boolean onLongClickOut() {
             Snackbar.make(outView, "确定要删除设备吗？", Snackbar.LENGTH_SHORT)
                     .setAction("确定", new View.OnClickListener() {
                         @Override
