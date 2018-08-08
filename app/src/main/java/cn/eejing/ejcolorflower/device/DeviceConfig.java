@@ -8,12 +8,13 @@ import android.os.Parcelable;
  */
 
 public class DeviceConfig implements Parcelable {
-    public long mID = 0;
-    public int mTemperatureThresholdLow = 500;
-    public int mTemperatureThresholdHigh = 510;
+    public long mID;                                                        // 设备ID
+    // 进料电机默认速度、刮料电机默认速度、吹风电机默认速度、备用电机默认速度
     public int[] mMotorDefaultSpeed = new int[]{20, 10, 15, 200};
-    public int mDMXAddress = 8;
-    public int mGualiaoTime = 0;
+    public int mTemperatureThresholdLow = 500;                              // 温度阈值（低）
+    public int mTemperatureThresholdHigh = 510;                             // 温度阈值（高）
+    public int mDMXAddress;                                                 // DMX地址
+    public int mGualiaoTime;                                                // 刮料时间
 
     public DeviceConfig() {
     }
@@ -54,5 +55,4 @@ public class DeviceConfig implements Parcelable {
             return new DeviceConfig[size];
         }
     };
-
 }

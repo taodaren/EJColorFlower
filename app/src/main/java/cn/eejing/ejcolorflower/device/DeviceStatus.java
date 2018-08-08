@@ -8,13 +8,13 @@ import android.os.Parcelable;
  */
 
 public class DeviceStatus implements Parcelable {
-    public int mTemperature = 20;
-    public float mSupplyVoltage = 12;
-    public int[] mMotorSpeed = new int[]{20, 10, 15, 200};
-    public int mPitch = 0;
-    public int mUltrasonicDistance = 60;
-    public int mInfraredDistance = 60;
-    public int mRestTime = 0;
+    public int mTemperature = -40;                          // 温度
+    public float mSupplyVoltage = 12;                       // 直流供电电压
+    public int[] mMotorSpeed = new int[]{20, 10, 15, 200};  // 电机1速度，电机2速度，电机3速度，电机4速度
+    public int mPitch = 0;                                  // 倾斜角
+    public int mUltrasonicDistance = 60;                    // 超声波距离
+    public int mInfraredDistance = 60;                      // 红外距离
+    public int mRestTime = -1;                              // 剩余时间
 
     public DeviceStatus() {
     }
@@ -74,18 +74,4 @@ public class DeviceStatus implements Parcelable {
         this.mInfraredDistance = in.readInt();
         this.mRestTime = in.readInt();
     }
-
-//    @SuppressWarnings("unused")
-//    public static final Parcelable.Creator<DeviceConfig> CREATOR = new Parcelable.Creator<DeviceConfig>() {
-//        @Override
-//        public DeviceStatus createFromParcel(Parcel source) {
-//            return new DeviceStatus(source);
-//        }
-//
-//        @Override
-//        public DeviceStatus[] newArray(int size) {
-//            return new DeviceStatus[size];
-//        }
-//    };
-
 }

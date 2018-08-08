@@ -96,23 +96,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE_ITEM) {
             if (mList != null) {
-                Log.i("BGRZBUG", "position: " + position);
-                Log.i("BGRZBUG", "mConnStatus: " + mConnStatus);
-                Log.i("BGRZBUG", "mConnDevMac: " + mConnDevMac);
-                if (mConnStatus != null && mConnDevMac != null) {
-                    // 连接成功
-                    if (mConnDevMac.equals(mList.get(position).getMac()) && mConnStatus.equals(DEVICE_CONNECT_YES)) {
-                        ((ItemViewHolder) holder).setDataConn(position, mState, mConfig);
-                    }
-                    // 连接断开
-                    if (mConnDevMac.equals(mList.get(position).getMac()) && mConnStatus.equals(DEVICE_CONNECT_NO)) {
-                        ((ItemViewHolder) holder).setDataDisConn(position);
-                    }
-                } else {
-                    // 未连接
-                    // 设备初始状态
-                    ((ItemViewHolder) holder).setDataDisConn(position);
-                }
+                ((ItemViewHolder) holder).setData(position, mConnDevMac, mList.get(position).getMac(), mConnStatus, mState, mConfig);
             }
         }
 
@@ -170,11 +154,11 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         notifyDataSetChanged();
     }
 
+    /** 硬件传来连接状态及设备信息 */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventDevConn(DeviceConnectEvent event) {
-        // 接收硬件传过来的已连接设备信息
-        mConnDevMac = event.getMac();
         mConnStatus = event.getInfo();
+        mConnDevMac = event.getMac();
         mState = event.getState();
         mConfig = event.getConfig();
 
@@ -207,7 +191,35 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             ButterKnife.bind(this, itemView);
         }
 
-        void setDataConn(int position, DeviceStatus state, DeviceConfig config) {
+        void setData(int position, String devMac, String serverMac, String connStatus, DeviceStatus state, DeviceConfig config) {
+            if (devMac != null) {
+                if (devMac.equals(serverMac)) {
+                    // 连接成功
+                    if (connStatus.equals(DEVICE_CONNECT_YES)) {
+                        devConn(position, state, config);
+                    }
+                    // 连接断开
+                    if (connStatus.equals(DEVICE_CONNECT_NO)) {
+                        devDisconn(position);
+                    }
+                }
+            } else {
+                // 设备初始状态
+                devNotConn(position);
+            }
+        }
+
+        /** 未连接 */
+        private void devNotConn(int position) {
+            tvDeviceId.setText(mList.get(position).getId());
+            tvConnected.setText("未连接");
+            tvConnected.setTextColor(mContext.getResources().getColor(R.color.colorNoClick));
+            // 设置点击事件
+            setClickListener(null, null, null, position);
+        }
+
+        /** 连接成功 */
+        private void devConn(int position, DeviceStatus state, DeviceConfig config) {
             tvDeviceId.setText(mList.get(position).getId());
             tvConnected.setText("已连接");
             tvConnected.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
@@ -217,16 +229,53 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             setClickListener(mList.get(position).getId(), state, config, position);
         }
 
-        void setDataDisConn(int position) {
+        /** 连接断开 */
+        private void devDisconn(int position) {
             tvDeviceId.setText(mList.get(position).getId());
             tvConnected.setText("未连接");
             tvConnected.setTextColor(mContext.getResources().getColor(R.color.colorNoClick));
             // 隐藏硬件数据
+            hideHardwareData();
+            // 设置点击事件
+            setClickListener(null, null, null, position);
+        }
+
+        /** 显示硬件数据 */
+        private void displayHardwareData() {
+            // 根据温度阈值划分温度等级（5个等级）
+            double tempLvOne = mThresholdHigh * (0.2);
+            double tempLvTwo = mThresholdHigh * (0.4);
+            double tempLvThree = mThresholdHigh * (0.6);
+            double tempLvFour = mThresholdHigh * (0.8);
+
+            // 根据温度等级改变背景颜色
+            if (mTemp <= tempLvOne) {
+                btnTemp.setBackgroundResource(R.drawable.ic_device_one);
+            } else if (tempLvOne < mTemp && mTemp <= tempLvTwo) {
+                btnTemp.setBackgroundResource(R.drawable.ic_device_two);
+            } else if (tempLvTwo < mTemp && mTemp <= tempLvThree) {
+                btnTemp.setBackgroundResource(R.drawable.ic_device_three);
+            } else if (tempLvThree < mTemp && mTemp <= tempLvFour) {
+                btnTemp.setBackgroundResource(R.drawable.ic_device_four);
+            } else if (tempLvFour < mTemp && mTemp <= (double) mThresholdHigh) {
+                btnTemp.setBackgroundResource(R.drawable.ic_device_five);
+            } else {
+                btnTemp.setBackgroundResource(R.drawable.ic_device_five);
+            }
+
+            // 展示硬件数据到 View
+            btnDmx.setText(String.valueOf(mDMX));
+            // 将获取到的 int 类型剩余时间转换成 String 类型显示
+            @SuppressLint("SimpleDateFormat")
+            String nowTimeStr = new SimpleDateFormat("mm:ss").format((long) mTime * 1000);
+            btnTime.setText(nowTimeStr);
+        }
+
+        /** 隐藏硬件数据 */
+        private void hideHardwareData() {
             btnTemp.setBackgroundResource(R.drawable.ic_device_temp);
             btnDmx.setText(null);
             btnTime.setText(null);
-            // 设置点击事件
-            setClickListener(null, null, null, position);
         }
 
         @OnLongClick(R.id.layout_device_list)
@@ -284,36 +333,6 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 Toast.makeText(mContext, "此设备尚未连接", Toast.LENGTH_SHORT).show();
             }
         }
-
-        private void displayHardwareData() {
-            // 根据温度阈值划分温度等级（5个等级）
-            double tempLvOne = mThresholdHigh * (0.2);
-            double tempLvTwo = mThresholdHigh * (0.4);
-            double tempLvThree = mThresholdHigh * (0.6);
-            double tempLvFour = mThresholdHigh * (0.8);
-
-            // 根据温度等级改变背景颜色
-            if (mTemp <= tempLvOne) {
-                btnTemp.setBackgroundResource(R.drawable.ic_device_one);
-            } else if (tempLvOne < mTemp && mTemp <= tempLvTwo) {
-                btnTemp.setBackgroundResource(R.drawable.ic_device_two);
-            } else if (tempLvTwo < mTemp && mTemp <= tempLvThree) {
-                btnTemp.setBackgroundResource(R.drawable.ic_device_three);
-            } else if (tempLvThree < mTemp && mTemp <= tempLvFour) {
-                btnTemp.setBackgroundResource(R.drawable.ic_device_four);
-            } else if (tempLvFour < mTemp && mTemp <= (double) mThresholdHigh) {
-                btnTemp.setBackgroundResource(R.drawable.ic_device_five);
-            } else {
-                btnTemp.setBackgroundResource(R.drawable.ic_device_five);
-            }
-
-            // 展示硬件数据到 View
-            btnDmx.setText(String.valueOf(mDMX));
-            // 将获取到的 int 类型剩余时间转换成 String 类型显示
-            @SuppressLint("SimpleDateFormat")
-            String nowTimeStr = new SimpleDateFormat("mm:ss").format((long) mTime * 1000);
-            btnTime.setText(nowTimeStr);
-        }
     }
 
     class FootViewHolder extends RecyclerView.ViewHolder {
@@ -327,18 +346,16 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             tvAdd.setText(R.string.add_device);
         }
 
-        @OnClick(R.id.img_footer_add)
-        public void onClickAddHave() {
-            Intent intent = new Intent(mContext, DeQrAddDeviceActivity.class);
-            intent.putExtra("member_id", mMemberId);
-            mContext.startActivity(intent);
-        }
-
-        @OnClick(R.id.home_null_device)
-        public void onClickAddNull() {
-            Intent intent = new Intent(mContext, DeQrAddDeviceActivity.class);
-            intent.putExtra("member_id", mMemberId);
-            mContext.startActivity(intent);
+        @OnClick({R.id.img_footer_add, R.id.home_null_device})
+        public void onClickAddDev(View view) {
+            switch (view.getId()) {
+                case R.id.img_footer_add:
+                case R.id.home_null_device:
+                    mContext.startActivity(new Intent(mContext, DeQrAddDeviceActivity.class).putExtra("member_id", mMemberId));
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
