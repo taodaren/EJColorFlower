@@ -37,9 +37,6 @@ import butterknife.OnLongClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
-import cn.eejing.ejcolorflower.device.DeviceConfig;
-import cn.eejing.ejcolorflower.device.DeviceStatus;
-import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
 import cn.eejing.ejcolorflower.model.lite.CtrlIntervalEntity;
 import cn.eejing.ejcolorflower.model.lite.CtrlRideEntity;
@@ -61,8 +58,6 @@ import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_INTERVAL;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_RIDE;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_STREAM;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
-import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_NO;
-import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_YES;
 import static cn.eejing.ejcolorflower.app.AppConstant.EMPTY;
 
 /**
@@ -83,11 +78,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     // 硬件相关
     private AppActivity.FireworkDevCtrl mDevCtrl;
-    private DeviceStatus mState;
-    private DeviceConfig mConfig;
-    private String mConnStatus, mConnDevMac;
-    private long mConnDevID;
-
     private String mConfigType;
     private long mMillis;
     private int mPostGroupId, mGap, mDirection, mDuration, mGapBig, mLoop, mFrequency, mHigh;
@@ -219,20 +209,11 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             // 数据库中查询是否保存信息
             isSavaDBInfo();
 
-            Log.i("LJQ", "setDataConn"
-                    + "\n设备 MAC: " + mConnDevMac
-                    + "\n设备 ID: " + mConnDevID
-                    + "\n设备 STATE: " + mState
-                    + "\n设备 CONFIG: " + mConfig
-                    + "\n设备 mPostGroupId: " + mPostGroupId
-                    + "\n设备 groupId: " + bean.getGroup_id()
-            );
-
             if (bean.getGroup_list() != null && bean.getGroup_list().size() > 0) {
                 // 如果有设备，显示设备，隐藏提示文字
                 tvInfo.setVisibility(View.GONE);
                 rvGroup.setVisibility(View.VISIBLE);
-                initGroupDevList(bean.getGroup_list());
+                initDevList(bean.getGroup_list());
             } else {
                 tvInfo.setVisibility(View.VISIBLE);
                 rvGroup.setVisibility(View.INVISIBLE);
@@ -603,11 +584,11 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         /** 初始化分组设备列表 */
-        private void initGroupDevList(List<String> list) {
+        private void initDevList(List<String> list) {
             LinearLayoutManager manager = new LinearLayoutManager(mContext);
             manager.setOrientation(LinearLayoutManager.HORIZONTAL);
             rvGroup.setLayoutManager(manager);
-            rvGroup.setAdapter(new GroupListAdapter(list));
+            rvGroup.setAdapter(new CoDeviceListAdapter(mContext, list));
         }
     }
 
@@ -647,68 +628,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             mDialog.show();
         }
 
-    }
-
-    public class GroupListAdapter extends RecyclerView.Adapter<GroupListAdapter.DeviceHolder> {
-        List<String> devList;
-
-        GroupListAdapter(List<String> devList) {
-            this.devList = devList;
-        }
-
-        @NonNull
-        @Override
-        public DeviceHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new DeviceHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_device, parent, false));
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull DeviceHolder holder, int position) {
-            holder.setData(position);
-        }
-
-        @Override
-        public int getItemCount() {
-            return devList.size();
-        }
-
-        public class DeviceHolder extends RecyclerView.ViewHolder {
-            @BindView(R.id.sb_device_add_list)            SuperButton sbDevice;
-
-            DeviceHolder(View itemView) {
-                super(itemView);
-                ButterKnife.bind(this, itemView);
-            }
-
-            public void setData(int position) {
-                Log.e(AppConstant.TAG, "devList: " + devList.toString());
-                sbDevice.setText(devList.get(getAdapterPosition()));
-                // TODO: 2018/6/20  未连接显示不正常
-                if (mConnStatus != null) {
-                    switch (mConnStatus) {
-                        case DEVICE_CONNECT_YES:
-                            if (devList.get(position).equals(String.valueOf(mConnDevID))) {
-                                sbDevice.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTransparent));
-                                sbDevice.setShapeStrokeColor(mContext.getResources().getColor(R.color.colorFrame));
-                                sbDevice.setUseShape();
-                            }
-                            break;
-                        case DEVICE_CONNECT_NO:
-                            sbDevice.setShapeSolidColor(mContext.getResources().getColor(R.color.colorFrame));
-                            sbDevice.setShapeStrokeColor(mContext.getResources().getColor(R.color.colorFrame));
-                            sbDevice.setUseShape();
-                            break;
-                    }
-                }
-//                    for (String devIdServer : devList) {
-//                        if (devIdServer.equals(String.valueOf(mConnDevID))) {
-//                            sbDevice.setShapeSolidColor(mContext.getResources().getColor(R.color.colorTransparent));
-//                            sbDevice.setShapeStrokeColor(mContext.getResources().getColor(R.color.colorFrame));
-//                            sbDevice.setUseShape();
-//                        }
-//                    }
-            }
-        }
     }
 
     private void getDataWithDelGroup(int position) {
@@ -776,27 +695,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                         getDataWithDeviceGroupList();
                     }
                 });
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventDevConn(DeviceConnectEvent event) {
-        // 接收硬件传过来的已连接设备信息
-        mConnDevMac = event.getMac();
-        mConnStatus = event.getInfo();
-
-        mState = event.getState();
-        mConfig = event.getConfig();
-        mConnDevID = event.getConfig().mID;
-
-        Log.i("JLTHYC", mConnStatus
-                + "\nConn Mac--->" + mConnDevMac
-                + "\nConn mConnDevID--->" + mConnDevID
-                + "\nTEMP--->" + mState.mTemperature
-                + "\nDMX--->" + mConfig.mDMXAddress
-                + "\nTIME--->" + mState.mRestTime
-        );
-
-        notifyDataSetChanged();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
