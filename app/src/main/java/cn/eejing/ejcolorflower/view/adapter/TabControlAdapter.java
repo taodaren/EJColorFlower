@@ -37,6 +37,7 @@ import butterknife.OnLongClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
+import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
 import cn.eejing.ejcolorflower.model.lite.CtrlIntervalEntity;
 import cn.eejing.ejcolorflower.model.lite.CtrlRideEntity;
@@ -73,7 +74,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private Gson mGson;
     private List<DeviceGroupListBean.DataBean> mList;
     private String mMemberId, mToken;
-    private CustomPopWindow mCustomPopWindow;
+    private CustomPopWindow mPopWindow;
     private SelfDialog mDialog;
 
     // 硬件相关
@@ -81,6 +82,10 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private String mConfigType;
     private long mMillis;
     private int mPostGroupId, mGap, mDirection, mDuration, mGapBig, mLoop, mFrequency, mHigh;
+    private String mConnStatus;
+    private long mConnDevID;
+    private int mConnDmx;
+    private List<Long> mConnDevList;
 
     public TabControlAdapter(Context mContext, List<DeviceGroupListBean.DataBean> mList, String mMemberId) {
         this.mContext = mContext;
@@ -90,6 +95,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         this.mMemberId = mMemberId;
         this.mToken = Settings.getLoginSessionInfo(mContext).getToken();
         this.mDevCtrl = AppActivity.getFireworksDevCtrl();
+        this.mConnDevList = new ArrayList<>();;
     }
 
     @NonNull
@@ -101,7 +107,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             case TYPE_FOOTER:
                 return new FootViewHolder(mLayoutInflater.inflate(R.layout.item_footer_control, parent, false));
             default:
-                Log.e(AppConstant.TAG, "onCreateViewHolder: is null");
                 return null;
         }
     }
@@ -193,17 +198,17 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             // 设置分组名称
             tvName.setText(bean.getGroup_name());
 
-            Log.i("SLN", "【Config Info】"+
+            Log.i("SLN", "【setData 喷射信息】"+
                     " group_id " + groupId +
-                    "\nmConfigType: " + mConfigType +
-                    "\nmPostGroupId: " + mPostGroupId +
-                    "\nmGap: " + mGap +
-                    "\nmDirection: " + mDirection +
-                    "\nmDuration: " + mDuration +
-                    "\nmGapBig: " + mGapBig +
-                    "\nmLoop: " + mLoop +
-                    "\nmFrequency: " + mFrequency +
-                    "\nmHigh: " + mHigh
+                    "\nConfigType: " + mConfigType +
+                    "\nPostGroupId: " + mPostGroupId +
+                    "\nGap: " + mGap +
+                    "\nDirection: " + mDirection +
+                    "\nDuration: " + mDuration +
+                    "\nGapBig: " + mGapBig +
+                    "\nLoop: " + mLoop +
+                    "\nFrequency: " + mFrequency +
+                    "\nHigh: " + mHigh
             );
 
             // 数据库中查询是否保存信息
@@ -272,18 +277,19 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             }
         }
 
-        private void compareTime(long millis, String configType) {
-            if (millis > flagMillis) {
-                flagMillis = millis;
-                strConfigType = configType;
-            }
-        }
-
         private void isEmptyConfigType(String configType) {
             if (TextUtils.isEmpty(configType)) {
                 defaultShow();
             } else {
                 sbType.setText(configType);
+            }
+        }
+
+        /** 比较时间 */
+        private void compareTime(long millis, String configType) {
+            if (millis > flagMillis) {
+                flagMillis = millis;
+                strConfigType = configType;
             }
         }
 
@@ -294,28 +300,28 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             mHigh = 100;
         }
 
-        @OnClick(R.id.tv_ctrl_group_name)
-        public void onClickRenameGroup() {
-            // 重命名组
-            renameGroup(groupId);
-        }
-
-        @OnClick(R.id.img_ctrl_group_jet)
-        public void onClickJet() {
-            // 控制喷射
-            ctrlJet();
-        }
-
-        @OnClick(R.id.sb_config_puff)
-        public void onClickConfigJetStyle() {
-            // 配置喷射样式
-            configJetStyle(groupId);
-        }
-
-        @OnClick(R.id.img_ctrl_group_add)
-        public void onClickCtrlGroup() {
-            // 控制分组设备
-            ctrlGroup();
+        @OnClick({R.id.tv_ctrl_group_name, R.id.img_ctrl_group_jet, R.id.sb_config_puff, R.id.img_ctrl_group_add})
+        public void onClickView(View view) {
+            switch (view.getId()) {
+                case R.id.tv_ctrl_group_name:
+                    // 重命名组
+                    renameGroup(groupId);
+                    break;
+                case R.id.img_ctrl_group_jet:
+                    // 控制喷射
+                    ctrlJet();
+                    break;
+                case R.id.sb_config_puff:
+                    // 配置喷射样式
+                    configJetStyle(groupId);
+                    break;
+                case R.id.img_ctrl_group_add:
+                    // 控制分组设备
+                    ctrlGroup();
+                    break;
+                default:
+                    break;
+            }
         }
 
         @OnLongClick(R.id.layout_ctrl_group_list)
@@ -376,7 +382,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             View contentView = LayoutInflater.from(mContext).inflate(R.layout.layout_pop_menu, null);
             handleLogic(contentView, groupId);
             // 创建并显示 popWindow
-            mCustomPopWindow = new CustomPopWindow.PopupWindowBuilder(mContext)
+            mPopWindow = new CustomPopWindow.PopupWindowBuilder(mContext)
                     .setView(contentView)
                     // 弹出 popWindow 时，背景是否变暗
                     .enableBackgroundDark(true)
@@ -398,8 +404,8 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             View.OnClickListener listener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mCustomPopWindow != null) {
-                        mCustomPopWindow.dissmiss();
+                    if (mPopWindow != null) {
+                        mPopWindow.dissmiss();
                     }
                     switch (v.getId()) {
                         case R.id.pop_config_stream:
@@ -427,89 +433,91 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         /** 控制喷射 */
         private void ctrlJet() {
+            int devListSize = mList.get(getAdapterPosition()).getGroup_list().size();
+
             // TODO: 2018/6/27
-//                    Log.i("JET", "onClick: ID--->" + mDevice.getId());
-            long id303 = 810303;// has
-            long id311 = 810311;// ok
-            long id316 = 810316;// has
-            final List<Long> list = new ArrayList<>();
-            list.add(id303);
-            list.add(id316);
-
-            for (int i = 0; i < list.size(); i++) {
-                Log.e("SWITCH_CTRL", "第 " + i + " 个设备");
-                Log.i("SWITCH_CTRL", "list.get(i): " + list.get(i));
-                Log.i("SWITCH_CTRL", "list.size() - i: " + (list.size() - i));
-                switch (mConfigType) {
-                    case CONFIG_STREAM:
-                        final byte[] pkgStream = BleDeviceProtocol.pkgJetStart(list.get(i),// from device
-                                mGap * i, (list.size() - i) * mDuration, mHigh);
-
-                        // 循环 loop 次
-                        for (int loop = 0; loop < mLoop; loop++) {
-                            if (loop == 0) {
-                                Log.e("SWITCH_CTRL", list.get(i) + "第" + loop + "次喷射");
-
-                                try {
-                                    // 如果是首次喷射，直接发送喷射命令
-                                    jetStart(list.get(i), pkgStream);
-                                    // 为了多台设备一起喷射，5毫秒人实际感受不到
-                                    Thread.sleep(5);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-//                                    if (loop > 0) {
-//                                        Log.e("SWITCH_CTRL", list.get(i) + "第" + loop + "次喷射");
+////                    Log.i("JET", "onClick: ID--->" + mDevice.getId());
+//            long id303 = 810303;// has
+//            long id311 = 810311;// ok
+//            long id316 = 810316;// has
+//            final List<Long> list = new ArrayList<>();
+//            list.add(id303);
+//            list.add(id316);
 //
+//            for (int i = 0; i < list.size(); i++) {
+//                Log.e("SWITCH_CTRL", "第 " + i + " 个设备");
+//                Log.i("SWITCH_CTRL", "list.get(i): " + list.get(i));
+//                Log.i("SWITCH_CTRL", "list.size() - i: " + (list.size() - i));
+//                switch (mConfigType) {
+//                    case CONFIG_STREAM:
+//                        final byte[] pkgStream = BleDeviceProtocol.pkgJetStart(list.get(i),// from device
+//                                mGap * i, (list.size() - i) * mDuration, mHigh);
 //
-//                                        try {
-//                                            Log.e("SWITCH_CTRL", list.get(i) + "第" + loop + "次喷射");
+//                        // 循环 loop 次
+//                        for (int loop = 0; loop < mLoop; loop++) {
+//                            if (loop == 0) {
+//                                Log.e("SWITCH_CTRL", list.get(i) + "第" + loop + "次喷射");
 //
-//                                            new Thread(new Runnable() {
-//                                                @Override
-//                                                public void run() {
-//                                                    try {
-//                                                        // 两次循环间隔时间
-//                                                        TimeUnit.SECONDS.sleep((long) mGapBig);
-//                                                        jetStart(list.get(i), pkgStream);
-//                                                        Thread.sleep(5);
-//                                                    } catch (InterruptedException e) {
-//                                                        e.printStackTrace();
-//                                                    }
-//                                                }
-//                                            }).start();
+//                                try {
+//                                    // 如果是首次喷射，直接发送喷射命令
+//                                    jetStart(list.get(i), pkgStream);
+//                                    // 为了多台设备一起喷射，5毫秒人实际感受不到
+//                                    Thread.sleep(5);
+//                                } catch (InterruptedException e) {
+//                                    e.printStackTrace();
+//                                }
+//                            }
 //
-//                                        } catch (InterruptedException e) {
-//                                            e.printStackTrace();
-//                                        }
-//                                    }
-                        }
-                        break;
-                    case CONFIG_RIDE:
-                        Log.i("SWITCH_CTRL", "RIDE_I: " + i);
-                        Log.i("SWITCH_CTRL", "RIDE_延时: " + (mDirection / 10 + mGap / 1000) * 1000 * i);
-                        Log.i("SWITCH_CTRL", "RIDE_喷射时间: " + mDuration);
-                        Log.i("SWITCH_CTRL", "RIDE_高度: " + mHigh);
-                        Log.i("SWITCH_CTRL", "RIDE_大间隔时间: " + mGapBig);
-                        Log.i("SWITCH_CTRL", "RIDE_循环次数: " + mLoop);
-
-                        byte[] pkgRide = BleDeviceProtocol.pkgJetStart(list.get(i),// from device
-                                (mDirection / 10 + mGap / 1000) * 1000 * i, mDuration, mHigh);
-                        break;
-                    case CONFIG_INTERVAL:
-                        // 间隔高低
-                        jetInterval(list, i);
-                        break;
-                    case CONFIG_TOGETHER:
-                        // 齐喷
-                        jetTogether(list, i);
-                        break;
-                    default:
-                        break;
-                }
-            }
+////                                    if (loop > 0) {
+////                                        Log.e("SWITCH_CTRL", list.get(i) + "第" + loop + "次喷射");
+////
+////
+////                                        try {
+////                                            Log.e("SWITCH_CTRL", list.get(i) + "第" + loop + "次喷射");
+////
+////                                            new Thread(new Runnable() {
+////                                                @Override
+////                                                public void run() {
+////                                                    try {
+////                                                        // 两次循环间隔时间
+////                                                        TimeUnit.SECONDS.sleep((long) mGapBig);
+////                                                        jetStart(list.get(i), pkgStream);
+////                                                        Thread.sleep(5);
+////                                                    } catch (InterruptedException e) {
+////                                                        e.printStackTrace();
+////                                                    }
+////                                                }
+////                                            }).start();
+////
+////                                        } catch (InterruptedException e) {
+////                                            e.printStackTrace();
+////                                        }
+////                                    }
+//                        }
+//                        break;
+//                    case CONFIG_RIDE:
+//                        Log.i("SWITCH_CTRL", "RIDE_I: " + i);
+//                        Log.i("SWITCH_CTRL", "RIDE_延时: " + (mDirection / 10 + mGap / 1000) * 1000 * i);
+//                        Log.i("SWITCH_CTRL", "RIDE_喷射时间: " + mDuration);
+//                        Log.i("SWITCH_CTRL", "RIDE_高度: " + mHigh);
+//                        Log.i("SWITCH_CTRL", "RIDE_大间隔时间: " + mGapBig);
+//                        Log.i("SWITCH_CTRL", "RIDE_循环次数: " + mLoop);
+//
+//                        byte[] pkgRide = BleDeviceProtocol.pkgJetStart(list.get(i),// from device
+//                                (mDirection / 10 + mGap / 1000) * 1000 * i, mDuration, mHigh);
+//                        break;
+//                    case CONFIG_INTERVAL:
+//                        // 间隔高低
+//                        jetInterval(list, i);
+//                        break;
+//                    case CONFIG_TOGETHER:
+//                        // 齐喷
+//                        jetTogether(list, i);
+//                        break;
+//                    default:
+//                        break;
+//                }
+//            }
         }
 
         /** 间隔高低次数判断 */
@@ -734,16 +742,43 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 break;
         }
 
-        Log.i("JET_STATUS", "mPostGroupId: " + mPostGroupId);
-        Log.i("JET_STATUS", "configType: " + mConfigType);
-        Log.i("JET_STATUS", "direction: 方向--->" + mDirection);
-        Log.i("JET_STATUS", "gap: 间隔时间--->" + mGap);
-        Log.i("JET_STATUS", "duration: 持续时间--->" + mDuration);
-        Log.i("JET_STATUS", "gapBig: 大间隔时间--->" + mGapBig);
-        Log.i("JET_STATUS", "loop: 循环次数--->" + mLoop);
-        Log.i("JET_STATUS", "frequency: 次数（换向）--->" + mFrequency);
-        Log.i("JET_STATUS", "high: 高度--->" + mHigh);
-        Log.i("JET_STATUS", "millis: 时间戳--->" + mMillis);
+        Log.i("JET_STATUS", "【配置界面返回喷射信息】" +
+                "\npostGroupId: " + mPostGroupId +
+                "\nconfigType: " + mConfigType +
+                "\ndirection: 方向: " + mDirection +
+                "\ngap: 间隔时间: " + mGap +
+                "\nduration: 持续时间: " + mDuration +
+                "\ngapBig: 大间隔时间: " + mGapBig +
+                "\nloop: 循环次数: " + mLoop +
+                "\nfrequency: 次数（换向）: " + mFrequency +
+                "\nhigh: 高度: " + mHigh +
+                "\nmillis: 时间戳: " + mMillis
+        );
+    }
+
+    /** 硬件传递连接设备信息 */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventDevConn(DeviceConnectEvent event) {
+        mConnStatus = event.getInfo();
+        mConnDmx = event.getConfig().mDMXAddress;
+        mConnDevID = event.getConfig().mID;
+
+        Log.i("JLTHYC", "Dev Conn size: " + mConnDevList.size());
+        if (mConnDevList.size() == 0) {
+            mConnDevList.add(mConnDevID);
+        } else {
+            for (int i=0;i<mConnDevList.size();i++) {
+                if (mConnDevList.get(i) != mConnDevID) {
+                    mConnDevList.add(mConnDevID);
+                }
+            }
+        }
+        Log.i("JLTHYC", "Dev have size: " + mConnDevList.size());
+
+        Log.i("JLTHYC", mConnStatus
+                + "\nConn mConnDevID--->" + mConnDevID
+                + "\nConn mConnDmx--->" + mConnDmx
+        );
     }
 
     private void initStatus() {
