@@ -165,6 +165,7 @@ public class TabDeviceFragment extends BaseFragment {
         rvTabDevice.setLinearLayout();
         // 绑定适配器
         mAdapter = new TabDeviceAdapter(getContext(), mList, mMemberId, mToken);
+        mAdapter.setHasStableIds(true);
         rvTabDevice.setAdapter(mAdapter);
 
         // 不需要上拉刷新
