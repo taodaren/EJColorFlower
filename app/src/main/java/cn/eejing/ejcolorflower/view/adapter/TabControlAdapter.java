@@ -28,15 +28,19 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.litepal.LitePal;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnLongClick;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
+import cn.eejing.ejcolorflower.model.event.ConnDevInfo;
 import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
 import cn.eejing.ejcolorflower.model.lite.CtrlIntervalEntity;
@@ -46,6 +50,7 @@ import cn.eejing.ejcolorflower.model.lite.CtrlTogetherEntity;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.JetStyleUtils;
 import cn.eejing.ejcolorflower.util.SelfDialog;
 import cn.eejing.ejcolorflower.util.Settings;
 import cn.eejing.ejcolorflower.view.activity.AppActivity;
@@ -59,6 +64,10 @@ import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_INTERVAL;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_RIDE;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_STREAM;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_TOGETHER_DURATION;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_TOGETHER_HIGH;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_NO;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_YES;
 import static cn.eejing.ejcolorflower.app.AppConstant.EMPTY;
 
 /**
@@ -78,14 +87,14 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private SelfDialog mDialog;
 
     // 硬件相关
-    private AppActivity.FireworkDevCtrl mDevCtrl;
     private String mConfigType;
     private long mMillis;
     private int mPostGroupId, mGap, mDirection, mDuration, mGapBig, mLoop, mFrequency, mHigh;
     private String mConnStatus;
     private long mConnDevID;
     private int mConnDmx;
-    private List<Long> mConnDevList;
+    private Map<Long, ConnDevInfo> mConnDevMap;
+    private List<ConnDevInfo> mConnDevList;
 
     public TabControlAdapter(Context mContext, List<DeviceGroupListBean.DataBean> mList, String mMemberId) {
         this.mContext = mContext;
@@ -94,8 +103,8 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         this.mGson = new Gson();
         this.mMemberId = mMemberId;
         this.mToken = Settings.getLoginSessionInfo(mContext).getToken();
-        this.mDevCtrl = AppActivity.getFireworksDevCtrl();
-        this.mConnDevList = new ArrayList<>();;
+        this.mConnDevMap = new HashMap();
+        this.mConnDevList = new ArrayList<>();
     }
 
     @NonNull
@@ -296,8 +305,9 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         private void defaultShow() {
             // 显示默认数据（齐喷、10s、高度100）
             sbType.setText(CONFIG_TOGETHER);
-            mDuration = 100;
-            mHigh = 100;
+            mConfigType = CONFIG_TOGETHER;
+            mDuration = Integer.parseInt(DEFAULT_TOGETHER_DURATION);
+            mHigh = Integer.parseInt(DEFAULT_TOGETHER_HIGH);
         }
 
         @OnClick({R.id.tv_ctrl_group_name, R.id.img_ctrl_group_jet, R.id.sb_config_puff, R.id.img_ctrl_group_add})
@@ -433,160 +443,53 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         /** 控制喷射 */
         private void ctrlJet() {
-            int devListSize = mList.get(getAdapterPosition()).getGroup_list().size();
+            getConnDevList();
 
-            // TODO: 2018/6/27
-////                    Log.i("JET", "onClick: ID--->" + mDevice.getId());
-//            long id303 = 810303;// has
-//            long id311 = 810311;// ok
-//            long id316 = 810316;// has
-//            final List<Long> list = new ArrayList<>();
-//            list.add(id303);
-//            list.add(id316);
-//
-//            for (int i = 0; i < list.size(); i++) {
-//                Log.e("SWITCH_CTRL", "第 " + i + " 个设备");
-//                Log.i("SWITCH_CTRL", "list.get(i): " + list.get(i));
-//                Log.i("SWITCH_CTRL", "list.size() - i: " + (list.size() - i));
-//                switch (mConfigType) {
-//                    case CONFIG_STREAM:
-//                        final byte[] pkgStream = BleDeviceProtocol.pkgJetStart(list.get(i),// from device
-//                                mGap * i, (list.size() - i) * mDuration, mHigh);
-//
-//                        // 循环 loop 次
-//                        for (int loop = 0; loop < mLoop; loop++) {
-//                            if (loop == 0) {
-//                                Log.e("SWITCH_CTRL", list.get(i) + "第" + loop + "次喷射");
-//
-//                                try {
-//                                    // 如果是首次喷射，直接发送喷射命令
-//                                    jetStart(list.get(i), pkgStream);
-//                                    // 为了多台设备一起喷射，5毫秒人实际感受不到
-//                                    Thread.sleep(5);
-//                                } catch (InterruptedException e) {
-//                                    e.printStackTrace();
-//                                }
-//                            }
-//
-////                                    if (loop > 0) {
-////                                        Log.e("SWITCH_CTRL", list.get(i) + "第" + loop + "次喷射");
-////
-////
-////                                        try {
-////                                            Log.e("SWITCH_CTRL", list.get(i) + "第" + loop + "次喷射");
-////
-////                                            new Thread(new Runnable() {
-////                                                @Override
-////                                                public void run() {
-////                                                    try {
-////                                                        // 两次循环间隔时间
-////                                                        TimeUnit.SECONDS.sleep((long) mGapBig);
-////                                                        jetStart(list.get(i), pkgStream);
-////                                                        Thread.sleep(5);
-////                                                    } catch (InterruptedException e) {
-////                                                        e.printStackTrace();
-////                                                    }
-////                                                }
-////                                            }).start();
-////
-////                                        } catch (InterruptedException e) {
-////                                            e.printStackTrace();
-////                                        }
-////                                    }
-//                        }
-//                        break;
-//                    case CONFIG_RIDE:
-//                        Log.i("SWITCH_CTRL", "RIDE_I: " + i);
-//                        Log.i("SWITCH_CTRL", "RIDE_延时: " + (mDirection / 10 + mGap / 1000) * 1000 * i);
-//                        Log.i("SWITCH_CTRL", "RIDE_喷射时间: " + mDuration);
-//                        Log.i("SWITCH_CTRL", "RIDE_高度: " + mHigh);
-//                        Log.i("SWITCH_CTRL", "RIDE_大间隔时间: " + mGapBig);
-//                        Log.i("SWITCH_CTRL", "RIDE_循环次数: " + mLoop);
-//
-//                        byte[] pkgRide = BleDeviceProtocol.pkgJetStart(list.get(i),// from device
-//                                (mDirection / 10 + mGap / 1000) * 1000 * i, mDuration, mHigh);
-//                        break;
-//                    case CONFIG_INTERVAL:
-//                        // 间隔高低
-//                        jetInterval(list, i);
-//                        break;
-//                    case CONFIG_TOGETHER:
-//                        // 齐喷
-//                        jetTogether(list, i);
-//                        break;
-//                    default:
-//                        break;
-//                }
-//            }
-        }
-
-        /** 间隔高低次数判断 */
-        private void frequencyInterval(List<Long> list, int i, byte[] pkgInterval) {
-            if (mFrequency == 0) {
-                try {
-                    jetStart(list.get(i), pkgInterval);
-                    Thread.sleep(5);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+            for (int devLocation = 0; devLocation < mConnDevList.size(); devLocation++) {
+                Log.i("SYSO", "ctrlJet dmx: " + mConnDevList.get(devLocation).getDmx());
+                Log.i("SWITCH_CTRL", "mConfigType: " + mConfigType);
+                switch (mConfigType) {
+                    case CONFIG_STREAM:
+                        // 流水灯
+                        JetStyleUtils.jetStream(mConnDevList.get(devLocation).getDevID(), devLocation, mDirection, mGap, mDuration, mGapBig, mLoop, mHigh, mConnDevList.size());
+                        break;
+                    case CONFIG_RIDE:
+                        // 跑马灯
+                        JetStyleUtils.jetRide(mConnDevList.get(devLocation).getDevID(), devLocation, mDirection, mGap, mDuration, mGapBig, mLoop, mHigh);
+                        break;
+                    case CONFIG_INTERVAL:
+                        // 间隔高低
+                        JetStyleUtils.jetInterval(mConnDevList.get(devLocation).getDevID(), devLocation, mDuration, mFrequency, mHigh);
+                        break;
+                    case CONFIG_TOGETHER:
+                        // 齐喷
+                        JetStyleUtils.jetTogether(mConnDevList.get(devLocation).getDevID(), mGap, mDuration, mHigh);
+                        break;
+                    default:
+                        break;
                 }
             }
-            if (mFrequency > 0) {
-
-            }
         }
 
-        /** 喷射—间隔 */
-        private void jetInterval(List<Long> list, int i) {
-            byte[] pkgInterval;
-            try {
-                if (i % 2 == 0) {
-                    // 如果设备是第偶数个，高度100
-                    pkgInterval = BleDeviceProtocol.pkgJetStart(list.get(i),// from device
-                            0, mDuration, mHigh);
-                    frequencyInterval(list, i, pkgInterval);
-                    Thread.sleep(1);
+        /** 获取已连接设备集合，并按 DMX 顺序进行排序 */
+        private void getConnDevList() {
+            mConnDevList.clear();
+            for (int i = 0; i < mList.get(getAdapterPosition()).getGroup_list().size(); i++) {
+                String dev = mList.get(getAdapterPosition()).getGroup_list().get(i);
+                for (Map.Entry<Long, ConnDevInfo> entry : mConnDevMap.entrySet()) {
+                    if (entry.getKey() == Long.parseLong(dev)) {
+                        // 如果服务器的设备与蓝牙连接成功的设备一致，添加到集合
+                        mConnDevList.add(new ConnDevInfo(entry.getValue().getDevID(), entry.getValue().getDmx()));
+                    }
                 }
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
 
-            if (i % 2 == 1) {
-                // 如果设备是第奇数个，高度60
-                pkgInterval = BleDeviceProtocol.pkgJetStart(list.get(i),// from device
-                        0, mDuration, 60);
-                frequencyInterval(list, i, pkgInterval);
-            }
-        }
-
-        /** 喷射—齐喷 */
-        private void jetTogether(List<Long> list, int i) {
-            Log.i("SWITCH_CTRL", "TOGETHER_喷射时间: " + mDuration);
-            Log.i("SWITCH_CTRL", "TOGETHER_高度: " + mHigh);
-
-            byte[] pkgTogether = BleDeviceProtocol.pkgJetStart(list.get(i),// from device
-                    mGap, mDuration, mHigh);
-            try {
-                jetStart(list.get(i), pkgTogether);
-                Thread.sleep(5);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        /** 开始喷射 */
-        private void jetStart(long deviceId, byte[] pkg) {
-            mDevCtrl.sendCommand(deviceId, pkg, new OnReceivePackage() {
+            // 对连接的设备进行排序
+            Collections.sort(mConnDevList, new Comparator<ConnDevInfo>() {
                 @Override
-                public void ack(@NonNull byte[] pkg) {
-                    Log.i("JET", "喷射ACK--->" + pkg.length + "===" + pkg);
-                    int jet = BleDeviceProtocol.parseStartJet(pkg, pkg.length);
-                    Log.i("JET", "喷射解析--->" + jet);
-                }
-
-                @Override
-                public void timeout() {
-                    Log.i("JET", "解析超时");
+                public int compare(ConnDevInfo o1, ConnDevInfo o2) {
+                    // 按照 DMX 进行升序排列
+                    return Integer.compare(o1.getDmx(), o2.getDmx());
                 }
             });
         }
@@ -763,22 +666,16 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         mConnDmx = event.getConfig().mDMXAddress;
         mConnDevID = event.getConfig().mID;
 
-        Log.i("JLTHYC", "Dev Conn size: " + mConnDevList.size());
-        if (mConnDevList.size() == 0) {
-            mConnDevList.add(mConnDevID);
-        } else {
-            for (int i=0;i<mConnDevList.size();i++) {
-                if (mConnDevList.get(i) != mConnDevID) {
-                    mConnDevList.add(mConnDevID);
-                }
-            }
+        switch (mConnStatus) {
+            case DEVICE_CONNECT_YES:
+                mConnDevMap.put(mConnDevID, new ConnDevInfo(mConnDevID, mConnDmx));
+                break;
+            case DEVICE_CONNECT_NO:
+                mConnDevMap.remove(mConnDevID);
+                break;
+            default:
+                break;
         }
-        Log.i("JLTHYC", "Dev have size: " + mConnDevList.size());
-
-        Log.i("JLTHYC", mConnStatus
-                + "\nConn mConnDevID--->" + mConnDevID
-                + "\nConn mConnDmx--->" + mConnDmx
-        );
     }
 
     private void initStatus() {
