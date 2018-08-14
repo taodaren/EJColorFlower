@@ -445,29 +445,26 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         private void ctrlJet() {
             getConnDevList();
 
-            JetStyleUtils.jetI();
-
-//            switch (mConfigType) {
-//                case CONFIG_STREAM:
-//                    // 流水灯
-////                        JetStyleUtils.jetStream(mConnDevList.get(devLocation).getDevID(), devLocation, mDirection, mGap, mDuration, mGapBig, mLoop, mHigh, mConnDevList.size());
-//                    break;
-//                case CONFIG_RIDE:
-//                    // 跑马灯
-////                        JetStyleUtils.jetRide(mConnDevList.get(devLocation).getDevID(), devLocation, mDirection, mGap, mDuration, mGapBig, mLoop, mHigh);
-//                    break;
-//                case CONFIG_INTERVAL:
-//                    // 间隔高低
-////                        JetStyleUtils.jetInterval(mConnDevList.get(devLocation).getDevID(), devLocation, mGap, mDuration, mFrequency);
-//                        JetStyleUtils.jetInt(mConnDevList, mGap, mDuration, mFrequency);
-//                    break;
-//                case CONFIG_TOGETHER:
-//                    // 齐喷
-//                    JetStyleUtils.jetTogether(mConnDevList, mGap, mDuration, mHigh);
-//                    break;
-//                default:
-//                    break;
-//            }
+            switch (mConfigType) {
+                case CONFIG_STREAM:
+                    // 流水灯
+//                        JetStyleUtils.jetStream(mConnDevList.get(devLocation).getDevID(), devLocation, mDirection, mGap, mDuration, mGapBig, mLoop, mHigh, mConnDevList.size());
+                    break;
+                case CONFIG_RIDE:
+                    // 跑马灯
+//                        JetStyleUtils.jetRide(mConnDevList.get(devLocation).getDevID(), devLocation, mDirection, mGap, mDuration, mGapBig, mLoop, mHigh);
+                    break;
+                case CONFIG_INTERVAL:
+                    // 间隔高低
+                    JetStyleUtils.jetInterval(mConnDevList, mGap, mDuration, mFrequency);
+                    break;
+                case CONFIG_TOGETHER:
+                    // 齐喷
+                    JetStyleUtils.jetTogether(mConnDevList, mGap, mDuration, mHigh);
+                    break;
+                default:
+                    break;
+            }
         }
 
         /** 获取已连接设备集合，并按 DMX 顺序进行排序 */

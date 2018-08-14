@@ -335,11 +335,11 @@ public class BleDeviceProtocol {
 
     /** 开始喷射 */
     @NonNull
-    public static byte[] pkgJetStart(long devId, int delay, int duration, int high) {
+    public static byte[] pkgJetStart(long devId, int gap, int duration, int high) {
         byte[] data = new byte[5];
 
-        data[0] = (byte) (delay & 0xff);
-        data[1] = (byte) ((delay >> 8) & 0xff);
+        data[0] = (byte) (gap & 0xff);
+        data[1] = (byte) ((gap >> 8) & 0xff);
 
         data[2] = (byte) (duration & 0xff);
         data[3] = (byte) ((duration >> 8) & 0xff);
@@ -563,7 +563,7 @@ public class BleDeviceProtocol {
         }
     }
 
-    /** 解析开始喷射 */
+    /** 解析喷射 */
     public static int parseStartJet(byte[] pkg, int pkgLen) {
         BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {

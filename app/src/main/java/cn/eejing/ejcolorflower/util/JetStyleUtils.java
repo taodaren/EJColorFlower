@@ -1,11 +1,12 @@
 package cn.eejing.ejcolorflower.util;
 
+import android.annotation.SuppressLint;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Handler;
-import java.util.logging.LogRecord;
 
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.model.event.ConnDevInfo;
@@ -17,6 +18,42 @@ import cn.eejing.ejcolorflower.view.activity.AppActivity;
 
 public class JetStyleUtils {
     private static AppActivity.FireworkDevCtrl mDevCtrl = AppActivity.getFireworksDevCtrl();
+//    private static Handler mHandler = new Handler();
+
+    private static int mLoopId, mFrequency;
+    private static int mFirstDelay, mOtherDelay;
+    @SuppressLint("HandlerLeak")
+    private static Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 1:
+                    if (mLoopId == 0) {
+                        Log.e("TTTTTT", "第 " + (mLoopId + 1) + " 轮喷射，延时 " + mFirstDelay + " 秒");
+                    } else {
+                        Log.e("TTTTTT", "第 " + (mLoopId + 1) + " 轮喷射，延时 " + mOtherDelay + " 秒");
+                    }
+                    mLoopId++;
+                    mHandler.sendEmptyMessage(2);
+                    break;
+                case 2:
+                    if (mLoopId < mFrequency) {
+                        if (mLoopId == 0) {
+                            Log.e("TTTTTT", "第 " + (mLoopId + 1) + " 轮喷射，延时 " + 0 + " 秒");
+                            mHandler.sendEmptyMessageDelayed(1, mFirstDelay * 1000);
+                        } else {
+                            mHandler.sendEmptyMessageDelayed(1, mOtherDelay * 1000);
+                        }
+                    } else {
+                        mHandler.removeMessages(1);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
     /**
      * 流水灯
@@ -70,150 +107,147 @@ public class JetStyleUtils {
     /**
      * 间隔高低
      */
-    public static void jetInterval(long devID, int devLocation, int gap, int duration, int frequency) {
-        for (int loopId = 0; loopId < frequency; loopId++) {
-            if (loopId == 0) {
-                // 如果 loopId 为 0 ，证明是第一次，间隔时间无效，直接喷射
-                switch (devLocation % 2) {
+    public static void jetInterval(List<ConnDevInfo> devList, int gap, int duration, int frequency) {
+        // 如果次数为 1 次，不换方向，喷一轮
+        if (frequency == 0) {
+            onlyOneInterval(devList, duration);
+        } else {
+            mLoopId = 0;
+            // 首轮延迟时间（单位：秒）
+            mFirstDelay = duration / 10;
+            // 其它轮延迟时间（单位：秒）
+            mOtherDelay = mFirstDelay + gap / 1000;
+            // 喷射次数
+            mFrequency = frequency;
+            mHandler.sendEmptyMessage(2);
+        }
+
+//        for (int loopId = 0; loopId < frequency; loopId++) {
+////            final int delayTime;
+////            // 首轮喷射时间
+////            int firstJetTime = duration / 10;
+////            // 其它轮喷射时间
+////            int otherJetTime = (duration / 10 + gap / 1000) + duration / 10;
+////            switch (loopId) {
+////                case 0:
+////                    // 首轮喷射，延时 0 秒
+////                    delayTime = 0;
+////                    break;
+////                default:
+////                    // 第一轮喷射开始，延时 [首轮时间 + 其它轮时间 * (次数 - 1)] 秒
+////                    delayTime = firstJetTime + otherJetTime * (loopId - 1);
+////                    break;
+////            }
+////
+////            final int finalLoopId = loopId;
+////            mHandler.postDelayed(new Runnable() {
+////                @Override
+////                public void run() {
+////                    Log.e("ljmsx", "第 " + (finalLoopId + 1) + " 轮喷射，延时 " + delayTime + " 秒");
+////                }
+////            }, delayTime * 1000);
+//
+//            // 第 1 轮喷射
+//            if (loopId == 0) {
+//                for (int devLoc = 0; devLoc < devList.size(); devLoc++) {
+////                    try {
+////                        switch (devLoc % 2) {
+////                            case 0:
+////                                // 第偶数个设备
+////                                printLog(devList.get(devLoc).getDevID(), loopId, devLoc, 0, duration, 100);
+////                                jetStart(devList.get(devLoc).getDevID(), BleDeviceProtocol.pkgJetStart(devList.get(devLoc).getDevID(), 0, duration, 100));
+////                                Thread.sleep(5);
+////                                break;
+////                            case 1:
+////                                printLog(devList.get(devLoc).getDevID(), loopId, devLoc, 0, duration, 40);
+////                                jetStart(devList.get(devLoc).getDevID(), BleDeviceProtocol.pkgJetStart(devList.get(devLoc).getDevID(), 0, duration, 40));
+////                                Thread.sleep(5);
+////                                // 第奇数个设备
+////                                break;
+////                        }
+////                    } catch (InterruptedException e) {
+////                        e.printStackTrace();
+////                    }
+//                }
+//            }
+//            // 第 n 轮喷射
+//            if (loopId > 0) {
+////                switch (loopId % 2) {
+////                    case 0:
+////                        // 第偶数次喷射
+////                        for (int devLoc = 0; devLoc < devList.size(); devLoc++) {
+////                            try {
+////                                switch (devLoc % 2) {
+////                                    case 0:
+////                                        // 第偶数个设备
+////                                        printLog(devList.get(devLoc).getDevID(), loopId, devLoc, gap, duration, 100);
+////                                        jetStart(devList.get(devLoc).getDevID(), BleDeviceProtocol.pkgJetStart(devList.get(devLoc).getDevID(), gap, duration, 100));
+////                                        Thread.sleep(5);
+////                                        break;
+////                                    case 1:
+////                                        // 第奇数个设备
+////                                        printLog(devList.get(devLoc).getDevID(), loopId, devLoc, gap, duration, 40);
+////                                        jetStart(devList.get(devLoc).getDevID(), BleDeviceProtocol.pkgJetStart(devList.get(devLoc).getDevID(), gap, duration, 40));
+////                                        Thread.sleep(5);
+////                                        break;
+////                                }
+////                            } catch (InterruptedException e) {
+////                                e.printStackTrace();
+////                            }
+////                        }
+////                        break;
+////                    case 1:
+////                        // 第奇数次喷射
+////                        for (int devLoc = 0; devLoc < devList.size(); devLoc++) {
+////                            try {
+////                                switch (devLoc % 2) {
+////                                    case 0:
+////                                        // 第偶数个设备
+////                                        printLog(devList.get(devLoc).getDevID(), loopId, devLoc, gap, duration, 40);
+////                                        jetStart(devList.get(devLoc).getDevID(), BleDeviceProtocol.pkgJetStart(devList.get(devLoc).getDevID(), gap, duration, 40));
+////                                        Thread.sleep(5);
+////                                        break;
+////                                    case 1:
+////                                        printLog(devList.get(devLoc).getDevID(), loopId, devLoc, gap, duration, 100);
+////                                        jetStart(devList.get(devLoc).getDevID(), BleDeviceProtocol.pkgJetStart(devList.get(devLoc).getDevID(), gap, duration, 100));
+////                                        Thread.sleep(5);
+////                                        // 第奇数个设备
+////                                        break;
+////                                }
+////                            } catch (InterruptedException e) {
+////                                e.printStackTrace();
+////                            }
+////                        }
+////                        break;
+////                }
+//            }
+//        }
+    }
+
+    private static void onlyOneInterval(List<ConnDevInfo> devList, int duration) {
+        for (int devLoc = 0; devLoc < devList.size(); devLoc++) {
+            try {
+                switch (devLoc % 2) {
                     case 0:
-                        // 如果设备是第偶数个，高度 100
-//                        jetStart(devID, BleDeviceProtocol.pkgJetStart(devID, gap, duration, 100));
-                        intervalLog(devID, loopId, devLocation, 0, duration, 100);
+                        // 第偶数个设备
+                        printLog(devList.get(devLoc).getDevID(), 0, devLoc, 0, duration, 100);
+                        jetStart(devList.get(devLoc).getDevID(), BleDeviceProtocol.pkgJetStart(devList.get(devLoc).getDevID(), 0, duration, 100));
+                        Thread.sleep(5);
                         break;
                     case 1:
-                        // 如果设备是第奇数个，高度 60
-//                        jetStart(devID, BleDeviceProtocol.pkgJetStart(devID, gap, duration, 60));
-                        intervalLog(devID, loopId, devLocation, 0, duration, 60);
+                        printLog(devList.get(devLoc).getDevID(), 0, devLoc, 0, duration, 40);
+                        jetStart(devList.get(devLoc).getDevID(), BleDeviceProtocol.pkgJetStart(devList.get(devLoc).getDevID(), 0, duration, 40));
+                        Thread.sleep(5);
+                        // 第奇数个设备
                         break;
                 }
-            }
-            if (loopId > 0) {
-                // 否则大于 0 ，证明不是第一次，间隔时间生效，带延迟喷射
-                if (loopId % 2 == 0) {
-                    // 如果是第偶数次喷射
-                    switch (devLocation % 2) {
-                        case 0:
-                            // 如果设备是第偶数个，高度 100
-//                        intervalJetEven(devID, gap, duration, 100);
-                            intervalLog(devID, loopId, devLocation, gap, duration, 100);
-                            break;
-                        case 1:
-                            // 如果设备是第奇数个，高度 60
-//                        intervalJetOdd(devID, gap, duration, 60);
-                            intervalLog(devID, loopId, devLocation, gap, duration, 60);
-                            break;
-                    }
-                } else if (loopId % 2 == 1) {
-                    // 如果是第奇数次喷射
-                    switch (devLocation % 2) {
-                        case 0:
-                            // 如果设备是第偶数个，高度 60
-//                        intervalJetEven(devID, gap, duration, 60);
-                            intervalLog(devID, loopId, devLocation, gap, duration, 60);
-                            break;
-                        case 1:
-                            // 如果设备是第奇数个，高度 100
-//                        intervalJetOdd(devID, gap, duration, 100);
-                            intervalLog(devID, loopId, devLocation, gap, duration, 100);
-                            break;
-                    }
-                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
 
-    public static void jetInt(List<ConnDevInfo> devList, int gap, int duration, int frequency) {
-        for (int devLoc = 0; devLoc < devList.size(); devLoc++) {
-            switch (devLoc % 2) {
-                case 0:
-                    // 第偶数个设备
-                    for (int loopId = 0; loopId < frequency; loopId++) {
-                        if (loopId == 0) {
-                            // 第 1 次喷射
-                            intervalLog(devList.get(devLoc).getDevID(), loopId, devLoc, 0, duration, 100);
-                        }
-                        if (loopId > 0) {
-                            // 第 n 次喷射
-                            switch (loopId % 2) {
-                                case 0:
-                                    // 第偶数次喷射
-                                    intervalLog(devList.get(devLoc).getDevID(), loopId, devLoc, gap, duration, 100);
-                                    break;
-                                case 1:
-                                    // 第奇数次喷射
-                                    intervalLog(devList.get(devLoc).getDevID(), loopId, devLoc, gap, duration, 60);
-                                    break;
-                            }
-                        }
-                    }
-                    break;
-                case 1:
-                    // 第奇数个设备
-                    for (int loopId = 0; loopId < frequency; loopId++) {
-                        if (loopId == 0) {
-                            // 第 1 次喷射
-                            intervalLog(devList.get(devLoc).getDevID(), loopId, devLoc, 0, duration, 60);
-                        }
-                        if (loopId > 0) {
-                            // 第 n 次喷射
-                            switch (loopId % 2) {
-                                case 0:
-                                    // 第偶数次喷射
-                                    intervalLog(devList.get(devLoc).getDevID(), loopId, devLoc, gap, duration, 60);
-                                    break;
-                                case 1:
-                                    // 第奇数次喷射
-                                    intervalLog(devList.get(devLoc).getDevID(), loopId, devLoc, gap, duration, 100);
-                                    break;
-                            }
-                        }
-                    }
-                    break;
-            }
-        }
-    }
-
-    public static void jetI() {
-        try {
-            jetStart(810361, BleDeviceProtocol.pkgJetStart(810361, 0, 20, 60));
-            Thread.sleep(25);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        jetStart(810360, BleDeviceProtocol.pkgJetStart(810360, 2000, 20, 100));
-
-    }
-
-    /**
-     * 间隔高低偶数次喷射
-     */
-    private static void intervalJetEven(long devID, int gap, int duration, int high) {
-        try {
-            jetStart(devID, BleDeviceProtocol.pkgJetStart(devID, gap, duration, high));
-            Thread.sleep(5);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 间隔高低奇数次喷射
-     */
-    private static void intervalJetOdd(long devID, int gap, int duration, int high) {
-        jetStart(devID, BleDeviceProtocol.pkgJetStart(devID, gap, duration, high));
-    }
-
-    private static void intervalLog(long devID, int loopId, int devLocation, int gap, int duration, int high) {
-        try {
-            Log.i("TTJET", devID + "第 " + (loopId + 1) + " 次喷射" +
-                    "\n第 " + (devLocation + 1) + " 台设备喷射 " + duration / 10 + " 秒、间隔 " + gap / 1000 + " 秒、高度 " + high
-            );
-            jetStart(devID, BleDeviceProtocol.pkgJetStart(devID, gap, duration, high));
-
-            Thread.sleep(5);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    private static void manyInterval() {
     }
 
     /**
@@ -236,5 +270,11 @@ public class JetStyleUtils {
      */
     private static void jetStart(long deviceId, byte[] pkg) {
         mDevCtrl.sendCommand(deviceId, pkg);
+    }
+
+    private static void printLog(long devID, int loopId, int devLocation, int gap, int duration, int high) {
+        Log.i("TTJET", devID + "第 " + (loopId + 1) + " 次喷射" +
+                "\n第 " + (devLocation + 1) + " 台设备喷射 " + duration / 10 + " 秒、间隔 " + gap / 1000 + " 秒、高度 " + high
+        );
     }
 }
