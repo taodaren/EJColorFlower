@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
@@ -39,7 +40,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnLongClick;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.model.event.ConnDevInfo;
 import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
@@ -48,12 +48,10 @@ import cn.eejing.ejcolorflower.model.lite.CtrlRideEntity;
 import cn.eejing.ejcolorflower.model.lite.CtrlStreamEntity;
 import cn.eejing.ejcolorflower.model.lite.CtrlTogetherEntity;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
-import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.JetStyleUtils;
 import cn.eejing.ejcolorflower.util.SelfDialog;
 import cn.eejing.ejcolorflower.util.Settings;
-import cn.eejing.ejcolorflower.view.activity.AppActivity;
 import cn.eejing.ejcolorflower.view.activity.CoConfigIntervalActivity;
 import cn.eejing.ejcolorflower.view.activity.CoConfigRideActivity;
 import cn.eejing.ejcolorflower.view.activity.CoConfigStreamActivity;
@@ -95,6 +93,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private int mConnDmx;
     private Map<Long, ConnDevInfo> mConnDevMap;
     private List<ConnDevInfo> mConnDevList;
+    private boolean mIsStarStream, mIsStarRide, mIsStarInterval, mIsStarTogether;
 
     public TabControlAdapter(Context mContext, List<DeviceGroupListBean.DataBean> mList, String mMemberId) {
         this.mContext = mContext;
@@ -180,6 +179,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         @BindView(R.id.tv_ctrl_group_info)        TextView tvInfo;
         @BindView(R.id.sb_type_puff)              SuperButton sbType;
         @BindView(R.id.sb_config_puff)            SuperButton sbConfig;
+        @BindView(R.id.img_ctrl_group_jet)        ImageView imgJet;
 
         // 服务器分组名称、ID
         String groupName;
@@ -460,7 +460,14 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     break;
                 case CONFIG_TOGETHER:
                     // 齐喷
-                    JetStyleUtils.jetTogether(mConnDevList, mGap, mDuration, mHigh);
+                    if (mIsStarTogether) {
+                        mIsStarTogether = false;
+                        imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_stop));
+                    } else {
+                        mIsStarTogether = true;
+                        imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_star));
+                    }
+                    JetStyleUtils.jetTogether(mConnDevList, mGap, mDuration, mHigh, mIsStarTogether);
                     break;
                 default:
                     break;
