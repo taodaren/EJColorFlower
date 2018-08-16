@@ -5,11 +5,14 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import org.litepal.LitePal;
+
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.model.event.ConnDevInfo;
+import cn.eejing.ejcolorflower.model.lite.JetStartStopEntity;
 import cn.eejing.ejcolorflower.view.activity.AppActivity;
 
 /**
@@ -22,8 +25,8 @@ public class JetStyleUtils {
     private static AppActivity.FireworkDevCtrl mDevCtrl = AppActivity.getFireworksDevCtrl();
 
     private static List<ConnDevInfo> mDevList;
+    private static int mGroupId;
     private static int mLoopId, mGap, mDuration, mFrequency, mHigh;
-    private static boolean mIsStarStream, mIsStarRide, mIsStarInterval, mIsStarTogether;
 
     @SuppressLint("HandlerLeak")
     private static Handler mHandler = new Handler() {
@@ -40,14 +43,31 @@ public class JetStyleUtils {
                     break;
                 case WHAT_TOGETHER:
                     for (ConnDevInfo bean : mDevList) {
-                        if (mIsStarTogether) {
-                            jetStop(bean.getDevID(), BleDeviceProtocol.pkgJetStop(bean.getDevID()));
-                            sleepFive();
-                        } else {
-                            jetStart(bean.getDevID(), BleDeviceProtocol.pkgJetStart(bean.getDevID(), mGap, mDuration, mHigh));
-                            sleepFive();
+                        List<JetStartStopEntity> groupIdList = LitePal
+                                .where("groupId=?", String.valueOf(mGroupId))
+                                .find(JetStartStopEntity.class);
+
+//                        Log.i("mhhm", mGroupId + " isStar: " + groupIdList.get(0).getStatus());
+
+                        switch (groupIdList.get(0).getStatus()) {
+                            case "star":
+                                jetStart(bean.getDevID(), BleDeviceProtocol.pkgJetStart(bean.getDevID(), mGap, mDuration, mHigh));
+                                sleepFive();
+                                break;
+                            case "stop":
+                                jetStop(bean.getDevID(), BleDeviceProtocol.pkgJetStop(bean.getDevID()));
+                                sleepFive();
+                                break;
+                            default:
+                                break;
                         }
                     }
+
+                    // 分组喷射完成状态停止
+                    JetStartStopEntity entity = new JetStartStopEntity();
+                    entity.setGroupId(mGroupId);
+                    entity.setStatus("stop");
+                    entity.updateAll("groupId=?", String.valueOf(mGroupId));
                     break;
                 default:
                     break;
@@ -237,8 +257,8 @@ public class JetStyleUtils {
     /**
      * 齐喷
      */
-    public static void jetTogether(List<ConnDevInfo> devList, int gap, int duration, int high, boolean isStarTogether) {
-        mIsStarTogether = isStarTogether;
+    public static void jetTogether(List<ConnDevInfo> devList, int gap, int duration, int high, int groupId) {
+        mGroupId = groupId;
         mDevList = devList;
         mGap = gap;
         mDuration = duration;

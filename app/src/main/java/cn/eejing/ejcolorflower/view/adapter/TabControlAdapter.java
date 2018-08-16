@@ -47,6 +47,7 @@ import cn.eejing.ejcolorflower.model.lite.CtrlIntervalEntity;
 import cn.eejing.ejcolorflower.model.lite.CtrlRideEntity;
 import cn.eejing.ejcolorflower.model.lite.CtrlStreamEntity;
 import cn.eejing.ejcolorflower.model.lite.CtrlTogetherEntity;
+import cn.eejing.ejcolorflower.model.lite.JetStartStopEntity;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.JetStyleUtils;
@@ -93,7 +94,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private int mConnDmx;
     private Map<Long, ConnDevInfo> mConnDevMap;
     private List<ConnDevInfo> mConnDevList;
-    private boolean mIsStarStream, mIsStarRide, mIsStarInterval, mIsStarTogether;
 
     public TabControlAdapter(Context mContext, List<DeviceGroupListBean.DataBean> mList, String mMemberId) {
         this.mContext = mContext;
@@ -223,6 +223,8 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             // 数据库中查询是否保存信息
             isSavaDBInfo();
 
+            isJetStatus();
+
             if (bean.getGroup_list() != null && bean.getGroup_list().size() > 0) {
                 // 如果有设备，显示设备，隐藏提示文字
                 tvInfo.setVisibility(View.GONE);
@@ -251,6 +253,30 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     // 从编辑界面跳转回来
                     jumpBackConfig();
                     break;
+            }
+        }
+
+        /** 数据库中查询是否保存信息 */
+        private void isJetStatus() {
+            List<JetStartStopEntity> groupIdList = LitePal
+                    .where("groupId=?", String.valueOf(groupId))
+                    .find(JetStartStopEntity.class);
+
+            Log.i("mhhm", " size: " + groupIdList.size());
+            if (groupIdList.size() != 0) {
+
+                Log.i("mhhm", groupId + " isStar: " + groupIdList.get(0).getStatus());
+
+                switch (groupIdList.get(0).getStatus()) {
+                    case "star":
+                        imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_stop));
+                        break;
+                    case "stop":
+                        imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_star));
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
@@ -319,7 +345,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     break;
                 case R.id.img_ctrl_group_jet:
                     // 控制喷射
-                    ctrlJet();
+                    ctrlJet(groupId);
                     break;
                 case R.id.sb_config_puff:
                     // 配置喷射样式
@@ -442,7 +468,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         /** 控制喷射 */
-        private void ctrlJet() {
+        private void ctrlJet(int groupId) {
             getConnDevList();
 
             switch (mConfigType) {
@@ -460,18 +486,48 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     break;
                 case CONFIG_TOGETHER:
                     // 齐喷
-                    if (mIsStarTogether) {
-                        mIsStarTogether = false;
-                        imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_stop));
-                    } else {
-                        mIsStarTogether = true;
-                        imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_star));
-                    }
-                    JetStyleUtils.jetTogether(mConnDevList, mGap, mDuration, mHigh, mIsStarTogether);
+                    setSQLiteData(groupId);
+                    JetStyleUtils.jetTogether(mConnDevList, mGap, mDuration, mHigh, groupId);
                     break;
                 default:
                     break;
             }
+        }
+
+        private void setSQLiteData(int groupId) {
+            List<JetStartStopEntity> groupIdList = LitePal
+                    .where("groupId=?", String.valueOf(groupId))
+                    .find(JetStartStopEntity.class);
+
+            JetStartStopEntity entity = new JetStartStopEntity();
+            if (groupIdList.size() == 0) {
+                // 增 等于零证明没有喷射过
+                imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_stop));
+                setEntity(entity, groupId, "star");
+                entity.save();
+            } else {
+                // 改
+                switch (groupIdList.get(0).getStatus()) {
+                    case "star":
+                        // 如果喷射状态，改为停止状态
+                        imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_star));
+                        setEntity(entity, groupId, "stop");
+                        break;
+                    case "stop":
+                        // 如果停止状态，改为喷射状态
+                        imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_stop));
+                        setEntity(entity, groupId, "star");
+                        break;
+                    default:
+                        break;
+                }
+                entity.updateAll("groupId=?", String.valueOf(groupId));
+            }
+        }
+
+        private void setEntity(JetStartStopEntity entity, int groupId, String status) {
+            entity.setGroupId(groupId);
+            entity.setStatus(status);
         }
 
         /** 获取已连接设备集合，并按 DMX 顺序进行排序 */

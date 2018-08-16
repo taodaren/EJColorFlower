@@ -35,6 +35,7 @@
         <mapping class="cn.eejing.ejcolorflower.model.lite.CtrlTogetherEntity" />
         <mapping class="cn.eejing.ejcolorflower.model.lite.MasterCtrlModeEntity" />
         <mapping class="cn.eejing.ejcolorflower.model.lite.MasterCtrlNumEntity" />
+        <mapping class="cn.eejing.ejcolorflower.model.lite.JetStartStopEntity" />
     </list>
 
     <!--
