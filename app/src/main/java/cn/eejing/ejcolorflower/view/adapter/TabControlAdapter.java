@@ -3,6 +3,8 @@ package cn.eejing.ejcolorflower.view.adapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
@@ -47,9 +49,9 @@ import cn.eejing.ejcolorflower.model.lite.CtrlIntervalEntity;
 import cn.eejing.ejcolorflower.model.lite.CtrlRideEntity;
 import cn.eejing.ejcolorflower.model.lite.CtrlStreamEntity;
 import cn.eejing.ejcolorflower.model.lite.CtrlTogetherEntity;
+import cn.eejing.ejcolorflower.model.manager.JetStyleManager;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
-import cn.eejing.ejcolorflower.util.JetStyleUtils;
 import cn.eejing.ejcolorflower.util.SelfDialog;
 import cn.eejing.ejcolorflower.util.Settings;
 import cn.eejing.ejcolorflower.view.activity.CoConfigIntervalActivity;
@@ -93,7 +95,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private int mConnDmx;
     private Map<Long, ConnDevInfo> mConnDevMap;
     private List<ConnDevInfo> mConnDevList;
-    private boolean mIsStarStream, mIsStarRide, mIsStarInterval, mIsStarTogether;
 
     public TabControlAdapter(Context mContext, List<DeviceGroupListBean.DataBean> mList, String mMemberId) {
         this.mContext = mContext;
@@ -173,6 +174,10 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     class ItemViewHolder extends RecyclerView.ViewHolder {
+        private static final int WHAT_STREAM = 1;
+        private static final int WHAT_RIDE = 2;
+        private static final int WHAT_INTERVAL = 3;
+        private static final int WHAT_TOGETHER = 4;
 
         @BindView(R.id.tv_ctrl_group_name)        TextView tvName;
         @BindView(R.id.rv_control_group)          RecyclerView rvGroup;
@@ -194,9 +199,191 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         List<CtrlIntervalEntity> intervalDBList;
         List<CtrlTogetherEntity> togetherDBList;
 
+        boolean isStarStream, isStarRide, isStarInterval, isStarTogether;
+        long delay;// 单位毫秒
+        int loopId;// 循环 ID
+        int fakeDelay;// 几个（设备）5 毫秒假延时
+
+        Handler handler;
+        Runnable runStream, runRide, runInterval, runTogether;
+        Runnable runIntervalFirst, runIntervalMore;
+
+        @SuppressLint("HandlerLeak")
         ItemViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+
+            handler = new Handler() {
+                @Override
+                public void handleMessage(Message msg) {
+                    super.handleMessage(msg);
+                    switch (msg.what) {
+                        case WHAT_STREAM:
+                            JetStyleManager.jetStream(mConnDevList, mDirection, mGap, mDuration, mGapBig, mLoop, isStarStream);
+                            break;
+                        case WHAT_RIDE:
+                            JetStyleManager.jetRide(mConnDevList, mDirection, mGap, mDuration, mGapBig, mLoop, isStarRide);
+                            break;
+                        case WHAT_INTERVAL:
+                            if (isStarInterval) {
+                                // 如果喷射状态，点击变为停止状态
+                                isStarInterval = false;
+                                imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_star));
+                            } else {
+                                // 如果停止状态，点击变为喷射状态
+                                isStarInterval = true;
+                                imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_stop));
+                                // 喷射之前，移除正在运行的任务
+                                handler.removeCallbacks(runInterval);
+
+                                if (mFrequency == 0) {
+                                    // 喷射次数只有一次
+                                    delay = mDuration * 100;
+                                    // 连接设备位置奇偶判断
+                                    devLocationParity(100, 40);
+                                    handler.postDelayed(runInterval, delay + fakeDelay);
+                                    JetStyleManager.jetInterval(mConnDevList, 0, mDuration, mHigh, isStarInterval);
+                                }
+                                // 喷射次数有多次
+//                                    for (loopId = 0; loopId < mFrequency; loopId++) {
+//                                        if (loopId == 0) {
+//                                            delay = 0;
+//                                            // 连接设备位置奇偶判断
+//                                            devLocationParity(100, 40);
+//                                            handler.postDelayed(runIntervalFirst, delay);
+//                                        }
+//                                        if (loopId > 0) {
+//                                            if (loopId == 1) {
+//                                                delay = mGap;
+//                                            } else {
+//                                                delay = (mDuration / 10 + mGap / 1000) * 1000;
+//                                            }
+//                                            handler.postDelayed(runIntervalMore, delay);
+//                                        }
+//                                    }
+                                if (loopId < mFrequency) {
+                                    if (loopId == 0) {
+                                        Log.e("TTJET", "loopId " + loopId);
+
+                                        delay = 0;
+                                        // 连接设备位置奇偶判断
+                                        devLocationParity(100, 40);
+                                        handler.postDelayed(runIntervalFirst, delay);
+                                    }
+                                    if (loopId > 0) {
+                                        Log.e("TTJET", "loopId " + loopId);
+
+                                        if (loopId == 1) {
+                                            delay = mGap;
+                                        } else {
+                                            delay = (mDuration / 10 + mGap / 1000) * 1000;
+                                        }
+                                        handler.postDelayed(runIntervalMore, delay);
+                                    }
+                                }
+                            }
+
+                            break;
+                        case WHAT_TOGETHER:
+                            if (isStarTogether) {
+                                // 如果喷射状态，点击变为停止状态
+                                isStarTogether = false;
+                                imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_star));
+                            } else {
+                                // 如果停止状态，点击变为喷射状态
+                                isStarTogether = true;
+                                imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_stop));
+                                // 喷射之前，移除正在运行的任务
+                                handler.removeCallbacks(runTogether);
+                                // 喷射完成后状态初始化
+                                handler.postDelayed(runTogether, mDuration * 100 + fakeDelay);
+                            }
+                            JetStyleManager.jetTogether(mConnDevList, mGap, mDuration, mHigh, isStarTogether);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            };
+
+            runIntervalFirst = new Runnable() {
+                @Override
+                public void run() {
+                    // 间隔高低第一次喷射
+                    Log.e("TTJET", "第 " + loopId + " 轮喷射开始");
+                    JetStyleManager.jetInterval(mConnDevList, 0, mDuration, mHigh, isStarInterval);
+                    Log.i("TTJET", "第 " + loopId + " 轮喷射结束，延时 " + delay + " 秒");
+
+                    isStarInterval = false;
+                    loopId++;
+                    handler.sendEmptyMessage(WHAT_INTERVAL);
+                }
+            };
+
+            runIntervalMore = new Runnable() {
+                @Override
+                public void run() {
+                    // 间隔高低更多次喷射
+                    Log.e("TTJET", "第 " + loopId + " 轮喷射开始");
+
+                    switch (loopId % 2) {
+                        case 0:
+                            // 第偶数次喷射
+                            devLocationParity(100, 40);
+                            break;
+                        case 1:
+                            // 第奇数次喷射
+                            devLocationParity(40, 100);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    JetStyleManager.jetInterval(mConnDevList, mGap, mDuration, mHigh, isStarInterval);
+                    Log.i("TTJET", "第 " + loopId + " 轮喷射结束，延时 " + delay + " 秒");
+
+                    isStarInterval = false;
+                    loopId++;
+                    handler.sendEmptyMessage(WHAT_INTERVAL);
+                }
+            };
+
+            runStream = new Runnable() {
+                @Override
+                public void run() {
+                    // 流水灯喷射完成后状态初始化
+                    isStarStream = false;
+                    imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_star));
+                }
+            };
+
+            runRide = new Runnable() {
+                @Override
+                public void run() {
+                    // 跑马灯喷射完成后状态初始化
+                    isStarRide = false;
+                    imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_star));
+                }
+            };
+
+            runInterval = new Runnable() {
+                @Override
+                public void run() {
+                    // 间隔高低喷射完成后状态初始化
+                    isStarInterval = false;
+                    imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_star));
+                }
+            };
+
+            runTogether = new Runnable() {
+                @Override
+                public void run() {
+                    // 齐喷喷射完成后状态初始化
+                    isStarTogether = false;
+                    imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_star));
+                }
+            };
+
         }
 
         @SuppressLint("ResourceAsColor")
@@ -445,32 +632,44 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         private void ctrlJet() {
             getConnDevList();
 
+            // 加 5 毫秒为了内部假延时
+            fakeDelay = 5 * mConnDevList.size();
+
             switch (mConfigType) {
                 case CONFIG_STREAM:
                     // 流水灯
-//                        JetStyleUtils.jetStream(mConnDevList.get(devLocation).getDevID(), devLocation, mDirection, mGap, mDuration, mGapBig, mLoop, mHigh, mConnDevList.size());
+                    handler.sendEmptyMessage(WHAT_STREAM);
                     break;
                 case CONFIG_RIDE:
+                    handler.sendEmptyMessage(WHAT_RIDE);
                     // 跑马灯
-//                        JetStyleUtils.jetRide(mConnDevList.get(devLocation).getDevID(), devLocation, mDirection, mGap, mDuration, mGapBig, mLoop, mHigh);
                     break;
                 case CONFIG_INTERVAL:
                     // 间隔高低
-                    JetStyleUtils.jetInterval(mConnDevList, mGap, mDuration, mFrequency);
+                    handler.sendEmptyMessage(WHAT_INTERVAL);
                     break;
                 case CONFIG_TOGETHER:
                     // 齐喷
-                    if (mIsStarTogether) {
-                        mIsStarTogether = false;
-                        imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_stop));
-                    } else {
-                        mIsStarTogether = true;
-                        imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_star));
-                    }
-                    JetStyleUtils.jetTogether(mConnDevList, mGap, mDuration, mHigh, mIsStarTogether);
+                    handler.sendEmptyMessage(WHAT_TOGETHER);
                     break;
                 default:
                     break;
+            }
+        }
+
+        private void devLocationParity(int zeroHigh, int oneHigh) {
+            for (ConnDevInfo bean : mConnDevList) {
+                int devLoc = mConnDevList.indexOf(bean);
+                switch (devLoc % 2) {
+                    case 0:
+                        // 位置为偶数的设备
+                        mHigh = zeroHigh;
+                        break;
+                    case 1:
+                        // 位置为奇数的设备
+                        mHigh = oneHigh;
+                        break;
+                }
             }
         }
 
