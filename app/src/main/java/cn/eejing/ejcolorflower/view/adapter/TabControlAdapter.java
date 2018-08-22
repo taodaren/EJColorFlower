@@ -242,47 +242,20 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                                     // 连接设备位置奇偶判断
                                     devLocationParity(100, 40);
                                     handler.postDelayed(runInterval, delay + fakeDelay);
-                                    JetStyleManager.jetInterval(mConnDevList, 0, mDuration, mHigh, isStarInterval);
+                                    JetStyleManager.jetInterval(mConnDevList, mDuration, mHigh, isStarInterval, loopId, delay);
                                 }
                                 // 喷射次数有多次
-//                                    for (loopId = 0; loopId < mFrequency; loopId++) {
-//                                        if (loopId == 0) {
-//                                            delay = 0;
-//                                            // 连接设备位置奇偶判断
-//                                            devLocationParity(100, 40);
-//                                            handler.postDelayed(runIntervalFirst, delay);
-//                                        }
-//                                        if (loopId > 0) {
-//                                            if (loopId == 1) {
-//                                                delay = mGap;
-//                                            } else {
-//                                                delay = (mDuration / 10 + mGap / 1000) * 1000;
-//                                            }
-//                                            handler.postDelayed(runIntervalMore, delay);
-//                                        }
-//                                    }
                                 if (loopId < mFrequency) {
                                     if (loopId == 0) {
-                                        Log.e("TTJET", "loopId " + loopId);
-
                                         delay = 0;
-                                        // 连接设备位置奇偶判断
-                                        devLocationParity(100, 40);
-                                        handler.postDelayed(runIntervalFirst, delay);
+                                        handler.postDelayed(runIntervalMore, delay);
                                     }
                                     if (loopId > 0) {
-                                        Log.e("TTJET", "loopId " + loopId);
-
-                                        if (loopId == 1) {
-                                            delay = mGap;
-                                        } else {
-                                            delay = (mDuration / 10 + mGap / 1000) * 1000;
-                                        }
+                                        delay = mGap;
                                         handler.postDelayed(runIntervalMore, delay);
                                     }
                                 }
                             }
-
                             break;
                         case WHAT_TOGETHER:
                             if (isStarTogether) {
@@ -298,7 +271,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                                 // 喷射完成后状态初始化
                                 handler.postDelayed(runTogether, mDuration * 100 + fakeDelay);
                             }
-                            JetStyleManager.jetTogether(mConnDevList, mGap, mDuration, mHigh, isStarTogether);
+                            JetStyleManager.jetTogether(mConnDevList, mDuration, mHigh, isStarTogether);
                             break;
                         default:
                             break;
@@ -306,26 +279,10 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 }
             };
 
-            runIntervalFirst = new Runnable() {
-                @Override
-                public void run() {
-                    // 间隔高低第一次喷射
-                    Log.e("TTJET", "第 " + loopId + " 轮喷射开始");
-                    JetStyleManager.jetInterval(mConnDevList, 0, mDuration, mHigh, isStarInterval);
-                    Log.i("TTJET", "第 " + loopId + " 轮喷射结束，延时 " + delay + " 秒");
-
-                    isStarInterval = false;
-                    loopId++;
-                    handler.sendEmptyMessage(WHAT_INTERVAL);
-                }
-            };
-
             runIntervalMore = new Runnable() {
                 @Override
                 public void run() {
                     // 间隔高低更多次喷射
-                    Log.e("TTJET", "第 " + loopId + " 轮喷射开始");
-
                     switch (loopId % 2) {
                         case 0:
                             // 第偶数次喷射
@@ -339,8 +296,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                             break;
                     }
 
-                    JetStyleManager.jetInterval(mConnDevList, mGap, mDuration, mHigh, isStarInterval);
-                    Log.i("TTJET", "第 " + loopId + " 轮喷射结束，延时 " + delay + " 秒");
+                    JetStyleManager.jetInterval(mConnDevList, mDuration, mHigh, isStarInterval, loopId, delay);
 
                     isStarInterval = false;
                     loopId++;
@@ -631,6 +587,8 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         /** 控制喷射 */
         private void ctrlJet() {
             getConnDevList();
+
+            loopId = 0;
 
             // 加 5 毫秒为了内部假延时
             fakeDelay = 5 * mConnDevList.size();
