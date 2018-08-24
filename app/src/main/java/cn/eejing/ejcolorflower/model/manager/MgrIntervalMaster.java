@@ -7,18 +7,18 @@ import android.util.Log;
  */
 
 public class MgrIntervalMaster extends MasterOutputManager {
-    private int duration;       // 持续时间
-    private int gapBig;         // 大间隔时间
+    private int mDuration;       // 持续时间
+    private int mGapBig;         // 大间隔时间
 
     @Override
     public boolean updateWithDataOut(byte[] dataOut) {
         Log.i("CMCML", "updateWithDataOut: 老子进入间隔高低了");
 
-        this.currentTime++;
-        long outputTime = this.duration;
-        for (int i = 0; i < this.devCount; i++) {
-            if (this.currentTime <= outputTime) {
-                if (this.loopId % 2 == 0) {
+        mCurrentTime++;
+        long outputTime = mDuration;
+        for (int i = 0; i < mDevCount; i++) {
+            if (mCurrentTime <= outputTime) {
+                if (mLoopId % 2 == 0) {
                     dataOut[i] = (byte) ((i % 2 == 0) ? 100 : 60);
                 } else {
                     dataOut[i] = (byte) ((i % 2 == 0) ? 60 : 100);
@@ -28,32 +28,32 @@ public class MgrIntervalMaster extends MasterOutputManager {
             }
         }
 
-        if (this.currentTime >= (outputTime + this.gapBig)) {
-            this.loopId++;
-            this.currentTime = 0;
+        if (mCurrentTime >= (outputTime + mGapBig)) {
+            mLoopId++;
+            mCurrentTime = 0;
         }
 
-        Log.i("CMCML", "update over currentTime: " + currentTime);
+        Log.i("CMCML", "update over mCurrentTime: " + mCurrentTime);
         Log.i("CMCML", "update over outputTime: " + outputTime);
-        Log.i("CMCML", "update over loopId: " + loopId);
-        Log.i("CMCML", "update over loop: " + loop);
+        Log.i("CMCML", "update over mLoopId: " + mLoopId);
+        Log.i("CMCML", "update over mLoop: " + mLoop);
         // 等最后一次循环完毕
-        return this.currentTime > outputTime && this.loopId >= this.loop;
+        return mCurrentTime > outputTime && mLoopId >= mLoop;
     }
 
     public void setGapBig(int gapBig) {
-        this.gapBig = gapBig;
+        mGapBig = gapBig;
     }
 
     public void setDuration(int duration) {
-        this.duration = duration;
+        mDuration = duration;
     }
 
     public int getDuration() {
-        return duration;
+        return mDuration;
     }
 
     public int getGapBig() {
-        return gapBig;
+        return mGapBig;
     }
 }

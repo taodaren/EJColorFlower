@@ -7,41 +7,41 @@ import android.util.Log;
  */
 
 public class MgrTogetherMaster extends MasterOutputManager {
-    private int duration;       // 持续时间
-    private byte high;          // 高度
+    private int mDuration;       // 持续时间
+    private byte mHigh;          // 高度
 
     @Override
     public boolean updateWithDataOut(byte[] dataOut) {
         Log.i("CMCML", "updateWithDataOut: 老子进入齐喷了");
 
-        this.currentTime++;
-        long outputTime = this.duration;
-        for (int i = 0; i < this.devCount; i++) {
-            if (this.currentTime <= outputTime) {
-                dataOut[i] = high;
+        mCurrentTime++;
+        long outputTime = mDuration;
+        for (int i = 0; i < mDevCount; i++) {
+            if (mCurrentTime <= outputTime) {
+                dataOut[i] = mHigh;
             } else {
                 dataOut[i] = 0;
             }
         }
 
-        Log.i("CMCML", "update over currentTime: " + currentTime);
+        Log.i("CMCML", "update over mCurrentTime: " + mCurrentTime);
         Log.i("CMCML", "update over outputTime: " + outputTime);
-        return this.currentTime > outputTime;
+        return mCurrentTime > outputTime;
     }
 
     public void setDuration(int duration) {
-        this.duration = duration;
+        mDuration = duration;
     }
 
     public void setHigh(byte high) {
-        this.high = high;
+        mHigh = high;
     }
 
     public int getDuration() {
-        return duration;
+        return mDuration;
     }
 
     public byte getHigh() {
-        return high;
+        return mHigh;
     }
 }

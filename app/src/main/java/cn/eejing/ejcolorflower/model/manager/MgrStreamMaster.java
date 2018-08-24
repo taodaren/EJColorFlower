@@ -7,19 +7,19 @@ import android.util.Log;
  */
 
 public class MgrStreamMaster extends MasterOutputManager {
-    private int direction;      // 方向
-    private int gap;            // 间隔时间
-    private int duration;       // 持续时间
-    private int gapBig;         // 大间隔时间
-    private byte high;          // 高度
+    private int mDirection;      // 方向
+    private int mGap;            // 间隔时间
+    private int mDuration;       // 持续时间
+    private int mGapBig;         // 大间隔时间
+    private byte mHigh;          // 高度
 
     @Override
     public boolean updateWithDataOut(byte[] dataOut) {
         Log.i("CMCML", "updateWithDataOut: 老子进入流水灯了");
-        this.currentTime++;
+        mCurrentTime++;
         // 一次运行时间
         long outputTime = 0;
-        switch (this.direction) {
+        switch (mDirection) {
             case 1:
                 // 从左到右
                 Log.i("CMCML", "进入从左到右");
@@ -48,38 +48,38 @@ public class MgrStreamMaster extends MasterOutputManager {
                 break;
         }
 
-        Log.i("CMCML", "update over currentTime: " + currentTime);
+        Log.i("CMCML", "update over mCurrentTime: " + mCurrentTime);
         Log.i("CMCML", "update over outputTime: " + outputTime);
-        Log.i("CMCML", "update over loopId: " + loopId);
-        Log.i("CMCML", "update over loop: " + loop);
+        Log.i("CMCML", "update over mLoopId: " + mLoopId);
+        Log.i("CMCML", "update over mLoop: " + mLoop);
 
         // 等最后一次循环完毕
-        return this.currentTime > outputTime && this.loopId >= this.loop;
+        return mCurrentTime > outputTime && mLoopId >= mLoop;
     }
 
     private long middleToEnds(byte[] dataOut) {
         long iMax;
         long outputTime;
-        iMax = (this.devCount + 1) >> 1;
-        outputTime = this.gap * (iMax - 1) + this.duration;
-        for (int i = 0; i < this.devCount; i++) {
+        iMax = (mDevCount + 1) >> 1;
+        outputTime = mGap * (iMax - 1) + mDuration;
+        for (int i = 0; i < mDevCount; i++) {
             long timeOutId;
             if (i < iMax) {
                 timeOutId = iMax - 1 - i;
             } else {
-                timeOutId = (i - (iMax - 1)) - ((this.devCount + 1) % 2);
+                timeOutId = (i - (iMax - 1)) - ((mDevCount + 1) % 2);
             }
-            if (this.currentTime > outputTime) {
+            if (mCurrentTime > outputTime) {
                 dataOut[i] = 0;
-            } else if (this.currentTime > this.gap * timeOutId) {
-                dataOut[i] = this.high;
+            } else if (mCurrentTime > mGap * timeOutId) {
+                dataOut[i] = mHigh;
             } else {
                 dataOut[i] = 0;
             }
         }
-        if (this.currentTime >= (outputTime + this.gapBig)) {
-            this.loopId++;
-            this.currentTime = 0;
+        if (mCurrentTime >= (outputTime + mGapBig)) {
+            mLoopId++;
+            mCurrentTime = 0;
         }
         return outputTime;
     }
@@ -87,89 +87,89 @@ public class MgrStreamMaster extends MasterOutputManager {
     private long endsToMiddle(byte[] dataOut) {
         long iMax;
         long outputTime;
-        iMax = (this.devCount + 1) >> 1;
-        outputTime = this.gap * (iMax - 1) + this.duration;
-        for (int i = 0; i < this.devCount; i++) {
-            if (this.currentTime > outputTime) {
+        iMax = (mDevCount + 1) >> 1;
+        outputTime = mGap * (iMax - 1) + mDuration;
+        for (int i = 0; i < mDevCount; i++) {
+            if (mCurrentTime > outputTime) {
                 dataOut[i] = 0;
-            } else if (this.currentTime > this.gap * i) {
-                dataOut[i] = this.high;
-            } else if (this.currentTime > this.gap * (this.devCount - i - 1)) {
-                dataOut[i] = this.high;
+            } else if (mCurrentTime > mGap * i) {
+                dataOut[i] = mHigh;
+            } else if (mCurrentTime > mGap * (mDevCount - i - 1)) {
+                dataOut[i] = mHigh;
             } else {
                 dataOut[i] = 0;
             }
         }
-        if (this.currentTime >= (outputTime + this.gapBig)) {
-            this.loopId++;
-            this.currentTime = 0;
+        if (mCurrentTime >= (outputTime + mGapBig)) {
+            mLoopId++;
+            mCurrentTime = 0;
         }
         return outputTime;
     }
 
     private long rightToLeft(byte[] dataOut) {
         long outputTime;
-        outputTime = this.gap * (this.devCount - 1) + this.duration;
-        for (int i = 0; i < this.devCount; i++) {
-            dataOut[i] = (this.currentTime <= this.gap * (this.devCount - i - 1) || this.currentTime > outputTime) ? 0 : this.high;
+        outputTime = mGap * (mDevCount - 1) + mDuration;
+        for (int i = 0; i < mDevCount; i++) {
+            dataOut[i] = (mCurrentTime <= mGap * (mDevCount - i - 1) || mCurrentTime > outputTime) ? 0 : mHigh;
         }
-        if (this.currentTime >= (outputTime + this.gapBig)) {
-            this.loopId++;
-            this.currentTime = 0;
+        if (mCurrentTime >= (outputTime + mGapBig)) {
+            mLoopId++;
+            mCurrentTime = 0;
         }
         return outputTime;
     }
 
     private long leftToRight(byte[] dataOut) {
         long outputTime;
-        outputTime = this.gap * (this.devCount - 1) + this.duration;
-        for (int i = 0; i < this.devCount; i++) {
-            dataOut[i] = (this.currentTime <= this.gap * i || this.currentTime > outputTime) ? 0 : this.high;
+        outputTime = mGap * (mDevCount - 1) + mDuration;
+        for (int i = 0; i < mDevCount; i++) {
+            dataOut[i] = (mCurrentTime <= mGap * i || mCurrentTime > outputTime) ? 0 : mHigh;
         }
-        if (this.currentTime >= (outputTime + this.gapBig)) {
-            this.loopId++;
-            this.currentTime = 0;
+        if (mCurrentTime >= (outputTime + mGapBig)) {
+            mLoopId++;
+            mCurrentTime = 0;
         }
         return outputTime;
     }
 
     public void setDirection(int direction) {
-        this.direction = direction;
+        mDirection = direction;
     }
 
     public void setGap(int gap) {
-        this.gap = gap;
+        mGap = gap;
     }
 
     public void setDuration(int duration) {
-        this.duration = duration;
+        mDuration = duration;
     }
 
     public void setGapBig(int gapBig) {
-        this.gapBig = gapBig;
+        mGapBig = gapBig;
     }
 
     public void setHigh(byte high) {
-        this.high = high;
+        mHigh = high;
     }
 
     public int getDirection() {
-        return direction;
+        return mDirection;
     }
 
     public int getGap() {
-        return gap;
+        return mGap;
     }
 
     public int getDuration() {
-        return duration;
+        return mDuration;
     }
 
     public int getGapBig() {
-        return gapBig;
+        return mGapBig;
     }
 
     public byte getHigh() {
-        return high;
+        return mHigh;
     }
 }

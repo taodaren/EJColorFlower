@@ -5,34 +5,34 @@ package cn.eejing.ejcolorflower.model.manager;
  */
 
 public class MasterOutputManager {
-    int devCount;       // 循环次数
-    int loop;           // 当前循环的次数
-    int loopId;
-    int currentTime;
-    String type;        // 喷射效果
+    int mDevCount;       // 循环次数
+    int mLoop;           // 当前循环的次数
+    int mLoopId;
+    int mCurrentTime;
+    String mType;        // 喷射效果
 
     public void setDevCount(int devCount) {
-        this.devCount = devCount;
+        this.mDevCount = devCount;
     }
 
     public void setLoop(int loop) {
-        this.loop = loop;
+        this.mLoop = loop;
     }
 
     public void setLoopId(int loopId) {
-        this.loopId = loopId;
+        this.mLoopId = loopId;
     }
 
     public void setCurrentTime(int currentTime) {
-        this.currentTime = currentTime;
+        this.mCurrentTime = currentTime;
     }
 
     public String getType() {
-        return type;
+        return mType;
     }
 
     public void setType(String type) {
-        this.type = type;
+        this.mType = type;
     }
 
     /**
