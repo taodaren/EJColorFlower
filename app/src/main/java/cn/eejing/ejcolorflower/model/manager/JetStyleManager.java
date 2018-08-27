@@ -16,10 +16,10 @@ public class JetStyleManager {
     private static AppActivity.FireworkDevCtrl mDevCtrl = AppActivity.getFireworksDevCtrl();
 
     /** 流水灯 */
-    public static void jetStream(List<ConnDevInfo> devList, int direction, int gap, int duration, int gapBig, int loop, boolean isStarStream) {
+    public static void jetStream(List<ConnDevInfo> devList, int duration, boolean isStarStream) {
         for (ConnDevInfo bean : devList) {
             if (isStarStream) {
-                jetStart(bean.getDevID(), BleDeviceProtocol.pkgJetStart(bean.getDevID(), gap, duration, 100));
+                jetStart(bean.getDevID(), BleDeviceProtocol.pkgJetStart(bean.getDevID(), 0, duration, 100));
                 sleepFive();
             } else {
                 jetStop(bean.getDevID(), BleDeviceProtocol.pkgJetStop(bean.getDevID()));
@@ -29,10 +29,10 @@ public class JetStyleManager {
     }
 
     /** 跑马灯 */
-    public static void jetRide(List<ConnDevInfo> devList, int direction, int gap, int duration, int gapBig, int loop, boolean isStarRide) {
+    public static void jetRide(List<ConnDevInfo> devList, int duration, boolean isStarRide) {
         for (ConnDevInfo bean : devList) {
             if (isStarRide) {
-                jetStart(bean.getDevID(), BleDeviceProtocol.pkgJetStart(bean.getDevID(), gap, duration, 100));
+                jetStart(bean.getDevID(), BleDeviceProtocol.pkgJetStart(bean.getDevID(), 0, duration, 100));
                 sleepFive();
             } else {
                 jetStop(bean.getDevID(), BleDeviceProtocol.pkgJetStop(bean.getDevID()));
@@ -42,10 +42,9 @@ public class JetStyleManager {
     }
 
     /** 间隔高低 */
-    public static void jetInterval(List<ConnDevInfo> devList, final int duration, int high, boolean isStarInterval, int loopId, long delay) {
+    public static void jetInterval(List<ConnDevInfo> devList, int duration, int high, boolean isStarInterval) {
         for (ConnDevInfo bean : devList) {
             if (isStarInterval) {
-                Log.i("TTJET", bean.getDevID() + " 第 " + loopId + " 轮喷射：延时 " + delay/1000 + " 秒，喷射 " + duration/10 + " 秒，高度 " + high);
                 jetStart(bean.getDevID(), BleDeviceProtocol.pkgJetStart(bean.getDevID(), 0, duration, high));
                 sleepFive();
             } else {
@@ -58,6 +57,7 @@ public class JetStyleManager {
     /** 齐喷 */
     public static void jetTogether(List<ConnDevInfo> devList, int duration, int high, boolean isStarTogether) {
         for (ConnDevInfo bean : devList) {
+            Log.i("MGR_JET", "高度: " + high);
             if (isStarTogether) {
                 jetStart(bean.getDevID(), BleDeviceProtocol.pkgJetStart(bean.getDevID(), 0, duration, high));
                 sleepFive();

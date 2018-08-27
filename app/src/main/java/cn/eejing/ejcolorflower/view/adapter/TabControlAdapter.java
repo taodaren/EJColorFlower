@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
@@ -50,10 +49,15 @@ import cn.eejing.ejcolorflower.model.lite.CtrlRideEntity;
 import cn.eejing.ejcolorflower.model.lite.CtrlStreamEntity;
 import cn.eejing.ejcolorflower.model.lite.CtrlTogetherEntity;
 import cn.eejing.ejcolorflower.model.manager.JetStyleManager;
+import cn.eejing.ejcolorflower.model.manager.MgrIntervalMaster;
+import cn.eejing.ejcolorflower.model.manager.MgrRideMaster;
+import cn.eejing.ejcolorflower.model.manager.MgrStreamMaster;
+import cn.eejing.ejcolorflower.model.manager.MgrTogetherMaster;
 import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.SelfDialog;
 import cn.eejing.ejcolorflower.util.Settings;
+import cn.eejing.ejcolorflower.view.activity.AppActivity;
 import cn.eejing.ejcolorflower.view.activity.CoConfigIntervalActivity;
 import cn.eejing.ejcolorflower.view.activity.CoConfigRideActivity;
 import cn.eejing.ejcolorflower.view.activity.CoConfigStreamActivity;
@@ -64,6 +68,7 @@ import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_INTERVAL;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_RIDE;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_STREAM;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
+import static cn.eejing.ejcolorflower.app.AppConstant.CURRENT_TIME;
 import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_TOGETHER_DURATION;
 import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_TOGETHER_HIGH;
 import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_NO;
@@ -174,10 +179,6 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     class ItemViewHolder extends RecyclerView.ViewHolder {
-        private static final int WHAT_STREAM = 1;
-        private static final int WHAT_RIDE = 2;
-        private static final int WHAT_INTERVAL = 3;
-        private static final int WHAT_TOGETHER = 4;
 
         @BindView(R.id.tv_ctrl_group_name)        TextView tvName;
         @BindView(R.id.rv_control_group)          RecyclerView rvGroup;
@@ -200,146 +201,154 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         List<CtrlTogetherEntity> togetherDBList;
 
         boolean isStarStream, isStarRide, isStarInterval, isStarTogether;
-        long delay;// 单位毫秒
-        int loopId;// 循环 ID
-        int fakeDelay;// 几个（设备）5 毫秒假延时
+
+        AppActivity.FireworkDevCtrl devCtrl;
+        MgrStreamMaster mgrStream;
+        MgrRideMaster mgrRide;
+        MgrIntervalMaster mgrInterval;
+        MgrTogetherMaster mgrTogether;
 
         Handler handler;
         Runnable runStream, runRide, runInterval, runTogether;
-        Runnable runIntervalFirst, runIntervalMore;
+        long flagTime;
 
         @SuppressLint("HandlerLeak")
         ItemViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
-
-            handler = new Handler() {
-                @Override
-                public void handleMessage(Message msg) {
-                    super.handleMessage(msg);
-                    switch (msg.what) {
-                        case WHAT_STREAM:
-                            JetStyleManager.jetStream(mConnDevList, mDirection, mGap, mDuration, mGapBig, mLoop, isStarStream);
-                            break;
-                        case WHAT_RIDE:
-                            JetStyleManager.jetRide(mConnDevList, mDirection, mGap, mDuration, mGapBig, mLoop, isStarRide);
-                            break;
-                        case WHAT_INTERVAL:
-                            if (isStarInterval) {
-                                // 如果喷射状态，点击变为停止状态
-                                isStarInterval = false;
-                                imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_star));
-                            } else {
-                                // 如果停止状态，点击变为喷射状态
-                                isStarInterval = true;
-                                imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_stop));
-                                // 喷射之前，移除正在运行的任务
-                                handler.removeCallbacks(runInterval);
-
-                                if (mFrequency == 0) {
-                                    // 喷射次数只有一次
-                                    delay = mDuration * 100;
-                                    // 连接设备位置奇偶判断
-                                    devLocationParity(100, 40);
-                                    handler.postDelayed(runInterval, delay + fakeDelay);
-                                    JetStyleManager.jetInterval(mConnDevList, mDuration, mHigh, isStarInterval, loopId, delay);
-                                }
-                                // 喷射次数有多次
-                                if (loopId < mFrequency) {
-                                    if (loopId == 0) {
-                                        delay = 0;
-                                        handler.postDelayed(runIntervalMore, delay);
-                                    }
-                                    if (loopId > 0) {
-                                        delay = mGap;
-                                        handler.postDelayed(runIntervalMore, delay);
-                                    }
-                                }
-                            }
-                            break;
-                        case WHAT_TOGETHER:
-                            if (isStarTogether) {
-                                // 如果喷射状态，点击变为停止状态
-                                isStarTogether = false;
-                                imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_star));
-                            } else {
-                                // 如果停止状态，点击变为喷射状态
-                                isStarTogether = true;
-                                imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_stop));
-                                // 喷射之前，移除正在运行的任务
-                                handler.removeCallbacks(runTogether);
-                                // 喷射完成后状态初始化
-                                handler.postDelayed(runTogether, mDuration * 100 + fakeDelay);
-                            }
-                            JetStyleManager.jetTogether(mConnDevList, mDuration, mHigh, isStarTogether);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            };
-
-            runIntervalMore = new Runnable() {
-                @Override
-                public void run() {
-                    // 间隔高低更多次喷射
-                    switch (loopId % 2) {
-                        case 0:
-                            // 第偶数次喷射
-                            devLocationParity(100, 40);
-                            break;
-                        case 1:
-                            // 第奇数次喷射
-                            devLocationParity(40, 100);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    JetStyleManager.jetInterval(mConnDevList, mDuration, mHigh, isStarInterval, loopId, delay);
-
-                    isStarInterval = false;
-                    loopId++;
-                    handler.sendEmptyMessage(WHAT_INTERVAL);
-                }
-            };
+            devCtrl = AppActivity.getFireworksDevCtrl();
+            handler = new Handler();
 
             runStream = new Runnable() {
                 @Override
                 public void run() {
-                    // 流水灯喷射完成后状态初始化
-                    isStarStream = false;
-                    imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_star));
+                    // 定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息）
+                    timerCallStream();
+                    if (isStarStream) {
+                        // 如果喷射中，继续发送
+                        handler.postDelayed(this, 100);
+                    }
                 }
             };
 
             runRide = new Runnable() {
                 @Override
                 public void run() {
-                    // 跑马灯喷射完成后状态初始化
-                    isStarRide = false;
-                    imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_star));
+                    // 定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息）
+                    timerCallRide();
+                    if (isStarRide) {
+                        // 如果喷射中，继续发送
+                        handler.postDelayed(this, 100);
+                    }
                 }
             };
 
             runInterval = new Runnable() {
                 @Override
                 public void run() {
-                    // 间隔高低喷射完成后状态初始化
-                    isStarInterval = false;
-                    imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_star));
+                    // 定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息）
+                    timerCallInterval();
+                    if (isStarInterval) {
+                        // 如果喷射中，继续发送
+                        handler.postDelayed(this, 100);
+                    }
                 }
             };
 
             runTogether = new Runnable() {
                 @Override
                 public void run() {
-                    // 齐喷喷射完成后状态初始化
-                    isStarTogether = false;
-                    imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_star));
+                    // 定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息）
+                    long millisA = System.currentTimeMillis();
+//                    Log.e("YJXCYHJ", "run: " + millisA);
+                    timerCallTogether();
+                    if (isStarTogether) {
+                        long millisB = System.currentTimeMillis();
+//                        Log.i("YJXCYHJ", "run: " + millisB);
+                        // 如果喷射中，继续发送
+                        flagTime = flagTime + (millisB - millisA);
+                        Log.i("YJXCYHJ", "flagTime: " + flagTime);
+                        Log.i("YJXCYHJ", "run: " + (millisB - millisA));
+                        handler.postDelayed(this, 100 - (millisB - millisA));
+                    }
                 }
             };
+        }
 
+        private void timerCallStream() {
+            boolean isFinish = false;
+            Log.e("CMCML", "isStarStream: " + isStarStream);
+            if (isStarStream) isFinish = mgrStream.updateWithDataOut(new byte[300]);
+
+            // 开始喷射
+            JetStyleManager.jetStream(mConnDevList, 5, isStarStream);
+
+            Log.i("CMCML", "isFinish: " + isFinish);
+            if (isFinish) {
+                Log.e("CMCML", "喷射停止!!!!!!!!!!");
+
+                // 喷射完成，喷射停止状态
+                isStarStream = false;
+                // 停止喷射
+                JetStyleManager.jetStream(mConnDevList, 0, false);
+            }
+        }
+
+        private void timerCallRide() {
+            boolean isFinish = false;
+            Log.e("CMCML", "isStarRide: " + isStarRide);
+            if (isStarRide) isFinish = mgrRide.updateWithDataOut(new byte[300]);
+
+            // 开始喷射
+            JetStyleManager.jetRide(mConnDevList, 5, isStarRide);
+
+            Log.i("CMCML", "isFinish: " + isFinish);
+            if (isFinish) {
+                Log.e("CMCML", "喷射停止!!!!!!!!!!");
+
+                // 喷射完成，喷射停止状态
+                isStarRide = false;
+                // 停止喷射
+                JetStyleManager.jetRide(mConnDevList, 0, false);
+            }
+        }
+
+        private void timerCallInterval() {
+            boolean isFinish = false;
+            Log.e("CMCML", "isStarInterval: " + isStarInterval);
+            if (isStarInterval) isFinish = mgrInterval.updateWithDataOut(new byte[300]);
+
+            // 开始喷射
+            JetStyleManager.jetInterval(mConnDevList, 5, 40, isStarInterval);
+
+            Log.i("CMCML", "isFinish: " + isFinish);
+            if (isFinish) {
+                Log.e("CMCML", "喷射停止!!!!!!!!!!");
+
+                // 喷射完成，喷射停止状态
+                isStarInterval = false;
+                // 停止喷射
+                JetStyleManager.jetInterval(mConnDevList, 0, 0, false);
+            }
+        }
+
+        private void timerCallTogether() {
+            boolean isFinish = false;
+            Log.e("CMCML", "isStarTogether: " + isStarTogether);
+            if (isStarTogether) isFinish = mgrTogether.updateWithDataOut(new byte[300]);
+
+            // 开始喷射
+            JetStyleManager.jetTogether(mConnDevList, 5, mgrTogether.getHigh(), isStarTogether);
+
+            Log.i("CMCML", "isFinish: " + isFinish);
+            if (isFinish) {
+                Log.e("CMCML", "喷射停止!!!!!!!!!!");
+
+                // 喷射完成，喷射停止状态
+                isStarTogether = false;
+                // 停止喷射
+                JetStyleManager.jetTogether(mConnDevList, 0, 0, false);
+            }
         }
 
         @SuppressLint("ResourceAsColor")
@@ -364,7 +373,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             );
 
             // 数据库中查询是否保存信息
-            isSavaDBInfo();
+            isSaveDBInfo();
 
             if (bean.getGroup_list() != null && bean.getGroup_list().size() > 0) {
                 // 如果有设备，显示设备，隐藏提示文字
@@ -378,13 +387,13 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         /** 数据库中查询是否保存信息 */
-        private void isSavaDBInfo() {
-            streamDBList = LitePal.select("configType", "millis").where("groupId = ?", String.valueOf(groupId)).find(CtrlStreamEntity.class);
-            rideDBList = LitePal.select("configType", "millis").where("groupId = ?", String.valueOf(groupId)).find(CtrlRideEntity.class);
-            intervalDBList = LitePal.select("configType", "millis").where("groupId = ?", String.valueOf(groupId)).find(CtrlIntervalEntity.class);
-            togetherDBList = LitePal.select("configType", "millis").where("groupId = ?", String.valueOf(groupId)).find(CtrlTogetherEntity.class);
+        private void isSaveDBInfo() {
+            streamDBList = LitePal.where("groupId = ?", String.valueOf(groupId)).find(CtrlStreamEntity.class);
+            rideDBList = LitePal.where("groupId = ?", String.valueOf(groupId)).find(CtrlRideEntity.class);
+            intervalDBList = LitePal.where("groupId = ?", String.valueOf(groupId)).find(CtrlIntervalEntity.class);
+            togetherDBList = LitePal.where("groupId = ?", String.valueOf(groupId)).find(CtrlTogetherEntity.class);
 
-            Log.i("CFG_GUB", "isSavaDBInfo mPostGroupId: " + mPostGroupId);
+            Log.i("CFG_GUB", "isSaveDBInfo mPostGroupId: " + mPostGroupId);
             switch (mPostGroupId) {
                 case 0:
                     // 默认进入控制模块
@@ -588,31 +597,66 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         private void ctrlJet() {
             getConnDevList();
 
-            loopId = 0;
-
-            // 加 5 毫秒为了内部假延时
-            fakeDelay = 5 * mConnDevList.size();
-
-            switch (mConfigType) {
-                case CONFIG_STREAM:
-                    // 流水灯
-                    handler.sendEmptyMessage(WHAT_STREAM);
-                    break;
-                case CONFIG_RIDE:
-                    handler.sendEmptyMessage(WHAT_RIDE);
-                    // 跑马灯
-                    break;
-                case CONFIG_INTERVAL:
-                    // 间隔高低
-                    handler.sendEmptyMessage(WHAT_INTERVAL);
-                    break;
-                case CONFIG_TOGETHER:
-                    // 齐喷
-                    handler.sendEmptyMessage(WHAT_TOGETHER);
-                    break;
-                default:
-                    break;
+            if (streamDBList.size() > 0 && sbType.getText().equals(CONFIG_STREAM)) {
+                // 流水灯
+                handler.post(runStream);
+            } else if (rideDBList.size() > 0 && sbType.getText().equals(CONFIG_RIDE)) {
+                // 跑马灯
+                handler.post(runRide);
+            } else if (intervalDBList.size() > 0 && sbType.getText().equals(CONFIG_INTERVAL)) {
+                // 间隔高低
+                handler.post(runInterval);
+            } else if (togetherDBList.size() > 0 && sbType.getText().equals(CONFIG_TOGETHER)) {
+                // 齐喷
+                if (isStarTogether) {
+                    // 如果是喷射状态，点击变为停止状态
+                    isStarTogether = false;
+                    imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_star));
+                    JetStyleManager.jetTogether(mConnDevList, 5, 0, isStarTogether);
+                } else {
+                    // 如果是停止状态，点击变为喷射状态
+                    Log.e("CMCML", "齐喷开始!!!!!!!!!!");
+                    isStarTogether = true;
+                    imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_stop));
+                    setTogetherData();
+                    handler.post(runTogether);
+                }
+            } else {
+                // 默认齐喷
+                if (isStarTogether) {
+                    // 如果是喷射状态，点击变为停止状态
+                    isStarTogether = false;
+                    imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_star));
+                    JetStyleManager.jetTogether(mConnDevList, 5, 0, isStarTogether);
+                } else {
+                    // 如果是停止状态，点击变为喷射状态
+                    Log.e("CMCML", "默认齐喷开始!!!!!!!!!!");
+                    setDefData();
+                    isStarTogether = true;
+                    handler.post(runTogether);
+                }
             }
+        }
+
+        private void setTogetherData() {
+            Log.i("CMCML", "Together size: " + togetherDBList.size());
+            mgrTogether = new MgrTogetherMaster();
+            mgrTogether.setType(CONFIG_TOGETHER);
+            mgrTogether.setDevCount(mConnDevList.size());
+            mgrTogether.setCurrentTime(CURRENT_TIME);
+            mgrTogether.setDuration(Integer.parseInt(togetherDBList.get(0).getDuration()) * 10);
+            mgrTogether.setHigh((byte) Integer.parseInt(togetherDBList.get(0).getHigh()));
+            Log.i("CMCML", "getDuration: " + Integer.parseInt(togetherDBList.get(0).getDuration()) * 10);
+            Log.i("CMCML", "getHigh: " + Integer.parseInt(togetherDBList.get(0).getHigh()));
+        }
+
+        private void setDefData() {
+            mgrTogether = new MgrTogetherMaster();
+            mgrTogether.setType(CONFIG_TOGETHER);
+            mgrTogether.setDevCount(mConnDevList.size());
+            mgrTogether.setCurrentTime(CURRENT_TIME);
+            mgrTogether.setDuration(Integer.parseInt(DEFAULT_TOGETHER_DURATION) * 10);
+            mgrTogether.setHigh((byte) Integer.parseInt(DEFAULT_TOGETHER_HIGH));
         }
 
         private void devLocationParity(int zeroHigh, int oneHigh) {
