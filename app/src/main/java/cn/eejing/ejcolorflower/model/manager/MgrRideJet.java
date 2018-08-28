@@ -3,10 +3,10 @@ package cn.eejing.ejcolorflower.model.manager;
 import android.util.Log;
 
 /**
- * 流水灯管理
+ * 跑马灯管理
  */
 
-public class MgrStreamMaster extends MasterOutputManager {
+public class MgrRideJet extends MgrOutputJet {
     private int mDirection;      // 方向
     private int mGap;            // 间隔时间
     private int mDuration;       // 持续时间
@@ -15,7 +15,8 @@ public class MgrStreamMaster extends MasterOutputManager {
 
     @Override
     public boolean updateWithDataOut(byte[] dataOut) {
-        Log.i("CMCML", "updateWithDataOut: 老子进入流水灯了");
+        Log.i("CMCML", "updateWithDataOut: 老子进入跑马灯了");
+
         mCurrentTime++;
         // 一次运行时间
         long outputTime = 0;
@@ -52,7 +53,6 @@ public class MgrStreamMaster extends MasterOutputManager {
         Log.i("CMCML", "update over outputTime: " + outputTime);
         Log.i("CMCML", "update over mLoopId: " + mLoopId);
         Log.i("CMCML", "update over mLoop: " + mLoop);
-
         // 等最后一次循环完毕
         return mCurrentTime > outputTime && mLoopId >= mLoop;
     }
@@ -60,9 +60,10 @@ public class MgrStreamMaster extends MasterOutputManager {
     private long middleToEnds(byte[] dataOut) {
         long iMax;
         long outputTime;
-        iMax = (mDevCount + 1) >> 1;
-        outputTime = mGap * (iMax - 1) + mDuration;
+        iMax = (mDevCount + 1) >> 1;//加一除2
+        outputTime = mGap * (iMax - 1) + mDuration * iMax;
         for (int i = 0; i < mDevCount; i++) {
+            // 喷射顺序：第几个开始喷
             long timeOutId;
             if (i < iMax) {
                 timeOutId = iMax - 1 - i;
@@ -71,7 +72,7 @@ public class MgrStreamMaster extends MasterOutputManager {
             }
             if (mCurrentTime > outputTime) {
                 dataOut[i] = 0;
-            } else if (mCurrentTime > mGap * timeOutId) {
+            } else if (mCurrentTime > (mGap + mDuration) * timeOutId && mCurrentTime <= (mGap + mDuration) * timeOutId + mDuration) {
                 dataOut[i] = mHigh;
             } else {
                 dataOut[i] = 0;
@@ -88,13 +89,16 @@ public class MgrStreamMaster extends MasterOutputManager {
         long iMax;
         long outputTime;
         iMax = (mDevCount + 1) >> 1;
-        outputTime = mGap * (iMax - 1) + mDuration;
+        outputTime = mGap * (iMax - 1) + mDuration * iMax;
         for (int i = 0; i < mDevCount; i++) {
+
             if (mCurrentTime > outputTime) {
                 dataOut[i] = 0;
-            } else if (mCurrentTime > mGap * i) {
+            } else if (mCurrentTime > (mGap + mDuration) * i
+                    && mCurrentTime <= (mGap + mDuration) * i + mDuration) {
                 dataOut[i] = mHigh;
-            } else if (mCurrentTime > mGap * (mDevCount - i - 1)) {
+            } else if (mCurrentTime > (mGap + mDuration) * (mDevCount - i - 1)
+                    && mCurrentTime <= (mGap + mDuration) * (mDevCount - i - 1) + mDuration) {
                 dataOut[i] = mHigh;
             } else {
                 dataOut[i] = 0;
@@ -109,9 +113,11 @@ public class MgrStreamMaster extends MasterOutputManager {
 
     private long rightToLeft(byte[] dataOut) {
         long outputTime;
-        outputTime = mGap * (mDevCount - 1) + mDuration;
+        outputTime = mGap * (mDevCount - 1) + mDuration * mDevCount;
         for (int i = 0; i < mDevCount; i++) {
-            dataOut[i] = (mCurrentTime <= mGap * (mDevCount - i - 1) || mCurrentTime > outputTime) ? 0 : mHigh;
+            dataOut[i] = (mCurrentTime <= (mGap + mDuration) * (mDevCount - i - 1)
+                    || (mCurrentTime > (mGap + mDuration) * (mDevCount - i - 1) + mDuration)
+                    || mCurrentTime > outputTime) ? 0 : mHigh;
         }
         if (mCurrentTime >= (outputTime + mGapBig)) {
             mLoopId++;
@@ -122,9 +128,9 @@ public class MgrStreamMaster extends MasterOutputManager {
 
     private long leftToRight(byte[] dataOut) {
         long outputTime;
-        outputTime = mGap * (mDevCount - 1) + mDuration;
+        outputTime = mGap * (mDevCount - 1) + mDuration * mDevCount;
         for (int i = 0; i < mDevCount; i++) {
-            dataOut[i] = (mCurrentTime <= mGap * i || mCurrentTime > outputTime) ? 0 : mHigh;
+            dataOut[i] = (mCurrentTime <= (mGap + mDuration) * i || (mCurrentTime > (mGap + mDuration) * i + mDuration) || mCurrentTime > outputTime) ? 0 : mHigh;
         }
         if (mCurrentTime >= (outputTime + mGapBig)) {
             mLoopId++;

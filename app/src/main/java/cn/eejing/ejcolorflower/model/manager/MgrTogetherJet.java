@@ -6,7 +6,7 @@ import android.util.Log;
  * 齐喷管理
  */
 
-public class MgrTogetherMaster extends MasterOutputManager {
+public class MgrTogetherJet extends MgrOutputJet {
     private int mDuration;       // 持续时间
     private byte mHigh;          // 高度
 

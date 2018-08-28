@@ -58,6 +58,7 @@ public class AppConstant {
     public static final String CONFIG_RIDE = "跑马灯";
     public static final String CONFIG_INTERVAL = "间隔高低";
     public static final String CONFIG_TOGETHER = "齐喷";
+    public static final String CONFIG_DEF = "默认";
 
     // 配置设备喷射方向
     public static final String LEFT_TO_RIGHT = "1";

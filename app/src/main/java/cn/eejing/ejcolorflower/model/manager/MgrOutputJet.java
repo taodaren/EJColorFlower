@@ -4,7 +4,7 @@ package cn.eejing.ejcolorflower.model.manager;
  * 主控输出管理
  */
 
-public class MasterOutputManager {
+public class MgrOutputJet {
     int mDevCount;       // 循环次数
     int mLoop;           // 当前循环的次数
     int mLoopId;

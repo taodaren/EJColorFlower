@@ -31,11 +31,11 @@ import cn.eejing.ejcolorflower.model.lite.CtrlStreamEntity;
 import cn.eejing.ejcolorflower.model.lite.CtrlTogetherEntity;
 import cn.eejing.ejcolorflower.model.lite.MasterCtrlModeEntity;
 import cn.eejing.ejcolorflower.model.lite.MasterCtrlNumEntity;
-import cn.eejing.ejcolorflower.model.manager.MasterOutputManager;
-import cn.eejing.ejcolorflower.model.manager.MgrIntervalMaster;
-import cn.eejing.ejcolorflower.model.manager.MgrRideMaster;
-import cn.eejing.ejcolorflower.model.manager.MgrStreamMaster;
-import cn.eejing.ejcolorflower.model.manager.MgrTogetherMaster;
+import cn.eejing.ejcolorflower.model.manager.MgrIntervalJet;
+import cn.eejing.ejcolorflower.model.manager.MgrOutputJet;
+import cn.eejing.ejcolorflower.model.manager.MgrRideJet;
+import cn.eejing.ejcolorflower.model.manager.MgrStreamJet;
+import cn.eejing.ejcolorflower.model.manager.MgrTogetherJet;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
 import cn.eejing.ejcolorflower.view.adapter.DeMasterModeAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
@@ -99,9 +99,9 @@ public class DeMasterModeActivity extends BaseActivity {
             }
         }
     };
-    private MasterOutputManager mCurrentManager;
+    private MgrOutputJet mCurrentManager;
     private List<MasterCtrlModeEntity> mJetModes;
-    private List<MasterOutputManager> mMasterCtrlMgrList;
+    private List<MgrOutputJet> mMasterCtrlMgrList;
 
     @Override
     protected int layoutViewId() {
@@ -269,7 +269,7 @@ public class DeMasterModeActivity extends BaseActivity {
     private void togetherFiveStopPause() {
         byte[] dataOut = new byte[300];
         // 喷射 5 次高度为 0，持续时间 0.1s 齐喷效果
-        MgrTogetherMaster mgrStop = new MgrTogetherMaster();
+        MgrTogetherJet mgrStop = new MgrTogetherJet();
         mgrStop.setType(CONFIG_TOGETHER);
         mgrStop.setDevCount(Integer.parseInt(etDevNum.getText().toString()));
         mgrStop.setCurrentTime(0);
@@ -374,22 +374,22 @@ public class DeMasterModeActivity extends BaseActivity {
         for (int i = 0; i < mJetModes.size(); i++) {
             switch (mJetModes.get(i).getType()) {
                 case CONFIG_STREAM:
-                    MgrStreamMaster mgrStream = new MgrStreamMaster();
+                    MgrStreamJet mgrStream = new MgrStreamJet();
                     mgrStream.setType(CONFIG_STREAM);
                     mMasterCtrlMgrList.add(mgrStream);
                     break;
                 case CONFIG_RIDE:
-                    MgrRideMaster mgrRide = new MgrRideMaster();
+                    MgrRideJet mgrRide = new MgrRideJet();
                     mgrRide.setType(CONFIG_RIDE);
                     mMasterCtrlMgrList.add(mgrRide);
                     break;
                 case CONFIG_INTERVAL:
-                    MgrIntervalMaster mgrInterval = new MgrIntervalMaster();
+                    MgrIntervalJet mgrInterval = new MgrIntervalJet();
                     mgrInterval.setType(CONFIG_INTERVAL);
                     mMasterCtrlMgrList.add(mgrInterval);
                     break;
                 case CONFIG_TOGETHER:
-                    MgrTogetherMaster mgrTogether = new MgrTogetherMaster();
+                    MgrTogetherJet mgrTogether = new MgrTogetherJet();
                     mgrTogether.setType(CONFIG_TOGETHER);
                     mMasterCtrlMgrList.add(mgrTogether);
                 default:
@@ -399,7 +399,7 @@ public class DeMasterModeActivity extends BaseActivity {
     }
 
     /** 获取当前的喷射控制类 */
-    private MasterOutputManager getCurrentManager(int currMasterId) {
+    private MgrOutputJet getCurrentManager(int currMasterId) {
         Log.i("CMCML", "MasterCtrlMgrList SIZE: " + mMasterCtrlMgrList.size());
 
         switch (mMasterCtrlMgrList.get(currMasterId).getType()) {
@@ -417,11 +417,11 @@ public class DeMasterModeActivity extends BaseActivity {
     }
 
     @NonNull
-    private MasterOutputManager setDataWithStream(int currMasterId) {
+    private MgrOutputJet setDataWithStream(int currMasterId) {
         List<CtrlStreamEntity> streamEntities =
                 LitePal.where("groupId = ?", String.valueOf((int) mJetModes.get(currMasterId).getMillis())).find(CtrlStreamEntity.class);
 
-        MgrStreamMaster mgrStream = new MgrStreamMaster();
+        MgrStreamJet mgrStream = new MgrStreamJet();
         mgrStream.setType(CONFIG_STREAM);
         mgrStream.setDevCount(Integer.parseInt(etDevNum.getText().toString()));
         mgrStream.setCurrentTime(CURRENT_TIME);
@@ -448,11 +448,11 @@ public class DeMasterModeActivity extends BaseActivity {
     }
 
     @NonNull
-    private MasterOutputManager setDataWithRide(int currMasterId) {
+    private MgrOutputJet setDataWithRide(int currMasterId) {
         List<CtrlRideEntity> rideEntities =
                 LitePal.where("groupId = ?", String.valueOf((int) mJetModes.get(currMasterId).getMillis())).find(CtrlRideEntity.class);
 
-        MgrRideMaster mgrRide = new MgrRideMaster();
+        MgrRideJet mgrRide = new MgrRideJet();
         mgrRide.setType(CONFIG_RIDE);
         mgrRide.setDevCount(Integer.parseInt(etDevNum.getText().toString()));
         mgrRide.setCurrentTime(CURRENT_TIME);
@@ -480,11 +480,11 @@ public class DeMasterModeActivity extends BaseActivity {
     }
 
     @NonNull
-    private MasterOutputManager setDataWithInterval(int currMasterId) {
+    private MgrOutputJet setDataWithInterval(int currMasterId) {
         List<CtrlIntervalEntity> intervalEntities =
                 LitePal.where("groupId = ?", String.valueOf((int) mJetModes.get(currMasterId).getMillis())).find(CtrlIntervalEntity.class);
 
-        MgrIntervalMaster mgrInterval = new MgrIntervalMaster();
+        MgrIntervalJet mgrInterval = new MgrIntervalJet();
         mgrInterval.setType(CONFIG_INTERVAL);
         mgrInterval.setDevCount(Integer.parseInt(etDevNum.getText().toString()));
         mgrInterval.setCurrentTime(CURRENT_TIME);
@@ -506,11 +506,11 @@ public class DeMasterModeActivity extends BaseActivity {
     }
 
     @NonNull
-    private MasterOutputManager setDataWithTogether(int currMasterId) {
+    private MgrOutputJet setDataWithTogether(int currMasterId) {
         List<CtrlTogetherEntity> togetherEntities =
                 LitePal.where("groupId = ?", String.valueOf((int) mJetModes.get(currMasterId).getMillis())).find(CtrlTogetherEntity.class);
 
-        MgrTogetherMaster mgrTogether = new MgrTogetherMaster();
+        MgrTogetherJet mgrTogether = new MgrTogetherJet();
         mgrTogether.setType(CONFIG_TOGETHER);
         mgrTogether.setDevCount(Integer.parseInt(etDevNum.getText().toString()));
         mgrTogether.setCurrentTime(CURRENT_TIME);

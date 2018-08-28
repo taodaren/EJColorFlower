@@ -6,7 +6,7 @@ import android.util.Log;
  * 间隔高低管理
  */
 
-public class MgrIntervalMaster extends MasterOutputManager {
+public class MgrIntervalJet extends MgrOutputJet {
     private int mDuration;       // 持续时间
     private int mGapBig;         // 大间隔时间
 
