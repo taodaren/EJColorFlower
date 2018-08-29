@@ -10,7 +10,8 @@ import java.util.UUID;
 
 public class AppConstant {
     public static final String TAG = "taodaren";
-    public static final String TAG_DEV = "hardware_device";
+    public static final String TAG_HARDWARE_DEV = "硬件设备";
+    public static final String TAG_BLE_COMMAND = "蓝牙命令";
     public static final String EMPTY = "";
 
     public static final String APP_ID = "wx6a32217e1e3ae4f4";
@@ -25,7 +26,12 @@ public class AppConstant {
     public static final UUID UUID_GATT_CHARACTERISTIC_WRITE
             = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
 
-    public static final int ACK_TIMEOUT = 1000;
+    // 连接设备喷射缓存区数量
+    public static final int CTRL_DEV_NUM = 300;
+
+    // 蓝牙返回（解析）状态
+    public static final int BLE_RETURN_SUCCESS = 0;
+    public static final int BLE_RETURN_FAILURE = 1;
 
     // 请求代码 QRCode 权限
     public static final int REQUEST_CODE_QRCODE_PERMISSIONS = 1;
@@ -52,6 +58,10 @@ public class AppConstant {
     public static final String ADDRESS_ID_PROVINCESS = "address_id_provincess";
     public static final String ADDRESS_ID_AREAS = "address_id_areas";
     public static final String ADDRESS_ID_CITYS = "address_id_citys";
+
+    // 清料操作模式（1-非主控模式；2-主控模式）
+    public static final int CLEAR_MATERIAL_GROUP = 1;
+    public static final int CLEAR_MATERIAL_MASTER = 2;
 
     // 配置设备效果
     public static final String CONFIG_STREAM = "流水灯";

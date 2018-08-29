@@ -164,4 +164,5 @@
     <string name="text_dev_num">设备数量</string>
     <string name="text_start_dmx">起始 DMX</string>
     <string name="def_addr">默认地址</string>
+    <string name="clear_material">清料</string>
 </resources>

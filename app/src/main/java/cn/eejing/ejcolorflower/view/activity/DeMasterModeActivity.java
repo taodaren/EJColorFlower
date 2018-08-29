@@ -36,14 +36,17 @@ import cn.eejing.ejcolorflower.model.manager.MgrOutputJet;
 import cn.eejing.ejcolorflower.model.manager.MgrRideJet;
 import cn.eejing.ejcolorflower.model.manager.MgrStreamJet;
 import cn.eejing.ejcolorflower.model.manager.MgrTogetherJet;
+import cn.eejing.ejcolorflower.util.JetCommandTools;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
 import cn.eejing.ejcolorflower.view.adapter.DeMasterModeAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
+import static cn.eejing.ejcolorflower.app.AppConstant.CLEAR_MATERIAL_MASTER;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_INTERVAL;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_RIDE;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_STREAM;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
+import static cn.eejing.ejcolorflower.app.AppConstant.CTRL_DEV_NUM;
 import static cn.eejing.ejcolorflower.app.AppConstant.CURRENT_TIME;
 import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_INTERVAL_DURATION;
 import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_INTERVAL_FREQUENCY;
@@ -110,7 +113,7 @@ public class DeMasterModeActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        setToolbar("设置主控模式", View.VISIBLE, "清料", View.VISIBLE);
+        setToolbar("设置主控模式", View.VISIBLE, getString(R.string.clear_material), View.VISIBLE);
         mDeviceId = getIntent().getStringExtra("device_id");
 
         mList = new ArrayList<>();
@@ -148,7 +151,7 @@ public class DeMasterModeActivity extends BaseActivity {
                 }
                 break;
             case R.id.tv_menu_toolbar:
-                Toast.makeText(this, "menu", Toast.LENGTH_SHORT).show();
+                clearMaterialMaster();
                 break;
             case R.id.img_start_or_stop:
                 clickStartStop();
@@ -259,7 +262,7 @@ public class DeMasterModeActivity extends BaseActivity {
 
     /** 发送喷射五次命令 */
     private void togetherFiveStopPause() {
-        byte[] dataOut = new byte[300];
+        byte[] dataOut = new byte[CTRL_DEV_NUM];
         // 喷射 5 次高度为 0，持续时间 0.1s 齐喷效果
         MgrTogetherJet mgrStop = new MgrTogetherJet();
         mgrStop.setType(CONFIG_TOGETHER);
@@ -269,16 +272,27 @@ public class DeMasterModeActivity extends BaseActivity {
         mgrStop.setHigh((byte) 0);
         mgrStop.updateWithDataOut(dataOut);
         for (int i = 0; i < 5; i++) {
-            Log.i("CMCML", "第" + (i + 1) + "次停止喷射命令 star！");
-
             mDevCtrl.sendCommand(Long.parseLong(mDeviceId), BleDeviceProtocol.pkgEnterRealTimeCtrlMode(
                     Long.parseLong(mDeviceId),
                     Integer.parseInt(etStarDmx.getText().toString()),
                     Integer.parseInt(etDevNum.getText().toString()),
                     dataOut)
             );
+        }
+    }
 
-            Log.i("CMCML", "第" + (i + 1) + "次停止喷射命令 over！");
+    /** 清料 */
+    private void clearMaterialMaster() {
+        if (etDevNum.length() == 0) {
+            Toast.makeText(this, "请您设置设备数量", Toast.LENGTH_SHORT).show();
+        } else if (etStarDmx.length() == 0) {
+            Toast.makeText(this, "请您设置起始 DMX", Toast.LENGTH_SHORT).show();
+        } else {
+            JetCommandTools.clearMaterial(this,null,
+                    Long.parseLong(mDeviceId),
+                    CLEAR_MATERIAL_MASTER,
+                    Integer.parseInt(etStarDmx.getText().toString()) + 1,
+                    Integer.parseInt(etDevNum.getText().toString()), 20);
         }
     }
 
@@ -306,7 +320,7 @@ public class DeMasterModeActivity extends BaseActivity {
         }
 
         // 发送进入在线实时控制模式命令
-        byte[] dataOut = new byte[300];
+        byte[] dataOut = new byte[CTRL_DEV_NUM];
         // 调用方法判断当前组是否完成喷射
         boolean isFinish = false;
         if (isStar) {
@@ -353,6 +367,8 @@ public class DeMasterModeActivity extends BaseActivity {
                 isStar = false;
                 // 齐喷五次
                 togetherFiveStopPause();
+                // 清料
+                clearMaterialMaster();
             }
         }
 

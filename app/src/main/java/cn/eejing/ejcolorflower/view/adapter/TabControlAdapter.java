@@ -49,8 +49,8 @@ import cn.eejing.ejcolorflower.model.lite.CtrlIntervalEntity;
 import cn.eejing.ejcolorflower.model.lite.CtrlRideEntity;
 import cn.eejing.ejcolorflower.model.lite.CtrlStreamEntity;
 import cn.eejing.ejcolorflower.model.lite.CtrlTogetherEntity;
-import cn.eejing.ejcolorflower.model.manager.MgrOutputJet;
 import cn.eejing.ejcolorflower.model.manager.MgrIntervalJet;
+import cn.eejing.ejcolorflower.model.manager.MgrOutputJet;
 import cn.eejing.ejcolorflower.model.manager.MgrRideJet;
 import cn.eejing.ejcolorflower.model.manager.MgrStreamJet;
 import cn.eejing.ejcolorflower.model.manager.MgrTogetherJet;
@@ -65,11 +65,13 @@ import cn.eejing.ejcolorflower.view.activity.CoConfigStreamActivity;
 import cn.eejing.ejcolorflower.view.activity.CoConfigTogetherActivity;
 import cn.eejing.ejcolorflower.view.activity.CoDeviceActivity;
 
+import static cn.eejing.ejcolorflower.app.AppConstant.CLEAR_MATERIAL_GROUP;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_DEF;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_INTERVAL;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_RIDE;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_STREAM;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
+import static cn.eejing.ejcolorflower.app.AppConstant.CTRL_DEV_NUM;
 import static cn.eejing.ejcolorflower.app.AppConstant.CURRENT_TIME;
 import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_TOGETHER_DURATION;
 import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_TOGETHER_HIGH;
@@ -237,7 +239,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         /** 定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息）*/
         private void timerCallingMethod(MgrOutputJet mgr) {
-            byte[] highs = new byte[300];
+            byte[] highs = new byte[CTRL_DEV_NUM];
             boolean isFinish = false;
             Log.e("CMCML", "isStar: " + isStar);
             if (isStar) isFinish = mgr.updateWithDataOut(highs);
@@ -250,6 +252,8 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 Log.e("CMCML", "喷射停止!!!!!!!!!!");
                 // 停止喷射五次，喷射完成，喷射停止状态
                 JetCommandTools.jetStopFive(mConnDevList);
+                // 清料
+                JetCommandTools.clearMaterial(mContext, mConnDevList, -1, CLEAR_MATERIAL_GROUP, 0, 0, 0);
                 handler.removeMessages(4);
                 isStar = false;
                 imgJet.setImageDrawable(mContext.getDrawable(R.drawable.ic_jet_dev_star));
@@ -367,12 +371,16 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             mHigh = Integer.parseInt(DEFAULT_TOGETHER_HIGH);
         }
 
-        @OnClick({R.id.tv_ctrl_group_name, R.id.img_ctrl_group_jet, R.id.sb_config_puff, R.id.img_ctrl_group_add})
+        @OnClick({R.id.tv_ctrl_group_name, R.id.tv_ctrl_group_clear, R.id.img_ctrl_group_jet, R.id.sb_config_puff, R.id.img_ctrl_group_add})
         public void onClickView(View view) {
             switch (view.getId()) {
                 case R.id.tv_ctrl_group_name:
                     // 重命名组
                     renameGroup(groupId);
+                    break;
+                case R.id.tv_ctrl_group_clear:
+                    // 清料
+                    JetCommandTools.clearMaterial(mContext, mConnDevList, -1, CLEAR_MATERIAL_GROUP, 0, 0, 0);
                     break;
                 case R.id.img_ctrl_group_jet:
                     // 控制喷射

@@ -36,7 +36,7 @@ public class BleDeviceProtocol {
     private final static int CMD_ENTER_LCD_OPERATING_MODE = 14;                 // 进入液晶屏操作模式
     private final static int CMD_QR_DATA_SEPARATE_PKG = 15;                     // 二维码数据（分包）
     private final static int CMD_ENTER_REAL_TIME_CTRL_MODE = 16;                // 进入在线实时控制模式
-    private final static int CMD_EXIT_REAL_TIME_CTRL_MODE = 17;                 // 退出实时控制模式
+    private final static int CMD_CLEAR_MATERIAL = 17;                           // 清料
 
     private final static int HEADER_LEN = 7;
     private final byte[] pkg = new byte[MAX_PKG_LEN];
@@ -485,14 +485,22 @@ public class BleDeviceProtocol {
         return cmdPkg(CMD_ENTER_REAL_TIME_CTRL_MODE, devId, data);
     }
 
-    /** 退出在线实时控制模式 */
+    /** 清料 */
     @NonNull
-    public static byte[] pkgExitRealTimeCtrlMode(long devId) {
-        byte[] data = new byte[1];
+    public static byte[] pkgClearMaterial(long devId, int mode, int startAddress, int devNum, byte[] high) {
+        byte[] data = new byte[4 + devNum];
 
-        data[0] = (byte) (0x55);
+        data[0] = (byte) (0x55);                   // 0x55 表示退出
+        data[1] = (byte) (mode & 0xff);            // 操作模式：1-非主控模式，2-主控模式
+        data[2] = (byte) (startAddress & 0xff);    // DMX 起始地址 +1
+        data[3] = (byte) (devNum & 0xff);          // 带主机数量
 
-        return cmdPkg(CMD_EXIT_REAL_TIME_CTRL_MODE, devId, data);
+        // 主机在前，从机低到高顺序低速喷射，统一发20
+        for (int i = 0; i < devNum; i++) {
+            data[4 + i] = high[i];
+        }
+
+        return cmdPkg(CMD_CLEAR_MATERIAL, devId, data);
     }
 
 
@@ -624,14 +632,13 @@ public class BleDeviceProtocol {
         }
     }
 
-    /** 解析退出在线实时控制模式 */
-    public static int parseExitRealTimeCtrlMode(byte[] pkg, int pkgLen) {
+    /** 解析操作结果代码 */
+    public static int parseReturnCode(byte[] pkg, int pkgLen) {
         BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {
             reader.skip(HEADER_LEN);
             return reader.readUnsignedChar();
         } catch (IOException e) {
-            e.printStackTrace();
             // 错误代码，-1表示非法数据
             return -1;
         }
