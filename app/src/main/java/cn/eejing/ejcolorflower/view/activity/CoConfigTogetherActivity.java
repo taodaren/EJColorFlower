@@ -63,7 +63,7 @@ public class CoConfigTogetherActivity extends BaseActivity implements View.OnCli
 
     @Override
     public void initView() {
-        setToolbar(CONFIG_TOGETHER, View.VISIBLE);
+        setToolbar(CONFIG_TOGETHER, View.VISIBLE, null, View.GONE);
         mGroupId = getIntent().getIntExtra("group_id", 0);
 
         initConfigDB();

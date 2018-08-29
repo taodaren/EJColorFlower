@@ -146,7 +146,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
                                         bean.getData().getMember_id(),
                                         bean.getData().getToken()
                                 ));
-                                jumpToActivity(AppActivity.class);
+                                jumpToActivity(MainActivity.class);
                                 onLoginSuccess();
                                 dialog.dismiss();
                                 break;

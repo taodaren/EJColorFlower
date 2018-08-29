@@ -49,7 +49,7 @@ public class MaAddrManageActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        setToolbar("管理收货地址", View.VISIBLE);
+        setToolbar("管理收货地址", View.VISIBLE, null, View.GONE);
         mList = new ArrayList<>();
         mGson = new Gson();
         mMemberId = String.valueOf(Settings.getLoginSessionInfo(this).getMember_id());

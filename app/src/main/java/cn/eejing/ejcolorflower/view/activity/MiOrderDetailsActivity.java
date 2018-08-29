@@ -19,8 +19,8 @@ import com.lzy.okgo.model.Response;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.model.request.OrderDetailsBean;
+import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 /**
@@ -29,26 +29,16 @@ import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 public class MiOrderDetailsActivity extends BaseActivity {
 
-    @BindView(R.id.tv_order_dtl_status)
-    TextView tvOrderStatus;
-    @BindView(R.id.tv_order_dtl_consignee)
-    TextView tvConsignee;
-    @BindView(R.id.tv_order_dtl_phone)
-    TextView tvPhone;
-    @BindView(R.id.tv_order_dtl_address)
-    TextView tvAddress;
-    @BindView(R.id.tv_order_dtl_name)
-    TextView tvName;
-    @BindView(R.id.tv_order_dtl_money)
-    TextView tvMoney;
-    @BindView(R.id.tv_order_dtl_num)
-    TextView tvNum;
-    @BindView(R.id.tv_order_dtl_odd)
-    TextView tvOdd;
-    @BindView(R.id.tv_order_dtl_time)
-    TextView tvTime;
-    @BindView(R.id.img_order_dtl_show)
-    ImageView imgShow;
+    @BindView(R.id.tv_order_dtl_status)           TextView     tvOrderStatus;
+    @BindView(R.id.tv_order_dtl_consignee)        TextView     tvConsignee;
+    @BindView(R.id.tv_order_dtl_phone)            TextView     tvPhone;
+    @BindView(R.id.tv_order_dtl_address)          TextView     tvAddress;
+    @BindView(R.id.tv_order_dtl_name)             TextView     tvName;
+    @BindView(R.id.tv_order_dtl_money)            TextView     tvMoney;
+    @BindView(R.id.tv_order_dtl_num)              TextView     tvNum;
+    @BindView(R.id.tv_order_dtl_odd)              TextView     tvOdd;
+    @BindView(R.id.tv_order_dtl_time)             TextView     tvTime;
+    @BindView(R.id.img_order_dtl_show)            ImageView    imgShow;
 
     private int mOrderId;
     private String mType;
@@ -61,14 +51,15 @@ public class MiOrderDetailsActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        setToolbar("订单详情", View.VISIBLE);
+        setToolbar("订单详情", View.VISIBLE, null, View.GONE);
         mType = getIntent().getStringExtra("type");
         mOrderId = getIntent().getIntExtra("order_id", 0);
         mGson = new Gson();
     }
 
     @Override
-    public void setToolbar(String title, int titleVisibility) {
+    public void setToolbar(String title, int titleVisibility, String menu, int menuVisibility) {
+        super.setToolbar(title, titleVisibility, menu, menuVisibility);
         // 沉浸式状态栏
         StatusBarUtil.setColorNoTranslucent(this, getResources().getColor(R.color.colorWhite));
 
@@ -91,7 +82,7 @@ public class MiOrderDetailsActivity extends BaseActivity {
         textTitle.setText(title);
 
         // 设置返回按钮
-        ImageView imgTitleBack = findViewById(R.id.img_title_back);
+        ImageView imgTitleBack = findViewById(R.id.img_back_toolbar);
         imgTitleBack.setVisibility(View.VISIBLE);
         imgTitleBack.setImageDrawable(getDrawable(R.drawable.ic_arrow_black));
         imgTitleBack.setOnClickListener(new View.OnClickListener() {

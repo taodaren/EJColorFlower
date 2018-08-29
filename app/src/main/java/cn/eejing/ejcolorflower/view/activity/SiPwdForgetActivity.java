@@ -44,7 +44,7 @@ public class SiPwdForgetActivity extends BaseActivity implements View.OnClickLis
 
     @Override
     public void initView() {
-        setToolbar("忘记密码", View.VISIBLE);
+        setToolbar("忘记密码", View.VISIBLE, null, View.GONE);
         String mobile = getIntent().getStringExtra("mobile");
         etForgetPhone.setText(mobile);
         mMobile = etForgetPhone.getText().toString();

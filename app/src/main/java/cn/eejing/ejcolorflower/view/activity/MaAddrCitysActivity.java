@@ -42,7 +42,7 @@ public class MaAddrCitysActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        setToolbar("选择地区", View.VISIBLE);
+        setToolbar("选择地区", View.VISIBLE, null, View.GONE);
         addActivity("citys", this);
         mList = new ArrayList<>();
         mProvincess = getIntent().getStringExtra(ADDRESS_PROVINCESS);

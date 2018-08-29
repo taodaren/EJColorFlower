@@ -41,8 +41,8 @@ import static cn.eejing.ejcolorflower.app.AppConstant.EXIT_LOGIN;
 import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_CHARACTERISTIC_WRITE;
 import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_SERVICE;
 
-public class AppActivity extends BLEActivity implements ISendCommand, BottomNavigationBar.OnTabSelectedListener {
-    private static final String TAG = "AppActivity";
+public class MainActivity extends BLEActivity implements ISendCommand, BottomNavigationBar.OnTabSelectedListener {
+    private static final String TAG = "MainActivity";
 
     private List<Fragment> mFragments;
     private Fragment mCurrentFragment;
@@ -54,9 +54,9 @@ public class AppActivity extends BLEActivity implements ISendCommand, BottomNavi
     // 烟花设备控制
     private static FireworkDevCtrl mFireworksDevCtrl;
 
-    static private AppActivity AppInstance = null;
+    static private MainActivity AppInstance = null;
 
-    public static AppActivity getAppCtrl() {
+    public static MainActivity getAppCtrl() {
         return AppInstance;
     }
 
@@ -324,7 +324,7 @@ public class AppActivity extends BLEActivity implements ISendCommand, BottomNavi
         public void sendCommand(long device_id, @NonNull byte[] pkg) {
             Device device = findDeviceById(device_id);
             if (device != null) {
-                AppActivity.this.sendCommand(device, pkg);
+                MainActivity.this.sendCommand(device, pkg);
             }
         }
 
@@ -332,7 +332,7 @@ public class AppActivity extends BLEActivity implements ISendCommand, BottomNavi
         public void sendCommand(long device_id, @NonNull byte[] pkg, OnReceivePackage callback) {
             Device device = findDeviceById(device_id);
             if (device != null) {
-                AppActivity.this.sendCommand(device, pkg, callback);
+                MainActivity.this.sendCommand(device, pkg, callback);
             }
         }
     };

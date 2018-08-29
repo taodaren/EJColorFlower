@@ -34,7 +34,7 @@ public class MiSetActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        setToolbar("设置", View.VISIBLE);
+        setToolbar("设置", View.VISIBLE, null, View.GONE);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class MiSetActivity extends BaseActivity {
         // 退出登陆回到登陆界面
         startActivity(new Intent(MiSetActivity.this, SignInActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         finish();
-        // 结束 AppActivity
+        // 结束 MainActivity
         delActivity(EXIT_LOGIN);
     }
 

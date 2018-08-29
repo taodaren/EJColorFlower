@@ -90,7 +90,7 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void initView() {
-        setToolbar(CONFIG_RIDE, View.VISIBLE);
+        setToolbar(CONFIG_RIDE, View.VISIBLE, null, View.GONE);
 
         mGroupId = getIntent().getIntExtra("group_id", 0);
 

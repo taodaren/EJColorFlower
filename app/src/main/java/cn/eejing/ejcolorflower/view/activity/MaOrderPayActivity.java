@@ -78,7 +78,7 @@ public class MaOrderPayActivity extends BaseActivity implements View.OnClickList
     @SuppressLint("SetTextI18n")
     @Override
     public void initView() {
-        setToolbar("订单支付", View.VISIBLE);
+        setToolbar("订单支付", View.VISIBLE, null, View.GONE);
         tvPayMoney.setText(getString(R.string.rmb) + getIntent().getDoubleExtra("money", 0));
 
         mGson = new Gson();

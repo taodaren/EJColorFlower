@@ -39,7 +39,7 @@ public class MaAddrProvincesActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        setToolbar("选择地区", View.VISIBLE);
+        setToolbar("选择地区", View.VISIBLE, null, View.GONE);
         mList = new ArrayList<>();
 
         addActivity("provinces", this);

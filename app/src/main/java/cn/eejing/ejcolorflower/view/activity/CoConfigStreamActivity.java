@@ -91,7 +91,7 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void initView() {
-        setToolbar(CONFIG_STREAM, View.VISIBLE);
+        setToolbar(CONFIG_STREAM, View.VISIBLE, null, View.GONE);
 
         mGroupId = getIntent().getIntExtra("group_id", 0);
 

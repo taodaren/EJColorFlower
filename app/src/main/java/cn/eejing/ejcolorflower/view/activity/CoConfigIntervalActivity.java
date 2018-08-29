@@ -68,7 +68,7 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
 
     @Override
     public void initView() {
-        setToolbar(CONFIG_INTERVAL, View.VISIBLE);
+        setToolbar(CONFIG_INTERVAL, View.VISIBLE, null, View.GONE);
         mGroupId = getIntent().getIntExtra("group_id", 0);
 
         initConfigDB();

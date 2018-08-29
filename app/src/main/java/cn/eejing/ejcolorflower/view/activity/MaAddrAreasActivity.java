@@ -43,7 +43,7 @@ public class MaAddrAreasActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        setToolbar("选择地区", View.VISIBLE);
+        setToolbar("选择地区", View.VISIBLE, null, View.GONE);
         mProvincess = getIntent().getStringExtra(ADDRESS_PROVINCESS);
         mCity = getIntent().getStringExtra(ADDRESS_CITYS);
         mCityId = getIntent().getStringExtra(ADDRESS_ID_CITYS);

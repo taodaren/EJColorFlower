@@ -52,7 +52,7 @@ public class MaAddrModifyActivity extends BaseActivity {
     @Override
     public void initView() {
         EventBus.getDefault().register(this);
-        setToolbar("修改收货地址", View.VISIBLE);
+        setToolbar("修改收货地址", View.VISIBLE, null, View.GONE);
 
         mGson = new Gson();
         mToken = Settings.getLoginSessionInfo(this).getToken();

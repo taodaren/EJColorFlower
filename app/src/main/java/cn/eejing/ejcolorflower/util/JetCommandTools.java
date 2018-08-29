@@ -6,14 +6,14 @@ import java.util.List;
 
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.model.event.ConnDevInfo;
-import cn.eejing.ejcolorflower.view.activity.AppActivity;
+import cn.eejing.ejcolorflower.view.activity.MainActivity;
 
 /**
  * 喷射管理
  */
 
 public class JetCommandTools {
-    private static AppActivity.FireworkDevCtrl mDevCtrl = AppActivity.getFireworksDevCtrl();
+    private static MainActivity.FireworkDevCtrl mDevCtrl = MainActivity.getFireworksDevCtrl();
 
     /** 开始喷射 */
     public static void jetStart(List<ConnDevInfo> devList, byte[] highs) {

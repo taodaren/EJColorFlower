@@ -41,7 +41,7 @@ public class MiPwdModifyActivity extends BaseActivity implements View.OnClickLis
 
     @Override
     public void initView() {
-        setToolbar("修改密码", View.VISIBLE);
+        setToolbar("修改密码", View.VISIBLE, null, View.GONE);
         mGson = new Gson();
 
         mIv = Encryption.newIv();

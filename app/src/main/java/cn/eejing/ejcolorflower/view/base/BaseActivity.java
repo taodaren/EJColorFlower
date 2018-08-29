@@ -68,8 +68,10 @@ public abstract class BaseActivity extends AppCompatActivity {
      *
      * @param title           标题
      * @param titleVisibility 标题控件是否显示
+     * @param menu            右侧菜单文字
+     * @param menuVisibility  右侧控件是否显示
      */
-    public void setToolbar(String title, int titleVisibility) {
+    public void setToolbar(String title, int titleVisibility, String menu, int menuVisibility) {
         Toolbar toolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
 
@@ -86,7 +88,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         textTitle.setVisibility(titleVisibility);
         textTitle.setText(title);
         // 设置返回按钮
-        ImageView imgTitleBack = findViewById(R.id.img_title_back);
+        ImageView imgTitleBack = findViewById(R.id.img_back_toolbar);
         imgTitleBack.setVisibility(View.VISIBLE);
         imgTitleBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,6 +96,10 @@ public abstract class BaseActivity extends AppCompatActivity {
                 finish();
             }
         });
+        // 设置右侧菜单按钮
+        TextView textMenu = findViewById(R.id.tv_menu_toolbar);
+        textMenu.setVisibility(menuVisibility);
+        textMenu.setText(menu);
     }
 
     /**

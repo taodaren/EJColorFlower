@@ -34,7 +34,7 @@ public class MiAboutActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        setToolbar("关于我们", View.VISIBLE);
+        setToolbar("关于我们", View.VISIBLE, null, View.GONE);
     }
 
     @Override

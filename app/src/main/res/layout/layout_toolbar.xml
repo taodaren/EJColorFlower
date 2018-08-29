@@ -19,14 +19,26 @@
         android:visibility="gone" />
 
     <ImageView
-        android:id="@+id/img_title_back"
+        android:id="@+id/img_back_toolbar"
         android:layout_width="36dp"
         android:layout_height="36dp"
-        android:padding="8dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:clickable="true"
+        android:focusable="true"
+        android:padding="8dp"
         android:src="@drawable/ic_arrow_left"
         android:visibility="gone"
-        tools:ignore="ContentDescription"
-        android:focusable="true" />
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/tv_menu_toolbar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|end"
+        android:layout_marginEnd="8dp"
+        android:fitsSystemWindows="true"
+        android:padding="8dp"
+        android:textColor="@color/colorWhite"
+        android:textSize="16sp"
+        android:visibility="visible" />
 </android.support.v7.widget.Toolbar>

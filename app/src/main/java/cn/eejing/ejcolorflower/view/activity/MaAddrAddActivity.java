@@ -57,7 +57,7 @@ public class MaAddrAddActivity extends BaseActivity {
         mMemberId = String.valueOf(Settings.getLoginSessionInfo(this).getMember_id());
         mToken = Settings.getLoginSessionInfo(this).getToken();
 
-        setToolbar("添加收货地址", View.VISIBLE);
+        setToolbar("添加收货地址", View.VISIBLE, null, View.GONE);
     }
 
     @Override

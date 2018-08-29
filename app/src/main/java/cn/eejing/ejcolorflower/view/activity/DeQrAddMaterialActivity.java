@@ -35,7 +35,7 @@ public class DeQrAddMaterialActivity extends BaseActivity implements View.OnClic
 
     @Override
     public void initView() {
-        setToolbar("二维码扫描", View.VISIBLE);
+        setToolbar("二维码扫描", View.VISIBLE, null, View.GONE);
 
         // 设置扫描二维码的代理
         mQRCodeView.setDelegate(this);

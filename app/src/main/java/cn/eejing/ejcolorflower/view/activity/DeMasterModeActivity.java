@@ -62,16 +62,16 @@ import static cn.eejing.ejcolorflower.app.AppConstant.LOOP_ID;
  */
 
 public class DeMasterModeActivity extends BaseActivity {
-    private static final int PAUSE_STATUS_CANNOT = 0;        // 不可点击-停止状态
-    private static final int PAUSE_STATUS_ING = 1;           // 暂停状态
-    private static final int PAUSE_STATUS_GOON = 2;          // 喷射状态-点击恢复之后
+    private static final int PAUSE_STATUS_CANNOT = 0;          // 不可点击-停止状态
+    private static final int PAUSE_STATUS_ING = 1;             // 暂停状态
+    private static final int PAUSE_STATUS_GOON = 2;            // 喷射状态-点击恢复之后
 
-    @BindView(R.id.rv_master_mode)             RecyclerView rvMasterMode;
-    @BindView(R.id.img_start_or_stop)          ImageView imgStartStop;
-    @BindView(R.id.img_pause_or_goon)          ImageView imgPauseGoon;
-    @BindView(R.id.img_add_master_mode)        ImageView imgMasterMode;
-    @BindView(R.id.et_dev_num)                 EditText etDevNum;
-    @BindView(R.id.et_start_dmx)               EditText etStarDmx;
+    @BindView(R.id.rv_master_mode)             RecyclerView    rvMasterMode;
+    @BindView(R.id.img_start_or_stop)          ImageView       imgStartStop;
+    @BindView(R.id.img_pause_or_goon)          ImageView       imgPauseGoon;
+    @BindView(R.id.img_add_master_mode)        ImageView       imgMasterMode;
+    @BindView(R.id.et_dev_num)                 EditText        etDevNum;
+    @BindView(R.id.et_start_dmx)               EditText        etStarDmx;
 
     // 是否停止喷射
     private boolean isStar;
@@ -82,7 +82,7 @@ public class DeMasterModeActivity extends BaseActivity {
     private List<MasterCtrlModeEntity> mList;
     private SelfDialogBase mDialog;
 
-    private AppActivity.FireworkDevCtrl mDevCtrl;
+    private MainActivity.FireworkDevCtrl mDevCtrl;
     // 当前主控喷射效果ID及标志位
     private int mCurrMasterId, mFlagCurrId;
 
@@ -110,34 +110,16 @@ public class DeMasterModeActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        setToolbar("设置主控模式", View.VISIBLE);
+        setToolbar("设置主控模式", View.VISIBLE, "清料", View.VISIBLE);
         mDeviceId = getIntent().getStringExtra("device_id");
 
         mList = new ArrayList<>();
         mMasterCtrlMgrList = new ArrayList<>();
         mHandler = new Handler();
-        mDevCtrl = AppActivity.getFireworksDevCtrl();
+        mDevCtrl = MainActivity.getFireworksDevCtrl();
 
         initConfigDB();
         initRecyclerView();
-    }
-
-    @Override
-    public void setToolbar(String title, int titleVisibility) {
-        super.setToolbar(title, titleVisibility);
-        // 设置返回按钮
-        ImageView imgTitleBack = findViewById(R.id.img_title_back);
-        imgTitleBack.setVisibility(View.VISIBLE);
-        imgTitleBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isStar) {
-                    showExitDialog();
-                } else {
-                    finish();
-                }
-            }
-        });
     }
 
     @Override
@@ -155,9 +137,19 @@ public class DeMasterModeActivity extends BaseActivity {
         }
     }
 
-    @OnClick({R.id.img_start_or_stop, R.id.img_pause_or_goon, R.id.img_add_master_mode})
+    @OnClick({R.id.img_back_toolbar, R.id.tv_menu_toolbar, R.id.img_start_or_stop, R.id.img_pause_or_goon, R.id.img_add_master_mode})
     public void onViewClicked(View view) {
         switch (view.getId()) {
+            case R.id.img_back_toolbar:
+                if (isStar) {
+                    showExitDialog();
+                } else {
+                    finish();
+                }
+                break;
+            case R.id.tv_menu_toolbar:
+                Toast.makeText(this, "menu", Toast.LENGTH_SHORT).show();
+                break;
             case R.id.img_start_or_stop:
                 clickStartStop();
                 break;
@@ -430,16 +422,16 @@ public class DeMasterModeActivity extends BaseActivity {
         switch (streamEntities.size()) {
             case 1:
                 mgrStream.setDirection(Integer.parseInt(streamEntities.get(0).getDirection()));
-                mgrStream.setGap(Integer.parseInt(streamEntities.get(0).getGap())*10);
-                mgrStream.setDuration(Integer.parseInt(streamEntities.get(0).getDuration())*10);
-                mgrStream.setGapBig(Integer.parseInt(streamEntities.get(0).getGapBig())*10);
+                mgrStream.setGap(Integer.parseInt(streamEntities.get(0).getGap()) * 10);
+                mgrStream.setDuration(Integer.parseInt(streamEntities.get(0).getDuration()) * 10);
+                mgrStream.setGapBig(Integer.parseInt(streamEntities.get(0).getGapBig()) * 10);
                 mgrStream.setLoop(Integer.parseInt(streamEntities.get(0).getLoop()));
                 break;
             default:
                 mgrStream.setDirection(Integer.parseInt(LEFT_TO_RIGHT));
-                mgrStream.setGap(Integer.parseInt(DEFAULT_STREAM_RIDE_GAP)*10);
-                mgrStream.setDuration(Integer.parseInt(DEFAULT_STREAM_RIDE_DURATION)*10);
-                mgrStream.setGapBig(Integer.parseInt(DEFAULT_STREAM_RIDE_GAP_BIG)*10);
+                mgrStream.setGap(Integer.parseInt(DEFAULT_STREAM_RIDE_GAP) * 10);
+                mgrStream.setDuration(Integer.parseInt(DEFAULT_STREAM_RIDE_DURATION) * 10);
+                mgrStream.setGapBig(Integer.parseInt(DEFAULT_STREAM_RIDE_GAP_BIG) * 10);
                 mgrStream.setLoop(Integer.parseInt(DEFAULT_STREAM_RIDE_LOOP));
                 break;
         }
@@ -469,9 +461,9 @@ public class DeMasterModeActivity extends BaseActivity {
                 break;
             default:
                 mgrRide.setDirection(Integer.parseInt(LEFT_TO_RIGHT));
-                mgrRide.setGap(Integer.parseInt(DEFAULT_STREAM_RIDE_GAP)*10);
-                mgrRide.setDuration(Integer.parseInt(DEFAULT_STREAM_RIDE_DURATION)*10);
-                mgrRide.setGapBig(Integer.parseInt(DEFAULT_STREAM_RIDE_GAP_BIG)*10);
+                mgrRide.setGap(Integer.parseInt(DEFAULT_STREAM_RIDE_GAP) * 10);
+                mgrRide.setDuration(Integer.parseInt(DEFAULT_STREAM_RIDE_DURATION) * 10);
+                mgrRide.setGapBig(Integer.parseInt(DEFAULT_STREAM_RIDE_GAP_BIG) * 10);
                 mgrRide.setLoop(Integer.parseInt(DEFAULT_STREAM_RIDE_LOOP));
                 break;
         }

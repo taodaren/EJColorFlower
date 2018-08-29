@@ -45,7 +45,7 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void initView() {
-        setToolbar("注册", View.VISIBLE);
+        setToolbar("注册", View.VISIBLE, null, View.GONE);
         mIv = Encryption.newIv();
     }
 

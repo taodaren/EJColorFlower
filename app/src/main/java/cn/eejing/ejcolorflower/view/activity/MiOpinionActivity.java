@@ -43,7 +43,7 @@ public class MiOpinionActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        setToolbar("意见反馈", View.VISIBLE);
+        setToolbar("意见反馈", View.VISIBLE, null, View.GONE);
         setEditEnter();
     }
 

@@ -4,7 +4,7 @@ import com.allen.library.SuperTextView;
 
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.view.activity.AppActivity;
+import cn.eejing.ejcolorflower.view.activity.MainActivity;
 import cn.eejing.ejcolorflower.view.activity.MiAboutActivity;
 import cn.eejing.ejcolorflower.view.activity.MiOpinionActivity;
 import cn.eejing.ejcolorflower.view.activity.MiOrderActivity;
@@ -43,28 +43,28 @@ public class TabMineFragment extends BaseFragment {
         stvMineOrder.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
             @Override
             public void onClickListener(SuperTextView superTextView) {
-                ((AppActivity) getActivity()).jumpToActivity(MiOrderActivity.class);
+                ((MainActivity) getActivity()).jumpToActivity(MiOrderActivity.class);
             }
         });
 
         stvMineOpinion.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
             @Override
             public void onClickListener(SuperTextView superTextView) {
-                ((AppActivity) getActivity()).jumpToActivity(MiOpinionActivity.class);
+                ((MainActivity) getActivity()).jumpToActivity(MiOpinionActivity.class);
             }
         });
 
         stvMineAbout.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
             @Override
             public void onClickListener(SuperTextView superTextView) {
-                ((AppActivity) getActivity()).jumpToActivity(MiAboutActivity.class);
+                ((MainActivity) getActivity()).jumpToActivity(MiAboutActivity.class);
             }
         });
 
         stvMineSet.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
             @Override
             public void onClickListener(SuperTextView superTextView) {
-                ((AppActivity) getActivity()).jumpToActivity(MiSetActivity.class);
+                ((MainActivity) getActivity()).jumpToActivity(MiSetActivity.class);
             }
         });
     }

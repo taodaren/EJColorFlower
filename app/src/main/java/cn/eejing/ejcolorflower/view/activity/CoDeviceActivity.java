@@ -53,7 +53,7 @@ public class CoDeviceActivity extends BaseActivity implements
 
     @Override
     public void initView() {
-        setToolbar(getIntent().getStringExtra("group_name"), View.VISIBLE);
+        setToolbar(getIntent().getStringExtra("group_name"), View.VISIBLE, null, View.GONE);
 
         mGson = new Gson();
         mList = new ArrayList<>();

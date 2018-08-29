@@ -30,10 +30,8 @@ import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
 import cn.eejing.ejcolorflower.model.event.DmxZeroEvent;
 import cn.eejing.ejcolorflower.util.SelfDialog;
-import cn.eejing.ejcolorflower.view.activity.AppActivity;
+import cn.eejing.ejcolorflower.view.activity.MainActivity;
 import cn.eejing.ejcolorflower.view.base.BaseFragment;
-
-import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_YES;
 
 /**
  * 设备信息
@@ -52,7 +50,7 @@ public class PageDeviceInfoFragment extends BaseFragment {
     private static int mDevTemp, mDevDmx, mDevTime;
     private SelfDialog mDialog;
     private Set<Integer> mDmxSet;
-    private AppActivity.FireworkDevCtrl mDevCtrl;
+    private MainActivity.FireworkDevCtrl mDevCtrl;
 
     public static PageDeviceInfoFragment newInstance(int info, int thresholdHigh, int type, long deviceId) {
         Log.i("TAG", "newInstance: " + info);
@@ -88,7 +86,7 @@ public class PageDeviceInfoFragment extends BaseFragment {
             EventBus.getDefault().register(this);
         }
         mDmxSet = new HashSet<>();
-        mDevCtrl = AppActivity.getFireworksDevCtrl();
+        mDevCtrl = MainActivity.getFireworksDevCtrl();
 
         setTempStatus();
         setDmxAddress();
@@ -234,7 +232,7 @@ public class PageDeviceInfoFragment extends BaseFragment {
 
     private void updateDmx(int niDmx) {
         // 清空设备配置
-        AppActivity.getAppCtrl().clearDeviceConfig(mDevId);
+        MainActivity.getAppCtrl().clearDeviceConfig(mDevId);
         // 发送更新 DMX 命令
         byte[] pkg = BleDeviceProtocol.pkgSetDmxAddress(mDevId, niDmx);
         mDevCtrl.sendCommand(mDevId, pkg);

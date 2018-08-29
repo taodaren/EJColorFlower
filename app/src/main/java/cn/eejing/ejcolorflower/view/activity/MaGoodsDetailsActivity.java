@@ -54,7 +54,7 @@ public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClick
         mGson = new Gson();
         mList = new ArrayList<>();
 
-        setToolbar(getIntent().getStringExtra("name"), View.VISIBLE);
+        setToolbar(getIntent().getStringExtra("name"), View.VISIBLE, null, View.GONE);
     }
 
     @Override

@@ -63,7 +63,7 @@ public class MaOrderConfirmActivity extends BaseActivity implements View.OnClick
 
     @Override
     public void initView() {
-        setToolbar("确认订单", View.VISIBLE);
+        setToolbar("确认订单", View.VISIBLE, null, View.GONE);
 
         mGson = new Gson();
         mGoodsId = getIntent().getIntExtra("goods_id", 0);

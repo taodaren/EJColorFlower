@@ -35,7 +35,7 @@ public class MiOrderActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        setToolbar("我的订单", View.VISIBLE);
+        setToolbar("我的订单", View.VISIBLE, null, View.GONE);
         setTabPagerFragment();
     }
 

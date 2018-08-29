@@ -24,7 +24,7 @@ public class MiUserInfoActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        setToolbar("个人信息", View.VISIBLE);
+        setToolbar("个人信息", View.VISIBLE, null, View.GONE);
         // set cellphone number
         stvPhoneNum.setRightString(Settings.getLoginSessionInfo(this).getUsername());
     }

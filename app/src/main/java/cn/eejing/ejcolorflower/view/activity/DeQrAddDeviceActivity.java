@@ -41,7 +41,7 @@ public class DeQrAddDeviceActivity extends BaseActivity implements View.OnClickL
 
     @Override
     public void initView() {
-        setToolbar("二维码扫描", View.VISIBLE);
+        setToolbar("二维码扫描", View.VISIBLE, null, View.GONE);
 
         LoginSession session = Settings.getLoginSessionInfo(this);
         mToken = session.getToken();
@@ -129,7 +129,7 @@ public class DeQrAddDeviceActivity extends BaseActivity implements View.OnClickL
                                 break;
                             case 1:
                                 Toast.makeText(DeQrAddDeviceActivity.this, "设备添加成功", Toast.LENGTH_SHORT).show();
-                                jumpToActivity(AppActivity.class);
+                                jumpToActivity(MainActivity.class);
                                 finish();
                                 break;
                             case 2:

@@ -18,7 +18,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.view.activity.AppActivity;
+import cn.eejing.ejcolorflower.view.activity.MainActivity;
 import cn.eejing.ejcolorflower.model.request.GoodsListBean;
 import cn.eejing.ejcolorflower.view.activity.MaGoodsDetailsActivity;
 
@@ -102,7 +102,7 @@ public class TabMallAdapter extends RecyclerView.Adapter<TabMallAdapter.MallView
                     Intent intent = new Intent(mContext, MaGoodsDetailsActivity.class);
                     intent.putExtra("goods_id", goodsId);
                     intent.putExtra("name", name);
-                    ((AppActivity) mContext).jumpToActivity(intent);
+                    ((MainActivity) mContext).jumpToActivity(intent);
                 }
             });
         }

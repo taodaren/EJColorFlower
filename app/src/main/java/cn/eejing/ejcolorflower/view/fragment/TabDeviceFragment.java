@@ -37,7 +37,7 @@ import cn.eejing.ejcolorflower.model.session.LoginSession;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.Settings;
-import cn.eejing.ejcolorflower.view.activity.AppActivity;
+import cn.eejing.ejcolorflower.view.activity.MainActivity;
 import cn.eejing.ejcolorflower.view.activity.BLEActivity;
 import cn.eejing.ejcolorflower.view.activity.SignInActivity;
 import cn.eejing.ejcolorflower.view.adapter.TabDeviceAdapter;
@@ -64,7 +64,7 @@ public class TabDeviceFragment extends BaseFragment {
 
     private String mDeviceIdByServer;
 
-    private AppActivity.FireworkDevCtrl mDeviceControl;
+    private MainActivity.FireworkDevCtrl mDeviceControl;
 
     public static TabDeviceFragment newInstance() {
         return new TabDeviceFragment();
@@ -88,7 +88,7 @@ public class TabDeviceFragment extends BaseFragment {
         EventBus.getDefault().register(this);
         mGson = new Gson();
         mList = new ArrayList<>();
-        mDeviceControl = AppActivity.getFireworksDevCtrl();
+        mDeviceControl = MainActivity.getFireworksDevCtrl();
         LoginSession session = Settings.getLoginSessionInfo(getActivity());
         mMemberId = String.valueOf(session.getMember_id());
         mToken = session.getToken();
@@ -222,7 +222,7 @@ public class TabDeviceFragment extends BaseFragment {
                                 mList = bean.getData().getList();
                                 Log.i(AppConstant.TAG, "onSuccess: get device group list--->" + mList.size());
                                 // 注册设备
-                                AppActivity.getAppCtrl().setRegisterDevice(mList);
+                                MainActivity.getAppCtrl().setRegisterDevice(mList);
                                 // 刷新数据
                                 mAdapter.refreshList(mList);
                                 // 刷新结束
