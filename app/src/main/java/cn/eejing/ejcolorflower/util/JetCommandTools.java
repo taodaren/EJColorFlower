@@ -1,11 +1,14 @@
 package cn.eejing.ejcolorflower.util;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.model.event.ConnDevInfo;
@@ -83,6 +86,9 @@ public class JetCommandTools {
         }
     }
 
+    @SuppressLint("UseSparseArrays")
+    private static Map<Long, String> mClearFailureDevMap = new HashMap<>();
+
     /** 清料命令 */
     private static void clearMaterialCommand(final Context context, final long devId,
                                              final int mode, final int startAddress, final int devNum, final byte[] highs, final int resendNum) {
@@ -94,10 +100,18 @@ public class JetCommandTools {
                         int returnCode = BleDeviceProtocol.parseReturnCode(pkg, pkg.length);
                         switch (returnCode) {
                             case BLE_RETURN_SUCCESS:
-                                Toast.makeText(context, "清料成功！", Toast.LENGTH_LONG).show();
+                                if (mClearFailureDevMap.size() == devNum) {
+                                    // 如果所有设备都清料成功，提示用户
+                                    Toast.makeText(context, "清料成功！", Toast.LENGTH_LONG).show();
+                                }
                                 break;
                             case BLE_RETURN_FAILURE:
-                                Toast.makeText(context, "清料失败，请重新清料", Toast.LENGTH_LONG).show();
+                                if (resendNum != 0) {
+                                    clearMaterialCommand(context, devId, mode, startAddress, devNum, highs, resendNum - 1);
+                                } else {
+                                    Toast.makeText(context, devId + "清料失败，请重新清料", Toast.LENGTH_LONG).show();
+                                    mClearFailureDevMap.put(devId, "清料失败");
+                                }
                                 break;
                         }
                     }
@@ -108,7 +122,8 @@ public class JetCommandTools {
                         if (resendNum != 0) {
                             clearMaterialCommand(context, devId, mode, startAddress, devNum, highs, resendNum - 1);
                         } else {
-                            Toast.makeText(context, "清料超时，请重新清料", Toast.LENGTH_LONG).show();
+                            Toast.makeText(context, devId + "清料超时，请重新清料", Toast.LENGTH_LONG).show();
+                            mClearFailureDevMap.put(devId, "清料失败");
                         }
                     }
                 });
