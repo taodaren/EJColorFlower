@@ -361,17 +361,17 @@ public class MainActivity extends BLEActivity implements ISendCommand, BottomNav
         }
 
         @Override
-        protected void receivePkg(@NonNull final DeviceStatus status) {
+        protected void onReceivePkg(@NonNull final DeviceStatus status) {
             device.setState(status);
         }
 
         @Override
-        protected void receivePkg(@NonNull final DeviceConfig config) {
+        protected void onReceivePkg(@NonNull final DeviceConfig config) {
             device.setConfig(config);
         }
 
         @Override
-        protected void receivePkg(@NonNull final byte[] pkg, int pkg_len) {
+        protected void onReceivePkg(@NonNull final byte[] pkg, int pkg_len) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

@@ -124,7 +124,6 @@ public class BLEActivity extends BaseActivity {
                 mDeviceManagerSet.remove(mgr.mac);
             }
         }
-
     }
 
     /**

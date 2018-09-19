@@ -288,10 +288,10 @@ public class DeMasterModeActivity extends BaseActivity {
         } else if (etStarDmx.length() == 0) {
             Toast.makeText(this, "请您设置起始 DMX", Toast.LENGTH_SHORT).show();
         } else {
-            JetCommandTools.clearMaterial(this,null,
+            JetCommandTools.clearMaterial(this, null,
                     Long.parseLong(mDeviceId),
                     CLEAR_MATERIAL_MASTER,
-                    Integer.parseInt(etStarDmx.getText().toString()) + 1,
+                    Integer.parseInt(etStarDmx.getText().toString()),
                     Integer.parseInt(etDevNum.getText().toString()), 20);
         }
     }

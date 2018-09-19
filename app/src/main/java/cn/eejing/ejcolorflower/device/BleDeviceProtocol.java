@@ -40,7 +40,7 @@ public class BleDeviceProtocol {
 
     private final static int HEADER_LEN = 7;
     private final byte[] pkg = new byte[MAX_PKG_LEN];
-    private int mPkgLen = 0;
+    private int mPkgLen;
     private boolean mTranslate;
 
     /** 接收 */
@@ -50,7 +50,8 @@ public class BleDeviceProtocol {
         }
     }
 
-    /** 反转义 */
+
+    /** 转义判断 */
     private void onByte(byte b) {
         if (mTranslate) {
             mTranslate = false;
@@ -62,11 +63,11 @@ public class BleDeviceProtocol {
         }
     }
 
-    private int s = 0;
-    private int data_len = 0;
-    private final byte[] S = new byte[6];
-    private int Sn = 0;
-    private final static int[] K = new int[]{
+    private int type;                             // 报文加密位置类型
+    private int dataLen;                          // 数据长度
+    private final byte[] S = new byte[6];         // 随机数长度
+    private int niS;                              // 随机数个数
+    private final static int[] K = new int[]{     // 密码本
             30, 19, 3, 37, 17, 16, 35, 36, 16, 37, 22, 4, 42, 15, 21, 14, 29, 45, 20, 41, 38, 13,
             12, 5, 5, 40, 8, 1, 34, 7, 8, 2, 19, 13, 31, 27, 0, 20, 28, 24, 38, 36, 23, 10, 1, 14,
             43, 33, 13, 16, 15, 3, 37, 4, 25, 6, 40, 12, 5, 42, 25, 3, 31, 29, 18, 25, 39, 30, 24,
@@ -89,30 +90,30 @@ public class BleDeviceProtocol {
         return map(S, i, d);
     }
 
-    /** 解密 */
-    private void onByteLevel2(byte b, boolean is_translated) {
-        if (b == (byte) 0xDC && !is_translated) {
-            s = 1;
-        } else if (s == 1) {
-            data_len = (int) b & 0xff;
-            if (data_len > MAX_PKG_LEN) {
-                s = 0;
+    /** 二级转义判断 */
+    private void onByteLevel2(byte b, boolean isTranslated) {
+        if (b == (byte) 0xDC && !isTranslated) {
+            type = 1;
+        } else if (type == 1) {
+            dataLen = (int) b & 0xff;
+            if (dataLen > MAX_PKG_LEN) {
+                type = 0;
             } else {
-                Sn = 0;
-                s = 2;
+                niS = 0;
+                type = 2;
             }
-        } else if (s == 2) {
-            S[Sn] = b;
-            Sn++;
-            if (Sn >= S.length) {
-                s = 3;
+        } else if (type == 2) {
+            S[niS] = b;
+            niS++;
+            if (niS >= S.length) {
+                type = 3;
                 mPkgLen = 0;
             }
-        } else if (s == 3) {
+        } else if (type == 3) {
             pkg[mPkgLen] = map(mPkgLen, b);
             mPkgLen++;
-            if (mPkgLen >= data_len) {
-                s = 0;
+            if (mPkgLen >= dataLen) {
+                type = 0;
                 validatePkg();
             }
         }
@@ -138,7 +139,7 @@ public class BleDeviceProtocol {
     private void pkgLengthValidated() {
         if (CRC16.validate(pkg, mPkgLen - 2)) {
             if ((pkg[2] & 0x80) != 0) {
-                Log.i(TAG, "ack package   " + Util.hex(pkg, mPkgLen));
+                Log.i(TAG, "ack package " + Util.hex(pkg, mPkgLen));
                 ackPkg();
             } else {
                 Log.e(TAG, "drop command package " + Util.hex(pkg, mPkgLen));
@@ -155,32 +156,29 @@ public class BleDeviceProtocol {
             case CMD_GET_STATUS:
                 DeviceStatus ds = parseStatus(pkg, mPkgLen);
                 if (ds != null) {
-                    receivePkg(ds);
+                    onReceivePkg(ds);
                 }
                 break;
             case CMD_GET_CONFIG:
                 DeviceConfig config = parseConfig(pkg, mPkgLen);
                 if (config != null) {
-                    receivePkg(config);
+                    onReceivePkg(config);
                 }
                 break;
             default:
-                receivePkg(pkg, mPkgLen);
+                onReceivePkg(pkg, mPkgLen);
                 break;
         }
     }
 
-    /** 接收包-状态 */
-    protected void receivePkg(@NonNull DeviceStatus status) {
+    protected void onReceivePkg(@NonNull DeviceStatus status) {
     }
 
-    /** 接收包-配置 */
-    protected void receivePkg(@NonNull DeviceConfig config) {
+    protected void onReceivePkg(@NonNull DeviceConfig config) {
     }
 
-    /** 接收包-其它 */
-    protected void receivePkg(@NonNull byte[] pkg, int pkg_len) {
-        Log.e(TAG, "接收 PKG--->" + Util.hex(pkg, pkg_len));
+    protected void onReceivePkg(@NonNull byte[] pkg, int pkgLen) {
+        Log.e(TAG, "receive package " + Util.hex(pkg, pkgLen));
     }
 
     /** 是否匹配 */
@@ -214,10 +212,12 @@ public class BleDeviceProtocol {
         return pkg;
     }
 
+    // 提供加密强随机数生成器
+    private static final SecureRandom seedGen = new SecureRandom();
+
     /** 加密包 */
     @NonNull
     private static byte[] encryptPkg(@NonNull byte[] d) {
-        final SecureRandom seedGen = new SecureRandom();
         final byte[] pkg = new byte[8 + d.length];
         final byte[] S = new byte[6];
         seedGen.nextBytes(S);
@@ -270,7 +270,6 @@ public class BleDeviceProtocol {
         return translate(encryptPkg(data));
     }
 
-    // TODO: /**<-------------------- 以下发送数据（打包） -------------------->**/
     /** 获取内部状态 */
     @NonNull
     public static byte[] pkgGetStatus(long id) {
@@ -488,25 +487,23 @@ public class BleDeviceProtocol {
     /** 清料 */
     @NonNull
     public static byte[] pkgClearMaterial(long devId, int mode, int startAddress, int devNum, byte[] high) {
-        byte[] data = new byte[4 + devNum];
+        byte[] data = new byte[3 + devNum];
 
-        data[0] = (byte) (0x55);                   // 0x55 表示退出
-        data[1] = (byte) (mode & 0xff);            // 操作模式：1-非主控模式，2-主控模式
-        data[2] = (byte) (startAddress & 0xff);    // DMX 起始地址 +1
-        data[3] = (byte) (devNum & 0xff);          // 带主机数量
+//        data[0] = (byte) (0x55);                   // 0x55 表示退出
+        data[0] = (byte) (mode & 0xff);            // 操作模式：1-非主控模式，2-主控模式
+        data[1] = (byte) (startAddress & 0xff);    // DMX 起始地址 +1
+        data[2] = (byte) (devNum & 0xff);          // 带主机数量
 
         // 主机在前，从机低到高顺序低速喷射，统一发20
         for (int i = 0; i < devNum; i++) {
-            data[4 + i] = high[i];
+            data[3 + i] = high[i];
         }
 
         return cmdPkg(CMD_CLEAR_MATERIAL, devId, data);
     }
 
-
-    // TODO: /**<-------------------- 以下蓝牙接收数据（解析） -------------------->**/
     /** 解析内部状态 */
-    private static DeviceStatus parseStatus( byte[] pkg, int pkgLen) {
+    private static DeviceStatus parseStatus(@NonNull byte[] pkg, int pkgLen) {
         DeviceStatus ds = new DeviceStatus();
         BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {
@@ -528,7 +525,7 @@ public class BleDeviceProtocol {
     }
 
     /** 解析配置 */
-    private static DeviceConfig parseConfig(byte[] pkg, int pkgLen) {
+    private static DeviceConfig parseConfig(@NonNull byte[] pkg, int pkgLen) {
         DeviceConfig config = new DeviceConfig();
         BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {
@@ -549,7 +546,7 @@ public class BleDeviceProtocol {
     }
 
     /** 解析设备 ID */
-    public static long parseSetDevID(byte[] pkg, int pkgLen) {
+    public static long parseSetDevID(@NonNull byte[] pkg, int pkgLen) {
         BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {
             reader.skip(3);
@@ -560,7 +557,7 @@ public class BleDeviceProtocol {
     }
 
     /** 解析配置 DMX 地址 */
-    public static int parseSetDmxAddr(byte[] pkg, int pkgLen) {
+    public static int parseSetDmxAddr(@NonNull byte[] pkg, int pkgLen) {
         BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {
             reader.skip(HEADER_LEN);
@@ -572,7 +569,7 @@ public class BleDeviceProtocol {
     }
 
     /** 解析喷射 */
-    public static int parseStartJet(byte[] pkg, int pkgLen) {
+    public static int parseStartJet(@NonNull byte[] pkg, int pkgLen) {
         BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {
             reader.skip(HEADER_LEN);
@@ -583,7 +580,7 @@ public class BleDeviceProtocol {
     }
 
     /** 解析加料 */
-    public static int parseAddMaterial(byte[] pkg, int pkgLen) {
+    public static int parseAddMaterial(@NonNull byte[] pkg, int pkgLen) {
         BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {
             reader.skip(HEADER_LEN);
@@ -594,7 +591,7 @@ public class BleDeviceProtocol {
     }
 
     /** 解析获取时间戳 */
-    public static long parseGetTimestamp(byte[] pkg, int pkgLen) {
+    public static long parseGetTimestamp(@NonNull byte[] pkg, int pkgLen) {
         BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {
             reader.skip(HEADER_LEN);
@@ -605,7 +602,7 @@ public class BleDeviceProtocol {
     }
 
     /** 解析加料状态 */
-    public static DeviceMaterialStatus parseAddMaterialStatus(byte[] pkg, int pkgLen) {
+    public static DeviceMaterialStatus parseAddMaterialStatus(@NonNull byte[] pkg, int pkgLen) {
         DeviceMaterialStatus status = new DeviceMaterialStatus();
         BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {
@@ -620,7 +617,7 @@ public class BleDeviceProtocol {
     }
 
     /** 解析清除加料信息 */
-    public static int parseClearAddMaterialInfo(byte[] pkg, int pkgLen) {
+    public static int parseClearAddMaterialInfo(@NonNull byte[] pkg, int pkgLen) {
         BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {
             reader.skip(HEADER_LEN);
@@ -633,7 +630,7 @@ public class BleDeviceProtocol {
     }
 
     /** 解析操作结果代码 */
-    public static int parseReturnCode(byte[] pkg, int pkgLen) {
+    public static int parseReturnCode(@NonNull byte[] pkg, int pkgLen) {
         BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {
             reader.skip(HEADER_LEN);
