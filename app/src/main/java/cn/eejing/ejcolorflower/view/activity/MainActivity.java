@@ -1,8 +1,11 @@
 package cn.eejing.ejcolorflower.view.activity;
 
 import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
+import android.os.ParcelUuid;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.ArrayMap;
@@ -17,6 +20,7 @@ import com.jaeger.library.StatusBarUtil;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -41,20 +45,16 @@ import static cn.eejing.ejcolorflower.app.AppConstant.EXIT_LOGIN;
 import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_CHARACTERISTIC_WRITE;
 import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_SERVICE;
 
-public class MainActivity extends BLEActivity implements ISendCommand, BottomNavigationBar.OnTabSelectedListener {
+public class MainActivity extends BLEManagerActivity implements ISendCommand, BottomNavigationBar.OnTabSelectedListener {
     private static final String TAG = "MainActivity";
+    private final static int ACK_TIMEOUT = 1000;
 
     private List<Fragment> mFragments;
     private Fragment mCurrentFragment;
 
-    private boolean mRequestConfig = false;
+    private boolean mRequestConfig;
 
-    // MAC 地址与设备 ID 对应关系
-    private final Map<Long, String> mDeviceMacToId = new ArrayMap<>();
-    // 烟花设备控制
-    private static FireworkDevCtrl mFireworksDevCtrl;
-
-    static private MainActivity AppInstance = null;
+    static private MainActivity AppInstance;
 
     public static MainActivity getAppCtrl() {
         return AppInstance;
@@ -74,11 +74,8 @@ public class MainActivity extends BLEActivity implements ISendCommand, BottomNav
         mFragments = getFragments();
         setDefFragment();
 
-        mFireworksDevCtrl = mIFireworksDevCtrl;
         addScanFilter(UUID_GATT_SERVICE);
-
-        // 配置当前 APP 处理的蓝牙设备名称
-        setAllowedConnDevName("EEJING-CHJ");
+        refresh();
     }
 
     @SuppressLint("MissingSuperCall")
@@ -202,158 +199,11 @@ public class MainActivity extends BLEActivity implements ISendCommand, BottomNav
         return super.onKeyDown(keyCode, event);
     }
 
-    // TODO: /**<-------------------- 以下硬件交互相关 -------------------->**/
 
-    /** 设备就绪 */
-    @Override
-    void onDeviceReady(final String mac) {
-        Log.i(TAG, "设备就绪 onDeviceReady: mac = " + mac);
-        if (setSendDefaultChannel(mac, UUID_GATT_CHARACTERISTIC_WRITE)) {
-            Device device = getDevice(mac);
+    private final List<Device> mDevList = new LinkedList<>();
+    private final Map<String, ProtocolWithDevice> mProtocolMap = new ArrayMap<>();
 
-            if (device != null) {
-                device.setConnected(true);
-            }
-
-            registerPeriod(mac + "- 注册期 status", new Runnable() {
-                @Override
-                public void run() {
-                    final Device device = getDevice(mac);
-                    if (device != null) {
-                        DeviceConfig config = device.getConfig();
-                        long id = (config == null) ? 0 : config.mID;
-                        if (config == null || mRequestConfig) {
-                            mRequestConfig = !send(mac, BleDeviceProtocol.pkgGetConfig(id));
-                        } else {
-                            send(mac, BleDeviceProtocol.pkgGetStatus(id));
-                        }
-                        // 发送设备相关数据（设备已连接）
-                        EventBus.getDefault().post(new DeviceConnectEvent(DEVICE_CONNECT_YES, mac, device.getState(), device.getConfig()));
-                    }
-                }
-            }, 2000);
-        }
-    }
-
-    /** 设备断开 */
-    @Override
-    void onDeviceDisconnect(String mac) {
-        Log.i(TAG, "设备断开 onDeviceDisconnect: mac = " + mac);
-
-        unRegisterPeriod(mac + "- 设备断开 status");
-
-        Device device = getDevice(mac);
-        if (device != null) {
-            device.setConnected(false);
-        }
-
-        // 发送设备相关数据（设备已断开）
-        EventBus.getDefault().post(new DeviceConnectEvent(DEVICE_CONNECT_NO, mac, device.getState(), device.getConfig()));
-    }
-
-    /** 找到并连接一台设备 */
-    @Override
-    protected void onFoundAndConnectOneDevice(DeviceManager dev) {
-        super.onFoundAndConnectOneDevice(dev);
-        final Device device = new Device(dev.mac);
-        // 设置接收到蓝牙设备后的处理协议对象
-        dev.setBleDeviceProtocol(new ProtocolWithDevice(device));
-    }
-
-    /**
-     * 通过服务器信息设置设备
-     *
-     * @param list 设备列表
-     */
-    public void setRegisterDevice(List<DeviceListBean.DataBean.ListBean> list) {
-//        BLEActivity.getBleCtrl().clearAllowedConnectDevicesMAC();
-        // 清除允许连接的设备 MAC
-        clearAllowedConnectDevicesMAC();
-        // 清除 MAC 地址与设备 ID 对应关系
-        mDeviceMacToId.clear();
-        for (int i = 0; i < list.size(); i++) {
-            // 添加允许连接的设备 MAC
-            addAllowedConnectDevicesMAC(list.get(i).getMac());
-            mDeviceMacToId.put(Long.parseLong(list.get(i).getId()), list.get(i).getMac());
-        }
-        // 更新允许连接的设备 MAC 地址列表后，删除已经连接的不在列表中多余的设备
-        removeConnectedMoreDevice();
-    }
-
-    public String getMacById(Long id) {
-        return mDeviceMacToId.get(id);
-    }
-
-    /**
-     * 通过服务器给的设备 id 查找设备（已经连接上的设备）
-     *
-     * @param deviceId 服务器设备 id
-     * @return 设备（已经连接）
-     */
-    public Device findDeviceById(long deviceId) {
-        String mac = getMacById(deviceId);
-        if (mac == null) {
-            return null;
-        }
-        BLEActivity.DeviceManager dev = getConnectedDeviceByMac(mac);
-        if (dev == null) {
-            return null;
-        }
-        ProtocolWithDevice pt = (ProtocolWithDevice) (dev.bleDeviceProtocol);
-        return pt.device;
-    }
-
-    private Device getDevice(String mac) {
-        BLEActivity.DeviceManager dev = getConnectedDeviceByMac(mac);
-        if (dev == null) {
-            return null;
-        }
-        ProtocolWithDevice pt = (ProtocolWithDevice) (dev.bleDeviceProtocol);
-        return pt.device;
-    }
-
-    // 彩花机设备控制
-    public interface FireworkDevCtrl {
-        void sendCommand(long device_id, @NonNull byte[] pkg);
-
-        void sendCommand(long device_id, @NonNull byte[] pkg, OnReceivePackage callback);
-    }
-
-    private final FireworkDevCtrl mIFireworksDevCtrl = new FireworkDevCtrl() {
-        @Override
-        public void sendCommand(long device_id, @NonNull byte[] pkg) {
-            Device device = findDeviceById(device_id);
-            if (device != null) {
-                MainActivity.this.sendCommand(device, pkg);
-            }
-        }
-
-        @Override
-        public void sendCommand(long device_id, @NonNull byte[] pkg, OnReceivePackage callback) {
-            Device device = findDeviceById(device_id);
-            if (device != null) {
-                MainActivity.this.sendCommand(device, pkg, callback);
-            }
-        }
-    };
-
-    public static FireworkDevCtrl getFireworksDevCtrl() {
-        return mFireworksDevCtrl;
-    }
-
-    @Override
-    public void sendCommand(@NonNull Device device, @NonNull byte[] pkg) {
-        send(device.getAddress(), pkg);
-        mRequestConfig = true;
-    }
-
-    @Override
-    public void sendCommand(@NonNull Device device, @NonNull byte[] pkg, OnReceivePackage callback) {
-        send(device.getAddress(), pkg, callback);
-    }
-
-    /** 设备与协议处理 */
-    public class ProtocolWithDevice extends BleDeviceProtocol {
+    private class ProtocolWithDevice extends BleDeviceProtocol {
         final Device device;
 
         ProtocolWithDevice(@NonNull Device device) {
@@ -361,13 +211,25 @@ public class MainActivity extends BLEActivity implements ISendCommand, BottomNav
         }
 
         @Override
-        protected void onReceivePkg(@NonNull final DeviceStatus status) {
-            device.setState(status);
+        protected void onReceivePkg(@NonNull DeviceStatus state) {
+            device.setState(state);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+//                    mDevListAdapter.notifyDataSetChanged();
+                }
+            });
         }
 
         @Override
-        protected void onReceivePkg(@NonNull final DeviceConfig config) {
+        protected void onReceivePkg(@NonNull DeviceConfig config) {
             device.setConfig(config);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+//                    mDevListAdapter.notifyDataSetChanged();
+                }
+            });
         }
 
         @Override
@@ -379,33 +241,165 @@ public class MainActivity extends BLEActivity implements ISendCommand, BottomNav
                 }
             });
         }
+    }
 
-        /** 做匹配：在接收到蓝牙数据，经过协议分析，提取数据包后，通过下面的函数对数据包进行分析处理 */
-        private void doMatch(String mac, byte[] ack_pkg) {
-            Log.i(TAG, "doMatch " + Util.hex(ack_pkg, ack_pkg.length));
-            BLEActivity.DeviceManager dev = getConnectedDeviceByMac(mac);
-            if (dev != null) {
-                dev.doMatchPackage(ack_pkg);
+    private Device getDevice(String mac) {
+        for (Device device : mDevList) {
+            if (device.getAddress().equals(mac)) {
+                return device;
+            }
+        }
+        return null;
+    }
+
+    private void addDevice(final String mac, long id) {
+        if (!mProtocolMap.containsKey(mac)) {
+            final Device dev = new Device(mac);
+            dev.setId(id);
+            mDevList.add(dev);
+//            mDevListAdapter.notifyDataSetChanged();
+            addDeviceByMac(mac);
+            mProtocolMap.put(mac, new ProtocolWithDevice(dev));
+        }
+    }
+
+    /** 设备就绪 */
+    @Override
+    void onDeviceReady(final String mac) {
+        Log.i(TAG, "onDeviceReady " + mac);
+        if (setSendDefaultChannel(mac, UUID_GATT_CHARACTERISTIC_WRITE)) {
+            Device device = getDevice(mac);
+
+            if (device != null) {
+                device.setConnected(true);
+            }
+
+            registerRefreshStatus(mac);
+        }
+    }
+
+    private void registerRefreshStatus(final String mac) {
+        registerPeriod(mac + "-status", new Runnable() {
+            @Override
+            public void run() {
+                ProtocolWithDevice pd = mProtocolMap.get(mac);
+                if (pd == null) {
+                    return;
+                }
+                Device device = getDevice(mac);
+                if (device != null) {
+                    DeviceConfig config = device.getConfig();
+                    long id = (config == null) ? 0 : config.mID;
+                    if (config == null || mRequestConfig) {
+                        mRequestConfig = !send(mac, BleDeviceProtocol.pkgGetConfig(id), true);
+                    }
+                    send(mac, BleDeviceProtocol.pkgGetStatus(id), true);
+                }
+            }
+        }, 2000);
+    }
+
+    @Override
+    void onDeviceConnect(String mac) {
+        Log.i(TAG, "onDeviceConnect " + mac);
+        registerRefreshStatus(mac);
+
+        Device device = getDevice(mac);
+        if (device != null) {
+            device.setConnected(true);
+//            mDevListAdapter.notifyDataSetChanged();
+        } else {
+            Log.i(TAG, "onDeviceConnect no device");
+        }
+    }
+
+    /** 设备断开 */
+    @Override
+    void onDeviceDisconnect(String mac) {
+        unregisterPeriod(mac + "-status");
+
+        Device device = getDevice(mac);
+        if (device != null) {
+            device.setConnected(false);
+//            mDevListAdapter.notifyDataSetChanged();
+        }
+
+//        // 发送设备相关数据（设备已断开）
+//        EventBus.getDefault().post(new DeviceConnectEvent(DEVICE_CONNECT_NO, mac, device.getState(), device.getConfig()));
+    }
+
+    @Override
+    void onReceive(String mac, byte[] data) {
+        super.onReceive(mac, data);
+        BleDeviceProtocol p = mProtocolMap.get(mac);
+        if (p != null) {
+            p.bleReceive(data);
+        }
+    }
+
+    @Override
+    public void sendCommand(@NonNull Device device, @NonNull byte[] pkg) {
+        String mac = device.getAddress();
+        BleDeviceProtocol p = mProtocolMap.get(mac);
+        if (p != null) {
+            send(device.getAddress(), pkg, true);
+            mRequestConfig = true;
+        }
+    }
+
+    @Override
+    public void sendCommand(@NonNull Device device, @NonNull byte[] pkg, OnReceivePackage callback) {
+        mPackageNeedAckList.push(new PackageNeedAck(device.getAddress(), pkg, callback));
+        sendCommand(device, pkg);
+    }
+
+    private static class PackageNeedAck {
+        final byte[] cmd_pkg;
+        final String mac;
+        final long send_time;
+        final OnReceivePackage callback;
+
+        PackageNeedAck(String mac, byte[] cmd_pkg, OnReceivePackage callback) {
+            this.mac = mac;
+            this.cmd_pkg = cmd_pkg;
+            this.callback = callback;
+            this.send_time = System.currentTimeMillis();
+        }
+
+        boolean isTimeout() {
+            return (System.currentTimeMillis() - send_time) > ACK_TIMEOUT;
+        }
+    }
+
+    private final LinkedList<PackageNeedAck> mPackageNeedAckList = new LinkedList<>();
+
+    private void doMatch(String mac, byte[] ack_pkg) {
+        Log.i(TAG, "doMatch " + Util.hex(ack_pkg, ack_pkg.length) + " from " + mPackageNeedAckList.size());
+        for (PackageNeedAck p : mPackageNeedAckList) {
+            Log.i(TAG, "doMatch check " + Util.hex(p.cmd_pkg, p.cmd_pkg.length));
+            if (p.mac.equals(mac) && BleDeviceProtocol.isMatch(p.cmd_pkg, ack_pkg)) {
+                Log.i(TAG, "doMatch match");
+                mPackageNeedAckList.remove(p);
+                p.callback.ack(ack_pkg);
+                return;
             }
         }
     }
 
-    /** 清空设备配置 */
-    public void clearDeviceConfig(long deviceId) {
-        Device device = findDeviceById(deviceId);
-        if (device == null) {
-            return;
+    private void doTimeoutCheck() {
+        for (PackageNeedAck p : mPackageNeedAckList) {
+            if (p.isTimeout()) {
+                mPackageNeedAckList.remove(p);
+                p.callback.timeout();
+                return;
+            }
         }
-        device.clearConfig();
     }
 
-    /** 清空设备状态 */
-    public void clearDeviceState(long deviceId) {
-        Device device = findDeviceById(deviceId);
-        if (device == null) {
-            return;
-        }
-        device.clearState();
+    @Override
+    void poll() {
+        super.poll();
+        doTimeoutCheck();
     }
 
 }

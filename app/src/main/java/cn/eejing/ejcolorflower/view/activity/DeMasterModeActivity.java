@@ -85,7 +85,7 @@ public class DeMasterModeActivity extends BaseActivity {
     private List<MasterCtrlModeEntity> mList;
     private SelfDialogBase mDialog;
 
-    private MainActivity.FireworkDevCtrl mDevCtrl;
+//    private MainActivity.FireworkDevCtrl mDevCtrl;
     // 当前主控喷射效果ID及标志位
     private int mCurrMasterId, mFlagCurrId;
 
@@ -119,7 +119,7 @@ public class DeMasterModeActivity extends BaseActivity {
         mList = new ArrayList<>();
         mMasterCtrlMgrList = new ArrayList<>();
         mHandler = new Handler();
-        mDevCtrl = MainActivity.getFireworksDevCtrl();
+//        mDevCtrl = MainActivity.getFireworksDevCtrl();
 
         initConfigDB();
         initRecyclerView();
@@ -272,12 +272,12 @@ public class DeMasterModeActivity extends BaseActivity {
         mgrStop.setHigh((byte) 0);
         mgrStop.updateWithDataOut(dataOut);
         for (int i = 0; i < 5; i++) {
-            mDevCtrl.sendCommand(Long.parseLong(mDeviceId), BleDeviceProtocol.pkgEnterRealTimeCtrlMode(
-                    Long.parseLong(mDeviceId),
-                    Integer.parseInt(etStarDmx.getText().toString()),
-                    Integer.parseInt(etDevNum.getText().toString()),
-                    dataOut)
-            );
+//            mDevCtrl.sendCommand(Long.parseLong(mDeviceId), BleDeviceProtocol.pkgEnterRealTimeCtrlMode(
+//                    Long.parseLong(mDeviceId),
+//                    Integer.parseInt(etStarDmx.getText().toString()),
+//                    Integer.parseInt(etDevNum.getText().toString()),
+//                    dataOut)
+//            );
         }
     }
 
@@ -337,12 +337,12 @@ public class DeMasterModeActivity extends BaseActivity {
             }
         }
 
-        mDevCtrl.sendCommand(Long.parseLong(mDeviceId), BleDeviceProtocol.pkgEnterRealTimeCtrlMode(
-                Long.parseLong(mDeviceId),
-                Integer.parseInt(etStarDmx.getText().toString()),
-                Integer.parseInt(etDevNum.getText().toString()),
-                dataOut)
-        );
+//        mDevCtrl.sendCommand(Long.parseLong(mDeviceId), BleDeviceProtocol.pkgEnterRealTimeCtrlMode(
+//                Long.parseLong(mDeviceId),
+//                Integer.parseInt(etStarDmx.getText().toString()),
+//                Integer.parseInt(etDevNum.getText().toString()),
+//                dataOut)
+//        );
 
         if (isFinish) {
             // 当前组喷射完成，进入到下一组，继续执行下一组

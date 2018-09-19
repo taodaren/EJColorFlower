@@ -51,12 +51,13 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.MyLifecycleHandler;
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.util.Util;
+import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 /**
  * 管理多个BLE设备的发现、连接、通讯
  */
 
-public class BLEManagerActivity extends AppCompatActivity {
+public class BLEManagerActivity extends BaseActivity {
     private static final String TAG = BLEManagerActivity.class.getSimpleName();
     private static final String BLE_DEV_NAME = "EEJING-CHJ";
     private static final int MAX_BLUETOOTH_SEND_PKG_LEN = 18;        // 蓝牙发送包的最大长度
@@ -149,9 +150,30 @@ public class BLEManagerActivity extends AppCompatActivity {
         }
     }
 
+//    @Override
+//    protected void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        setAllowedConnDevName(BLE_DEV_NAME);
+//        mDevMgrSet = new ArrayMap<>();
+//        mAllowedConnectDevicesMAC = new ArrayList<>();
+//
+//        // 添加校验新的状态变化监听
+//        MyLifecycleHandler.addListener(mOnForegroundStateChangeListener);
+//
+//        mHandler = new Handler();
+//        BluetoothManager bleMgr = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+//        mBleAdapter = (bleMgr == null) ? null : bleMgr.getAdapter();
+////        mHandler.post(mPollRun);
+//    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected int layoutViewId() {
+        return 0;
+    }
+
+    @Override
+    public void initView() {
+        super.initView();
         setAllowedConnDevName(BLE_DEV_NAME);
         mDevMgrSet = new ArrayMap<>();
         mAllowedConnectDevicesMAC = new ArrayList<>();
@@ -162,7 +184,6 @@ public class BLEManagerActivity extends AppCompatActivity {
         mHandler = new Handler();
         BluetoothManager bleMgr = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBleAdapter = (bleMgr == null) ? null : bleMgr.getAdapter();
-//        mHandler.post(mPollRun);
     }
 
     // 新的状态变化监听

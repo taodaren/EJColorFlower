@@ -50,7 +50,7 @@ public class PageDeviceInfoFragment extends BaseFragment {
     private static int mDevTemp, mDevDmx, mDevTime;
     private SelfDialog mDialog;
     private Set<Integer> mDmxSet;
-    private MainActivity.FireworkDevCtrl mDevCtrl;
+//    private MainActivity.FireworkDevCtrl mDevCtrl;
 
     public static PageDeviceInfoFragment newInstance(int info, int thresholdHigh, int type, long deviceId) {
         Log.i("TAG", "newInstance: " + info);
@@ -86,7 +86,7 @@ public class PageDeviceInfoFragment extends BaseFragment {
             EventBus.getDefault().register(this);
         }
         mDmxSet = new HashSet<>();
-        mDevCtrl = MainActivity.getFireworksDevCtrl();
+//        mDevCtrl = MainActivity.getFireworksDevCtrl();
 
         setTempStatus();
         setDmxAddress();
@@ -232,10 +232,10 @@ public class PageDeviceInfoFragment extends BaseFragment {
 
     private void updateDmx(int niDmx) {
         // 清空设备配置
-        MainActivity.getAppCtrl().clearDeviceConfig(mDevId);
+//        MainActivity.getAppCtrl().clearDeviceConfig(mDevId);
         // 发送更新 DMX 命令
         byte[] pkg = BleDeviceProtocol.pkgSetDmxAddress(mDevId, niDmx);
-        mDevCtrl.sendCommand(mDevId, pkg);
+//        mDevCtrl.sendCommand(mDevId, pkg);
         // 更新显示
         tvDmxAddress.setText(String.valueOf(niDmx));
         // 发送 DMX 地址 0
