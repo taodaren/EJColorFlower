@@ -20,13 +20,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.ParcelUuid;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
@@ -59,7 +57,7 @@ import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 public class BLEManagerActivity extends BaseActivity {
     private static final String TAG = BLEManagerActivity.class.getSimpleName();
-    private static final String BLE_DEV_NAME = "EEJING-CHJ";
+    private static final String BLE_DEV_NAME = "EEJING-CHJ-01";
     private static final int MAX_BLUETOOTH_SEND_PKG_LEN = 18;        // 蓝牙发送包的最大长度
     private static final int REQUEST_ENABLE_BT = 38192;              // 请求启用蓝牙
     private static final int REFRESHING_PERIOD = 60 * 1000;          // 刷新周期
@@ -75,8 +73,9 @@ public class BLEManagerActivity extends BaseActivity {
     private BluetoothLeScanner mBleLeScanner;                        // 提供了为 BLE 设备执行扫描相关操作的方法
     private Handler mHandler;
     private Map<String, DeviceManager> mDevMgrSet;                   // 已经连接到的设备
-    private List<String> mAllowedConnectDevicesMAC;                  // 允许连接（通过 MAC 地址）的设备集合
+    private List<String> mAllowedConnectDevicesMAC;                  // 允许连接的设备集合
     private String mAllowedConnectDevicesName;                       // 允许连接的设备名称
+    private List<String> mDevConnectableList;                        // 可连接的设备集合
 
     // 运行周期
     private final Map<String, Pair<Runnable, Integer>> mPeriodRunMap = new ArrayMap<>();
@@ -150,22 +149,6 @@ public class BLEManagerActivity extends BaseActivity {
         }
     }
 
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setAllowedConnDevName(BLE_DEV_NAME);
-//        mDevMgrSet = new ArrayMap<>();
-//        mAllowedConnectDevicesMAC = new ArrayList<>();
-//
-//        // 添加校验新的状态变化监听
-//        MyLifecycleHandler.addListener(mOnForegroundStateChangeListener);
-//
-//        mHandler = new Handler();
-//        BluetoothManager bleMgr = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-//        mBleAdapter = (bleMgr == null) ? null : bleMgr.getAdapter();
-////        mHandler.post(mPollRun);
-//    }
-
     @Override
     protected int layoutViewId() {
         return 0;
@@ -177,6 +160,7 @@ public class BLEManagerActivity extends BaseActivity {
         setAllowedConnDevName(BLE_DEV_NAME);
         mDevMgrSet = new ArrayMap<>();
         mAllowedConnectDevicesMAC = new ArrayList<>();
+        mDevConnectableList = new ArrayList<>();
 
         // 添加校验新的状态变化监听
         MyLifecycleHandler.addListener(mOnForegroundStateChangeListener);
@@ -381,6 +365,7 @@ public class BLEManagerActivity extends BaseActivity {
 
     @SuppressWarnings("SameParameterValue")
     void addScanFilter(ParcelUuid uuid) {
+        Log.i(TAG, "addScanFilter: ");
         ScanFilter filter = new ScanFilter.Builder()
                 .setServiceUuid(uuid)
                 .build();
@@ -478,7 +463,7 @@ public class BLEManagerActivity extends BaseActivity {
 
         if (serviceUuids != null) {
             for (ParcelUuid uuid : serviceUuids) {
-                Log.i(TAG, "   ==> service " + uuid.toString());
+                Log.i(TAG, "serviceUuid " + uuid.toString());
             }
         }
 
@@ -487,13 +472,22 @@ public class BLEManagerActivity extends BaseActivity {
             return;
         }
 
+        Log.d(TAG, "dev mac: " + mac);
+        for (int i = 0; i < mAllowedConnectDevicesMAC.size(); i++) {
+            Log.d(TAG, "allow mac: " + mAllowedConnectDevicesMAC.get(i));
+        }
+        Log.d(TAG, "allow: " + mAllowedConnectDevicesMAC.contains(mac));
         // 是否与服务器 MAC 地址匹配
         if (mAllowedConnectDevicesMAC.contains(mac)) {
-            addDeviceByObject(bleDevice);
+            Log.d(TAG, " : ");
+//            addDeviceByObject(bleDevice);
+            mDevConnectableList.add(mac);
+            Log.w(TAG, "onFoundDevice: " + mDevConnectableList.get(0));
         }
     }
 
     private void addDeviceByObject(BluetoothDevice bleDevice) {
+        Log.d(TAG, "addDeviceByObject:");
         final DeviceManager mgr;
         String mac = bleDevice.getAddress();
         if (!mDevMgrSet.containsKey(mac)) {
@@ -503,6 +497,7 @@ public class BLEManagerActivity extends BaseActivity {
             mgr = mDevMgrSet.get(mac);
         }
 
+        Log.w(TAG, "addDeviceByObject mDevMgrSet size " + mDevMgrSet.size());
         if (mgr.gatt == null && !mIsShutdown) {
             mgr.gatt = mgr.bleDevice.connectGatt(this, true, mBleGattCallback);
         }

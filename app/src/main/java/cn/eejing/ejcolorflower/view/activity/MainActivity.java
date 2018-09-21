@@ -1,11 +1,9 @@
 package cn.eejing.ejcolorflower.view.activity;
 
 import android.annotation.SuppressLint;
-import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.ParcelUuid;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.ArrayMap;
@@ -15,9 +13,11 @@ import android.widget.Toast;
 
 import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
+import com.google.gson.Gson;
 import com.jaeger.library.StatusBarUtil;
-
-import org.greenrobot.eventbus.EventBus;
+import com.lzy.okgo.OkGo;
+import com.lzy.okgo.callback.StringCallback;
+import com.lzy.okgo.model.Response;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -25,22 +25,23 @@ import java.util.List;
 import java.util.Map;
 
 import cn.eejing.ejcolorflower.R;
+import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceStatus;
-import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
+import cn.eejing.ejcolorflower.model.session.LoginSession;
 import cn.eejing.ejcolorflower.presenter.ISendCommand;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
+import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.Settings;
 import cn.eejing.ejcolorflower.util.Util;
 import cn.eejing.ejcolorflower.view.fragment.TabControlFragment;
 import cn.eejing.ejcolorflower.view.fragment.TabDeviceFragment;
 import cn.eejing.ejcolorflower.view.fragment.TabMallFragment;
 import cn.eejing.ejcolorflower.view.fragment.TabMineFragment;
 
-import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_NO;
-import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_YES;
 import static cn.eejing.ejcolorflower.app.AppConstant.EXIT_LOGIN;
 import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_CHARACTERISTIC_WRITE;
 import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_SERVICE;
@@ -51,6 +52,10 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
 
     private List<Fragment> mFragments;
     private Fragment mCurrentFragment;
+
+    private String mMemberId, mToken;
+    private Gson mGson;
+    private List<DeviceListBean.DataBean.ListBean> mListServer;// 服务器绑定设备列表
 
     private boolean mRequestConfig;
 
@@ -67,8 +72,13 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
 
     @Override
     public void initView() {
+        super.initView();
         AppInstance = this;
         addActivity(EXIT_LOGIN, this);
+        LoginSession session = Settings.getLoginSessionInfo(this);
+        mMemberId = String.valueOf(session.getMember_id());
+        mToken = session.getToken();
+        mGson = new Gson();
 
         initBtnNavBar();
         mFragments = getFragments();

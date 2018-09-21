@@ -187,6 +187,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         @BindView(R.id.layout_device_list)        LinearLayout outView;
         @BindView(R.id.tv_connected)              TextView tvConnected;
         @BindView(R.id.tv_device_id)              TextView tvDeviceId;
+        @BindView(R.id.btn_connected)             Button btnConnected;
         @BindView(R.id.btn_device_temp)           Button btnTemp;
         @BindView(R.id.btn_device_dmx)            Button btnDmx;
         @BindView(R.id.btn_device_time)           Button btnTime;
@@ -281,6 +282,25 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             btnTemp.setBackgroundResource(R.drawable.ic_device_temp);
             btnDmx.setText(null);
             btnTime.setText(null);
+        }
+
+        @OnClick(R.id.btn_connected)
+        public void onClickStatus() {
+            switch (btnConnected.getText().toString()) {
+                case "未连接":
+                    Toast.makeText(mContext, "未连接", Toast.LENGTH_SHORT).show();
+                    break;
+                case "可连接":
+                    // 连接
+                    btnConnected.setText("已连接");
+
+                    break;
+                case "已连接":
+                    // 断开
+                    btnConnected.setText("可连接");
+                    Toast.makeText(mContext, "断开", Toast.LENGTH_SHORT).show();
+                    break;
+            }
         }
 
         @OnLongClick(R.id.layout_device_list)
