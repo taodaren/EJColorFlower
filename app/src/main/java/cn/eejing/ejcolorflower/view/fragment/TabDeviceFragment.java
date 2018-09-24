@@ -173,10 +173,7 @@ public class TabDeviceFragment extends BaseFragment {
         rvTabDevice.setOnPullLoadMoreListener(new PullLoadMoreRecyclerView.PullLoadMoreListener() {
             @Override
             public void onRefresh() {
-                BLEActivity.getBleCtrl().addScanFilter(UUID_GATT_SERVICE);
-                // 配置当前 APP 处理的蓝牙设备名称
-                BLEActivity.getBleCtrl().setAllowedConnDevName("EEJING-CHJ");
-
+                MainActivity.getAppCtrl().scanRefresh();
                 getDataWithDeviceList();
             }
 

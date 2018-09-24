@@ -1,9 +1,12 @@
 package cn.eejing.ejcolorflower.view.activity;
 
 import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.ParcelUuid;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.ArrayMap;
@@ -19,6 +22,8 @@ import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,6 +35,7 @@ import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceStatus;
+import cn.eejing.ejcolorflower.model.event.DevConnectableEvent;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
 import cn.eejing.ejcolorflower.model.session.LoginSession;
 import cn.eejing.ejcolorflower.presenter.ISendCommand;
@@ -55,12 +61,10 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
 
     private String mMemberId, mToken;
     private Gson mGson;
-    private List<DeviceListBean.DataBean.ListBean> mListServer;// 服务器绑定设备列表
 
     private boolean mRequestConfig;
 
     static private MainActivity AppInstance;
-
     public static MainActivity getAppCtrl() {
         return AppInstance;
     }
@@ -84,8 +88,63 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         mFragments = getFragments();
         setDefFragment();
 
+        mServerDevList = new ArrayList<>();
+        mServerMacList = new ArrayList<>();
+        mDevConnectableList = new ArrayList<>();
+        getDataWithDeviceList();
+        scanRefresh();
+    }
+
+    public void scanRefresh() {
         addScanFilter(UUID_GATT_SERVICE);
         refresh();
+    }
+
+    private void getDataWithDeviceList() {
+        OkGo.<String>post(Urls.DEVICE_LIST)
+                .tag(this)
+                .params("member_id", mMemberId)
+                .params("token", mToken)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        String body = response.body();
+                        Log.e(AppConstant.TAG, "设备列表请求成功！" + body);
+
+                        DeviceListBean bean = mGson.fromJson(body, DeviceListBean.class);
+                        DeviceListBean.DataBean.ListBean deviceBean = mGson.fromJson(body, DeviceListBean.DataBean.ListBean.class);
+                        switch (bean.getCode()) {
+                            case 101:
+                            case 102:
+                                Toast.makeText(MainActivity.this, R.string.toast_login_fail, Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(MainActivity.this, SignInActivity.class));
+                                finish();
+                                break;
+                            case 0:// 若返回码为 0 ，表示暂无设备
+                                // 刷新数据
+//                                mAdapter.refreshList(null);
+                                // 刷新结束
+//                                rvTabDevice.setPullLoadMoreCompleted();
+                                return;
+                            case 1:
+                                mServerDevList = bean.getData().getList();
+                                for (int i = 0; i< mServerDevList.size(); i++) {
+                                    mServerMacList.add(mServerDevList.get(i).getMac());
+                                }
+                                setAllowConnDevListMAC(mServerMacList);
+                                Log.i(TAG, "设备列表 size：" + mServerDevList.size());
+                                Log.i(TAG, "服务器 MAC size：" + mServerMacList.size());
+                                // 注册设备
+//                                MainActivity.getAppCtrl().setRegisterDevice(mList);
+                                // 刷新数据
+//                                mAdapter.refreshList(mList);
+                                // 刷新结束
+//                                rvTabDevice.setPullLoadMoreCompleted();
+                                break;
+                            default:
+                        }
+                    }
+                });
     }
 
     @SuppressLint("MissingSuperCall")
@@ -209,7 +268,8 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         return super.onKeyDown(keyCode, event);
     }
 
-
+    private List<DeviceListBean.DataBean.ListBean> mServerDevList;// 服务器绑定设备列表
+    private List<String> mServerMacList;
     private final List<Device> mDevList = new LinkedList<>();
     private final Map<String, ProtocolWithDevice> mProtocolMap = new ArrayMap<>();
 
@@ -262,14 +322,48 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         return null;
     }
 
-    private void addDevice(final String mac, long id) {
+    public void connDevice(final String mac, long id) {
         if (!mProtocolMap.containsKey(mac)) {
-            final Device dev = new Device(mac);
+            Device dev = new Device(mac);
             dev.setId(id);
             mDevList.add(dev);
-//            mDevListAdapter.notifyDataSetChanged();
             addDeviceByMac(mac);
             mProtocolMap.put(mac, new ProtocolWithDevice(dev));
+        }
+    }
+
+    public void disconnectDevice(final String mac) {
+        if (mProtocolMap.containsKey(mac)) {
+            Device dev = new Device(mac);
+            dev.getId();
+            mDevList.remove(dev);
+            removeDeviceByMac(mac);
+            mProtocolMap.remove(mac);
+        }
+    }
+
+    private List<String> mDevConnectableList;                        // 可连接的设备集合
+
+    @Override
+    void onFoundDevice(BluetoothDevice bleDevice, @Nullable List<ParcelUuid> serviceUuids) {
+        super.onFoundDevice(bleDevice, serviceUuids);
+        String name = bleDevice.getName();
+        String mac = bleDevice.getAddress();
+
+        // 通过设备广播名称，判断是否为配置的设备
+        if (name.indexOf(getAllowedConnDevName()) != 0) {
+            return;
+        }
+
+        Log.d(TAG, "dev mac: " + mac);
+        for (int i = 0; i < mServerDevList.size(); i++) {
+            Log.d(TAG, "allow mac: " + mServerMacList);
+        }
+        Log.d(TAG, "allow: " + mServerMacList.contains(mac));
+        // 是否与服务器 MAC 地址匹配
+        if (mServerMacList.contains(mac)) {
+            // 如果服务器设备列表的 Mac 与扫描到的蓝牙 Mac 一致，此设备可连接
+            EventBus.getDefault().post(new DevConnectableEvent(mac));
         }
     }
 

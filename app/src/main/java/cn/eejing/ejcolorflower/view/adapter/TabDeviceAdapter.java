@@ -38,12 +38,14 @@ import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceStatus;
 import cn.eejing.ejcolorflower.model.event.DelDeviceEvent;
+import cn.eejing.ejcolorflower.model.event.DevConnectableEvent;
 import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
 import cn.eejing.ejcolorflower.model.event.DeviceEvent;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.view.activity.DeDeviceDetailsActivity;
 import cn.eejing.ejcolorflower.view.activity.DeQrAddDeviceActivity;
+import cn.eejing.ejcolorflower.view.activity.MainActivity;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -56,6 +58,7 @@ import static cn.eejing.ejcolorflower.app.AppConstant.REQUEST_CODE_QRCODE_PERMIS
  */
 
 public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements EasyPermissions.PermissionCallbacks {
+    private static final String TAG = "TabDeviceAdapter";
     private static final int TYPE_ITEM = 0;
     private static final int TYPE_FOOTER = 1;
 
@@ -96,7 +99,8 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == TYPE_ITEM) {
             if (mList != null) {
-                ((ItemViewHolder) holder).setData(position, mConnDevMac, mList.get(position).getMac(), mConnStatus, mState, mConfig);
+//                ((ItemViewHolder) holder).setData(position, mConnDevMac, mList.get(position).getMac(), mConnStatus, mState, mConfig);
+                ((ItemViewHolder) holder).setData1(position, mList.get(position));
             }
         }
 
@@ -183,6 +187,17 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         notifyDataSetChanged();
     }
 
+    private String connectableMac;
+
+    /** 可连接的 Mac 地址 */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventDevConnectableMac(DevConnectableEvent event) {
+        Log.i(TAG, "onEventDevConnectableMac: ");
+        connectableMac = event.getMac();
+        Log.i(TAG, "onEventDevConnectableMac: " + connectableMac);
+        notifyDataSetChanged();
+    }
+
     class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.layout_device_list)        LinearLayout outView;
         @BindView(R.id.tv_connected)              TextView tvConnected;
@@ -195,6 +210,34 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         ItemViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+        }
+
+        public void setData1(int position, final DeviceListBean.DataBean.ListBean bean) {
+            tvDeviceId.setText(mList.get(position).getId());
+
+            if (connectableMac != null && connectableMac.equals(bean.getMac())) {
+                btnConnected.setText("可连接");
+            }
+            btnConnected.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    switch (btnConnected.getText().toString()) {
+                        case "未连接":
+                            Toast.makeText(mContext, "未连接", Toast.LENGTH_SHORT).show();
+                            break;
+                        case "可连接":
+                            // 连接设备
+                            MainActivity.getAppCtrl().connDevice(connectableMac, Long.parseLong(bean.getId()));
+                            btnConnected.setText("已连接");
+                            break;
+                        case "已连接":
+                            // 断开设备
+                            MainActivity.getAppCtrl().disconnectDevice(connectableMac);
+                            btnConnected.setText("可连接");
+                            break;
+                    }
+                }
+            });
         }
 
         void setData(int position, String devMac, String serverMac, String connStatus, DeviceStatus state, DeviceConfig config) {
@@ -282,25 +325,6 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             btnTemp.setBackgroundResource(R.drawable.ic_device_temp);
             btnDmx.setText(null);
             btnTime.setText(null);
-        }
-
-        @OnClick(R.id.btn_connected)
-        public void onClickStatus() {
-            switch (btnConnected.getText().toString()) {
-                case "未连接":
-                    Toast.makeText(mContext, "未连接", Toast.LENGTH_SHORT).show();
-                    break;
-                case "可连接":
-                    // 连接
-                    btnConnected.setText("已连接");
-
-                    break;
-                case "已连接":
-                    // 断开
-                    btnConnected.setText("可连接");
-                    Toast.makeText(mContext, "断开", Toast.LENGTH_SHORT).show();
-                    break;
-            }
         }
 
         @OnLongClick(R.id.layout_device_list)

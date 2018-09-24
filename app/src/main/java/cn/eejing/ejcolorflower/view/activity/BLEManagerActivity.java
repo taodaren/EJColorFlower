@@ -73,9 +73,8 @@ public class BLEManagerActivity extends BaseActivity {
     private BluetoothLeScanner mBleLeScanner;                        // 提供了为 BLE 设备执行扫描相关操作的方法
     private Handler mHandler;
     private Map<String, DeviceManager> mDevMgrSet;                   // 已经连接到的设备
-    private List<String> mAllowedConnectDevicesMAC;                  // 允许连接的设备集合
-    private String mAllowedConnectDevicesName;                       // 允许连接的设备名称
-    private List<String> mDevConnectableList;                        // 可连接的设备集合
+    private List<String> mAllowConnDevListMAC;                       // 允许连接的设备集合
+    private String mAllowConnDevName;                                // 允许连接的设备名称
 
     // 运行周期
     private final Map<String, Pair<Runnable, Integer>> mPeriodRunMap = new ArrayMap<>();
@@ -83,21 +82,25 @@ public class BLEManagerActivity extends BaseActivity {
 
     /** 配置当前 APP 处理的蓝牙设备名称 */
     private void setAllowedConnDevName(String name) {
-        mAllowedConnectDevicesName = name;
+        this.mAllowConnDevName = name;
+    }
+
+    public String getAllowedConnDevName() {
+        return mAllowConnDevName;
     }
 
     /** 设置允许连接设备管理(通过 MAC) */
-    public void setAllowedConnectDevicesMAC(List<String> newMacs) {
-        mAllowedConnectDevicesMAC = newMacs;
+    public void setAllowConnDevListMAC(List<String> newMacs) {
+        mAllowConnDevListMAC = newMacs;
         removeConnectedMoreDevice();
     }
 
-    public void clearAllowedConnectDevicesMAC() {
-        mAllowedConnectDevicesMAC.clear();
+    public void clearAllowConnDevListMAC() {
+        mAllowConnDevListMAC.clear();
     }
 
-    public void addAllowedConnectDevicesMAC(String newMac) {
-        mAllowedConnectDevicesMAC.add(newMac);
+    public void addAllowConnDevListMAC(String newMac) {
+        mAllowConnDevListMAC.add(newMac);
     }
 
     /** 更新允许连接的设备 MAC 地址列表后，删除已经连接的不在列表中多余的设备 */
@@ -105,7 +108,7 @@ public class BLEManagerActivity extends BaseActivity {
         // 判断已经连接的数据
         for (DeviceManager mgr : mDevMgrSet.values()) {
             // 如果已连接的设备不在 AllowedConnectDevicesMAC 中，断开设备连接
-            if (!mAllowedConnectDevicesMAC.contains(mgr.mac)) {
+            if (!mAllowConnDevListMAC.contains(mgr.mac)) {
                 if (mgr.gatt != null && mgr.isConnected) {
                     // 断开连接
                     mgr.gatt.disconnect();
@@ -159,8 +162,7 @@ public class BLEManagerActivity extends BaseActivity {
         super.initView();
         setAllowedConnDevName(BLE_DEV_NAME);
         mDevMgrSet = new ArrayMap<>();
-        mAllowedConnectDevicesMAC = new ArrayList<>();
-        mDevConnectableList = new ArrayList<>();
+        mAllowConnDevListMAC = new ArrayList<>();
 
         // 添加校验新的状态变化监听
         MyLifecycleHandler.addListener(mOnForegroundStateChangeListener);
@@ -466,24 +468,6 @@ public class BLEManagerActivity extends BaseActivity {
                 Log.i(TAG, "serviceUuid " + uuid.toString());
             }
         }
-
-        // 通过设备广播名称，判断是否为配置的设备
-        if (name.indexOf(mAllowedConnectDevicesName) != 0) {
-            return;
-        }
-
-        Log.d(TAG, "dev mac: " + mac);
-        for (int i = 0; i < mAllowedConnectDevicesMAC.size(); i++) {
-            Log.d(TAG, "allow mac: " + mAllowedConnectDevicesMAC.get(i));
-        }
-        Log.d(TAG, "allow: " + mAllowedConnectDevicesMAC.contains(mac));
-        // 是否与服务器 MAC 地址匹配
-        if (mAllowedConnectDevicesMAC.contains(mac)) {
-            Log.d(TAG, " : ");
-//            addDeviceByObject(bleDevice);
-            mDevConnectableList.add(mac);
-            Log.w(TAG, "onFoundDevice: " + mDevConnectableList.get(0));
-        }
     }
 
     private void addDeviceByObject(BluetoothDevice bleDevice) {
@@ -508,6 +492,33 @@ public class BLEManagerActivity extends BaseActivity {
         Log.i(TAG, "Add dev by " + mac);
         if (BluetoothAdapter.checkBluetoothAddress(mac)) {
             addDeviceByObject(mBleAdapter.getRemoteDevice(mac));
+        } else {
+            throw new IllegalArgumentException("invalid Bluetooth address : " + mac);
+        }
+    }
+
+    private void removeDeviceByObject(BluetoothDevice bleDevice) {
+        final DeviceManager mgr;
+        String mac = bleDevice.getAddress();
+        if (mDevMgrSet.containsKey(mac)) {
+            mgr = mDevMgrSet.get(mac);
+            mDevMgrSet.remove(mac);
+
+            try {
+                mgr.gatt.disconnect();
+                Thread.sleep(10);
+                mgr.gatt.close();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    void removeDeviceByMac(String mac) {
+        mac = mac.toUpperCase();
+        Log.i(TAG, "Add dev by " + mac);
+        if (BluetoothAdapter.checkBluetoothAddress(mac)) {
+            removeDeviceByObject(mBleAdapter.getRemoteDevice(mac));
         } else {
             throw new IllegalArgumentException("invalid Bluetooth address : " + mac);
         }
