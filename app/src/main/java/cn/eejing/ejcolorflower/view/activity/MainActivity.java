@@ -91,6 +91,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         mServerDevList = new ArrayList<>();
         mServerMacList = new ArrayList<>();
         mDevConnectableList = new ArrayList<>();
+
         getDataWithDeviceList();
         scanRefresh();
     }
@@ -323,6 +324,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     }
 
     public void connDevice(final String mac, long id) {
+        Log.i(TAG, "connDevice");
         if (!mProtocolMap.containsKey(mac)) {
             Device dev = new Device(mac);
             dev.setId(id);
@@ -398,6 +400,15 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                         mRequestConfig = !send(mac, BleDeviceProtocol.pkgGetConfig(id), true);
                     }
                     send(mac, BleDeviceProtocol.pkgGetStatus(id), true);
+
+                    long l1 = System.currentTimeMillis();
+                    Log.i(TAG, "run: millis one " + l1);
+                    if (device.getState() != null && config != null) {
+                        long l2 = System.currentTimeMillis();
+                        Log.i(TAG, "run: millis two " + l2);
+                        Log.i(TAG, "run status temp: " + device.getState().mTemperature);
+                        Log.i(TAG, "run config id: " + config.mID);
+                    }
                 }
             }
         }, 2000);
