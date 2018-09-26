@@ -38,7 +38,7 @@ import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceStatus;
 import cn.eejing.ejcolorflower.model.event.DelDeviceEvent;
-import cn.eejing.ejcolorflower.model.event.DevConnectableEvent;
+import cn.eejing.ejcolorflower.model.event.DevConnEvent;
 import cn.eejing.ejcolorflower.model.event.DeviceConnectEvent;
 import cn.eejing.ejcolorflower.model.event.DeviceEvent;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
@@ -148,6 +148,10 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     public void refreshList(List<DeviceListBean.DataBean.ListBean> list) {
+        for (int i = 0; i < list.size(); i++) {
+            mStatusConnDev = "不可连接";
+        }
+
         if (list != null) {
             mList.clear();
             addList(list);
@@ -187,14 +191,16 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         notifyDataSetChanged();
     }
 
-    private String connectableMac;
+    private String mMacConnDev;
+    private String mStatusConnDev;
 
     /** 可连接的 Mac 地址 */
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventDevConnectableMac(DevConnectableEvent event) {
-        Log.i(TAG, "onEventDevConnectableMac: ");
-        connectableMac = event.getMac();
-        Log.i(TAG, "onEventDevConnectableMac: " + connectableMac);
+    public void onEventDevConn(DevConnEvent event) {
+        mMacConnDev = event.getMac();
+        mStatusConnDev = event.getStatus();
+        Log.i(TAG, "onEventDevConn: " + mMacConnDev + " | " + mStatusConnDev);
+
         notifyDataSetChanged();
     }
 
@@ -212,28 +218,38 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             ButterKnife.bind(this, itemView);
         }
 
-        public void setData1(int position, final DeviceListBean.DataBean.ListBean bean) {
+        void setData1(int position, final DeviceListBean.DataBean.ListBean bean) {
             tvDeviceId.setText(mList.get(position).getId());
 
-            if (connectableMac != null && connectableMac.equals(bean.getMac())) {
-                btnConnected.setText("可连接");
+
+            if (mMacConnDev != null && mMacConnDev.equals(bean.getMac())) {
+                switch (mStatusConnDev) {
+                    case "可连接":
+                        btnConnected.setText("可连接");
+                        break;
+                    case "不可连接":
+                        btnConnected.setText("不可连接");
+                        break;
+                    case "已连接":
+                        btnConnected.setText("已连接");
+                        break;
+                }
             }
+
             btnConnected.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     switch (btnConnected.getText().toString()) {
-                        case "未连接":
-                            Toast.makeText(mContext, "未连接", Toast.LENGTH_SHORT).show();
-                            break;
                         case "可连接":
                             // 连接设备
-                            MainActivity.getAppCtrl().connDevice(connectableMac, Long.parseLong(bean.getId()));
-                            btnConnected.setText("已连接");
+                            btnConnected.setText("连接中...");
+                            Log.i(TAG, "run: millis zero " + System.currentTimeMillis());
+                            MainActivity.getAppCtrl().connDevice(bean.getMac(), Long.parseLong(bean.getId()));
                             break;
                         case "已连接":
                             // 断开设备
-                            MainActivity.getAppCtrl().disconnectDevice(connectableMac);
-                            btnConnected.setText("可连接");
+                            btnConnected.setText("断开中...");
+                            MainActivity.getAppCtrl().disconnectDevice(bean.getMac());
                             break;
                     }
                 }

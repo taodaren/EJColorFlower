@@ -1,9 +1,6 @@
 package cn.eejing.ejcolorflower.view.fragment;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -24,29 +21,16 @@ import java.util.List;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
-import cn.eejing.ejcolorflower.device.DeviceMaterialStatus;
 import cn.eejing.ejcolorflower.model.event.DelDeviceEvent;
 import cn.eejing.ejcolorflower.model.event.DeviceEvent;
-import cn.eejing.ejcolorflower.model.request.AddMaterialBean;
-import cn.eejing.ejcolorflower.model.request.CancelMaterialStatusBean;
-import cn.eejing.ejcolorflower.model.request.ChangeMaterialStatusBean;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
-import cn.eejing.ejcolorflower.model.request.MaterialInfoBean;
 import cn.eejing.ejcolorflower.model.session.LoginSession;
-import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.Settings;
 import cn.eejing.ejcolorflower.view.activity.MainActivity;
-import cn.eejing.ejcolorflower.view.activity.BLEActivity;
 import cn.eejing.ejcolorflower.view.activity.SignInActivity;
 import cn.eejing.ejcolorflower.view.adapter.TabDeviceAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseFragment;
-
-import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_END_USED;
-import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_NO_USED;
-import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_WAIT_USED;
-import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_SERVICE;
 
 /**
  * 设备模块
@@ -173,7 +157,6 @@ public class TabDeviceFragment extends BaseFragment {
         rvTabDevice.setOnPullLoadMoreListener(new PullLoadMoreRecyclerView.PullLoadMoreListener() {
             @Override
             public void onRefresh() {
-                MainActivity.getAppCtrl().scanRefresh();
                 getDataWithDeviceList();
             }
 
@@ -218,8 +201,7 @@ public class TabDeviceFragment extends BaseFragment {
                             case 1:
                                 mList = bean.getData().getList();
                                 Log.i(AppConstant.TAG, "onSuccess: get device group list--->" + mList.size());
-                                // 注册设备
-//                                MainActivity.getAppCtrl().setRegisterDevice(mList);
+                                MainActivity.getAppCtrl().scanRefresh();
                                 // 刷新数据
                                 mAdapter.refreshList(mList);
                                 // 刷新结束

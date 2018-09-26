@@ -35,7 +35,7 @@ import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceStatus;
-import cn.eejing.ejcolorflower.model.event.DevConnectableEvent;
+import cn.eejing.ejcolorflower.model.event.DevConnEvent;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
 import cn.eejing.ejcolorflower.model.session.LoginSession;
 import cn.eejing.ejcolorflower.presenter.ISendCommand;
@@ -90,7 +90,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
 
         mServerDevList = new ArrayList<>();
         mServerMacList = new ArrayList<>();
-        mDevConnectableList = new ArrayList<>();
 
         getDataWithDeviceList();
         scanRefresh();
@@ -121,12 +120,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                                 startActivity(new Intent(MainActivity.this, SignInActivity.class));
                                 finish();
                                 break;
-                            case 0:// 若返回码为 0 ，表示暂无设备
-                                // 刷新数据
-//                                mAdapter.refreshList(null);
-                                // 刷新结束
-//                                rvTabDevice.setPullLoadMoreCompleted();
-                                return;
                             case 1:
                                 mServerDevList = bean.getData().getList();
                                 for (int i = 0; i< mServerDevList.size(); i++) {
@@ -135,12 +128,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                                 setAllowConnDevListMAC(mServerMacList);
                                 Log.i(TAG, "设备列表 size：" + mServerDevList.size());
                                 Log.i(TAG, "服务器 MAC size：" + mServerMacList.size());
-                                // 注册设备
-//                                MainActivity.getAppCtrl().setRegisterDevice(mList);
-                                // 刷新数据
-//                                mAdapter.refreshList(mList);
-                                // 刷新结束
-//                                rvTabDevice.setPullLoadMoreCompleted();
                                 break;
                             default:
                         }
@@ -344,8 +331,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         }
     }
 
-    private List<String> mDevConnectableList;                        // 可连接的设备集合
-
     @Override
     void onFoundDevice(BluetoothDevice bleDevice, @Nullable List<ParcelUuid> serviceUuids) {
         super.onFoundDevice(bleDevice, serviceUuids);
@@ -365,7 +350,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         // 是否与服务器 MAC 地址匹配
         if (mServerMacList.contains(mac)) {
             // 如果服务器设备列表的 Mac 与扫描到的蓝牙 Mac 一致，此设备可连接
-            EventBus.getDefault().post(new DevConnectableEvent(mac));
+            EventBus.getDefault().post(new DevConnEvent(mac,"可连接"));
         }
     }
 
@@ -401,11 +386,10 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                     }
                     send(mac, BleDeviceProtocol.pkgGetStatus(id), true);
 
-                    long l1 = System.currentTimeMillis();
-                    Log.i(TAG, "run: millis one " + l1);
+                    Log.i(TAG, "run: millis one " + System.currentTimeMillis());
                     if (device.getState() != null && config != null) {
-                        long l2 = System.currentTimeMillis();
-                        Log.i(TAG, "run: millis two " + l2);
+                        EventBus.getDefault().post(new DevConnEvent(mac,"已连接"));
+                        Log.i(TAG, "run: millis two " + System.currentTimeMillis());
                         Log.i(TAG, "run status temp: " + device.getState().mTemperature);
                         Log.i(TAG, "run config id: " + config.mID);
                     }
@@ -437,10 +421,8 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         if (device != null) {
             device.setConnected(false);
 //            mDevListAdapter.notifyDataSetChanged();
+            EventBus.getDefault().post(new DevConnEvent(mac,"不可连接"));
         }
-
-//        // 发送设备相关数据（设备已断开）
-//        EventBus.getDefault().post(new DeviceConnectEvent(DEVICE_CONNECT_NO, mac, device.getState(), device.getConfig()));
     }
 
     @Override

@@ -103,7 +103,7 @@
     <string name="btn_save">保存</string>
     <string name="btn_del">删除</string>
     <string name="connected_true">已连接</string>
-    <string name="connected_false">未连接</string>
+    <string name="connected_false">不可连接</string>
     <string name="text_temp">温度</string>
     <string name="text_dmx">DMX地址</string>
     <string name="text_time">剩余时间</string>

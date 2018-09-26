@@ -38,6 +38,8 @@ import com.yanzhenjie.permission.Rationale;
 import com.yanzhenjie.permission.RequestExecutor;
 import com.yanzhenjie.permission.SettingService;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -48,6 +50,7 @@ import java.util.UUID;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.MyLifecycleHandler;
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
+import cn.eejing.ejcolorflower.model.event.DevConnEvent;
 import cn.eejing.ejcolorflower.util.Util;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
@@ -393,7 +396,7 @@ public class BLEManagerActivity extends BaseActivity {
                 }
                 mBleLeScanner.startScan(mScanFilterList, mScanSettings, mScanCallback);
             }
-            mHandler.postDelayed(mStopScanRun, SCANNING_TIME);
+            //mHandler.postDelayed(mStopScanRun, SCANNING_TIME);
         }
     }
 
@@ -497,31 +500,33 @@ public class BLEManagerActivity extends BaseActivity {
         }
     }
 
-    private void removeDeviceByObject(BluetoothDevice bleDevice) {
+    private void removeDeviceByObject(String mac) {
         final DeviceManager mgr;
-        String mac = bleDevice.getAddress();
-        if (mDevMgrSet.containsKey(mac)) {
+        //if (mDevMgrSet.containsKey(mac))
+        {
             mgr = mDevMgrSet.get(mac);
-            mDevMgrSet.remove(mac);
-
             try {
-                mgr.gatt.disconnect();
-                Thread.sleep(10);
+                //mgr.gatt.disconnect();
+                //Thread.sleep(10);
                 mgr.gatt.close();
-            } catch (InterruptedException e) {
+                MainActivity.getAppCtrl().scanRefresh();
+                onDeviceDisconnect(mac);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
+            mDevMgrSet.remove(mac);
         }
     }
 
     void removeDeviceByMac(String mac) {
-        mac = mac.toUpperCase();
+        //mac = mac.toUpperCase();
         Log.i(TAG, "Add dev by " + mac);
-        if (BluetoothAdapter.checkBluetoothAddress(mac)) {
-            removeDeviceByObject(mBleAdapter.getRemoteDevice(mac));
-        } else {
-            throw new IllegalArgumentException("invalid Bluetooth address : " + mac);
-        }
+        removeDeviceByObject(mac);
+//        if (BluetoothAdapter.checkBluetoothAddress(mac)) {
+//            removeDeviceByObject(mBleAdapter.getRemoteDevice(mac));
+//        } else {
+//            throw new IllegalArgumentException("invalid Bluetooth address : " + mac);
+//        }
     }
 
     /** 获取匹配的设备管理器 */
