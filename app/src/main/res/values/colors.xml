@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#49bf98</color>
-    <color name="colorPrimaryDark">#4ab991</color>
+    <color name="colorPrimary">#ffffff</color>
+    <color name="colorPrimaryDark">#ffffff</color>
     <color name="colorAccent">#FF4081</color>
 
     <color name="colorTransparent">#00000000</color>
@@ -15,6 +15,8 @@
     <color name="colorTempLvFour">#ce833c</color>
     <color name="colorTempLvFive">#b04434</color>
 
+    <color name="colorTitle">#232323</color>
+    <color name="colorNavBar">#3A72FF</color>
     <color name="colorBlack">#000000</color>
     <color name="colorBlue">#69b1bf</color>
     <color name="colorOrange">#d9934d</color>
@@ -28,7 +30,7 @@
     <color name="colorConfig">#333333</color>
     <color name="colorNoClick">#999999</color>
     <color name="colorGroupLine">#e5e5e5</color>
-    <color name="colorDeviceLine">#d8d8d8</color>
+    <color name="colorDeviceLine">#f3f3f3</color>
     <color name="colorFrame">#d2d2d2</color>
 
     <color name="colorHighlightTempLow">#619ee4</color>

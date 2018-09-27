@@ -43,8 +43,7 @@ import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.Settings;
 import cn.eejing.ejcolorflower.util.Util;
-import cn.eejing.ejcolorflower.view.fragment.TabControlFragment;
-import cn.eejing.ejcolorflower.view.fragment.TabDeviceFragment;
+import cn.eejing.ejcolorflower.view.fragment.TabCtrlFragment;
 import cn.eejing.ejcolorflower.view.fragment.TabMallFragment;
 import cn.eejing.ejcolorflower.view.fragment.TabMineFragment;
 
@@ -148,7 +147,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         BottomNavigationBar mNavBar = findViewById(R.id.bottom_navigation_bar);
 
         // 设置模块名背景色
-        mNavBar.setBarBackgroundColor(R.color.colorPrimary);
+        mNavBar.setBarBackgroundColor(R.color.colorNavBar);
         // 设置背景模式
         mNavBar.setBackgroundStyle(BottomNavigationBar.BACKGROUND_STYLE_RIPPLE);
         // 设置Tab点击的模式
@@ -157,10 +156,8 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         // 添加 Tab
         mNavBar
                 // 设置导航图标及名称
-                .addItem(new BottomNavigationItem(R.drawable.tab_device, R.string.device_name)
+                .addItem(new BottomNavigationItem(R.drawable.tab_device, R.string.control_name)
                         // 导航背景颜色
-                        .setActiveColorResource(R.color.colorWhite))
-                .addItem(new BottomNavigationItem(R.drawable.tab_control, R.string.control_name)
                         .setActiveColorResource(R.color.colorWhite))
                 .addItem(new BottomNavigationItem(R.drawable.tab_mall, R.string.mall_name)
                         .setActiveColorResource(R.color.colorWhite))
@@ -178,8 +175,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     /** 将 Fragment 加入 fragments 里面 */
     private ArrayList<Fragment> getFragments() {
         ArrayList<Fragment> list = new ArrayList<>();
-        list.add(TabDeviceFragment.newInstance());
-        list.add(TabControlFragment.newInstance());
+        list.add(TabCtrlFragment.newInstance());
         list.add(TabMallFragment.newInstance());
         list.add(TabMineFragment.newInstance());
         return list;
