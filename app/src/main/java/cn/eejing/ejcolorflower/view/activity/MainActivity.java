@@ -369,7 +369,9 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         }
     }
 
+    int period;
     private void registerRefreshStatus(final String mac) {
+        period = 100;
         registerPeriod(mac + "-status", new Runnable() {
             @Override
             public void run() {
@@ -388,6 +390,8 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
 
                     Log.i(TAG, "run: millis one " + System.currentTimeMillis());
                     if (device.getState() != null && config != null) {
+                        period = 2000;
+
                         EventBus.getDefault().post(new DevConnEvent(mac,"已连接"));
                         Log.i(TAG, "run: millis two " + System.currentTimeMillis());
                         Log.i(TAG, "run status temp: " + device.getState().mTemperature);
@@ -395,7 +399,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                     }
                 }
             }
-        }, 2000);
+        }, period);
     }
 
     @Override
