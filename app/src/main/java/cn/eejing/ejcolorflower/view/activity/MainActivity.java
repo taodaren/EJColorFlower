@@ -144,32 +144,24 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
 
     /** 设置底部导航 */
     private void initBtnNavBar() {
-        BottomNavigationBar mNavBar = findViewById(R.id.bottom_navigation_bar);
-
-        // 设置模块名背景色
-        mNavBar.setBarBackgroundColor(R.color.colorNavBar);
-        // 设置背景模式
-        mNavBar.setBackgroundStyle(BottomNavigationBar.BACKGROUND_STYLE_RIPPLE);
-        // 设置Tab点击的模式
-        mNavBar.setMode(BottomNavigationBar.MODE_FIXED);
-
-        // 添加 Tab
-        mNavBar
-                // 设置导航图标及名称
-                .addItem(new BottomNavigationItem(R.drawable.tab_device, R.string.control_name)
-                        // 导航背景颜色
-                        .setActiveColorResource(R.color.colorWhite))
-                .addItem(new BottomNavigationItem(R.drawable.tab_mall, R.string.mall_name)
-                        .setActiveColorResource(R.color.colorWhite))
-                .addItem(new BottomNavigationItem(R.drawable.tab_mine, R.string.mine_name)
-                        .setActiveColorResource(R.color.colorWhite))
+        BottomNavigationBar navBar = findViewById(R.id.bottom_navigation_bar);
+        navBar
+                // 设置模块名选中及未选中背景色
+                .setBarBackgroundColor(R.color.colorNavBar).setInActiveColor(R.color.colorTitle)
+                // 设置背景模式
+                .setBackgroundStyle(BottomNavigationBar.BACKGROUND_STYLE_RIPPLE)
+                // 设置Tab点击的模式
+                .setMode(BottomNavigationBar.MODE_FIXED)
+                // 设置导航图标、名称及背景颜色
+                .addItem(new BottomNavigationItem(R.drawable.tab_ctrl, R.string.control_name).setActiveColorResource(R.color.colorWhite))
+                .addItem(new BottomNavigationItem(R.drawable.tab_mall, R.string.mall_name).setActiveColorResource(R.color.colorWhite))
+                .addItem(new BottomNavigationItem(R.drawable.tab_mine, R.string.mine_name).setActiveColorResource(R.color.colorWhite))
                 // 默认显示面板
                 .setFirstSelectedPosition(0)
                 // 初始化
                 .initialise();
-
         // 设置事件监听器
-        mNavBar.setTabSelectedListener(this);
+        navBar.setTabSelectedListener(this);
     }
 
     /** 将 Fragment 加入 fragments 里面 */
