@@ -48,6 +48,7 @@ import cn.eejing.ejcolorflower.view.fragment.TabMallFragment;
 import cn.eejing.ejcolorflower.view.fragment.TabMineFragment;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.EXIT_LOGIN;
+import static cn.eejing.ejcolorflower.app.AppConstant.QR_DEV_ID;
 import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_CHARACTERISTIC_WRITE;
 import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_SERVICE;
 
@@ -491,4 +492,19 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         doTimeoutCheck();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case 1:
+                if (resultCode == RESULT_OK) {
+                    long devId = data.getLongExtra(QR_DEV_ID, 0);
+                    Log.d(TAG, "onActivityResult dev id: " + devId);
+                    jumpToActivity(new Intent(this, CtDevConfigActivity.class).putExtra(QR_DEV_ID, devId));
+                }
+                break;
+            default:
+                break;
+        }
+    }
 }

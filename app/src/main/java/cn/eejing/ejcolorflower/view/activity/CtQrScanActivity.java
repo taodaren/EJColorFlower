@@ -90,27 +90,29 @@ public class CtQrScanActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void scanResults(String result) {
-        vibrate();
-        // 延迟 1.5s 后开始识别
-        mQRCodeView.startSpot();
-
         // 处理扫描结果
         Log.i(TAG, "scanResults: " + result);
         Log.i(TAG, "length: " + result.length());
 
-        if (result.length() == 6) {
-            // 扫描到设备 ID
-            long l = Long.parseLong(result);
-            Log.i(TAG, "dev id: " + l);
-
-            jumpToActivity(new Intent(this, CtDevConfigActivity.class).putExtra(QR_DEV_ID, Long.parseLong(result)));
-            finish();
+        switch (result.length()) {
+            case 6:
+                // 扫描到设备 ID
+                vibrate();
+                // 延迟 1.5s 后开始识别
+                mQRCodeView.startSpot();
+                Log.i(TAG, "dev id: " + Long.parseLong(result));
+                setResult(RESULT_OK, new Intent().putExtra(QR_DEV_ID, Long.parseLong(result)));
+                break;
+            default:
+                break;
         }
+        finish();
     }
 
     /** 震动 */
     private void vibrate() {
         Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+        assert vibrator != null;
         vibrator.vibrate(200);
     }
 
