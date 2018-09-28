@@ -16,6 +16,8 @@ public class AppConstant {
 
     public static final String APP_ID = "wx6a32217e1e3ae4f4";
 
+    public static final String QR_DEV_ID = "qr_dev_id";
+
     public static final String PAY_CODE_ALI = "alipay";
     public static final String PAY_CODE_WEI = "weipay";
     public static final String EXIT_LOGIN = "exit_login";
