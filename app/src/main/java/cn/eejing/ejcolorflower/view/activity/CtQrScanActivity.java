@@ -22,6 +22,7 @@ import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.QR_DEV_ID;
+import static cn.eejing.ejcolorflower.app.AppConstant.QR_MATERIAL_ID;
 
 public class CtQrScanActivity extends BaseActivity implements View.OnClickListener, QRCodeView.Delegate {
     private static final String TAG = "CtQrScanActivity";
@@ -97,15 +98,23 @@ public class CtQrScanActivity extends BaseActivity implements View.OnClickListen
         switch (result.length()) {
             case 6:
                 // 扫描到设备 ID
-                vibrate();
-                // 延迟 1.5s 后开始识别
-                mQRCodeView.startSpot();
-                Log.i(TAG, "dev id: " + Long.parseLong(result));
-                setResult(RESULT_OK, new Intent().putExtra(QR_DEV_ID, Long.parseLong(result)));
+                setResults(result, QR_DEV_ID);
+                break;
+            case 15:
+                // 扫描到料包 ID
+                setResults(result, QR_MATERIAL_ID);
                 break;
             default:
                 break;
         }
+    }
+
+    private void setResults(String result, String flag) {
+        vibrate();
+        // 延迟 1.5s 后开始识别
+        mQRCodeView.startSpot();
+        Log.i(TAG, "id: " + Long.parseLong(result));
+        setResult(RESULT_OK, new Intent().putExtra(flag, Long.parseLong(result)));
         finish();
     }
 

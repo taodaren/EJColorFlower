@@ -41,4 +41,10 @@
     <color name="color_main_dark">#2EAA50</color>
 
     <color name="navpage">#FFE1E8EB</color>
+
+    <!-- 主题颜色-->
+    <color name="top_color1">#20000000</color>
+    <color name="top_color2">#FFCECBCB</color>
+
+    <color name="green1">#34e8a6</color>
 </resources>

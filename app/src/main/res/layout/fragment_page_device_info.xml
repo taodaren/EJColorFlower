@@ -1,35 +1,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <TextView
-        android:id="@+id/tv_dmx_address"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:background="@drawable/shape_dmx"
-        android:paddingBottom="6dp"
-        android:paddingEnd="70dp"
-        android:paddingStart="70dp"
-        android:paddingTop="6dp"
-        android:shadowColor="@color/colorPrimary"
-        android:shadowDx="5"
-        android:shadowDy="5"
-        android:shadowRadius="8"
-        android:textColor="@color/colorPrimary"
-        android:textSize="32sp"
-        android:visibility="gone" />
-
-    <ImageView
-        android:id="@+id/img_temp_threshold"
-        android:layout_width="230dp"
-        android:layout_height="230dp"
-        android:layout_centerInParent="true"
-        android:src="@drawable/lv_temp_one"
-        android:visibility="gone"
-        tools:ignore="ContentDescription" />
 
     <RelativeLayout
         android:id="@+id/layout_device_time"
@@ -40,8 +12,8 @@
 
         <com.sdsmdg.harjot.crollerTest.Croller
             android:id="@+id/croller"
-            android:layout_width="230dp"
-            android:layout_height="230dp"
+            android:layout_width="174dp"
+            android:layout_height="174dp"
             android:layout_centerInParent="true"
             app:back_circle_color="@color/colorGray"
             app:indicator_color="@color/colorPrimary"
@@ -63,8 +35,11 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:text="300"
-            android:textColor="@color/colorBlack"
-            android:textSize="20sp" />
+            android:textColor="@color/colorConfig"
+            android:textSize="38sp" />
     </RelativeLayout>
 
+    <cn.eejing.ejcolorflower.util.CircleProgress
+        android:layout_width="174dp"
+        android:layout_height="174dp" />
 </RelativeLayout>

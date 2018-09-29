@@ -1,10 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="@color/colorWhite"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".view.activity.CtDevConfigActivity">
 
     <include layout="@layout/layout_toolbar" />
 
-</RelativeLayout>
+    <com.flyco.tablayout.SegmentTabLayout
+        android:id="@+id/tl_device_del"
+        android:layout_width="120dp"
+        android:layout_height="32dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="35dp"
+        app:tl_bar_color="@color/colorWhite"
+        app:tl_divider_color="@color/colorPrimary"
+        app:tl_divider_width="1dp"
+        app:tl_indicator_anim_enable="true"
+        app:tl_indicator_color="@color/colorNavBar"
+        app:tl_indicator_corner_radius="5dp"
+        app:tl_textsize="16sp" />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/vp_device"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <LinearLayout
+        android:layout_width="120dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center_horizontal">
+
+        <TextView
+            android:id="@+id/tv_dmx_show"
+            android:layout_width="86dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/ic_cfg_dmx_left"
+            android:gravity="center"
+            android:text="DMX地址"
+            android:textColor="@color/colorTitleName"
+            android:textSize="14sp" />
+
+        <RelativeLayout
+            android:id="@+id/layout_dmx_set"
+            android:layout_width="34dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/ic_cfg_dmx_right">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="6dp"
+                android:gravity="center"
+                android:src="@drawable/ic_cfg_dmx_down" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_add_material"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginLeft="48dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginRight="48dp"
+        android:background="@drawable/ic_btn_null"
+        android:text="@string/add_material"
+        android:textColor="@color/colorNavBar"
+        android:textSize="19sp" />
+
+    <Button
+        android:id="@+id/btn_enter_master"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginLeft="48dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="48dp"
+        android:layout_marginBottom="38dp"
+        android:background="@drawable/ic_btn_full"
+        android:text="@string/text_enter_master_mode"
+        android:textColor="@color/white"
+        android:textSize="19sp" />
+</LinearLayout>
