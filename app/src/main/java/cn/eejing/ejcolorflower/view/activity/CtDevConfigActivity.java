@@ -65,8 +65,9 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
         Log.i(TAG, "mDevId: " + mDevId);
 
         int temp, time;
-        temp = getIntent().getIntExtra("device_temp", 0);
-        time = getIntent().getIntExtra("device_time", 0);
+        // todo 暂时写死，设备获取温度及时间
+        temp = 114;
+        time = 3000;
 
         // 如果 DMX 为 0，true；反之 false
         isEnterMasterCtrl = mDmx == 0;

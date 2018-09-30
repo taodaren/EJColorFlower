@@ -3,19 +3,25 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@color/colorWhite"
     android:layout_height="match_parent"
+    android:background="@color/colorWhite"
     android:orientation="vertical"
     tools:context=".view.activity.CtDevConfigActivity">
 
     <include layout="@layout/layout_toolbar" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/colorBgGray" />
 
     <com.flyco.tablayout.SegmentTabLayout
         android:id="@+id/tl_device_del"
         android:layout_width="120dp"
         android:layout_height="32dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="35dp"
+        android:layout_marginTop="36dp"
+        android:layout_marginBottom="48dp"
         app:tl_bar_color="@color/colorWhite"
         app:tl_divider_color="@color/colorPrimary"
         app:tl_divider_width="1dp"
@@ -33,7 +39,8 @@
     <LinearLayout
         android:layout_width="120dp"
         android:layout_height="40dp"
-        android:layout_gravity="center_horizontal">
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="28dp">
 
         <TextView
             android:id="@+id/tv_dmx_show"
@@ -66,7 +73,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginLeft="48dp"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="48dp"
         android:layout_marginRight="48dp"
         android:background="@drawable/ic_btn_null"
         android:text="@string/add_material"

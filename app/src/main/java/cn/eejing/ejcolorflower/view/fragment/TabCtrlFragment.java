@@ -10,11 +10,13 @@ import java.util.Objects;
 
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
+import cn.eejing.ejcolorflower.view.activity.CtDevConfigActivity;
 import cn.eejing.ejcolorflower.view.activity.CtQrScanActivity;
 import cn.eejing.ejcolorflower.view.base.BaseFragment;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
+import static cn.eejing.ejcolorflower.app.AppConstant.QR_DEV_ID;
 import static cn.eejing.ejcolorflower.app.AppConstant.REQUEST_CODE_QRCODE_PERMISSIONS;
 
 /**
@@ -53,7 +55,9 @@ public class TabCtrlFragment extends BaseFragment implements EasyPermissions.Per
 
     @OnClick(R.id.btn_ctrl_ble_conn)
     public void onClickedConnDev() {
-        Objects.requireNonNull(getActivity()).startActivityForResult(new Intent(getContext(), CtQrScanActivity.class), 1);
+//        Objects.requireNonNull(getActivity()).startActivityForResult(new Intent(getContext(), CtQrScanActivity.class), 1);
+        // TODO: 方便测试，直接跳转，正式开发使用上面扫描连接
+        startActivity(new Intent(getContext(), CtDevConfigActivity.class).putExtra(QR_DEV_ID, 810360));
     }
 
     @Override

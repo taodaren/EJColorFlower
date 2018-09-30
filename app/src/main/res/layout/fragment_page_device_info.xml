@@ -1,45 +1,51 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
-    <RelativeLayout
-        android:id="@+id/layout_device_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <cn.eejing.ejcolorflower.util.CircleProgress
+        android:id="@+id/circle_progress"
+        android:layout_width="174dp"
+        android:layout_height="174dp"
         android:layout_centerInParent="true"
-        android:visibility="gone">
+        app:curProgress="70"
+        app:isShowPercentText="false"
+        app:ringColor="@color/colorRing"
+        app:ringProgressColor="@color/colorPrimary"
+        app:ringWidth="10dp"
+        app:useAnimation="true" />
 
-        <com.sdsmdg.harjot.crollerTest.Croller
-            android:id="@+id/croller"
-            android:layout_width="174dp"
-            android:layout_height="174dp"
-            android:layout_centerInParent="true"
-            app:back_circle_color="@color/colorGray"
-            app:indicator_color="@color/colorPrimary"
-            app:indicator_width="10"
-            app:is_continuous="true"
-            app:label="5.4 %"
-            app:label_color="@color/colorBlack"
-            app:label_size="40"
-            app:main_circle_color="@color/colorBgGray"
-            app:min="0"
-            app:progress_primary_circle_size="10"
-            app:progress_primary_color="@color/colorPrimary"
-            app:progress_secondary_color="@color/colorGray"
-            app:start_offset="45" />
+    <LinearLayout
+        android:layout_width="174dp"
+        android:layout_height="174dp"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_dev_temp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="34℃"
+            android:textColor="@color/colorConfig"
+            android:textSize="38sp" />
 
         <Chronometer
             android:id="@+id/ch_time_left"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
             android:text="300"
             android:textColor="@color/colorConfig"
-            android:textSize="38sp" />
-    </RelativeLayout>
+            android:textSize="38sp"
+            android:visibility="gone" />
 
-    <cn.eejing.ejcolorflower.util.CircleProgress
-        android:layout_width="174dp"
-        android:layout_height="174dp" />
+        <TextView
+            android:id="@+id/tv_switch_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="温度"
+            android:textColor="@color/colorNoClick"
+            android:textSize="18sp" />
+    </LinearLayout>
 </RelativeLayout>

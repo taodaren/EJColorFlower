@@ -19,9 +19,8 @@ import android.view.animation.DecelerateInterpolator;
 
 import cn.eejing.ejcolorflower.R;
 
-
 /**
- * Created by Administrator on 2018/5/22.
+ * 圆圈进度工具类
  */
 
 public class CircleProgress extends View {
@@ -39,54 +38,54 @@ public class CircleProgress extends View {
 //    private float viewWidth;
 //    private float viewHeight;
 
-    //内圆颜色
+    // 内圆颜色
     private int neiYuanColor;
-    //圆环半径
+    // 圆环半径
     private int ringRadius;
-    //圆环宽度
+    // 圆环宽度
     private int ringWidth;
-    //圆环颜色
+    // 圆环颜色
     private int ringColor;
-    //    圆环进度颜色
+    // 圆环进度颜色
     private int ringProgressColor;
-    //圆环进度过度颜色
+    // 圆环进度过度颜色
 //    private int ringProgressSecondColor;
-    //开始角度
+    // 开始角度
     private int startAngle = -90;
-    //是否顺时针
+    // 是否顺时针
     private boolean isClockwise = true;
-    //当前进度
+    // 当前进度
     private float progress = 10;
-    //用于执行动画时的进度回调
+    // 用于执行动画时的进度回调
     private float scaleProgress = progress;
-    //总进度
+    // 总进度
     private float maxProgress = 100;
 
-    //用于逻辑计算的总进度(主要使动画效果更平滑)
+    // 用于逻辑计算的总进度(主要使动画效果更平滑)
     private final int viewMax = 3600;
-    //用于逻辑计算的当前进度(主要使动画效果更平滑)
+    // 用于逻辑计算的当前进度(主要使动画效果更平滑)
     private float viewProgress = progress * viewMax / maxProgress;
 
-    //不绘制的度数
+    // 不绘制的度数
     private int disableAngle = 0;
-    //圆环进度是否为圆角
+    // 圆环进度是否为圆角
     private boolean isRound = true;
-    //是否设置动画
+    // 是否设置动画
     private boolean useAnimation = true;
-    //动画执行时间
+    // 动画执行时间
     private int duration = 1000;
 
-    //进度百分比
+    // 进度百分比
     private double progressPercent;
-    //进度百分比数值是否是小数
+    // 进度百分比数值是否是小数
     private boolean isDecimal = true;
-    //小数点后几位
+    // 小数点后几位
     private int decimalPointLength = 1;
-    //是否显示百分比
+    // 是否显示百分比
     private boolean isShowPercentText = true;
-    //文字颜色
+    // 文字颜色
     private int textColor;
-    //文字大小
+    // 文字大小
     private int textSize;
 
     public CircleProgress(Context context) {
@@ -163,7 +162,6 @@ public class CircleProgress extends View {
         mPaint.setStyle(Paint.Style.FILL);
     }
 
-
     private void initData() {
         neiYuanColor = ContextCompat.getColor(getContext(), R.color.colorTransparent);
         ringRadius = -1;
@@ -191,12 +189,12 @@ public class CircleProgress extends View {
         }
     }
 
- /*   @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        viewWidth=w;
-        viewHeight=h;
-    }*/
+//    @Override
+//    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+//        super.onSizeChanged(w, h, oldw, oldh);
+//        viewWidth=w;
+//        viewHeight=h;
+//    }
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -207,14 +205,14 @@ public class CircleProgress extends View {
         }
         centerX = getWidth() / 2;
         centerY = getHeight() / 2;
-        //绘制圆环
+        // 绘制圆环
 //        drawRing(canvas);
         drawRing2(canvas);
-        //绘制内圆
+        // 绘制内圆
         drawNeiYuan(canvas);
-        //绘制进度圆环
+        // 绘制进度圆环
         drawProgressRing(canvas);
-        //绘制进度百分比
+        // 绘制进度百分比
         if (isShowPercentText) {
             drawProgressText(canvas);
         }
@@ -235,7 +233,6 @@ public class CircleProgress extends View {
         mPaint.getTextBounds(percentStr, 0, percentStr.length(), rect);
         float baseLineHeight = Math.abs(mPaint.getFontMetrics().ascent);
         canvas.drawText(percentStr + "", centerX - rect.width() / 2, centerY + baseLineHeight / 2, mPaint);
-
     }
 
     private void drawNeiYuan(Canvas canvas) {
@@ -256,10 +253,10 @@ public class CircleProgress extends View {
 
         RectF rectF = new RectF(centerX - ringRadius, centerY - ringRadius, centerX + ringRadius, centerY + ringRadius);
 //        mPaint.setShadowLayer(1000,1000,1000,ContextCompat.getColor(getContext(),R.color.blue_00));
-       /* LinearGradient linearGradient = new LinearGradient(0,0,
-                getMeasuredWidth(),getMeasuredHeight(),
-                ringProgressColor,ringProgressSecondColor,
-                Shader.TileMode.MIRROR);*/
+//        LinearGradient linearGradient = new LinearGradient(0,0,
+//                getMeasuredWidth(),getMeasuredHeight(),
+//                ringProgressColor,ringProgressSecondColor,
+//                Shader.TileMode.MIRROR);
 
 //        mPaint.setShader(linearGradient);
         if (progressShader != null) {
@@ -277,7 +274,7 @@ public class CircleProgress extends View {
             angle = -1 * angle;
         }
         canvas.drawArc(rectF, startAngle, angle, false, mPaint);
-        mPaint.reset();//如果不reset，setShader导致设置进度无效果
+        mPaint.reset();// 如果不 reset，setShader 导致设置进度无效果
     }
 
     private void drawRing2(Canvas canvas) {
@@ -305,7 +302,7 @@ public class CircleProgress extends View {
         canvas.drawCircle(centerX, centerY, ringRadius, mPaint);
     }
 
-    /*******************************get*set********************************************/
+    /******************************* get*set *******************************/
     public int getEffectiveDegree() {
         return 360 - disableAngle;
     }
@@ -439,16 +436,15 @@ public class CircleProgress extends View {
         return this;
     }
 
-    /*public int getRingProgressSecondColor() {
-        return ringProgressSecondColor;
-    }
-
-    public CircleProgress setRingProgressSecondColor(@ColorInt int ringProgressSecondColor) {
-        this.ringProgressSecondColor = ringProgressSecondColor;
-        invalidateCircleProgress();
-        return this;
-    }
-*/
+//    public int getRingProgressSecondColor() {
+//        return ringProgressSecondColor;
+//    }
+//
+//    public CircleProgress setRingProgressSecondColor(@ColorInt int ringProgressSecondColor) {
+//        this.ringProgressSecondColor = ringProgressSecondColor;
+//        invalidateCircleProgress();
+//        return this;
+//    }
 
     public boolean isClockwise() {
         return isClockwise;
@@ -578,12 +574,12 @@ public class CircleProgress extends View {
             onCircleProgressInter.progress(scaleProgress, progress, max);
         }
     }
- /*   public float getViewWidth() {
-        return viewWidth;
-    }
-    public float getViewHeight() {
-        return viewHeight;
-    }*/
+//    public float getViewWidth() {
+//        return viewWidth;
+//    }
+//    public float getViewHeight() {
+//        return viewHeight;
+//    }
 
     private void invalidateCircleProgress() {
         invalidate();

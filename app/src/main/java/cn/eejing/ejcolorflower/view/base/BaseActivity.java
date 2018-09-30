@@ -86,6 +86,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         // 设置标题
         TextView textTitle = findViewById(R.id.tv_title_toolbar);
         textTitle.setVisibility(titleVisibility);
+        textTitle.setTextSize(20);
         textTitle.setText(title);
         // 设置返回按钮
         ImageView imgTitleBack = findViewById(R.id.img_back_toolbar);
