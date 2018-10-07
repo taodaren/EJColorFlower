@@ -142,6 +142,7 @@
     <string name="text_manage">管理</string>
     <string name="text_enter_master_mode">进入主控模式</string>
     <string name="text_master_mode">主控模式</string>
+    <string name="text_set_master">设置主控</string>
     <string name="text_order_num">订单编号：</string>
     <string name="text_order_time">下单时间：</string>
     <string name="text_multiply">×</string>
