@@ -1,5 +1,7 @@
 package cn.eejing.ejcolorflower.view.fragment;
 
+import android.view.View;
+
 import com.allen.library.SuperTextView;
 
 import butterknife.BindView;
@@ -17,20 +19,18 @@ import cn.eejing.ejcolorflower.view.base.BaseFragment;
 
 public class TabMineFragment extends BaseFragment {
 
-    @BindView(R.id.stv_mine_opinion)
-    SuperTextView stvMineOpinion;
-    @BindView(R.id.stv_mine_about)
-    SuperTextView stvMineAbout;
-    @BindView(R.id.stv_mine_set)
-    SuperTextView stvMineSet;
-    @BindView(R.id.stv_mine_order)
-    SuperTextView stvMineOrder;
+    @BindView(R.id.stv_mine_opinion)        SuperTextView stvMineOpinion;
+    @BindView(R.id.stv_mine_about)          SuperTextView stvMineAbout;
+    @BindView(R.id.stv_mine_set)            SuperTextView stvMineSet;
+    @BindView(R.id.stv_mine_order)          SuperTextView stvMineOrder;
 
     public static TabMineFragment newInstance() {
         return new TabMineFragment();
     }
 
-    public TabMineFragment() {
+    @Override
+    public void initToolbar() {
+        setToolbar(R.id.main_toolbar, R.string.mine_name, View.VISIBLE);
     }
 
     @Override
