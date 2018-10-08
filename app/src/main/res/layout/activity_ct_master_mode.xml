@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorBgMaster"
     tools:context=".view.activity.CtMasterModeActivity">
 
     <include
@@ -17,14 +18,28 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="130dp"
-        android:layout_alignParentBottom="true">
+        android:layout_height="136dp"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/ic_bg_start">
 
         <Button
             android:id="@+id/btn_master_start"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:text="开始" />
+            android:background="@drawable/ic_btn_jet"
+            android:text="开始"
+            android:textColor="@color/colorWhite"
+            android:textSize="20sp" />
+
+        <ImageView
+            android:id="@+id/img_start_show"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/btn_master_start"
+            android:layout_centerHorizontal="true"
+            android:padding="8dp"
+            android:src="@drawable/ic_start_down" />
     </RelativeLayout>
 </RelativeLayout>

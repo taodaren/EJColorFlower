@@ -31,6 +31,8 @@
     <color name="colorGray">#d9d9d9</color>
     <color name="colorBgGray">#EEEEEE</color>
     <color name="colorBgDevice">#cccccc</color>
+    <color name="colorBgMaster">#f9f9f9</color>
+    <color name="colorE1">#E1E1E1</color>
 
     <color name="colorTitleName">#666666</color>
     <color name="colorConfig">#333333</color>
@@ -38,6 +40,8 @@
     <color name="colorGroupLine">#e5e5e5</color>
     <color name="colorDeviceLine">#f3f3f3</color>
     <color name="colorFrame">#d2d2d2</color>
+    <color name="colorProgressDrawable">#5A97FF</color>
+    <color name="colorSeekBg">#F0F2F4</color>
 
     <color name="colorHighlightTempLow">#619ee4</color>
     <color name="colorHighlightTempHigh">#f75e5e</color>

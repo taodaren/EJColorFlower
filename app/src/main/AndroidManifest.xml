@@ -153,7 +153,9 @@
             android:launchMode="singleTop" />
         <activity android:name=".view.activity.CtQrScanActivity" />
         <activity android:name=".view.activity.CtDevConfigActivity" />
-        <activity android:name=".view.activity.CtMasterModeActivity"></activity>
+        <activity android:name=".view.activity.CtMasterModeActivity" />
+        <activity android:name=".view.activity.CtSetGroupActivity" />
+        <activity android:name=".view.activity.CtAddEffectActivity"></activity>
     </application>
 
 </manifest>
