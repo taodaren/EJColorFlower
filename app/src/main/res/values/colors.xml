@@ -33,6 +33,7 @@
     <color name="colorBgDevice">#cccccc</color>
     <color name="colorBgMaster">#f9f9f9</color>
     <color name="colorE1">#E1E1E1</color>
+    <color name="colorRmb">#FF2F30</color>
 
     <color name="colorTitleName">#666666</color>
     <color name="colorConfig">#333333</color>
