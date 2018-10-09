@@ -1,6 +1,5 @@
 package cn.eejing.ejcolorflower.view.activity;
 
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -33,10 +32,18 @@ public class CtMasterModeActivity extends BaseActivity {
     public void initView() {
         setToolbar("主控", View.VISIBLE, null, View.GONE);
         mDeviceId = getIntent().getLongExtra("device_id", 0);
-        Log.i(TAG, "initView: " + mDeviceId);
 
         mList = new ArrayList<>();
-        mList.add("分组1");
+        mList.add("分组名称");
+        mList.add("分组功能敬请期待...");
+        mList.add("分组功能敬请期待...");
+        mList.add("分组功能敬请期待...");
+        mList.add("分组功能敬请期待...");
+        mList.add("分组功能敬请期待...");
+        mList.add("分组功能敬请期待...");
+        mList.add("分组功能敬请期待...");
+        mList.add("分组功能敬请期待...");
+        mList.add("分组功能敬请期待...");
 
         initRecyclerView();
     }
@@ -45,7 +52,7 @@ public class CtMasterModeActivity extends BaseActivity {
         // 设置布局
         rvMasterList.setLinearLayout();
         // 绑定适配器
-        mAdapter = new MasterListAdapter(this, mList);
+        mAdapter = new MasterListAdapter(this, mList, mDeviceId);
 //        mAdapter.setHasStableIds(true);
         rvMasterList.setAdapter(mAdapter);
 

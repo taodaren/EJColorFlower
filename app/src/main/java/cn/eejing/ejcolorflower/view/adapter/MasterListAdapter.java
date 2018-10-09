@@ -1,23 +1,22 @@
 package cn.eejing.ejcolorflower.view.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.model.request.DeviceListBean;
+import cn.eejing.ejcolorflower.view.activity.CtSetGroupActivity;
 
 /**
  * 主控列表适配器
@@ -29,9 +28,11 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private Context mContext;
     private LayoutInflater mLayoutInflater;
     private List<String> mList;
+    private Long mDeviceId;
 
-    public MasterListAdapter(Context context, List<String> list) {
+    public MasterListAdapter(Context context, List<String> list, Long devId) {
         this.mContext = context;
+        this.mDeviceId = devId;
         this.mList = list;
         this.mLayoutInflater = LayoutInflater.from(mContext);
     }
@@ -53,23 +54,6 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public int getItemCount() {
         return mList.size();
     }
-
-//    @Override
-//    public long getItemId(int position) {
-//        return position;
-//    }
-
-//    @Override
-//    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
-//        super.onAttachedToRecyclerView(recyclerView);
-//        EventBus.getDefault().register(this);
-//    }
-//
-//    @Override
-//    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
-//        super.onDetachedFromRecyclerView(recyclerView);
-//        EventBus.getDefault().unregister(this);
-//    }
 
     public void refreshList(List<String> list) {
         if (list != null) {
@@ -97,8 +81,21 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         void setData(String s) {
+            if (s.equals("分组功能敬请期待...")) {
+                btnMasterSet.setBackground(mContext.getDrawable(R.drawable.ic_btn_master_set_null));
+            } else {
+                btnMasterSet.setBackground(mContext.getDrawable(R.drawable.ic_btn_master_set));
+            }
             tvGroup.setText(s);
         }
+
+        @OnClick(R.id.btn_master_set)
+        public void onViewClicked() {
+            if (!mList.get(getAdapterPosition()).equals("分组功能敬请期待...")) {
+                mContext.startActivity(new Intent(mContext, CtSetGroupActivity.class).putExtra("device_id", mDeviceId));
+            }
+        }
+
     }
 
 }
