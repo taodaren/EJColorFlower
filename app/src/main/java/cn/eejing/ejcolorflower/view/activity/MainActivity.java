@@ -37,6 +37,7 @@ import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceStatus;
 import cn.eejing.ejcolorflower.model.event.DevConnEvent;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
+import cn.eejing.ejcolorflower.model.request.QueryDevMacBean;
 import cn.eejing.ejcolorflower.model.session.LoginSession;
 import cn.eejing.ejcolorflower.presenter.ISendCommand;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
@@ -49,6 +50,7 @@ import cn.eejing.ejcolorflower.view.fragment.TabMineFragment;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.EXIT_LOGIN;
 import static cn.eejing.ejcolorflower.app.AppConstant.QR_DEV_ID;
+import static cn.eejing.ejcolorflower.app.AppConstant.QR_DEV_MAC;
 import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_CHARACTERISTIC_WRITE;
 import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_SERVICE;
 
@@ -299,9 +301,11 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         return null;
     }
 
+    /** 连接设备 */
     public void connDevice(final String mac, long id) {
-        Log.i(TAG, "connDevice");
+        Log.i(TAG, "connDevice " + mac + " " + id);
         if (!mProtocolMap.containsKey(mac)) {
+            Log.i(TAG, "connDevice: 123");
             Device dev = new Device(mac);
             dev.setId(id);
             mDevList.add(dev);
@@ -310,6 +314,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         }
     }
 
+    /** 断开连接设备 */
     public void disconnectDevice(final String mac) {
         if (mProtocolMap.containsKey(mac)) {
             Device dev = new Device(mac);
@@ -377,12 +382,12 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                     }
                     send(mac, BleDeviceProtocol.pkgGetStatus(id), true);
 
-                    Log.i(TAG, "run: millis one " + System.currentTimeMillis());
+                    Log.i(TAG, "run millis one " + System.currentTimeMillis());
                     if (device.getState() != null && config != null) {
                         period = 2000;
 
-                        EventBus.getDefault().post(new DevConnEvent(mac,"已连接"));
-                        Log.i(TAG, "run: millis two " + System.currentTimeMillis());
+                        EventBus.getDefault().post(new DevConnEvent(id, mac, "已连接"));
+                        Log.i(TAG, "run millis two " + System.currentTimeMillis());
                         Log.i(TAG, "run status temp: " + device.getState().mTemperature);
                         Log.i(TAG, "run config id: " + config.mID);
                     }
@@ -390,6 +395,8 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
             }
         }, period);
     }
+
+    private boolean mIsConnect;
 
     @Override
     void onDeviceConnect(String mac) {
@@ -400,6 +407,10 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         if (device != null) {
             device.setConnected(true);
 //            mDevListAdapter.notifyDataSetChanged();
+//            jumpToActivity(new Intent(MainActivity.this, CtDevConfigActivity.class)
+//                    .putExtra(QR_DEV_ID, Long.parseLong(mStrDevId))
+//                    .putExtra(QR_DEV_MAC, mac)
+//            );
         } else {
             Log.i(TAG, "onDeviceConnect no device");
         }
@@ -492,6 +503,8 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         doTimeoutCheck();
     }
 
+    private String mStrDevId;
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -499,12 +512,40 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
             case 1:
                 if (resultCode == RESULT_OK) {
                     long devId = data.getLongExtra(QR_DEV_ID, 0);
+                    mStrDevId = String.valueOf(devId);
                     Log.d(TAG, "onActivityResult dev id: " + devId);
-                    jumpToActivity(new Intent(this, CtDevConfigActivity.class).putExtra(QR_DEV_ID, devId));
+
+                    // 获取 ID 对应 MAC
+                    getDataWithQueryDevMac();
                 }
                 break;
             default:
                 break;
         }
     }
+
+    private String mMacById;
+
+    private void getDataWithQueryDevMac() {
+        OkGo.<String>post(Urls.QUERY_DEV_MAC)
+                .tag(this)
+                .params("id", mStrDevId)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        String body = response.body();
+                        Log.e(TAG, "查询设备 Mac 地址请求成功！" + body);
+
+                        QueryDevMacBean bean = mGson.fromJson(body, QueryDevMacBean.class);
+                        if (bean.getCode() == 1) {
+                            mMacById = bean.getData().getMac();
+                            Log.d(TAG, "QueryDevMac mMacById: " + mMacById);
+
+                            // 连接设备
+                            connDevice(mMacById, Long.parseLong(mStrDevId));
+                        }
+                    }
+                });
+    }
+
 }

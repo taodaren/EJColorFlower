@@ -28,6 +28,7 @@ import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.QR_DEV_ID;
+import static cn.eejing.ejcolorflower.app.AppConstant.QR_DEV_MAC;
 import static cn.eejing.ejcolorflower.app.AppConstant.QR_MATERIAL_ID;
 import static cn.eejing.ejcolorflower.app.AppConstant.REQUEST_CODE_QRCODE_PERMISSIONS;
 import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_TEMP;
@@ -51,6 +52,7 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
     // 是否可以进入主控模式
     private boolean isEnterMasterCtrl;
     private long mDevId;
+    private String mDevMac;
 
     @Override
     protected int layoutViewId() {
@@ -62,7 +64,8 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
         setToolbar("设备配置", View.VISIBLE, null, View.GONE);
 
         mDevId = getIntent().getLongExtra(QR_DEV_ID, 0);
-        Log.i(TAG, "mDevId: " + mDevId);
+        mDevMac = getIntent().getStringExtra(QR_DEV_MAC);
+        Log.i(TAG, "设备信息: " + mDevId + " " + mDevMac);
 
         int temp, time;
         // todo 暂时写死，设备获取温度及时间
@@ -171,6 +174,11 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
         mVPager.setCurrentItem(mPageType);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        MainActivity.getAppCtrl().disconnectDevice(mDevMac);
+    }
 
     @Override
     public void onPermissionsGranted(int requestCode, List<String> perms) {

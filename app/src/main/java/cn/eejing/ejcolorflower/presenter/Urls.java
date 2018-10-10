@@ -12,6 +12,7 @@ public interface Urls {
     String PWD_FIND = BASE_URL + "pwdFind";                                            // 密码找回
     String SEND_MSG = BASE_URL + "sendMsg";                                            // 发送短信
 
+    String QUERY_DEV_MAC = BASE_URL + "queryDeviceMac";                                // 查询设备 Mac 地址
     String DEVICE_LIST = BASE_URL + "device_list";                                     // 获取用户设备列表
     String ADD_DEVICE = BASE_URL + "add_device";                                       // 用户添加设备
     String RM_DEVICE = BASE_URL + "rm_device";                                         // 用户删除设备
