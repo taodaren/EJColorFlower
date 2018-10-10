@@ -35,8 +35,6 @@ import static cn.eejing.ejcolorflower.app.AppConstant.REQUEST_CODE_QRCODE_PERMIS
 public class TabCtrlFragment extends BaseFragment implements EasyPermissions.PermissionCallbacks {
     private static final String TAG = "TabCtrlFragment";
 
-    @BindView(R.id.img_ble_toolbar)        ImageView imgBleToolbar;
-
     public static TabCtrlFragment newInstance() {
         return new TabCtrlFragment();
     }
@@ -50,13 +48,6 @@ public class TabCtrlFragment extends BaseFragment implements EasyPermissions.Per
     public void initToolbar() {
         setToolbar(R.id.main_toolbar, R.string.control_name, View.VISIBLE);
     }
-
-//    @Override
-//    public void setToolbar(int toolbarId, int title, int titleVisibility) {
-//        super.setToolbar(toolbarId, title, titleVisibility);
-//        imgBleToolbar.setVisibility(View.VISIBLE);
-//        imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_desconn));
-//    }
 
     @Override
     public void initView(View rootView) {

@@ -8,10 +8,15 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.flyco.tablayout.SegmentTabLayout;
 import com.flyco.tablayout.listener.OnTabSelectListener;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +24,7 @@ import java.util.List;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
+import cn.eejing.ejcolorflower.model.event.DevConnEvent;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
 import cn.eejing.ejcolorflower.util.ViewFindUtils;
 import cn.eejing.ejcolorflower.view.adapter.ViewPagerAdapter;
@@ -37,6 +43,7 @@ import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_TIME;
 public class CtDevConfigActivity extends BaseActivity implements View.OnClickListener, EasyPermissions.PermissionCallbacks{
     private static final String TAG = "CtDevConfigActivity";
 
+    @BindView(R.id.img_ble_toolbar)         ImageView imgBleToolbar;
     @BindView(R.id.btn_add_material)        Button    btnAddMaterial;
     @BindView(R.id.btn_enter_master)        Button    btnEnterMaster;
 
@@ -61,6 +68,7 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
 
     @Override
     public void initView() {
+        EventBus.getDefault().register(this);
         setToolbar("设备配置", View.VISIBLE, null, View.GONE);
 
         mDevId = getIntent().getLongExtra(QR_DEV_ID, 0);
@@ -84,6 +92,13 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
         mPageType = getIntent().getIntExtra("page", 0);
 
         initTLVP();
+    }
+
+    @Override
+    public void setToolbar(String title, int titleVisibility, String menu, int menuVisibility) {
+        super.setToolbar(title, titleVisibility, menu, menuVisibility);
+        imgBleToolbar.setVisibility(View.VISIBLE);
+        imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_desconn));
     }
 
     @Override
@@ -174,9 +189,23 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
         mVPager.setCurrentItem(mPageType);
     }
 
+    /** 蓝牙连接状态 */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventDevConn(DevConnEvent event) {
+        switch (event.getStatus()) {
+            case "已连接":
+                imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_conn));
+                break;
+            case "不可连接":
+                imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_desconn));
+                break;
+        }
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        EventBus.getDefault().unregister(this);
         MainActivity.getAppCtrl().disconnectDevice(mDevMac);
     }
 
