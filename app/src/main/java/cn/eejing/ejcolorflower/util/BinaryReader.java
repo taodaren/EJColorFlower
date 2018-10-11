@@ -51,4 +51,14 @@ public class BinaryReader {
         return a | (b << 8) | (c << 16) | (d << 24);
     }
 
+    public long readUnsignedLongLSB() throws IOException {
+        long a = mInputStream.read();
+        long b = mInputStream.read();
+        long c = mInputStream.read();
+        long d = mInputStream.read();
+        long e = mInputStream.read();
+        long f = mInputStream.read();
+        return a | (b << 8) | (c << 16) | (d << 24) | (e << 32) | (f << 40);
+    }
+
 }

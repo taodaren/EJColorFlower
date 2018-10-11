@@ -351,7 +351,7 @@ public class BleDeviceProtocol {
     /** 加料 */
     @NonNull
     public static byte[] pkgAddMaterial(long devId, int time, long timestamp, long userId, long materialId) {
-        byte[] data = new byte[14];
+        byte[] data = new byte[16];
 
         data[0] = (byte) (time & 0xff);
         data[1] = (byte) ((time >> 8) & 0xff);
@@ -371,21 +371,16 @@ public class BleDeviceProtocol {
         data[11] = (byte) ((materialId >> 8) & 0xff);
         data[12] = (byte) ((materialId >> 16) & 0xff);
         data[13] = (byte) ((materialId >> 24) & 0xff);
+        data[14] = (byte) ((materialId >> 32) & 0xff);
+        data[15] = (byte) ((materialId >> 40) & 0xff);
 
         return cmdPkg(CMD_ADD_MATERIAL, devId, data);
     }
 
     /** 获取时间戳 */
     @NonNull
-    public static byte[] pkgGetTimestamp(long devId,long timestamp) {
-        byte[] data = new byte[4];
-
-        data[0] = (byte) (timestamp & 0xff);
-        data[1] = (byte) ((timestamp >> 8) & 0xff);
-        data[2] = (byte) ((timestamp >> 16) & 0xff);
-        data[3] = (byte) ((timestamp >> 24) & 0xff);
-
-        return cmdPkg(CMD_GET_TIMESTAMP, devId, data);
+    public static byte[] pkgGetTimestamp(long devId) {
+        return cmdPkg(CMD_GET_TIMESTAMP, devId, null);
     }
 
     /** 停止喷射 */
@@ -406,25 +401,8 @@ public class BleDeviceProtocol {
 
     /** 获取加料状态 */
     @NonNull
-    public static byte[] pkgGetAddMaterialStatus(long devId, int isExist, long userId, long materialId) {
-        byte[] data = new byte[12];
-
-        data[0] = (byte) (isExist & 0xff);
-        data[1] = (byte) ((isExist >> 8) & 0xff);
-
-        data[2] = (byte) (userId & 0xff);
-        data[3] = (byte) ((userId >> 8) & 0xff);
-        data[4] = (byte) ((userId >> 16) & 0xff);
-        data[5] = (byte) ((userId >> 24) & 0xff);
-
-        data[6] = (byte) (materialId & 0xff);
-        data[7] = (byte) ((materialId >> 8) & 0xff);
-        data[8] = (byte) ((materialId >> 16) & 0xff);
-        data[9] = (byte) ((materialId >> 24) & 0xff);
-        data[10] = (byte) ((materialId >> 32) & 0xff);
-        data[11] = (byte) ((materialId >> 40) & 0xff);
-
-        return cmdPkg(CMD_GET_ADD_MATERIAL_STATUS, devId, data);
+    public static byte[] pkgGetAddMaterialStatus(long devId) {
+        return cmdPkg(CMD_GET_ADD_MATERIAL_STATUS, devId, null);
     }
 
     /** 清除加料信息 */
@@ -607,9 +585,9 @@ public class BleDeviceProtocol {
         BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {
             reader.skip(HEADER_LEN);
-            status.exist = reader.readUnsignedChar();
-            status.userId = reader.readUnsignedIntLSB();
-            status.materialId = reader.readUnsignedIntLSB();
+            status.setExist(reader.readUnsignedChar());
+            status.setUserId(reader.readUnsignedIntLSB());
+            status.setMaterialId(reader.readUnsignedLongLSB());
             return status;
         } catch (IOException e) {
             return null;

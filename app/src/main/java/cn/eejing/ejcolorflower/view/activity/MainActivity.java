@@ -50,7 +50,6 @@ import cn.eejing.ejcolorflower.view.fragment.TabMineFragment;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.EXIT_LOGIN;
 import static cn.eejing.ejcolorflower.app.AppConstant.QR_DEV_ID;
-import static cn.eejing.ejcolorflower.app.AppConstant.QR_DEV_MAC;
 import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_CHARACTERISTIC_WRITE;
 import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_SERVICE;
 
@@ -64,9 +63,11 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     private String mMemberId, mToken;
     private Gson mGson;
 
-    private boolean mRequestConfig;
+    private boolean mFlagRequestConfig;
 
     static private MainActivity AppInstance;
+    private DeviceConfig mConfig;
+
     public static MainActivity getAppCtrl() {
         return AppInstance;
     }
@@ -100,6 +101,16 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     public void scanRefresh() {
         addScanFilter(UUID_GATT_SERVICE);
         refresh();
+    }
+
+    public boolean isFlagRequestConfig() {
+        return mFlagRequestConfig;
+    }
+
+    /** 清空配置 */
+    public void setFlagRequestConfig(boolean mFlagRequestConfig) {
+        this.mFlagRequestConfig = mFlagRequestConfig;
+        this.mConfig = null;
     }
 
     private void getDataWithDeviceList() {
@@ -292,7 +303,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         }
     }
 
-    private Device getDevice(String mac) {
+    public Device getDevice(String mac) {
         for (Device device : mDevList) {
             if (device.getAddress().equals(mac)) {
                 return device;
@@ -375,21 +386,23 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                 }
                 Device device = getDevice(mac);
                 if (device != null) {
-                    DeviceConfig config = device.getConfig();
-                    long id = (config == null) ? 0 : config.mID;
-                    if (config == null || mRequestConfig) {
-                        mRequestConfig = !send(mac, BleDeviceProtocol.pkgGetConfig(id), true);
+                    mConfig = device.getConfig();
+//                    Log.i(TAG, "back === " + mFlagRequestConfig);
+                    long id = (mConfig == null) ? 0 : mConfig.mID;
+                    if (mConfig == null || mFlagRequestConfig) {
+//                        Log.i(TAG, "mFlagRequestConfig=== " + mFlagRequestConfig);
+                        mFlagRequestConfig = !send(mac, BleDeviceProtocol.pkgGetConfig(id), true);
+//                        return;
                     }
                     send(mac, BleDeviceProtocol.pkgGetStatus(id), true);
-
-                    Log.i(TAG, "run millis one " + System.currentTimeMillis());
-                    if (device.getState() != null && config != null) {
+//                    Log.i(TAG, "run millis one " + System.currentTimeMillis());
+                    if (device.getState() != null) {
                         period = 2000;
 
-                        EventBus.getDefault().post(new DevConnEvent(id, mac, "已连接"));
-                        Log.i(TAG, "run millis two " + System.currentTimeMillis());
-                        Log.i(TAG, "run status temp: " + device.getState().mTemperature);
-                        Log.i(TAG, "run config id: " + config.mID);
+                        EventBus.getDefault().post(new DevConnEvent(id, mac, "已连接", device.getState(), mConfig));
+//                        Log.i(TAG, "run millis two " + System.currentTimeMillis());
+//                        Log.i(TAG, "run status temp: " + device.getState().mTemperature);
+//                        Log.i(TAG, "run config id: " + config.mID);
                     }
                 }
             }
@@ -444,7 +457,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         BleDeviceProtocol p = mProtocolMap.get(mac);
         if (p != null) {
             send(device.getAddress(), pkg, true);
-            mRequestConfig = true;
+            mFlagRequestConfig = true;
         }
     }
 

@@ -19,6 +19,10 @@ import cn.eejing.ejcolorflower.model.lite.MasterCtrlModeEntity;
 import cn.eejing.ejcolorflower.view.adapter.CtMasterSetAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
+/**
+ * 设置主控分组
+ */
+
 public class CtSetGroupActivity extends BaseActivity {
     private static final String TAG = "CtSetGroupActivity";
 
@@ -49,7 +53,6 @@ public class CtSetGroupActivity extends BaseActivity {
         rvMasterSet.setNestedScrollingEnabled(false);
 
         LinearLayoutManager manager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-//        LinearLayoutManager manager = new LinearLayoutManager(this);
         rvMasterSet.setLayoutManager(manager);
         // 绑定适配器
         mAdapter = new CtMasterSetAdapter(this, mList);

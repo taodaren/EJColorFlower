@@ -44,6 +44,7 @@ public class AppConstant {
     public static final int TYPE_DMX = 2;
     public static final int TYPE_TIME = 3;
 
+    // 加料使用状态
     public static final int TYPE_NO_USED = 0;
     public static final int TYPE_WAIT_USED = 1;
     public static final int TYPE_END_USED = 2;
