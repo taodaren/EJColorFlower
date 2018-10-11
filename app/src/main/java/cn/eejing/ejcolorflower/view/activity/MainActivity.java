@@ -55,7 +55,6 @@ import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_SERVICE;
 
 public class MainActivity extends BLEManagerActivity implements ISendCommand, BottomNavigationBar.OnTabSelectedListener {
     private static final String TAG = "MainActivity";
-    private final static int ACK_TIMEOUT = 1000;
 
     private List<Fragment> mFragments;
     private Fragment mCurrentFragment;
@@ -63,10 +62,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     private String mMemberId, mToken;
     private Gson mGson;
 
-    private boolean mFlagRequestConfig;
-
     static private MainActivity AppInstance;
-    private DeviceConfig mConfig;
 
     public static MainActivity getAppCtrl() {
         return AppInstance;
@@ -101,16 +97,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     public void scanRefresh() {
         addScanFilter(UUID_GATT_SERVICE);
         refresh();
-    }
-
-    public boolean isFlagRequestConfig() {
-        return mFlagRequestConfig;
-    }
-
-    /** 清空配置 */
-    public void setFlagRequestConfig(boolean mFlagRequestConfig) {
-        this.mFlagRequestConfig = mFlagRequestConfig;
-        this.mConfig = null;
     }
 
     private void getDataWithDeviceList() {
@@ -265,31 +251,144 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
 
     private class ProtocolWithDevice extends BleDeviceProtocol {
         final Device device;
+        boolean bSendEn = true;              // 用于判断线程是否需要结束
+        PackageNeedAck nCurDealSend = null;  // 用于引用当前正在发送和等待回复的命令
+        final Object lock = new Object();
+
+        /* 添加一个管理每个蓝牙设备数据发送的队列
+           每个设备连接到手机后，手机开启一个线程，用于管理当前设备的数据发送，接收，超时，重发 */
+        Thread sendThread = new Thread() { //发送和等待回复命令的处理线程（通道）
+            @Override
+            public void run() {
+                super.run();
+                while (bSendEn) {
+                    if (nCurDealSend != null) { //当前有发送需要进行处理
+                        PackageNeedAck curDeal = nCurDealSend;
+                        if (curDeal.redoCntWhenTimeOut > 0) {
+                            curDeal.redoCntWhenTimeOut--;
+                            send(device.getAddress(), curDeal.cmd_pkg, true);
+                            // 根据当前发送命令是否需要回复的类型，设置等待时间
+                            if (curDeal.callback == null) {
+                                // 不需要回复的处理
+                                try {
+                                    Thread.sleep(70);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                nCurDealSend = null;
+                            } else {
+                                // 等待回复过程 当 curDeal 被置为 null 时，表示回复成功
+                                long send_time = System.currentTimeMillis();
+                                while (bSendEn && (curDeal != null) && (System.currentTimeMillis() - send_time < 300)) {
+                                    synchronized (lock) {
+                                        try {
+                                            lock.wait(50); //等待2秒
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            // 重发次数为 0 不需要再次发送该命令了
+                            if (curDeal.callback != null) {
+                                curDeal.callback.timeout();
+                            }
+                            nCurDealSend = null;
+                        }
+                    } else {
+                        int cmdCnt;
+                        synchronized (mCmdAckList) {
+                            cmdCnt = mCmdAckList.size();
+                        }
+                        if (cmdCnt > 0) {
+                            synchronized (mCmdAckList) {
+                                nCurDealSend = mCmdAckList.getFirst();
+                                mCmdAckList.removeFirst();
+                            }
+                        } else {
+                            synchronized (lock) {
+                                //线程等待有新的发送任务
+                                try {
+                                    // 等待 2 秒
+                                    lock.wait(2000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            synchronized (mCmdAckList) {
+                                cmdCnt = mCmdAckList.size();
+                            }
+                            if (bSendEn && cmdCnt == 0) {
+                                // 2 秒的时间内没有命令；可以发送一次获取状态的命令
+                                DeviceConfig mConfig = device.getConfig();
+                                long id = (mConfig == null) ? 0 : mConfig.mID;
+                                // 等待获取状态完成
+                                nCurDealSend = new PackageNeedAck(device.getAddress(), BleDeviceProtocol.pkgGetStatus(id),
+                                        new OnReceivePackage() {
+                                            @Override
+                                            public void ack(@NonNull byte[] pkg) {
+                                                nCurDealSend = null;
+                                            }
+
+                                            @Override
+                                            public void timeout() {
+
+                                            }
+                                        });
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        // 有一个列队用于缓冲需要发送的数据
+        private final LinkedList<PackageNeedAck> mCmdAckList = new LinkedList<>();
 
         ProtocolWithDevice(@NonNull Device device) {
             this.device = device;
+            // 创建一个用于管理数据发送和应答的线程
+            sendThread.start();
+        }
+
+        void addSendCmd(PackageNeedAck pkg_Ack) {
+            synchronized (mCmdAckList) {
+                mCmdAckList.addLast(pkg_Ack);
+            }
+            synchronized (lock) {
+                lock.notify();
+            }
+        }
+
+        void stopSendThread() {
+            bSendEn = false;
+            synchronized (lock) {
+                lock.notify();
+            }
         }
 
         @Override
         protected void onReceivePkg(@NonNull DeviceStatus state) {
             device.setState(state);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-//                    mDevListAdapter.notifyDataSetChanged();
-                }
-            });
+            nCurDealSend = null;
+            Log.i(TAG, "获取状态成功");
+            // 接收到 状态返回 需要发送一个通知
+            EventBus.getDefault().post(new DevConnEvent(device.getId(), device.getAddress(), "已连接", device.getState(), device.getConfig()));
         }
 
         @Override
         protected void onReceivePkg(@NonNull DeviceConfig config) {
             device.setConfig(config);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-//                    mDevListAdapter.notifyDataSetChanged();
-                }
-            });
+            nCurDealSend = null;
+            Log.i(TAG, "获取配置成功DMX=" + config.mDMXAddress);
+            EventBus.getDefault().post(new DevConnEvent(device.getId(), device.getAddress(), "已连接", device.getState(), device.getConfig()));
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+////                    mDevListAdapter.notifyDataSetChanged();
+//                }
+//            });
         }
 
         @Override
@@ -297,9 +396,45 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    doMatch(device.getAddress(), pkg);
+                    //doMatch(device.getAddress(), pkg);
+                    if (nCurDealSend == null) {
+                        Log.i(TAG, "没有发送数据包回复处理，但是接收到回复数据");
+                    } else if (BleDeviceProtocol.isMatch(nCurDealSend.cmd_pkg, pkg)) {
+                        nCurDealSend.callback.ack(pkg);
+                    } else {
+                        Log.i(TAG, "回复数据和命令不匹配 " + Util.hex(nCurDealSend.cmd_pkg, 4) + " 接收 " + Util.hex(pkg, 4));
+                    }
+                    nCurDealSend = null;
                 }
             });
+        }
+    }
+
+    public void getDeviceConfig(String mac) {
+        Device device = getDevice(mac);
+        long id = 0;
+        if (device != null) {
+            DeviceConfig mConfig = device.getConfig();
+            id = (mConfig == null) ? 0 : mConfig.mID;
+        }
+        ProtocolWithDevice p = mProtocolMap.get(mac);
+        if (p != null) {
+            p.addSendCmd(new PackageNeedAck(mac, BleDeviceProtocol.pkgGetConfig(id), null));
+            Log.i(TAG, "获取一次配置");
+        }
+    }
+
+    public void getDeviceState(String mac) {
+        Device device = getDevice(mac);
+        long id = 0;
+        if (device != null) {
+            DeviceConfig mConfig = device.getConfig();
+            id = (mConfig == null) ? 0 : mConfig.mID;
+        }
+        ProtocolWithDevice p = mProtocolMap.get(mac);
+        if (p != null) {
+            p.addSendCmd(new PackageNeedAck(mac, BleDeviceProtocol.pkgGetStatus(id), null));
+            Log.i(TAG, "获取一次状态");
         }
     }
 
@@ -332,6 +467,8 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
             dev.getId();
             mDevList.remove(dev);
             removeDeviceByMac(mac);
+            ProtocolWithDevice p = mProtocolMap.get(mac);
+            p.stopSendThread();
             mProtocolMap.remove(mac);
         }
     }
@@ -374,42 +511,10 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         }
     }
 
-    int period;
     private void registerRefreshStatus(final String mac) {
-        period = 100;
-        registerPeriod(mac + "-status", new Runnable() {
-            @Override
-            public void run() {
-                ProtocolWithDevice pd = mProtocolMap.get(mac);
-                if (pd == null) {
-                    return;
-                }
-                Device device = getDevice(mac);
-                if (device != null) {
-                    mConfig = device.getConfig();
-//                    Log.i(TAG, "back === " + mFlagRequestConfig);
-                    long id = (mConfig == null) ? 0 : mConfig.mID;
-                    if (mConfig == null || mFlagRequestConfig) {
-//                        Log.i(TAG, "mFlagRequestConfig=== " + mFlagRequestConfig);
-                        mFlagRequestConfig = !send(mac, BleDeviceProtocol.pkgGetConfig(id), true);
-//                        return;
-                    }
-                    send(mac, BleDeviceProtocol.pkgGetStatus(id), true);
-//                    Log.i(TAG, "run millis one " + System.currentTimeMillis());
-                    if (device.getState() != null) {
-                        period = 2000;
-
-                        EventBus.getDefault().post(new DevConnEvent(id, mac, "已连接", device.getState(), mConfig));
-//                        Log.i(TAG, "run millis two " + System.currentTimeMillis());
-//                        Log.i(TAG, "run status temp: " + device.getState().mTemperature);
-//                        Log.i(TAG, "run config id: " + config.mID);
-                    }
-                }
-            }
-        }, period);
+        getDeviceConfig(mac);
+        getDeviceState(mac);
     }
-
-    private boolean mIsConnect;
 
     @Override
     void onDeviceConnect(String mac) {
@@ -419,11 +524,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         Device device = getDevice(mac);
         if (device != null) {
             device.setConnected(true);
-//            mDevListAdapter.notifyDataSetChanged();
-//            jumpToActivity(new Intent(MainActivity.this, CtDevConfigActivity.class)
-//                    .putExtra(QR_DEV_ID, Long.parseLong(mStrDevId))
-//                    .putExtra(QR_DEV_MAC, mac)
-//            );
         } else {
             Log.i(TAG, "onDeviceConnect no device");
         }
@@ -454,66 +554,48 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     @Override
     public void sendCommand(@NonNull Device device, @NonNull byte[] pkg) {
         String mac = device.getAddress();
-        BleDeviceProtocol p = mProtocolMap.get(mac);
+        ProtocolWithDevice p = mProtocolMap.get(mac);
         if (p != null) {
-            send(device.getAddress(), pkg, true);
-            mFlagRequestConfig = true;
+            p.addSendCmd(new PackageNeedAck(device.getAddress(), pkg, null));
         }
     }
 
     @Override
     public void sendCommand(@NonNull Device device, @NonNull byte[] pkg, OnReceivePackage callback) {
-        mPackageNeedAckList.push(new PackageNeedAck(device.getAddress(), pkg, callback));
-        sendCommand(device, pkg);
+        String mac = device.getAddress();
+        ProtocolWithDevice p = mProtocolMap.get(mac);
+        if (p != null) {
+            p.addSendCmd(new PackageNeedAck(device.getAddress(), pkg, callback));
+        }
     }
 
     private static class PackageNeedAck {
         final byte[] cmd_pkg;
         final String mac;
-        final long send_time;
+//        public long send_time;
         final OnReceivePackage callback;
+        int redoCntWhenTimeOut = 1;
+//        ProtocolWithDevice deviceProtocol=null;
 
         PackageNeedAck(String mac, byte[] cmd_pkg, OnReceivePackage callback) {
             this.mac = mac;
             this.cmd_pkg = cmd_pkg;
             this.callback = callback;
-            this.send_time = System.currentTimeMillis();
+//            this.send_time = System.currentTimeMillis();
         }
 
-        boolean isTimeout() {
-            return (System.currentTimeMillis() - send_time) > ACK_TIMEOUT;
+        PackageNeedAck(String mac, byte[] cmd_pkg, OnReceivePackage callback, int redoCnt) {
+            this.mac = mac;
+            this.cmd_pkg = cmd_pkg;
+            this.callback = callback;
+            this.redoCntWhenTimeOut = redoCnt;
+//            this.send_time = System.currentTimeMillis();
         }
-    }
 
-    private final LinkedList<PackageNeedAck> mPackageNeedAckList = new LinkedList<>();
-
-    private void doMatch(String mac, byte[] ack_pkg) {
-        Log.i(TAG, "doMatch " + Util.hex(ack_pkg, ack_pkg.length) + " from " + mPackageNeedAckList.size());
-        for (PackageNeedAck p : mPackageNeedAckList) {
-            Log.i(TAG, "doMatch check " + Util.hex(p.cmd_pkg, p.cmd_pkg.length));
-            if (p.mac.equals(mac) && BleDeviceProtocol.isMatch(p.cmd_pkg, ack_pkg)) {
-                Log.i(TAG, "doMatch match");
-                mPackageNeedAckList.remove(p);
-                p.callback.ack(ack_pkg);
-                return;
-            }
-        }
-    }
-
-    private void doTimeoutCheck() {
-        for (PackageNeedAck p : mPackageNeedAckList) {
-            if (p.isTimeout()) {
-                mPackageNeedAckList.remove(p);
-                p.callback.timeout();
-                return;
-            }
-        }
-    }
-
-    @Override
-    void poll() {
-        super.poll();
-        doTimeoutCheck();
+//        boolean isTimeout() {
+//            //return (System.currentTimeMillis() - send_time) > ACK_TIMEOUT;
+//            return false;
+//        }
     }
 
     private String mStrDevId;
