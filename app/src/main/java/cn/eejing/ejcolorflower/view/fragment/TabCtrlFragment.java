@@ -81,7 +81,7 @@ public class TabCtrlFragment extends BaseFragment implements EasyPermissions.Per
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventDevConn(DevConnEvent event) {
         mStatus = event.getStatus();
-        Log.i(TAG, "onEventDevConn: " + event.getMac() + " | " + event.getId() + " | " + mStatus);
+        Log.i(TAG, "ctrl model: " + event.getMac() + " | " + event.getId() + " | " + mStatus);
         if (mStatus.equals("已连接")) {
             if (mFlagConnStatus == 0 && mFlagStopContext != 2) {
                 // 如果连接状态为不可连接，并且回到 TabCtrlFragment，跳转到设备配置界面

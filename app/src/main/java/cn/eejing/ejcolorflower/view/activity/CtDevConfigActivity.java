@@ -5,6 +5,8 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -146,40 +148,6 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
         btnAddMaterial.setOnClickListener(this);
         btnEnterMaster.setOnClickListener(this);
         dmxSet.setOnClickListener(this);
-
-        // TODO: 2018/10/11 长按手动清除 料包信息
-        btnAddMaterial.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                Log.i(JL, "onLongClick: ");
-                MainActivity.getAppCtrl().sendCommand(
-                        MainActivity.getAppCtrl().getDevice(mDevMac),
-                        BleDeviceProtocol.pkgClearAddMaterialInfo(mDevId, mMemberId, 95653303209964L),
-                        new OnReceivePackage() {
-                            @Override
-                            public void ack(@NonNull byte[] pkg) {
-                                int info = BleDeviceProtocol.parseClearAddMaterialInfo(pkg, pkg.length);
-                                Log.e(JL, "1清除加料信息返回值: " + info + "  " + pkg.length);
-                                switch (info) {
-                                    case 0:
-                                        Log.i(JL, "1已清理加料信息");
-                                        break;
-                                    case 1:
-                                        Log.e(JL, "1清除加料出错！！！");
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
-
-                            @Override
-                            public void timeout() {
-                            }
-                        }
-                );
-                return true;
-            }
-        });
     }
 
     @Override
@@ -697,38 +665,50 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
         mVPager.setCurrentItem(mPageType);
     }
 
+    @SuppressLint("HandlerLeak")
+    private Handler mHandler = new Handler(){
+        @SuppressLint("SetTextI18n")
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 1:
+                    imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_conn));
+                    tvDmxShow.setText("DMX " + String.valueOf(mDMXAddress));
+                    isEnterMasterCtrl = mDMXAddress == 0;
+                    break;
+                case 2:
+                    imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_desconn));
+                    tvDmxShow.setText("DMX地址");
+                    isEnterMasterCtrl = mDMXAddress == 0;
+                    break;
+            }
+        }
+    };
+
     /** 蓝牙连接状态 */
-    @SuppressLint("SetTextI18n")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventDevConn(DevConnEvent event) {
         // 接收硬件传过来的已连接设备信息添加到 HashSet
-        mDmxSet.add(event.getDeviceConfig().mDMXAddress);
+        if (event.getDeviceConfig() != null) {
+            Log.i(TAG, "dev cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
 
-        switch (event.getStatus()) {
-            case "已连接":
-                imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_conn));
-                mDMXAddress = event.getDeviceConfig().mDMXAddress;
-                mTemperature = event.getDeviceStatus().mTemperature;
-                mRestTime = event.getDeviceStatus().mRestTime;
-                tvDmxShow.setText("DMX " + String.valueOf(mDMXAddress));
+            mDmxSet.add(event.getDeviceConfig().mDMXAddress);
 
-                isEnterMasterCtrl = mDMXAddress == 0;
-
-                ConfigTempFragment.updateBleData(mTemperature);
-                ConfigTimeFragment.updateBleData(mRestTime);
-                break;
-            case "不可连接":
-                imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_desconn));
-                mDMXAddress = -1;
-                mTemperature = -1;
-                mRestTime = -1;
-                tvDmxShow.setText("DMX地址");
-
-                isEnterMasterCtrl = mDMXAddress == 0;
-
-                ConfigTempFragment.updateBleData(0);
-                ConfigTimeFragment.updateBleData(0);
-                break;
+            switch (event.getStatus()) {
+                case "已连接":
+                    mDMXAddress = event.getDeviceConfig().mDMXAddress;
+                    mTemperature = event.getDeviceStatus().mTemperature;
+                    mRestTime = event.getDeviceStatus().mRestTime;
+                    mHandler.sendEmptyMessage(1);
+                    break;
+                case "不可连接":
+                    mDMXAddress = -1;
+                    mTemperature = -1;
+                    mRestTime = -1;
+                    mHandler.sendEmptyMessage(2);
+                    break;
+            }
         }
     }
 
@@ -774,15 +754,22 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
 
     private void updateDmx(int niDmx) {
         Device device = MainActivity.getAppCtrl().getDevice(mDevMac);
-        MainActivity.getAppCtrl().sendCommand(device, BleDeviceProtocol.pkgSetDmxAddress(mDevId, niDmx));
-        try {
-            Thread.sleep(500);
-            MainActivity.getAppCtrl().setFlagRequestConfig(true);
-            tvDmxShow.setText(String.valueOf(mDMXAddress));
-            mDialog.dismiss();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        MainActivity.getAppCtrl().sendCommand(device, BleDeviceProtocol.pkgSetDmxAddress(mDevId, niDmx), new OnReceivePackage() {
+            @Override
+            public void ack(@NonNull byte[] pkg) {
+                if (pkg.length > 8 && pkg[7] == 0) {
+                    Log.i(TAG, "配置 DMX 回复成功");
+                    MainActivity.getAppCtrl().getDeviceConfig(mDevMac);
+                    mDialog.dismiss();
+                } else {
+                    Log.i(TAG, "配置 DMX 回复失败");
+                }
+            }
+
+            @Override
+            public void timeout() {
+            }
+        });
     }
 
     private void information(String info) {

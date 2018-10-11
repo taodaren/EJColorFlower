@@ -11,11 +11,16 @@ import android.view.View;
 import android.widget.Chronometer;
 import android.widget.TextView;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
+import cn.eejing.ejcolorflower.model.event.DevConnEvent;
 import cn.eejing.ejcolorflower.util.CircleProgress;
 import cn.eejing.ejcolorflower.view.base.BaseFragment;
 
@@ -27,24 +32,20 @@ public class ConfigTimeFragment extends BaseFragment {
     private static final String TAG = "PageDeviceInfoFragment";
 
     @BindView(R.id.circle_progress)        CircleProgress mCircleProgress;
+    @BindView(R.id.ch_time_left)           Chronometer    chTimeLeft;
     @BindView(R.id.tv_switch_info)         TextView       mTvSwitchInfo;
 
-    private static Chronometer chTimeLeft;
-
-    private int mDevInfo;
     private static int  mDevTime;
 
-    public static ConfigTimeFragment newInstance(int info) {
-        Log.i(TAG, "newInstance: " + info);
+    public static ConfigTimeFragment newInstance(int time) {
+        Log.i(TAG, "newInstance: " + time);
         ConfigTimeFragment fragment = new ConfigTimeFragment();
-        fragment.mDevInfo = info;
-
-        mDevTime = fragment.mDevInfo;
+        mDevTime = time;
         return fragment;
     }
 
     @SuppressLint("HandlerLeak")
-    private static Handler handler = new Handler(){
+    private Handler mHandler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -57,18 +58,6 @@ public class ConfigTimeFragment extends BaseFragment {
         }
     };
 
-    public static void updateBleData(int time) {
-        mDevTime = time;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Message message = new Message();
-                message.what = 1;
-                handler.sendMessage(message);
-            }
-        }).start();
-    }
-
     @Override
     protected int layoutViewId() {
         return R.layout.fragment_page_device_info;
@@ -76,44 +65,30 @@ public class ConfigTimeFragment extends BaseFragment {
 
     @Override
     public void initView(View rootView) {
-        chTimeLeft = rootView.findViewById(R.id.ch_time_left);
-
-        setTimeLeft(mDevInfo);
-        typeOfJudgment();
+        EventBus.getDefault().register(this);
+        setTimeLeft(mDevTime);
     }
 
-    private static void setTimeLeft(int time) {
-        // 展示剩余时间
-        long nowTimeLong = (long) time * 1000;
-        @SuppressLint("SimpleDateFormat") DateFormat ymdhmsFormat = new SimpleDateFormat("mm:ss");
-        String nowTimeStr = ymdhmsFormat.format(nowTimeLong);
-        chTimeLeft.setText(nowTimeStr);
-    }
-
-    private void typeOfJudgment() {
-        if (mDevInfo == mDevTime) {
-            setCircleInfo(7200, mDevInfo, View.GONE, View.VISIBLE, "时间", R.color.colorTimeSmall, R.color.colorTimeMore);
+    private void setTimeLeft(int time) {
+        if (time == -1) {
+            chTimeLeft.setVisibility(View.GONE);
+            setCircleInfo(0);
+        } else {
+            // 展示剩余时间
+            long nowTimeLong = (long) time * 1000;
+            @SuppressLint("SimpleDateFormat") DateFormat ymdhmsFormat = new SimpleDateFormat("mm:ss");
+            String nowTimeStr = ymdhmsFormat.format(nowTimeLong);
+            chTimeLeft.setText(nowTimeStr);
+            setCircleInfo(time);
         }
     }
 
-    /**
-     * 设置圆环信息
-     *
-     * @param maxProgress    总进度
-     * @param curProgress    当前进度
-     * @param tempVisibility 是否显示温度
-     * @param timeVisibility 是否显示剩余时间
-     * @param type           显示类型
-     * @param colorStart     渐变起始颜色
-     * @param colorEnd       渐变结束颜色
-     */
-    private void setCircleInfo(float maxProgress, float curProgress,
-                               int tempVisibility, int timeVisibility, CharSequence type,
-                               final int colorStart, final int colorEnd) {
-        mCircleProgress.setMaxProgress(maxProgress);
+    /** 设置圆环信息 */
+    private void setCircleInfo(float curProgress) {
+        mCircleProgress.setMaxProgress(7200);
         mCircleProgress.setProgress(curProgress);
-        chTimeLeft.setVisibility(timeVisibility);
-        mTvSwitchInfo.setText(type);
+        chTimeLeft.setVisibility(View.VISIBLE);
+        mTvSwitchInfo.setText("时间");
         mCircleProgress.post(new Runnable() {
             @Override
             public void run() {
@@ -121,13 +96,35 @@ public class ConfigTimeFragment extends BaseFragment {
                         0, 0,
                         mCircleProgress.getWidth(), mCircleProgress.getHeight(),
 //                            mCircleProgress.getRingProgressColor(),
-                        ContextCompat.getColor(getContext(), colorStart),
-                        ContextCompat.getColor(getContext(), colorEnd),
+                        ContextCompat.getColor(getContext(), R.color.colorTimeSmall),
+                        ContextCompat.getColor(getContext(), R.color.colorTimeMore),
                         Shader.TileMode.MIRROR
                 );
                 mCircleProgress.setProgressShader(linearGradient);
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+    /** 蓝牙连接状态 */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventDevConn(DevConnEvent event) {
+        // 接收硬件传过来的已连接设备信息添加到 HashSet
+        Log.i(TAG, "time cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
+
+        switch (event.getStatus()) {
+            case "已连接":
+                mDevTime = event.getDeviceStatus().mRestTime;
+                mHandler.sendEmptyMessage(1);
+                break;
+            case "不可连接":
+                break;
+        }
     }
 
 }
