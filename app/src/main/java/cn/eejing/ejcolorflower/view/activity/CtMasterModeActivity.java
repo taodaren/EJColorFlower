@@ -1,8 +1,10 @@
 package cn.eejing.ejcolorflower.view.activity;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
@@ -12,12 +14,15 @@ import android.widget.Toast;
 
 import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
 
+import org.litepal.LitePal;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
+import cn.eejing.ejcolorflower.model.lite.MasterCtrlSetEntity;
 import cn.eejing.ejcolorflower.model.request.MasterGroupListBean;
 import cn.eejing.ejcolorflower.presenter.IShowListener;
 import cn.eejing.ejcolorflower.util.FabScrollListener;
@@ -33,7 +38,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
     @BindView(R.id.rl_show_dialog)          RelativeLayout showDialog;
 
     private MasterListAdapter mAdapter;
-    private Long mDeviceId;
+    private long mDeviceId;
     private List<MasterGroupListBean> mList;
 
     @Override
@@ -45,14 +50,28 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
     public void initView() {
         setToolbar("主控", View.VISIBLE, null, View.GONE);
         mDeviceId = getIntent().getLongExtra("device_id", 0);
-
         mList = new ArrayList<>();
-        mList.add(new MasterGroupListBean("分组名称", 0, 0, "流水灯"));
-        for (int i = 0; i < 9; i++) {
-            mList.add(new MasterGroupListBean("分组功能敬请期待...", 0, 0, "喷射效果"));
-        }
 
+        initDatabase();
         initRecyclerView();
+    }
+
+    private void initDatabase() {
+        List<MasterCtrlSetEntity> setGroupList = LitePal.where("devId = ?", String.valueOf(mDeviceId)).find(MasterCtrlSetEntity.class);
+        Log.i(TAG, "list size: " + setGroupList.size());
+        if (setGroupList.size() == 0) {
+            mList.add(new MasterGroupListBean("分组名称", 0, 0, "喷射效果"));
+            for (int i = 0; i < 9; i++) {
+                mList.add(new MasterGroupListBean("分组功能敬请期待...", 0, 0, "喷射效果"));
+            }
+        } else {
+            Log.d(TAG, "info: " + setGroupList.get(0).getDevNum() + " " + setGroupList.get(0).getStartDmx() + " " + setGroupList.get(0).getJetMode());
+
+            mList.add(new MasterGroupListBean("分组名称", setGroupList.get(0).getDevNum(), setGroupList.get(0).getStartDmx(), setGroupList.get(0).getJetMode()));
+            for (int i = 0; i < 9; i++) {
+                mList.add(new MasterGroupListBean("分组功能敬请期待...", 0, 0, "喷射效果"));
+            }
+        }
     }
 
     private void initRecyclerView() {
@@ -61,6 +80,13 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         // 绑定适配器
         mAdapter = new MasterListAdapter(this, mList, mDeviceId);
 //        mAdapter.setHasStableIds(true);
+        // 监听设置主控按钮
+        mAdapter.setClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(new Intent(CtMasterModeActivity.this, CtSetGroupActivity.class), 1);
+            }
+        });
         rvMasterList.setAdapter(mAdapter);
 
         rvMasterList.getRecyclerView().addOnScrollListener(new FabScrollListener(this));
@@ -78,6 +104,22 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
             public void onLoadMore() {
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case 1:
+                if (resultCode == RESULT_OK) {
+                    Log.i(TAG, "此时可以刷新列表了");
+                    mList.clear();
+                    initDatabase();
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
@@ -120,7 +162,6 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
                 Toast.makeText(this, "开始执行任务", Toast.LENGTH_SHORT).show();
                 hideStartDialog();
                 mHandler.sendEmptyMessageDelayed(1, 3000);
-
                 break;
             case R.id.img_start_hide:
                 hideStartDialog();
@@ -129,6 +170,23 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
                 showStartDialog();
                 break;
         }
+    }
+
+    /** 点击开始或停止 */
+    private void clickStartStop() {
+//        if (etDevNum.length() == 0) {
+//            Toast.makeText(this, "请您设置设备数量", Toast.LENGTH_SHORT).show();
+//        } else if (etStarDmx.length() == 0) {
+//            Toast.makeText(this, "请您设置起始 DMX", Toast.LENGTH_SHORT).show();
+//        } else if (mList.size() == 0) {
+//            Toast.makeText(this, "请添加喷射效果", Toast.LENGTH_SHORT).show();
+//        } else {
+//            if (isStar) {
+//                stopJet();
+//            } else {
+//                starJet();
+//            }
+//        }
     }
 
 }

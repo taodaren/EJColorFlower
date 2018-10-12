@@ -2,8 +2,6 @@ package cn.eejing.ejcolorflower.model.lite;
 
 import org.litepal.crud.LitePalSupport;
 
-import java.util.List;
-
 /**
  * 主控设置保存实体类
  */
@@ -12,13 +10,16 @@ public class MasterCtrlSetEntity extends LitePalSupport {
     private String devId;
     private int devNum;
     private int startDmx;
-    private List<MasterCtrlModeEntity> mList;
+    private String jetMode;
 
-    public MasterCtrlSetEntity(String devId, int devNum, int startDmx, List<MasterCtrlModeEntity> list) {
+    public MasterCtrlSetEntity() {
+    }
+
+    public MasterCtrlSetEntity(String devId, int devNum, int startDmx, String jetMode) {
         this.devId = devId;
         this.devNum = devNum;
         this.startDmx = startDmx;
-        this.mList = list;
+        this.jetMode = jetMode;
     }
 
     public String getDevId() {
@@ -45,11 +46,11 @@ public class MasterCtrlSetEntity extends LitePalSupport {
         this.startDmx = startDmx;
     }
 
-    public List<MasterCtrlModeEntity> getList() {
-        return mList;
+    public String getJetMode() {
+        return jetMode;
     }
 
-    public void setList(List<MasterCtrlModeEntity> list) {
-        this.mList = list;
+    public void setJetMode(String jetMode) {
+        this.jetMode = jetMode;
     }
 }

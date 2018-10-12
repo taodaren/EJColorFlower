@@ -23,6 +23,7 @@ import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.model.lite.MasterCtrlModeEntity;
 import cn.eejing.ejcolorflower.model.lite.MasterCtrlNumEntity;
+import cn.eejing.ejcolorflower.model.lite.MasterCtrlSetEntity;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
 import cn.eejing.ejcolorflower.view.adapter.CtMasterSetAdapter;
@@ -244,9 +245,28 @@ public class CtSetGroupActivity extends BaseActivity {
 
     /** 点击保存 */
     private void saveMasterConfig() {
-//        MasterCtrlSetEntity entity = new MasterCtrlSetEntity(String.valueOf(mDevId), sbDevNum.getProgress(), sbStartDmx.getProgress(), mList);
-//        entity.save();
+        List<MasterCtrlSetEntity> groupIdList = LitePal
+                .where("devId=?", String.valueOf(mDevId))
+                .find(MasterCtrlSetEntity.class);
+        MasterCtrlSetEntity entity = new MasterCtrlSetEntity();
+        if (groupIdList.size() == 0) {
+            // 增
+            setEntity(entity);
+            entity.save();
+        } else {
+            // 改
+            setEntity(entity);
+            entity.updateAll("devId=?", String.valueOf(mDevId));
+        }
+        setResult(RESULT_OK, new Intent());
         finish();
+    }
+
+    private void setEntity(MasterCtrlSetEntity entity) {
+        entity.setDevId(String.valueOf(mDevId));
+        entity.setDevNum(sbDevNum.getProgress());
+        entity.setStartDmx(sbStartDmx.getProgress());
+        entity.setJetMode(mList.get(0).getType());
     }
 
 }

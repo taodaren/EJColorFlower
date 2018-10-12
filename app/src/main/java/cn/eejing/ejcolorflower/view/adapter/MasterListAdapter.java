@@ -1,5 +1,6 @@
 package cn.eejing.ejcolorflower.view.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -36,6 +37,12 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         this.mDeviceId = devId;
         this.mList = list;
         this.mLayoutInflater = LayoutInflater.from(mContext);
+    }
+
+    private View.OnClickListener mClickListener;
+
+    public void setClickListener(View.OnClickListener clickListener) {
+        this.mClickListener = clickListener;
     }
 
     @NonNull
@@ -84,16 +91,18 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             ButterKnife.bind(this, itemView);
         }
 
+        @SuppressLint("SetTextI18n")
         void setData(MasterGroupListBean bean) {
             if (bean.getGroupName().equals("分组功能敬请期待...")) {
                 btnMasterSet.setBackground(mContext.getDrawable(R.drawable.ic_btn_master_set_null));
             } else {
                 btnMasterSet.setBackground(mContext.getDrawable(R.drawable.ic_btn_master_set));
+                tvMasterNum.setText("设备数量 " + String.valueOf(bean.getDevNum()));
+                tvMasterDmx.setText("起始DMX " + String.valueOf(bean.getStartDmx()));
+                tvMasterType.setText(String.valueOf(bean.getJetMode()));
             }
             tvGroup.setText(bean.getGroupName());
-//            tvMasterNum.setText(bean.getDevNum());
-//            tvMasterDmx.setText(bean.getStartDmx());
-//            tvMasterType.setText(bean.getJetMode());
+            btnMasterSet.setOnClickListener(mClickListener);
         }
 
         @OnClick(R.id.btn_master_set)
