@@ -36,6 +36,7 @@ import java.util.Set;
 
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
+import cn.eejing.ejcolorflower.app.GApp;
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceMaterialStatus;
@@ -56,6 +57,7 @@ import cn.eejing.ejcolorflower.view.fragment.ConfigTimeFragment;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
+import static cn.eejing.ejcolorflower.app.AppConstant.APP_QR_GET_MID;
 import static cn.eejing.ejcolorflower.app.AppConstant.QR_DEV_ID;
 import static cn.eejing.ejcolorflower.app.AppConstant.QR_DEV_MAC;
 import static cn.eejing.ejcolorflower.app.AppConstant.QR_MATERIAL_ID;
@@ -78,6 +80,7 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
     private SegmentTabLayout mTabLayout;
     private View mDecorView;
 
+    private GApp mApp;
     private List<Fragment> mFragments;
     private ViewPager mVPager;
     private int mPageType;
@@ -104,6 +107,7 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
     @Override
     public void initView() {
         EventBus.getDefault().register(this);
+        mApp = (GApp) getApplication();
         setToolbar("设备配置", View.VISIBLE, null, View.GONE);
 
         mMemberId = Settings.getLoginSessionInfo(this).getMember_id();
@@ -157,6 +161,7 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
                 showDialog();
                 break;
             case R.id.btn_add_material:
+                mApp.setFlagQrCode(APP_QR_GET_MID);
                 startActivityForResult(new Intent(this, CtQrScanActivity.class), 1);
                 break;
             case R.id.btn_enter_master:

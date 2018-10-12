@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -14,9 +13,9 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.List;
 import java.util.Objects;
 
-import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
+import cn.eejing.ejcolorflower.app.GApp;
 import cn.eejing.ejcolorflower.model.event.DevConnEvent;
 import cn.eejing.ejcolorflower.view.activity.CtDevConfigActivity;
 import cn.eejing.ejcolorflower.view.activity.CtQrScanActivity;
@@ -24,6 +23,7 @@ import cn.eejing.ejcolorflower.view.base.BaseFragment;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
+import static cn.eejing.ejcolorflower.app.AppConstant.APP_QR_GET_DID;
 import static cn.eejing.ejcolorflower.app.AppConstant.QR_DEV_ID;
 import static cn.eejing.ejcolorflower.app.AppConstant.QR_DEV_MAC;
 import static cn.eejing.ejcolorflower.app.AppConstant.REQUEST_CODE_QRCODE_PERMISSIONS;
@@ -34,6 +34,8 @@ import static cn.eejing.ejcolorflower.app.AppConstant.REQUEST_CODE_QRCODE_PERMIS
 
 public class TabCtrlFragment extends BaseFragment implements EasyPermissions.PermissionCallbacks {
     private static final String TAG = "TabCtrlFragment";
+
+    private GApp mApp;
 
     public static TabCtrlFragment newInstance() {
         return new TabCtrlFragment();
@@ -52,6 +54,7 @@ public class TabCtrlFragment extends BaseFragment implements EasyPermissions.Per
     @Override
     public void initView(View rootView) {
         EventBus.getDefault().register(this);
+        mApp = (GApp) getContext().getApplicationContext();
     }
 
     @Override
@@ -71,6 +74,8 @@ public class TabCtrlFragment extends BaseFragment implements EasyPermissions.Per
 
     @OnClick(R.id.btn_ctrl_ble_conn)
     public void onClickedConnDev() {
+        mApp.setFlagQrCode(APP_QR_GET_DID);
+
         Objects.requireNonNull(getActivity()).startActivityForResult(new Intent(getContext(), CtQrScanActivity.class), 1);
     }
 

@@ -17,10 +17,13 @@ import cn.bingoogolapple.qrcode.core.QRCodeView;
 import cn.bingoogolapple.qrcode.zxing.ZXingView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
+import cn.eejing.ejcolorflower.app.GApp;
 import cn.eejing.ejcolorflower.model.request.AddDeviceBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
+import static cn.eejing.ejcolorflower.app.AppConstant.APP_QR_GET_DID;
+import static cn.eejing.ejcolorflower.app.AppConstant.APP_QR_GET_MID;
 import static cn.eejing.ejcolorflower.app.AppConstant.QR_DEV_ID;
 import static cn.eejing.ejcolorflower.app.AppConstant.QR_MATERIAL_ID;
 
@@ -31,6 +34,7 @@ public class CtQrScanActivity extends BaseActivity implements View.OnClickListen
     @BindView(R.id.tv_light_switch)        TextView  tvLightSwitch;
 
     private int mFlag;
+    private GApp mApp;
 
     @Override
     protected int layoutViewId() {
@@ -40,6 +44,7 @@ public class CtQrScanActivity extends BaseActivity implements View.OnClickListen
     @Override
     public void initView() {
         setToolbar("二维码扫描", View.VISIBLE, null, View.GONE);
+        mApp = (GApp) getApplication();
 
         // 设置扫描二维码的代理
         mQRCodeView.setDelegate(this);
@@ -95,17 +100,16 @@ public class CtQrScanActivity extends BaseActivity implements View.OnClickListen
         Log.i(TAG, "scanResults: " + result);
         Log.i(TAG, "length: " + result.length());
 
-        switch (result.length()) {
-            case 6:
+        switch (mApp.getFlagQrCode()) {
+            case APP_QR_GET_DID:
                 // 扫描到设备 ID
-                setResults(result, QR_DEV_ID);
+                setResults(result.substring(result.length() - 6), QR_DEV_ID);
                 break;
-            case 15:
+            case APP_QR_GET_MID:
                 // 扫描到料包 ID
                 setResults(result, QR_MATERIAL_ID);
                 break;
             default:
-                break;
         }
     }
 
@@ -115,6 +119,7 @@ public class CtQrScanActivity extends BaseActivity implements View.OnClickListen
         mQRCodeView.startSpot();
         Log.i(TAG, "id: " + Long.parseLong(result));
         setResult(RESULT_OK, new Intent().putExtra(flag, Long.parseLong(result)));
+        mApp.setFlagQrCode(null);
         finish();
     }
 
