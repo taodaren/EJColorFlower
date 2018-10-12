@@ -16,6 +16,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
+import cn.eejing.ejcolorflower.model.request.MasterGroupListBean;
 import cn.eejing.ejcolorflower.view.activity.CtSetGroupActivity;
 
 /**
@@ -27,10 +28,10 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     private Context mContext;
     private LayoutInflater mLayoutInflater;
-    private List<String> mList;
+    private List<MasterGroupListBean> mList;
     private Long mDeviceId;
 
-    public MasterListAdapter(Context context, List<String> list, Long devId) {
+    public MasterListAdapter(Context context, List<MasterGroupListBean> list, Long devId) {
         this.mContext = context;
         this.mDeviceId = devId;
         this.mList = list;
@@ -55,7 +56,7 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         return mList.size();
     }
 
-    public void refreshList(List<String> list) {
+    public void refreshList(List<MasterGroupListBean> list) {
         if (list != null) {
             mList.clear();
             addList(list);
@@ -66,7 +67,7 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
     }
 
-    private void addList(List<String> list) {
+    private void addList(List<MasterGroupListBean> list) {
         mList.addAll(list);
         notifyDataSetChanged();
     }
@@ -74,24 +75,30 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.tv_master_group)        TextView tvGroup;
         @BindView(R.id.btn_master_set)         Button btnMasterSet;
+        @BindView(R.id.tv_master_num)          TextView tvMasterNum;
+        @BindView(R.id.tv_master_dmx)          TextView tvMasterDmx;
+        @BindView(R.id.tv_master_type)         TextView tvMasterType;
 
         ItemViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
 
-        void setData(String s) {
-            if (s.equals("分组功能敬请期待...")) {
+        void setData(MasterGroupListBean bean) {
+            if (bean.getGroupName().equals("分组功能敬请期待...")) {
                 btnMasterSet.setBackground(mContext.getDrawable(R.drawable.ic_btn_master_set_null));
             } else {
                 btnMasterSet.setBackground(mContext.getDrawable(R.drawable.ic_btn_master_set));
             }
-            tvGroup.setText(s);
+            tvGroup.setText(bean.getGroupName());
+//            tvMasterNum.setText(bean.getDevNum());
+//            tvMasterDmx.setText(bean.getStartDmx());
+//            tvMasterType.setText(bean.getJetMode());
         }
 
         @OnClick(R.id.btn_master_set)
         public void onViewClicked() {
-            if (!mList.get(getAdapterPosition()).equals("分组功能敬请期待...")) {
+            if (!mList.get(getAdapterPosition()).getGroupName().equals("分组功能敬请期待...")) {
                 mContext.startActivity(new Intent(mContext, CtSetGroupActivity.class).putExtra("device_id", mDeviceId));
             }
         }

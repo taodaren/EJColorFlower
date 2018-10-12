@@ -16,6 +16,9 @@ public class AppConstant {
 
     public static final String APP_ID = "wx6a32217e1e3ae4f4";
 
+    public static final String APP_QR_GET_MID = "二维码扫描获取料包 ID";
+    public static final String APP_QR_GET_DID = "二维码扫描获取设备 ID";
+
     public static final String QR_DEV_ID = "qr_dev_id";
     public static final String QR_DEV_MAC = "qr_dev_mac";
     public static final String QR_MATERIAL_ID = "qr_material_id";

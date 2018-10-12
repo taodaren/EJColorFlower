@@ -18,6 +18,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
+import cn.eejing.ejcolorflower.model.request.MasterGroupListBean;
 import cn.eejing.ejcolorflower.presenter.IShowListener;
 import cn.eejing.ejcolorflower.util.FabScrollListener;
 import cn.eejing.ejcolorflower.view.adapter.MasterListAdapter;
@@ -33,7 +34,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
 
     private MasterListAdapter mAdapter;
     private Long mDeviceId;
-    private List<String> mList;
+    private List<MasterGroupListBean> mList;
 
     @Override
     protected int layoutViewId() {
@@ -46,9 +47,9 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         mDeviceId = getIntent().getLongExtra("device_id", 0);
 
         mList = new ArrayList<>();
-        mList.add("分组名称");
+        mList.add(new MasterGroupListBean("分组名称", 0, 0, "流水灯"));
         for (int i = 0; i < 9; i++) {
-            mList.add("分组功能敬请期待...");
+            mList.add(new MasterGroupListBean("分组功能敬请期待...", 0, 0, "喷射效果"));
         }
 
         initRecyclerView();

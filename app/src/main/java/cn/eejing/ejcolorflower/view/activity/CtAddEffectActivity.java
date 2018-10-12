@@ -1,9 +1,11 @@
 package cn.eejing.ejcolorflower.view.activity;
 
+import android.content.Intent;
 import android.view.View;
 
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
+import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 public class CtAddEffectActivity extends BaseActivity {
@@ -22,12 +24,20 @@ public class CtAddEffectActivity extends BaseActivity {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.add_ride_effect:
+                setResult(RESULT_OK, new Intent().putExtra("jet_mode", AppConstant.CONFIG_RIDE));
+                finish();
                 break;
             case R.id.add_stream_effect:
+                setResult(RESULT_OK, new Intent().putExtra("jet_mode", AppConstant.CONFIG_STREAM));
+                finish();
                 break;
             case R.id.add_together_effect:
+                setResult(RESULT_OK, new Intent().putExtra("jet_mode", AppConstant.CONFIG_TOGETHER));
+                finish();
                 break;
             case R.id.add_interval_effect:
+                setResult(RESULT_OK, new Intent().putExtra("jet_mode", AppConstant.CONFIG_INTERVAL));
+                finish();
                 break;
         }
     }

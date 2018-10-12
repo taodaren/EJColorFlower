@@ -643,4 +643,12 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                 });
     }
 
+    public long getDevId() {
+        return Long.parseLong(mStrDevId);
+    }
+
+    public String getDevMac() {
+        return mMacById;
+    }
+
 }

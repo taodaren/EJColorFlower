@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -36,7 +37,6 @@ public class CtMasterSetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private Context mContext;
     private LayoutInflater mLayoutInflater;
     private List<MasterCtrlModeEntity> mList;
-    private boolean isClickItem = true;
 
     private View.OnLongClickListener mLongClickListener;
 
@@ -54,7 +54,7 @@ public class CtMasterSetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new MasterModeHolder(mLayoutInflater.inflate(R.layout.item_jet_effect, parent, false));
+        return new MasterModeHolder(mLayoutInflater.inflate(R.layout.item_jet_mode, parent, false));
     }
 
     @Override
@@ -79,16 +79,8 @@ public class CtMasterSetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         notifyDataSetChanged();
     }
 
-    public void isClickItem(boolean isClick) {
-        isClickItem = isClick;
-        notifyDataSetChanged();
-    }
-
     class MasterModeHolder extends RecyclerView.ViewHolder {
-
-        @BindView(R.id.layout_mode_jet)            LinearLayout layoutJet;
-        @BindView(R.id.img_mode_jet_effect)        ImageView imgJetEffect;
-        @BindView(R.id.tv_mode_jet_effect)         TextView textJetEffect;
+        @BindView(R.id.img_master_jet_mode)        ImageView      imgJetMode;
 
         MasterModeHolder(View itemView) {
             super(itemView);
@@ -96,49 +88,44 @@ public class CtMasterSetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
 
         private void onClickModeJet(final MasterCtrlModeEntity bean) {
-            if (isClickItem) {
-                layoutJet.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        int millis = (int) mList.get(getAdapterPosition()).getMillis();
+            imgJetMode.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int millis = (int) mList.get(getAdapterPosition()).getMillis();
 
-                        switch (bean.getType()) {
-                            case CONFIG_STREAM:
-                                mContext.startActivity(new Intent(mContext, CoConfigStreamActivity.class).putExtra("group_id", millis));
-                                break;
-                            case CONFIG_RIDE:
-                                mContext.startActivity(new Intent(mContext, CoConfigRideActivity.class).putExtra("group_id", millis));
-                                break;
-                            case CONFIG_INTERVAL:
-                                mContext.startActivity(new Intent(mContext, CoConfigIntervalActivity.class).putExtra("group_id", millis));
-                                break;
-                            case CONFIG_TOGETHER:
-                                mContext.startActivity(new Intent(mContext, CoConfigTogetherActivity.class).putExtra("group_id", millis));
-                                break;
-                            default:
-                                break;
-                        }
+                    switch (bean.getType()) {
+                        case CONFIG_STREAM:
+                            mContext.startActivity(new Intent(mContext, CoConfigStreamActivity.class).putExtra("group_id", millis));
+                            break;
+                        case CONFIG_RIDE:
+                            mContext.startActivity(new Intent(mContext, CoConfigRideActivity.class).putExtra("group_id", millis));
+                            break;
+                        case CONFIG_INTERVAL:
+                            mContext.startActivity(new Intent(mContext, CoConfigIntervalActivity.class).putExtra("group_id", millis));
+                            break;
+                        case CONFIG_TOGETHER:
+                            mContext.startActivity(new Intent(mContext, CoConfigTogetherActivity.class).putExtra("group_id", millis));
+                            break;
+                        default:
+                            break;
                     }
-                });
-            } else {
-                layoutJet.setOnClickListener(null);
-            }
+                }
+            });
         }
 
         public void setData(final MasterCtrlModeEntity bean) {
-            textJetEffect.setText(bean.getType());
             switch (bean.getType()) {
                 case CONFIG_STREAM:
-                    imgJetEffect.setImageResource(R.drawable.ic_config_stream);
+                    imgJetMode.setImageResource(R.drawable.ic_jet_mode_stream);
                     break;
                 case CONFIG_RIDE:
-                    imgJetEffect.setImageResource(R.drawable.ic_config_ride);
+                    imgJetMode.setImageResource(R.drawable.ic_jet_mode_ride);
                     break;
                 case CONFIG_INTERVAL:
-                    imgJetEffect.setImageResource(R.drawable.ic_config_interval);
+                    imgJetMode.setImageResource(R.drawable.ic_jet_mode_interval);
                     break;
                 case CONFIG_TOGETHER:
-                    imgJetEffect.setImageResource(R.drawable.ic_config_together);
+                    imgJetMode.setImageResource(R.drawable.ic_jet_mode_together);
                     break;
                 default:
                     break;
@@ -146,8 +133,8 @@ public class CtMasterSetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
             onClickModeJet(bean);
 
-            itemView.setTag(getAdapterPosition());
-            itemView.setOnLongClickListener(mLongClickListener);
+            imgJetMode.setTag(getAdapterPosition());
+            imgJetMode.setOnLongClickListener(mLongClickListener);
         }
     }
 

@@ -49,16 +49,18 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="25dp"
-                android:text="500"
+                android:text="200"
                 android:textColor="@color/colorConfig"
                 android:textSize="19sp" />
 
             <SeekBar
+                android:id="@+id/sb_dev_num"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="20dp"
                 android:layout_toStartOf="@id/tv_dev_num"
+                android:max="200"
                 android:maxHeight="2dp"
                 android:minHeight="2dp"
                 android:progressDrawable="@drawable/bg_seek_bar"
@@ -107,16 +109,18 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="25dp"
-                android:text="512"
+                android:text="510"
                 android:textColor="@color/colorConfig"
                 android:textSize="19sp" />
 
             <SeekBar
+                android:id="@+id/sb_start_dmx"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="20dp"
                 android:layout_toStartOf="@id/tv_start_dmx"
+                android:max="510"
                 android:maxHeight="2dp"
                 android:minHeight="2dp"
                 android:progressDrawable="@drawable/bg_seek_bar"

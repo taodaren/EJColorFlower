@@ -40,6 +40,15 @@ import javax.net.ssl.X509TrustManager;
 import okhttp3.OkHttpClient;
 
 public class GApp extends LitePalApplication {
+    private String flagQrCode;
+
+    public String getFlagQrCode() {
+        return flagQrCode;
+    }
+
+    public void setFlagQrCode(String flagQrCode) {
+        this.flagQrCode = flagQrCode;
+    }
 
     @Override
     public void onCreate() {
