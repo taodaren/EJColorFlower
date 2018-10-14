@@ -4,177 +4,111 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/ic_login_bg"
     android:orientation="vertical"
     tools:context=".view.activity.SiPwdForgetActivity">
 
-    <include layout="@layout/layout_toolbar" />
+    <ImageView
+        android:layout_width="92dp"
+        android:layout_height="92dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="72dp"
+        android:src="@drawable/ic_logo_img" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="24dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="4dp"
+        android:src="@drawable/ic_logo_txt" />
+
+    <EditText
+        android:id="@+id/et_forget_phone"
+        android:layout_width="270dp"
+        android:layout_height="44dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="68dp"
+        android:background="@drawable/shape_btn_color_primary"
+        android:gravity="center"
+        android:hint="@string/phone_num"
+        android:inputType="phone"
+        android:padding="4dp"
+        android:textColor="@color/colorWhite"
+        android:textCursorDrawable="@null"
+        android:textSize="16sp" />
+
+    <EditText
+        android:id="@+id/et_forget_set_pwd"
+        android:layout_width="270dp"
+        android:layout_height="44dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/shape_btn_color_primary"
+        android:gravity="center"
+        android:hint="@string/set_pwd"
+        android:inputType="textPassword"
+        android:padding="4dp"
+        android:textColor="@color/colorWhite"
+        android:textCursorDrawable="@null"
+        android:textSize="16sp" />
+
+    <EditText
+        android:id="@+id/et_forget_confirm_pwd"
+        android:layout_width="270dp"
+        android:layout_height="44dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/shape_btn_color_primary"
+        android:gravity="center"
+        android:hint="@string/confirm_psd"
+        android:inputType="textPassword"
+        android:padding="4dp"
+        android:textColor="@color/colorWhite"
+        android:textCursorDrawable="@null"
+        android:textSize="16sp" />
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="10dp"
-        android:padding="10dp">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:src="@drawable/ic_login"
-            android:text="@string/phone_num"
-            android:textSize="16sp" />
-
-        <EditText
-            android:id="@+id/et_forget_phone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:background="@null"
-            android:hint="@string/phone_num"
-            android:inputType="phone"
-            android:textCursorDrawable="@null"
-            android:textSize="16sp" />
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:background="@color/colorGray" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="10dp"
-        android:padding="10dp">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:src="@drawable/ic_login"
-            android:text="@string/set_pwd"
-            android:textSize="16sp" />
-
-        <EditText
-            android:id="@+id/et_forget_set_pwd"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:background="@null"
-            android:hint="@string/set_pwd"
-            android:inputType="textPassword"
-            android:textCursorDrawable="@null"
-            android:textSize="16sp" />
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:background="@color/colorGray" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="10dp"
-        android:padding="10dp">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:src="@drawable/ic_login"
-            android:text="@string/confirm_psd"
-            android:textSize="16sp" />
-
-        <EditText
-            android:id="@+id/et_forget_confirm_pwd"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:background="@null"
-            android:hint="@string/confirm_psd"
-            android:inputType="textPassword"
-            android:textCursorDrawable="@null"
-            android:textSize="16sp" />
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:background="@color/colorGray" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="10dp"
-        android:padding="10dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:src="@drawable/ic_login"
-            android:text="@string/verify_code"
-            android:textSize="16sp" />
+        android:layout_width="270dp"
+        android:layout_height="44dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
 
         <EditText
             android:id="@+id/et_forget_verify_code"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@null"
+            android:background="@drawable/shape_btn_color_primary"
+            android:gravity="center"
             android:hint="@string/verify_code"
             android:inputType="phone"
+            android:padding="4dp"
+            android:textColor="@color/colorWhite"
             android:textCursorDrawable="@null"
             android:textSize="16sp" />
 
         <Button
             android:id="@+id/btn_forget_get_code"
             android:layout_width="wrap_content"
-            android:layout_height="36dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/shape_btn_color_primary"
             android:text="@string/get_verify_code"
             android:textColor="@color/colorWhite"
             android:textSize="12sp" />
     </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:background="@color/colorGray" />
-
     <com.allen.library.SuperButton
         android:id="@+id/btn_reset_pwd"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="48dp"
-        android:layout_marginRight="48dp"
-        android:layout_marginTop="48dp"
+        android:layout_width="127dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="44dp"
         android:text="@string/reset_psd"
-        android:textColor="@color/white"
-        stv:sCornersRadius="50dp"
+        android:textColor="@color/colorConfig"
+        android:textSize="20sp"
+        stv:sCornersRadius="22.5dp"
         stv:sSelectorDisableColor="@color/colorGray"
         stv:sSelectorNormalColor="@color/colorPrimary"
         stv:sUseSelector="true" />

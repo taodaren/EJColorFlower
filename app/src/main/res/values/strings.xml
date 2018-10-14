@@ -87,8 +87,8 @@
     <string name="one">1</string>
     <string name="zero">0</string>
     <string name="add_group">新建组</string>
-    <string name="phone_num">手机号码</string>
-    <string name="login_pwd">登录密码</string>
+    <string name="phone_num">请输入手机号码</string>
+    <string name="login_pwd">请输入密码</string>
     <string name="btn_login">登录</string>
     <string name="btn_register">注册</string>
     <string name="btn_forget_pwd">忘记密码</string>
