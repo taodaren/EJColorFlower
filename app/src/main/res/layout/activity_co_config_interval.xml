@@ -12,20 +12,20 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="45dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="58dp"
         android:gravity="center_vertical">
 
         <TextView
             android:layout_width="84dp"
             android:layout_height="wrap_content"
             android:text="@string/text_gap"
-            android:textColor="@color/colorConfig"
-            android:textSize="15sp" />
+            android:textColor="@color/colorTitle"
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/et_interval_gap"
-            android:layout_width="124dp"
+            android:layout_width="170dp"
             android:layout_height="30dp"
             android:background="@drawable/shape_edit_bg"
             android:hint="@string/please_input"
@@ -46,20 +46,20 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="18dp"
         android:gravity="center_vertical">
 
         <TextView
             android:layout_width="84dp"
             android:layout_height="wrap_content"
             android:text="@string/text_duration"
-            android:textColor="@color/colorConfig"
-            android:textSize="15sp" />
+            android:textColor="@color/colorTitle"
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/et_interval_duration"
-            android:layout_width="124dp"
+            android:layout_width="170dp"
             android:layout_height="30dp"
             android:background="@drawable/shape_edit_bg"
             android:hint="@string/please_input"
@@ -80,20 +80,20 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="18dp"
         android:gravity="center_vertical">
 
         <TextView
             android:layout_width="84dp"
             android:layout_height="wrap_content"
             android:text="@string/text_frequency"
-            android:textColor="@color/colorConfig"
-            android:textSize="15sp" />
+            android:textColor="@color/colorTitle"
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/et_interval_frequency"
-            android:layout_width="124dp"
+            android:layout_width="170dp"
             android:layout_height="30dp"
             android:background="@drawable/shape_edit_bg"
             android:hint="@string/please_input"
@@ -109,6 +109,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="50dp"
-        android:background="@drawable/ic_btn_confirm" />
+        android:layout_marginTop="120dp"
+        android:background="@drawable/ic_btn_full"
+        android:text="@string/btn_confirm"
+        android:textColor="@color/colorWhite"
+        android:textSize="19sp" />
+
+    <Button
+        android:id="@+id/btn_demo_interval"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/ic_btn_null"
+        android:text="@string/btn_demo_description"
+        android:textColor="@color/colorNavBar"
+        android:textSize="19sp" />
 </LinearLayout>

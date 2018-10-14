@@ -10,46 +10,46 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="25dp"
         android:text="@string/text_direction"
-        android:textColor="@color/colorBlack"
-        android:textSize="15sp" />
+        android:textColor="@color/colorTitle"
+        android:textSize="16sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
         android:orientation="horizontal">
 
         <RadioGroup
             android:id="@+id/radio_left"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
-            android:layout_marginTop="15dp">
+            android:layout_marginStart="30dp">
 
             <RadioButton
                 android:id="@+id/rbtn_left_to_right"
-                android:layout_width="104dp"
-                android:layout_height="31dp"
+                android:layout_width="120dp"
+                android:layout_height="42dp"
                 android:background="@drawable/shape_btn_on_click"
                 android:button="@null"
                 android:gravity="center"
                 android:text="@string/text_left_to_right"
                 android:textColor="@color/white"
-                android:textSize="15sp" />
+                android:textSize="16sp" />
 
             <RadioButton
                 android:id="@+id/rbtn_border_to_center"
-                android:layout_width="104dp"
-                android:layout_height="31dp"
+                android:layout_width="120dp"
+                android:layout_height="42dp"
                 android:layout_marginTop="12dp"
                 android:background="@drawable/shape_btn_no_click"
                 android:button="@null"
                 android:gravity="center"
                 android:text="@string/text_border_to_center"
                 android:textColor="@color/colorNoClick"
-                android:textSize="15sp" />
+                android:textSize="16sp" />
 
         </RadioGroup>
 
@@ -57,51 +57,50 @@
             android:id="@+id/radio_right"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="15dp">
+            android:layout_marginStart="24dp">
 
             <RadioButton
                 android:id="@+id/rbtn_right_to_left"
-                android:layout_width="104dp"
-                android:layout_height="31dp"
+                android:layout_width="120dp"
+                android:layout_height="42dp"
                 android:background="@drawable/shape_btn_no_click"
                 android:button="@null"
                 android:gravity="center"
                 android:text="@string/text_right_to_left"
                 android:textColor="@color/colorNoClick"
-                android:textSize="15sp" />
+                android:textSize="16sp" />
 
             <RadioButton
                 android:id="@+id/rbtn_center_to_border"
-                android:layout_width="104dp"
-                android:layout_height="31dp"
+                android:layout_width="120dp"
+                android:layout_height="42dp"
                 android:layout_marginTop="12dp"
                 android:background="@drawable/shape_btn_no_click"
                 android:button="@null"
                 android:gravity="center"
                 android:text="@string/text_center_to_border"
                 android:textColor="@color/colorNoClick"
-                android:textSize="15sp" />
+                android:textSize="16sp" />
         </RadioGroup>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="45dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="40dp"
         android:gravity="center_vertical">
 
         <TextView
             android:layout_width="84dp"
             android:layout_height="wrap_content"
             android:text="@string/text_gap"
-            android:textColor="@color/colorConfig"
-            android:textSize="15sp" />
+            android:textColor="@color/colorTitle"
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/et_stream_gap"
-            android:layout_width="124dp"
+            android:layout_width="170dp"
             android:layout_height="30dp"
             android:background="@drawable/shape_edit_bg"
             android:hint="@string/please_input"
@@ -122,20 +121,20 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="18dp"
         android:gravity="center_vertical">
 
         <TextView
             android:layout_width="84dp"
             android:layout_height="wrap_content"
             android:text="@string/text_duration"
-            android:textColor="@color/colorConfig"
-            android:textSize="15sp" />
+            android:textColor="@color/colorTitle"
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/et_stream_duration"
-            android:layout_width="124dp"
+            android:layout_width="170dp"
             android:layout_height="30dp"
             android:background="@drawable/shape_edit_bg"
             android:hint="@string/please_input"
@@ -156,20 +155,20 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="18dp"
         android:gravity="center_vertical">
 
         <TextView
             android:layout_width="84dp"
             android:layout_height="wrap_content"
             android:text="@string/text_gap_big"
-            android:textColor="@color/colorConfig"
-            android:textSize="15sp" />
+            android:textColor="@color/colorTitle"
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/et_stream_gap_big"
-            android:layout_width="124dp"
+            android:layout_width="170dp"
             android:layout_height="30dp"
             android:background="@drawable/shape_edit_bg"
             android:hint="@string/please_input"
@@ -190,20 +189,20 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="18dp"
         android:gravity="center_vertical">
 
         <TextView
             android:layout_width="84dp"
             android:layout_height="wrap_content"
             android:text="@string/text_loop"
-            android:textColor="@color/colorConfig"
-            android:textSize="15sp" />
+            android:textColor="@color/colorTitle"
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/et_stream_loop"
-            android:layout_width="124dp"
+            android:layout_width="170dp"
             android:layout_height="30dp"
             android:background="@drawable/shape_edit_bg"
             android:hint="@string/please_input"
@@ -219,6 +218,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="50dp"
-        android:background="@drawable/ic_btn_confirm" />
+        android:layout_marginTop="60dp"
+        android:background="@drawable/ic_btn_full"
+        android:text="@string/btn_confirm"
+        android:textColor="@color/colorWhite"
+        android:textSize="19sp" />
+
+    <Button
+        android:id="@+id/btn_demo_stream_ride"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/ic_btn_null"
+        android:text="@string/btn_demo_description"
+        android:textColor="@color/colorNavBar"
+        android:textSize="19sp" />
 </LinearLayout>

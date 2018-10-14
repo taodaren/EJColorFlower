@@ -7,6 +7,6 @@
         android:bottomLeftRadius="5dp">
     </corners>
     <solid
-        android:color="#49bf98">
+        android:color="#3A72FF">
     </solid>
 </shape>

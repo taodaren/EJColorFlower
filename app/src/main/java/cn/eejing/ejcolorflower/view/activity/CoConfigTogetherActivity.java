@@ -14,6 +14,7 @@ import java.util.List;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
+import cn.eejing.ejcolorflower.app.GApp;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
 import cn.eejing.ejcolorflower.model.lite.CtrlTogetherEntity;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
@@ -27,9 +28,11 @@ import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
 public class CoConfigTogetherActivity extends BaseActivity implements View.OnClickListener {
 
     @BindView(R.id.btn_verify_together)         Button btnVerify;
+    @BindView(R.id.btn_demo_together)           Button btnDemo;
     @BindView(R.id.et_together_duration)        EditText etDuration;
     @BindView(R.id.et_together_high)            EditText etHigh;
 
+    private GApp mApp;
     private int mGroupId;
 
     private TextWatcher textWatcher = new TextWatcher() {
@@ -47,11 +50,11 @@ public class CoConfigTogetherActivity extends BaseActivity implements View.OnCli
                     || etHigh.getText().toString().trim().isEmpty()) {
                 // EditText 有空情况
                 btnVerify.setEnabled(Boolean.FALSE);
-                btnVerify.setBackground(getDrawable(R.drawable.ic_btn_confirm_no));
+                btnVerify.setBackground(getDrawable(R.drawable.ic_btn_no_click));
             } else {
                 // EditText 同时不为空的情况
                 btnVerify.setEnabled(Boolean.TRUE);
-                btnVerify.setBackground(getDrawable(R.drawable.ic_btn_confirm));
+                btnVerify.setBackground(getDrawable(R.drawable.ic_btn_full));
             }
         }
     };
@@ -64,10 +67,13 @@ public class CoConfigTogetherActivity extends BaseActivity implements View.OnCli
     @Override
     public void initView() {
         setToolbar(CONFIG_TOGETHER, View.VISIBLE, null, View.GONE);
+        mApp = (GApp) getApplication();
         mGroupId = getIntent().getIntExtra("group_id", 0);
 
         initConfigDB();
 
+//        // 不限制整数位数，限制小数位数为 1 位
+//        etDuration.addTextChangedListener(new DecimalInputTextWatcher(etDuration, DecimalInputTextWatcher.Type.decimal, 1));
         etDuration.addTextChangedListener(textWatcher);
         etHigh.addTextChangedListener(textWatcher);
     }
@@ -100,6 +106,7 @@ public class CoConfigTogetherActivity extends BaseActivity implements View.OnCli
     @Override
     public void initListener() {
         btnVerify.setOnClickListener(this);
+        btnDemo.setOnClickListener(this);
     }
 
     @Override
@@ -111,9 +118,19 @@ public class CoConfigTogetherActivity extends BaseActivity implements View.OnCli
                 postEvent(millis);
                 finish();
                 break;
+            case R.id.btn_demo_together:
+                mApp.setFlagGifDemo(AppConstant.CONFIG_TOGETHER);
+                jumpToActivity(CtDemoDescriptionActivity.class);
+                break;
             default:
                 break;
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mApp.setFlagGifDemo(null);
     }
 
     private void setSQLiteData(long millis) {

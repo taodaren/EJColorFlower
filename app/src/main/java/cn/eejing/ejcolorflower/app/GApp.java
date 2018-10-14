@@ -41,6 +41,7 @@ import okhttp3.OkHttpClient;
 
 public class GApp extends LitePalApplication {
     private String flagQrCode;
+    private String flagGifDemo;
 
     public String getFlagQrCode() {
         return flagQrCode;
@@ -48,6 +49,14 @@ public class GApp extends LitePalApplication {
 
     public void setFlagQrCode(String flagQrCode) {
         this.flagQrCode = flagQrCode;
+    }
+
+    public String getFlagGifDemo() {
+        return flagGifDemo;
+    }
+
+    public void setFlagGifDemo(String flagGifDemo) {
+        this.flagGifDemo = flagGifDemo;
     }
 
     @Override

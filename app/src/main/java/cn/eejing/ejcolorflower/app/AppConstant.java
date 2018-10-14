@@ -72,6 +72,7 @@ public class AppConstant {
     public static final int CLEAR_MATERIAL_MASTER = 2;
 
     // 配置设备效果
+    public static final String JET_EFFECT = "喷射效果";
     public static final String CONFIG_STREAM = "流水灯";
     public static final String CONFIG_RIDE = "跑马灯";
     public static final String CONFIG_INTERVAL = "间隔高低";
@@ -87,6 +88,7 @@ public class AppConstant {
     // 当前时间和循环 ID
     public static final int CURRENT_TIME = 0;
     public static final int LOOP_ID = 0;
+    public static final int INIT_ZERO = 0;
 
     // 配置设备喷射默认值
     public static final String DEFAULT_STREAM_RIDE_GAP = "2";

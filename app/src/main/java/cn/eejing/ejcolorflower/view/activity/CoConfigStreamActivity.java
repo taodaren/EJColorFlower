@@ -21,6 +21,7 @@ import java.util.List;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
+import cn.eejing.ejcolorflower.app.GApp;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
 import cn.eejing.ejcolorflower.model.lite.CtrlStreamEntity;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
@@ -45,6 +46,7 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
     @BindView(R.id.rbtn_center_to_border)        RadioButton    rbtnCenterToBorder;
     @BindView(R.id.radio_right)                  RadioGroup     radioRight;
     @BindView(R.id.btn_config_verify)            Button         btnVerify;
+    @BindView(R.id.btn_demo_stream_ride)         Button         btnDemo;
     @BindView(R.id.et_stream_gap)                EditText       etGap;
     @BindView(R.id.et_stream_duration)           EditText       etDuration;
     @BindView(R.id.et_stream_gap_big)            EditText       etGapBig;
@@ -55,6 +57,7 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
     private BtnSelected mLrBtnListener, mBcBtnListener, mRlBtnListener, mCbBtnListener;
     private boolean mLrChecked, mBcChecked, mRlChecked, mCbChecked;
 
+    private GApp mApp;
     private int mGroupId;
 
     private TextWatcher textWatcher = new TextWatcher() {
@@ -74,11 +77,11 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
                     || etLoop.getText().toString().trim().isEmpty()) {
                 // EditText 有空情况
                 btnVerify.setEnabled(Boolean.FALSE);
-                btnVerify.setBackground(getDrawable(R.drawable.ic_btn_confirm_no));
+                btnVerify.setBackground(getDrawable(R.drawable.ic_btn_no_click));
             } else {
                 // EditText 同时不为空的情况
                 btnVerify.setEnabled(Boolean.TRUE);
-                btnVerify.setBackground(getDrawable(R.drawable.ic_btn_confirm));
+                btnVerify.setBackground(getDrawable(R.drawable.ic_btn_full));
             }
         }
     };
@@ -92,7 +95,7 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
     @Override
     public void initView() {
         setToolbar(CONFIG_STREAM, View.VISIBLE, null, View.GONE);
-
+        mApp = (GApp) getApplication();
         mGroupId = getIntent().getIntExtra("group_id", 0);
 
         Log.i("JLTHMODE", "initView");
@@ -104,6 +107,11 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
         mCbBtnListener = new BtnSelected(CENTER_TO_BORDER);
 
         initConfigDB();
+
+//        // 不限制整数位数，限制小数位数为 1 位
+//        etGap.addTextChangedListener(new DecimalInputTextWatcher(etGap, DecimalInputTextWatcher.Type.decimal, 1));
+//        etDuration.addTextChangedListener(new DecimalInputTextWatcher(etDuration, DecimalInputTextWatcher.Type.decimal, 1));
+//        etGapBig.addTextChangedListener(new DecimalInputTextWatcher(etGapBig, DecimalInputTextWatcher.Type.decimal, 1));
 
         etGap.addTextChangedListener(textWatcher);
         etDuration.addTextChangedListener(textWatcher);
@@ -195,6 +203,7 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
     @Override
     public void initListener() {
         btnVerify.setOnClickListener(this);
+        btnDemo.setOnClickListener(this);
 
         rbtnLeftToRight.setOnClickListener(mLrBtnListener);
         rbtnBorderToCenter.setOnClickListener(mBcBtnListener);
@@ -211,9 +220,18 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
                 postEvent(millis);
                 finish();
                 break;
+            case R.id.btn_demo_stream_ride:
+                mApp.setFlagGifDemo(AppConstant.CONFIG_STREAM);
+                jumpToActivity(CtDemoDescriptionActivity.class);
             default:
                 break;
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mApp.setFlagGifDemo(null);
     }
 
     private void setSQLiteData(long millis) {

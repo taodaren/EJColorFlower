@@ -70,6 +70,7 @@
     <string name="num_500">/500</string>
     <string name="ej_color_flower">异景彩花机</string>
     <string name="exit_login">退出登录</string>
+    <string name="btn_demo_description">演示说明</string>
     <string name="btn_confirm">确定</string>
     <string name="current_psd">当前密码</string>
     <string name="reset_psd">重置密码</string>

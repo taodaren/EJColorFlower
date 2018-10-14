@@ -14,6 +14,7 @@ import java.util.List;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
+import cn.eejing.ejcolorflower.app.GApp;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
 import cn.eejing.ejcolorflower.model.lite.CtrlIntervalEntity;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
@@ -28,12 +29,13 @@ import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_TOGETHER_HIGH;
 public class CoConfigIntervalActivity extends BaseActivity implements View.OnClickListener {
 
     @BindView(R.id.btn_verify_interval)          Button btnVerify;
+    @BindView(R.id.btn_demo_interval)            Button btnDemo;
     @BindView(R.id.et_interval_gap)              EditText etGap;
     @BindView(R.id.et_interval_duration)         EditText etDuration;
     @BindView(R.id.et_interval_frequency)        EditText etFrequency;
 
+    private GApp mApp;
     private int mGroupId;
-
 
     private TextWatcher textWatcher = new TextWatcher() {
         @Override
@@ -51,11 +53,11 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
                     || etFrequency.getText().toString().trim().isEmpty()) {
                 // EditText 有空情况
                 btnVerify.setEnabled(Boolean.FALSE);
-                btnVerify.setBackground(getDrawable(R.drawable.ic_btn_confirm_no));
+                btnVerify.setBackground(getDrawable(R.drawable.ic_btn_no_click));
             } else {
                 // EditText 同时不为空的情况
                 btnVerify.setEnabled(Boolean.TRUE);
-                btnVerify.setBackground(getDrawable(R.drawable.ic_btn_confirm));
+                btnVerify.setBackground(getDrawable(R.drawable.ic_btn_full));
             }
         }
     };
@@ -69,10 +71,14 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
     @Override
     public void initView() {
         setToolbar(CONFIG_INTERVAL, View.VISIBLE, null, View.GONE);
+        mApp = (GApp) getApplication();
         mGroupId = getIntent().getIntExtra("group_id", 0);
 
         initConfigDB();
 
+//        // 不限制整数位数，限制小数位数为 1 位
+//        etGap.addTextChangedListener(new DecimalInputTextWatcher(etGap, DecimalInputTextWatcher.Type.decimal, 1));
+//        etDuration.addTextChangedListener(new DecimalInputTextWatcher(etDuration, DecimalInputTextWatcher.Type.decimal, 1));
         etGap.addTextChangedListener(textWatcher);
         etDuration.addTextChangedListener(textWatcher);
         etFrequency.addTextChangedListener(textWatcher);
@@ -108,6 +114,7 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
     @Override
     public void initListener() {
         btnVerify.setOnClickListener(this);
+        btnDemo.setOnClickListener(this);
     }
 
     @Override
@@ -119,9 +126,18 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
                 postEvent(millis);
                 finish();
                 break;
+            case R.id.btn_demo_interval:
+                mApp.setFlagGifDemo(AppConstant.CONFIG_INTERVAL);
+                jumpToActivity(CtDemoDescriptionActivity.class);
             default:
                 break;
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mApp.setFlagGifDemo(null);
     }
 
     private void setSQLiteData(long millis) {
