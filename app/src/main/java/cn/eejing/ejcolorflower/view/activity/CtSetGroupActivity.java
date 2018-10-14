@@ -110,19 +110,22 @@ public class CtSetGroupActivity extends BaseActivity {
 
     /** 初始化数据库信息 */
     private void initConfigDB() {
-        List<MasterCtrlNumEntity> jetNumes = LitePal.where("devId = ?", String.valueOf(mDevId)).find(MasterCtrlNumEntity.class);
+        List<MasterCtrlSetEntity> jetNumes = LitePal.where("devId = ?", String.valueOf(mDevId)).find(MasterCtrlSetEntity.class);
         List<MasterCtrlModeEntity> jetModes = LitePal.where("devId = ?", String.valueOf(mDevId)).find(MasterCtrlModeEntity.class);
+        Log.i(TAG, "initConfigDB: " + jetModes.size());
 
         // 设备数量及起始 DMX
         if (jetNumes.size() != 0) {
-            sbDevNum.setProgress(Integer.parseInt(jetNumes.get(0).getDevNum()));
-            sbStartDmx.setProgress(Integer.parseInt(jetNumes.get(0).getStarDmx()));
+            sbDevNum.setProgress(jetNumes.get(0).getDevNum());
+            sbStartDmx.setProgress(jetNumes.get(0).getStartDmx());
             tvDevNum.setText(String.valueOf(sbDevNum.getProgress()));
             tvStartDmx.setText(String.valueOf(sbStartDmx.getProgress()));
         }
+
         // 喷射效果列表
-        if (jetModes != null && jetModes.size() > 0) {
+        if (jetModes.size() > 0) {
             for (int i = 0; i < jetModes.size(); i++) {
+                Log.i(TAG, "initConfigDB: " + jetModes.get(i).getType());
                 mList.add(new MasterCtrlModeEntity(jetModes.get(i).getType(), jetModes.get(i).getMillis()));
             }
         }
@@ -263,6 +266,7 @@ public class CtSetGroupActivity extends BaseActivity {
     }
 
     private void setEntity(MasterCtrlSetEntity entity) {
+        Log.i(TAG, "setEntity: " + sbDevNum.getProgress() + " " + sbStartDmx.getProgress());
         entity.setDevId(String.valueOf(mDevId));
         entity.setDevNum(sbDevNum.getProgress());
         entity.setStartDmx(sbStartDmx.getProgress());
