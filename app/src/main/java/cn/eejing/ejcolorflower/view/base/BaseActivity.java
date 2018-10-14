@@ -60,7 +60,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      * 沉浸式状态栏
      */
     protected void setStatusBar() {
-        StatusBarUtil.setColorNoTranslucent(this, getResources().getColor(R.color.colorPrimary));
+        StatusBarUtil.setColorNoTranslucent(this, getResources().getColor(R.color.colorPrimaryDark));
     }
 
     /**

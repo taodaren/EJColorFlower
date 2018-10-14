@@ -12,6 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.jaeger.library.StatusBarUtil;
+
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 
@@ -38,8 +40,14 @@ public abstract class BaseFragment extends Fragment {
         // 子类不再需要设置布局 ID，也不再需要使用 ButterKnife.BindView()
         mRootView = inflater.inflate(layoutViewId(), container, false);
         ButterKnife.bind(this, mRootView);
+        setStatusBar();
         initView(mRootView);
         return mRootView;
+    }
+
+    /** 沉浸式状态栏 */
+    protected void setStatusBar() {
+        StatusBarUtil.setColorNoTranslucent(getActivity(), getResources().getColor(R.color.colorPrimaryDark));
     }
 
     public void initView(View rootView) {

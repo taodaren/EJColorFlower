@@ -2,7 +2,6 @@ package cn.eejing.ejcolorflower.view.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,13 +14,11 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.model.request.MasterGroupListBean;
-import cn.eejing.ejcolorflower.view.activity.CtSetGroupActivity;
 
 /**
- * 主控列表适配器
+ * 主控分組列表适配器
  */
 
 public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -30,11 +27,9 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private Context mContext;
     private LayoutInflater mLayoutInflater;
     private List<MasterGroupListBean> mList;
-    private Long mDeviceId;
 
-    public MasterListAdapter(Context context, List<MasterGroupListBean> list, Long devId) {
+    public MasterListAdapter(Context context, List<MasterGroupListBean> list) {
         this.mContext = context;
-        this.mDeviceId = devId;
         this.mList = list;
         this.mLayoutInflater = LayoutInflater.from(mContext);
     }
@@ -81,10 +76,10 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.tv_master_group)        TextView tvGroup;
-        @BindView(R.id.btn_master_set)         Button btnMasterSet;
         @BindView(R.id.tv_master_num)          TextView tvMasterNum;
         @BindView(R.id.tv_master_dmx)          TextView tvMasterDmx;
         @BindView(R.id.tv_master_type)         TextView tvMasterType;
+        @BindView(R.id.btn_master_set)         Button   btnMasterSet;
 
         ItemViewHolder(View itemView) {
             super(itemView);
@@ -97,19 +92,12 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 btnMasterSet.setBackground(mContext.getDrawable(R.drawable.ic_btn_master_set_null));
             } else {
                 btnMasterSet.setBackground(mContext.getDrawable(R.drawable.ic_btn_master_set));
-                tvMasterNum.setText("设备数量 " + String.valueOf(bean.getDevNum()));
-                tvMasterDmx.setText("起始DMX " + String.valueOf(bean.getStartDmx()));
-                tvMasterType.setText(String.valueOf(bean.getJetMode()));
+//                tvMasterNum.setText("设备数量 " + String.valueOf(bean.getCfgInfo().get(0).getDevNum()));
+//                tvMasterDmx.setText("起始DMX " + String.valueOf(bean.getCfgInfo().get(0).getStartDmx()));
+//                tvMasterType.setText(String.valueOf(bean.getCfgInfo().get(0).getJetMode()));
             }
             tvGroup.setText(bean.getGroupName());
             btnMasterSet.setOnClickListener(mClickListener);
-        }
-
-        @OnClick(R.id.btn_master_set)
-        public void onViewClicked() {
-            if (!mList.get(getAdapterPosition()).getGroupName().equals("分组功能敬请期待...")) {
-                mContext.startActivity(new Intent(mContext, CtSetGroupActivity.class).putExtra("device_id", mDeviceId));
-            }
         }
 
     }

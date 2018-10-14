@@ -8,9 +8,9 @@ import org.litepal.crud.LitePalSupport;
 
 public class MasterCtrlSetEntity extends LitePalSupport {
     private String devId;
-    private int devNum;
-    private int startDmx;
-    private String jetMode;
+    private int devNum;     // 设备数量
+    private int startDmx;   // 起始DMX
+    private String jetMode; // 喷射效果
 
     public MasterCtrlSetEntity() {
     }

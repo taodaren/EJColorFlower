@@ -89,9 +89,12 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
     private long mMemberId;
     private String mToken;
 
-    int mDMXAddress;
-    int mTemperature;
-    int mRestTime;
+    private int mDMXAddress;
+    private int mTemperature;
+    private int mRestTime;
+
+    private ConfigTempFragment mTempFragment = ConfigTempFragment.newInstance(mTemperature);
+    private ConfigTimeFragment mTimeFragment = ConfigTimeFragment.newInstance(mRestTime);
 
     // 是否可以进入主控模式
     private boolean isEnterMasterCtrl;
@@ -119,13 +122,12 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
         mDevMac = getIntent().getStringExtra(QR_DEV_MAC);
         Log.i(TAG, "设备信息: " + mDevId + " " + mDevMac);
 
-
         // 如果 DMX 为 0，true；反之 false
         isEnterMasterCtrl = mDMXAddress == 0;
 
         mFragments = new ArrayList<>();
-        mFragments.add(ConfigTempFragment.newInstance(mTemperature));
-        mFragments.add(ConfigTimeFragment.newInstance(mRestTime));
+        mFragments.add(mTempFragment);
+        mFragments.add(mTimeFragment);
 
         mDecorView = getWindow().getDecorView();
         mTabLayout = ViewFindUtils.find(mDecorView, R.id.tl_device_del);
