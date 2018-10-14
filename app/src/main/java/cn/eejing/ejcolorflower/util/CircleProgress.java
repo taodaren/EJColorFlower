@@ -44,6 +44,8 @@ public class CircleProgress extends View {
     private int ringRadius;
     // 圆环宽度
     private int ringWidth;
+    // 圆环进度宽度
+    private int ringProgressWidth;
     // 圆环颜色
     private int ringColor;
     // 圆环进度颜色
@@ -112,7 +114,8 @@ public class CircleProgress extends View {
         TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.CircleProgress);
         neiYuanColor = typedArray.getColor(R.styleable.CircleProgress_neiYuanColor, getTransparentColor());
         ringRadius = (int) typedArray.getDimension(R.styleable.CircleProgress_ringRadius, -1);
-        ringWidth = (int) typedArray.getDimension(R.styleable.CircleProgress_ringWidth, 30);
+        ringWidth = (int) typedArray.getDimension(R.styleable.CircleProgress_ringWidth, 15);
+        ringProgressWidth = (int) typedArray.getDimension(R.styleable.CircleProgress_ringProgressWidth, 30);
         ringColor = typedArray.getColor(R.styleable.CircleProgress_ringColor, ContextCompat.getColor(getContext(), R.color.top_color2));
         ringProgressColor = typedArray.getColor(R.styleable.CircleProgress_ringProgressColor, ContextCompat.getColor(getContext(), R.color.green1));
 //        ringProgressSecondColor = typedArray.getColor(R.styleable.CircleProgress_ringProgressSecondColor, ringProgressColor);
@@ -165,7 +168,8 @@ public class CircleProgress extends View {
     private void initData() {
         neiYuanColor = ContextCompat.getColor(getContext(), R.color.colorTransparent);
         ringRadius = -1;
-        ringWidth = 30;
+        ringWidth = 15;
+        ringProgressWidth = 30;
         ringColor = ContextCompat.getColor(getContext(), R.color.top_color2);
         ringProgressColor = ContextCompat.getColor(getContext(), R.color.green1);
 //        ringProgressSecondColor=ContextCompat.getColor(getContext(),R.color.blue_00);
@@ -248,7 +252,7 @@ public class CircleProgress extends View {
         mPaint.setDither(true);
         mPaint.setColor(ringProgressColor);
         mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setStrokeWidth(ringWidth);
+        mPaint.setStrokeWidth(ringProgressWidth);
         mPaint.setShader(null);
 
         RectF rectF = new RectF(centerX - ringRadius, centerY - ringRadius, centerX + ringRadius, centerY + ringRadius);
@@ -412,6 +416,12 @@ public class CircleProgress extends View {
 
     public CircleProgress setRingWidth(int ringWidth) {
         this.ringWidth = ringWidth;
+        invalidateCircleProgress();
+        return this;
+    }
+
+    public CircleProgress setRingProgressWidth(int ringProgressWidth) {
+        this.ringProgressWidth = ringProgressWidth;
         invalidateCircleProgress();
         return this;
     }

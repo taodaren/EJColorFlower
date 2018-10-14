@@ -72,6 +72,8 @@
         <attr name="ringRadius" format="dimension"/>
         <!--圆环宽度-->
         <attr name="ringWidth" format="dimension"/>
+        <!--圆环进度宽度-->
+        <attr name="ringProgressWidth" format="dimension"/>
         <!--圆环颜色-->
         <attr name="ringColor" format="color"/>
         <!--圆环进度颜色-->

@@ -34,25 +34,10 @@ public class ConfigTempFragment extends BaseFragment {
     private static int mDevTemp;
 
     public static ConfigTempFragment newInstance(int temp) {
-        Log.i(TAG, "newInstance: " + temp);
         ConfigTempFragment fragment = new ConfigTempFragment();
         mDevTemp = temp;
         return fragment;
     }
-
-    @SuppressLint("HandlerLeak")
-    private Handler mHandler = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case 1:
-                    Log.w(TAG, "TEMP: " + mDevTemp);
-                    setDevTemp(mDevTemp);
-                    break;
-            }
-        }
-    };
 
     @Override
     protected int layoutViewId() {
@@ -61,7 +46,6 @@ public class ConfigTempFragment extends BaseFragment {
 
     @Override
     public void initView(View rootView) {
-        EventBus.getDefault().register(this);
         setDevTemp(mDevTemp);
     }
 
@@ -88,7 +72,6 @@ public class ConfigTempFragment extends BaseFragment {
                 LinearGradient linearGradient = new LinearGradient(
                         0, 0,
                         mCircleProgress.getWidth(), mCircleProgress.getHeight(),
-//                            mCircleProgress.getRingProgressColor(),
                         ContextCompat.getColor(getContext(), R.color.colorTempLow),
                         ContextCompat.getColor(getContext(), R.color.colorTempHigh),
                         Shader.TileMode.MIRROR
@@ -99,16 +82,24 @@ public class ConfigTempFragment extends BaseFragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+        mCircleProgress.setProgress(mDevTemp);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
         EventBus.getDefault().unregister(this);
+        mCircleProgress.setProgress(0);
     }
 
     /** 蓝牙连接状态 */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventDevConn(DevConnEvent event) {
         // 接收硬件传过来的已连接设备信息添加到 HashSet
-        Log.i(TAG, "temp cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
+        Log.d(TAG, "temp cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
 
         switch (event.getStatus()) {
             case "已连接":
@@ -116,8 +107,26 @@ public class ConfigTempFragment extends BaseFragment {
                 mHandler.sendEmptyMessage(1);
                 break;
             case "不可连接":
+                mHandler.sendEmptyMessage(0);
                 break;
         }
     }
+
+    @SuppressLint("HandlerLeak")
+    private Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 1:
+                    setDevTemp(mDevTemp);
+                    break;
+                case 0:
+                    setDevTemp(-1);
+                    break;
+                default:
+            }
+        }
+    };
 
 }
