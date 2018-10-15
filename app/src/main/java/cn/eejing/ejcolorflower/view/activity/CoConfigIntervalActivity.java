@@ -5,6 +5,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.litepal.LitePal;
@@ -109,7 +110,8 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
     private void updateConfig(CtrlIntervalEntity intervalEntity) {
         etGap.setText(intervalEntity.getGap());
         etDuration.setText(intervalEntity.getDuration());
-        etFrequency.setText(intervalEntity.getFrequency());
+        // 展示给用户看需要 +1
+        etFrequency.setText(String.valueOf(Integer.parseInt(intervalEntity.getFrequency()) + 1));
     }
 
     @Override
@@ -122,10 +124,14 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_verify_interval:
-                long millis = System.currentTimeMillis();
-                setSQLiteData(millis);
-                postEvent(millis);
-                finish();
+                if (Integer.parseInt(etFrequency.getText().toString()) == 0) {
+                    Toast.makeText(this, "换向次数不能为 0，请重新设置！", Toast.LENGTH_SHORT).show();
+                } else {
+                    long millis = System.currentTimeMillis();
+                    setSQLiteData(millis);
+                    postEvent(millis);
+                    finish();
+                }
                 break;
             case R.id.btn_demo_interval:
                 mApp.setFlagGifDemo(AppConstant.CONFIG_INTERVAL);
@@ -159,11 +165,14 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
     }
 
     private void setEntity(CtrlIntervalEntity entity, long millis) {
+        int frequency = Integer.parseInt(etFrequency.getText().toString());
+
         entity.setConfigType(CONFIG_INTERVAL);
         entity.setGroupId(mGroupId);
         entity.setGap(etGap.getText().toString());
         entity.setDuration(etDuration.getText().toString());
-        entity.setFrequency(etFrequency.getText().toString());
+        // 用户输入 1 代表喷射一轮不循环
+        entity.setFrequency(String.valueOf(frequency - 1));
         entity.setHigh(DEFAULT_TOGETHER_HIGH);
         entity.setMillis(millis);
     }

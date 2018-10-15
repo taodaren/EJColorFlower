@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.litepal.LitePal;
@@ -190,7 +191,8 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
         etGap.setText(rideEntity.getGap());
         etDuration.setText(rideEntity.getDuration());
         etGapBig.setText(rideEntity.getGapBig());
-        etLoop.setText(rideEntity.getLoop());
+        // 展示给用户看需要 +1
+        etLoop.setText(String.valueOf(Integer.parseInt(rideEntity.getLoop()) + 1));
     }
 
     @Override
@@ -208,10 +210,14 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_config_verify:
-                long millis = System.currentTimeMillis();
-                setSQLiteData(millis);
-                postEvent(millis);
-                finish();
+                if (Integer.parseInt(etLoop.getText().toString()) == 0) {
+                    Toast.makeText(this, "循环次数不能为 0，请重新设置！", Toast.LENGTH_SHORT).show();
+                } else {
+                    long millis = System.currentTimeMillis();
+                    setSQLiteData(millis);
+                    postEvent(millis);
+                    finish();
+                }
                 break;
             case R.id.btn_demo_stream_ride:
                 mApp.setFlagGifDemo(AppConstant.CONFIG_RIDE);
@@ -245,13 +251,15 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
     }
 
     private void setEntity(CtrlRideEntity entity, long millis) {
+        int loop = Integer.parseInt(etLoop.getText().toString());
         entity.setConfigType(CONFIG_RIDE);
         entity.setGroupId(mGroupId);
         entity.setDirection(strBtnDirection);
         entity.setGap(etGap.getText().toString());
         entity.setDuration(etDuration.getText().toString());
         entity.setGapBig(etGapBig.getText().toString());
-        entity.setLoop(etLoop.getText().toString());
+        // 用户输入 1 代表喷射一轮不循环
+        entity.setLoop(String.valueOf(loop - 1));
         entity.setHigh(DEFAULT_TOGETHER_HIGH);
         entity.setMillis(millis);
     }
@@ -278,7 +286,7 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
             gap = Integer.parseInt(etGap.getText().toString());
             duration = Integer.parseInt(etDuration.getText().toString());
             bigGit = Integer.parseInt(etGapBig.getText().toString());
-            loop = Integer.parseInt(etLoop.getText().toString());
+            loop = Integer.parseInt(etLoop.getText().toString()) - 1;
             high = Integer.parseInt(DEFAULT_TOGETHER_HIGH);
 
             JetStatusEvent event = new JetStatusEvent(getString(R.string.config_ride),

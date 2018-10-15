@@ -163,7 +163,7 @@
     <string name="text_duration">持续时间</string>
     <string name="text_gap_big">大间隔时间</string>
     <string name="text_loop">循环次数</string>
-    <string name="text_frequency">次数</string>
+    <string name="text_frequency">换向次数</string>
     <string name="text_dev_num">设备数量</string>
     <string name="text_start_dmx">起始 DMX</string>
     <string name="def_addr">默认地址</string>

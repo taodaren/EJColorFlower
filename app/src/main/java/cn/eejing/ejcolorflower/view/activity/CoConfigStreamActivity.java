@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
 import org.litepal.LitePal;
@@ -98,9 +99,6 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
         setToolbar(CONFIG_STREAM, View.VISIBLE, null, View.GONE);
         mApp = (GApp) getApplication();
         mGroupId = getIntent().getIntExtra("group_id", 0);
-
-        Log.i("JLTHMODE", "initView");
-        Log.i("JLTHMODE", "mGroupId: " + mGroupId);
 
         mLrBtnListener = new BtnSelected(LEFT_TO_RIGHT);
         mBcBtnListener = new BtnSelected(BORDER_TO_CENTER);
@@ -198,7 +196,8 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
         etGap.setText(streamEntity.getGap());
         etDuration.setText(streamEntity.getDuration());
         etGapBig.setText(streamEntity.getGapBig());
-        etLoop.setText(streamEntity.getLoop());
+        // 展示给用户看需要 +1
+        etLoop.setText(String.valueOf(Integer.parseInt(streamEntity.getLoop()) + 1));
     }
 
     @Override
@@ -216,10 +215,14 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_config_verify:
-                long millis = System.currentTimeMillis();
-                setSQLiteData(millis);
-                postEvent(millis);
-                finish();
+                if (Integer.parseInt(etLoop.getText().toString()) == 0) {
+                    Toast.makeText(this, "循环次数不能为 0，请重新设置！", Toast.LENGTH_SHORT).show();
+                } else {
+                    long millis = System.currentTimeMillis();
+                    setSQLiteData(millis);
+                    postEvent(millis);
+                    finish();
+                }
                 break;
             case R.id.btn_demo_stream_ride:
                 mApp.setFlagGifDemo(AppConstant.CONFIG_STREAM);
@@ -253,13 +256,15 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
     }
 
     private void setEntity(CtrlStreamEntity entity, long millis) {
+        int loop = Integer.parseInt(etLoop.getText().toString());
         entity.setConfigType(CONFIG_STREAM);
         entity.setGroupId(mGroupId);
         entity.setDirection(strBtnDirection);
         entity.setGap(etGap.getText().toString());
         entity.setDuration(etDuration.getText().toString());
         entity.setGapBig(etGapBig.getText().toString());
-        entity.setLoop(etLoop.getText().toString());
+        // 用户输入 1 代表喷射一轮不循环
+        entity.setLoop(String.valueOf(loop - 1));
         entity.setHigh(DEFAULT_TOGETHER_HIGH);
         entity.setMillis(millis);
     }
@@ -286,7 +291,7 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
             gap = Integer.parseInt(etGap.getText().toString());
             duration = Integer.parseInt(etDuration.getText().toString());
             bigGit = Integer.parseInt(etGapBig.getText().toString());
-            loop = Integer.parseInt(etLoop.getText().toString());
+            loop = Integer.parseInt(etLoop.getText().toString()) - 1;
             high = Integer.parseInt(DEFAULT_TOGETHER_HIGH);
 
             JetStatusEvent event = new JetStatusEvent(getString(R.string.config_stream),
