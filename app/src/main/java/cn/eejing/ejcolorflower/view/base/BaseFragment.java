@@ -12,8 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.gyf.barlibrary.ImmersionBar;
-
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 
@@ -40,15 +38,8 @@ public abstract class BaseFragment extends Fragment {
         // 子类不再需要设置布局 ID，也不再需要使用 ButterKnife.BindView()
         mRootView = inflater.inflate(layoutViewId(), container, false);
         ButterKnife.bind(this, mRootView);
-        setStatusBar();
         initView(mRootView);
         return mRootView;
-    }
-
-    /** 沉浸式状态栏 */
-    protected void setStatusBar() {
-        // 0.2f 是指在 6.0 以下不能改变状态栏颜色的时候，把背景设置为 0.2 的白色
-//        ImmersionBar.with(this).statusBarDarkFont(true, 0.2f).init();
     }
 
     public void initView(View rootView) {

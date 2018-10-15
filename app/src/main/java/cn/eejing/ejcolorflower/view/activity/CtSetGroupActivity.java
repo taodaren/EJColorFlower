@@ -22,7 +22,6 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.model.lite.MasterCtrlModeEntity;
-import cn.eejing.ejcolorflower.model.lite.MasterCtrlNumEntity;
 import cn.eejing.ejcolorflower.model.lite.MasterCtrlSetEntity;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;

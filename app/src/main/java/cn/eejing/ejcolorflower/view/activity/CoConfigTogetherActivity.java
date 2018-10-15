@@ -17,12 +17,13 @@ import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.GApp;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
 import cn.eejing.ejcolorflower.model.lite.CtrlTogetherEntity;
+import cn.eejing.ejcolorflower.util.DecimalInputTextWatcher;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
 
 /**
- * 齐喷
+ * 齐喷配置
  */
 
 public class CoConfigTogetherActivity extends BaseActivity implements View.OnClickListener {
@@ -72,8 +73,8 @@ public class CoConfigTogetherActivity extends BaseActivity implements View.OnCli
 
         initConfigDB();
 
-//        // 不限制整数位数，限制小数位数为 1 位
-//        etDuration.addTextChangedListener(new DecimalInputTextWatcher(etDuration, DecimalInputTextWatcher.Type.decimal, 1));
+        // 不限制整数位数，限制小数位数为 1 位
+        etDuration.addTextChangedListener(new DecimalInputTextWatcher(etDuration, DecimalInputTextWatcher.Type.decimal, 1));
         etDuration.addTextChangedListener(textWatcher);
         etHigh.addTextChangedListener(textWatcher);
     }

@@ -17,13 +17,14 @@ import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.GApp;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
 import cn.eejing.ejcolorflower.model.lite.CtrlIntervalEntity;
+import cn.eejing.ejcolorflower.util.DecimalInputTextWatcher;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_INTERVAL;
 import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_TOGETHER_HIGH;
 
 /**
- * 间隔高低
+ * 间隔高低配置
  */
 
 public class CoConfigIntervalActivity extends BaseActivity implements View.OnClickListener {
@@ -76,9 +77,9 @@ public class CoConfigIntervalActivity extends BaseActivity implements View.OnCli
 
         initConfigDB();
 
-//        // 不限制整数位数，限制小数位数为 1 位
-//        etGap.addTextChangedListener(new DecimalInputTextWatcher(etGap, DecimalInputTextWatcher.Type.decimal, 1));
-//        etDuration.addTextChangedListener(new DecimalInputTextWatcher(etDuration, DecimalInputTextWatcher.Type.decimal, 1));
+        // 不限制整数位数，限制小数位数为 1 位
+        etGap.addTextChangedListener(new DecimalInputTextWatcher(etGap, DecimalInputTextWatcher.Type.decimal, 1));
+        etDuration.addTextChangedListener(new DecimalInputTextWatcher(etDuration, DecimalInputTextWatcher.Type.decimal, 1));
         etGap.addTextChangedListener(textWatcher);
         etDuration.addTextChangedListener(textWatcher);
         etFrequency.addTextChangedListener(textWatcher);

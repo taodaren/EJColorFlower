@@ -24,6 +24,7 @@ import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.GApp;
 import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
 import cn.eejing.ejcolorflower.model.lite.CtrlStreamEntity;
+import cn.eejing.ejcolorflower.util.DecimalInputTextWatcher;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.BORDER_TO_CENTER;
@@ -34,7 +35,7 @@ import static cn.eejing.ejcolorflower.app.AppConstant.LEFT_TO_RIGHT;
 import static cn.eejing.ejcolorflower.app.AppConstant.RIGHT_TO_LEFT;
 
 /**
- * 流水灯
+ * 流水灯配置
  */
 
 public class CoConfigStreamActivity extends BaseActivity implements View.OnClickListener {
@@ -108,10 +109,10 @@ public class CoConfigStreamActivity extends BaseActivity implements View.OnClick
 
         initConfigDB();
 
-//        // 不限制整数位数，限制小数位数为 1 位
-//        etGap.addTextChangedListener(new DecimalInputTextWatcher(etGap, DecimalInputTextWatcher.Type.decimal, 1));
-//        etDuration.addTextChangedListener(new DecimalInputTextWatcher(etDuration, DecimalInputTextWatcher.Type.decimal, 1));
-//        etGapBig.addTextChangedListener(new DecimalInputTextWatcher(etGapBig, DecimalInputTextWatcher.Type.decimal, 1));
+        // 不限制整数位数，限制小数位数为 1 位
+        etGap.addTextChangedListener(new DecimalInputTextWatcher(etGap, DecimalInputTextWatcher.Type.decimal, 1));
+        etDuration.addTextChangedListener(new DecimalInputTextWatcher(etDuration, DecimalInputTextWatcher.Type.decimal, 1));
+        etGapBig.addTextChangedListener(new DecimalInputTextWatcher(etGapBig, DecimalInputTextWatcher.Type.decimal, 1));
 
         etGap.addTextChangedListener(textWatcher);
         etDuration.addTextChangedListener(textWatcher);
