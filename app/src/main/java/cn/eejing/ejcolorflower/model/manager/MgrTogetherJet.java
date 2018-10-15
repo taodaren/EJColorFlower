@@ -7,12 +7,14 @@ import android.util.Log;
  */
 
 public class MgrTogetherJet extends MgrOutputJet {
+    private static final String JET = "主控0.1秒";
+
     private int mDuration;       // 持续时间
     private byte mHigh;          // 高度
 
     @Override
     public boolean updateWithDataOut(byte[] dataOut) {
-        Log.i("CMCML", "updateWithDataOut: 老子进入齐喷了");
+        Log.i(JET, "updateWithDataOut: 老子进入齐喷了");
 
         mCurrentTime++;
         long outputTime = mDuration;
@@ -24,8 +26,8 @@ public class MgrTogetherJet extends MgrOutputJet {
             }
         }
 
-        Log.i("CMCML", "update over mCurrentTime: " + mCurrentTime);
-        Log.i("CMCML", "update over outputTime: " + outputTime);
+        Log.i(JET, "update over mCurrentTime: " + mCurrentTime);
+        Log.i(JET, "update over outputTime: " + outputTime);
         return mCurrentTime > outputTime;
     }
 

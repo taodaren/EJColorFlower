@@ -1,6 +1,5 @@
 package cn.eejing.ejcolorflower.view.activity;
 
-import android.content.Intent;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -62,9 +61,13 @@ import static cn.eejing.ejcolorflower.app.AppConstant.JET_EFFECT;
 import static cn.eejing.ejcolorflower.app.AppConstant.LEFT_TO_RIGHT;
 import static cn.eejing.ejcolorflower.app.AppConstant.LOOP_ID;
 
+/**
+ * 主控界面
+ */
+
 public class CtMasterModeActivity extends BaseActivity implements IShowListener {
     private static final String TAG = "CtMasterModeActivity";
-    private static final String JET = "主控0.1秒";
+    private static final String JET = "CtMasterModeJet";
 
     @BindView(R.id.rv_master_list)          PullLoadMoreRecyclerView rvMasterList;
     @BindView(R.id.btn_master_start)        Button btnMasterStart;
@@ -74,7 +77,6 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
     private Device mDevice;
     private long mDeviceId;
     private int mDevNum, mStartDmx;
-    private String mGroupName, mJetModel;
 
     private boolean isStarJet;                            // 是否开始喷射
     private int mCurrMasterId, mFlagCurrId;               // 当前主控喷射效果 ID 及标志位
@@ -103,13 +105,21 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         initRecyclerView();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // 刷新数据
+        mMasterInfoList.clear();
+        initDatabase();
+        initRecyclerView();
+    }
+
     private void initDatabase() {
         mGroupJetModes = LitePal.where("devId = ?", String.valueOf(mDeviceId)).find(MasterCtrlModeEntity.class);
         mGroupInfoList = LitePal.where("devId = ?", String.valueOf(mDeviceId)).find(MasterCtrlSetEntity.class);
 
         Log.i(TAG, "mGroupJetModes size: " + mGroupJetModes.size());
         Log.i(TAG, "mGroupInfoList size: " + mGroupInfoList.size());
-        Log.w(TAG, "initDatabase: " + mDevNum + " " + mStartDmx + " " + mJetModel);
         if (mGroupInfoList.size() == 0) {
             initGroupInfo(INIT_ZERO, INIT_ZERO, JET_EFFECT);
         } else {
@@ -118,20 +128,20 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
     }
 
     private void initGroupInfo(int devNum, int startDmx, String jetEffect) {
-        mGroupName = "分组名称";
+        String groupName = "分组名称";
+        String jetModel = jetEffect;
         mDevNum = devNum;
         mStartDmx = startDmx;
-        mJetModel = jetEffect;
-        Log.w(TAG, "initGroupInfo: " + mDevNum + " " + mStartDmx + " " + mJetModel);
+        Log.w(TAG, "initGroupInfo: " + mDevNum + " " + mStartDmx + " " + jetModel);
 
-        mMasterInfoList.add(new MasterGroupListBean(1, mGroupName, mGroupInfoList));
-        for (int i = 0; i < 9; i++) {
-            mGroupName = "分组功能敬请期待...";
-            mDevNum = INIT_ZERO;
-            mStartDmx = INIT_ZERO;
-            mJetModel = JET_EFFECT;
-            mMasterInfoList.add(new MasterGroupListBean(0, mGroupName, mGroupInfoList));
-        }
+        mMasterInfoList.add(new MasterGroupListBean(1, groupName, mGroupInfoList));
+//        for (int i = 0; i < 9; i++) {
+//            mGroupName = "分组功能敬请期待...";
+//            mDevNum = INIT_ZERO;
+//            mStartDmx = INIT_ZERO;
+//            jetModel = JET_EFFECT;
+//            mMasterInfoList.add(new MasterGroupListBean(0, groupName, mGroupInfoList));
+//        }
     }
 
     private void initRecyclerView() {
@@ -144,9 +154,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         adapter.setClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult(new Intent(
-                        CtMasterModeActivity.this, CtSetGroupActivity.class), 1
-                );
+                jumpToActivity(CtSetGroupActivity.class);
             }
         });
         rvMasterList.setAdapter(adapter);
@@ -166,23 +174,6 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
             public void onLoadMore() {
             }
         });
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case 1:
-                if (resultCode == RESULT_OK) {
-                    Log.i(TAG, "此时可以刷新列表了");
-                    mMasterInfoList.clear();
-                    initDatabase();
-                    initRecyclerView();
-                }
-                break;
-            default:
-                break;
-        }
     }
 
     @Override
@@ -224,7 +215,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
 //        }
 //    };
 
-    Handler mHandler = new Handler();
+    private Handler mHandler = new Handler();
 
     @OnClick({R.id.btn_master_start, R.id.img_start_hide, R.id.rl_show_dialog})
     public void onViewClicked(View view) {
@@ -313,9 +304,9 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         MgrTogetherJet mgrStop = new MgrTogetherJet();
         mgrStop.setType(CONFIG_TOGETHER);
         mgrStop.setDevCount(mDevNum);
-        mgrStop.setCurrentTime(0);
+        mgrStop.setCurrentTime(INIT_ZERO);
         mgrStop.setDuration(1);
-        mgrStop.setHigh((byte) 0);
+        mgrStop.setHigh((byte) INIT_ZERO);
         mgrStop.updateWithDataOut(dataOut);
         for (int i = 0; i < 5; i++) {
             MainActivity.getAppCtrl().sendCommand(mDevice, BleDeviceProtocol.pkgEnterRealTimeCtrlMode(mDeviceId, mStartDmx, mDevNum, dataOut));
@@ -337,8 +328,9 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
 
     /** 定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息）*/
     private void timerCallingMethod() {
-        Log.i(JET, "FlagCur ID: " + mFlagCurrId);
+        Log.w(JET, "FlagCur ID: " + mFlagCurrId);
         Log.i(JET, "Current ID: " + mCurrMasterId);
+        Log.i(JET, "mMasterCtrlMgrList.size(): " + mMasterCtrlMgrList.size());
 
         // 创建主控管理集合
         if (mMasterCtrlMgrList.size() == 0) {
@@ -355,7 +347,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         // 如果当前运行的 ID 与 flag 不同，让其相等
         if (mFlagCurrId != mCurrMasterId) {
             mFlagCurrId = mCurrMasterId;
-            mCurrentManager = getCurrentManager(mCurrMasterId);
+            mCurrentManager = mMasterCtrlMgrList.get(mCurrMasterId);
         }
 
         // 发送进入在线实时控制模式命令
@@ -364,18 +356,19 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         boolean isFinish = false;
         if (isStarJet) {
             if (mCurrentManager != null) {
-                Log.e("CMCML", "Current Manager have: " + mCurrentManager.getType());
+                Log.e(JET, "Current Manager have: " + mCurrentManager.getType());
                 isFinish = mCurrentManager.updateWithDataOut(dataOut);
-                Log.i("CMCML", "isFinish: " + isFinish);
+                Log.i(JET, "isFinish: " + isFinish);
             } else {
-                Log.e("CMCML", "Current Manager null: " + mCurrentManager);
-                mCurrentManager = getCurrentManager(0);
-                Log.e("CMCML", "Current Manager NO.1: " + mCurrentManager.getType());
+                Log.e(JET, "Current Manager null: " + mCurrentManager);
+                mCurrentManager = mMasterCtrlMgrList.get(0);
+                Log.e(JET, "Current Manager NO.1: " + mCurrentManager.getType());
                 isFinish = mCurrentManager.updateWithDataOut(dataOut);
-                Log.i("CMCML", "isFinish: " + isFinish);
+                Log.i(JET, "isFinish: " + isFinish);
             }
         }
 
+        Log.d(JET, "timerCallingMethod: " + mDeviceId + " " + mStartDmx + " " + mDevNum + " " + dataOut.length);
         MainActivity.getAppCtrl().sendCommand(mDevice,
                 BleDeviceProtocol.pkgEnterRealTimeCtrlMode(mDeviceId, mStartDmx, mDevNum, dataOut));
 
@@ -383,7 +376,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
             // 当前组喷射完成，进入到下一组，继续执行下一组
             mCurrMasterId++;
             if (mCurrMasterId >= mMasterCtrlMgrList.size()) {
-                Log.i("CMCML", "老子终于喷完了！！！");
+                Log.i(JET, "老子终于喷完了！！！");
 
                 // 设置不可编辑状态
 //                imgMasterMode.setClickable(false);
@@ -418,7 +411,6 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         MainActivity.getAppCtrl().sendCommand(device, pkgClearMaterial, new OnReceivePackage() {
             @Override
             public void ack(@NonNull byte[] pkg) {
-
             }
 
             @Override
@@ -436,46 +428,20 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         for (int i = 0; i < mGroupJetModes.size(); i++) {
             switch (mGroupJetModes.get(i).getType()) {
                 case CONFIG_STREAM:
-                    MgrStreamJet mgrStream = new MgrStreamJet();
-                    mgrStream.setType(CONFIG_STREAM);
-                    mMasterCtrlMgrList.add(mgrStream);
+                    mMasterCtrlMgrList.add(setDataWithStream(i));
                     break;
                 case CONFIG_RIDE:
-                    MgrRideJet mgrRide = new MgrRideJet();
-                    mgrRide.setType(CONFIG_RIDE);
-                    mMasterCtrlMgrList.add(mgrRide);
+                    mMasterCtrlMgrList.add(setDataWithRide(i));
                     break;
                 case CONFIG_INTERVAL:
-                    MgrIntervalJet mgrInterval = new MgrIntervalJet();
-                    mgrInterval.setType(CONFIG_INTERVAL);
-                    mMasterCtrlMgrList.add(mgrInterval);
+                    mMasterCtrlMgrList.add(setDataWithInterval(i));
                     break;
                 case CONFIG_TOGETHER:
-                    MgrTogetherJet mgrTogether = new MgrTogetherJet();
-                    mgrTogether.setType(CONFIG_TOGETHER);
-                    mMasterCtrlMgrList.add(mgrTogether);
+                    mMasterCtrlMgrList.add(setDataWithTogether(i));
                     break;
                 default:
                     break;
             }
-        }
-    }
-
-    /** 获取当前的喷射控制类 */
-    private MgrOutputJet getCurrentManager(int currMasterId) {
-        Log.i("CMCML", "MasterCtrlMgrList SIZE: " + mMasterCtrlMgrList.size());
-
-        switch (mMasterCtrlMgrList.get(currMasterId).getType()) {
-            case CONFIG_STREAM:
-                return setDataWithStream(currMasterId);
-            case CONFIG_RIDE:
-                return setDataWithRide(currMasterId);
-            case CONFIG_INTERVAL:
-                return setDataWithInterval(currMasterId);
-            case CONFIG_TOGETHER:
-                return setDataWithTogether(currMasterId);
-            default:
-                return null;
         }
     }
 
@@ -493,12 +459,9 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         switch (streamEntities.size()) {
             case 1:
                 mgrStream.setDirection(Integer.parseInt(streamEntities.get(0).getDirection()));
-                mgrStream.setGap(Integer.parseInt(streamEntities.get(0).getGap()) * 10);
-                mgrStream.setDuration(Integer.parseInt(streamEntities.get(0).getDuration()) * 10);
-                mgrStream.setGapBig(Integer.parseInt(streamEntities.get(0).getGapBig()) * 10);
-//                mgrStream.setGap((int)(Float.parseFloat(streamEntities.get(0).getGap()) * 10));
-//                mgrStream.setDuration((int)(Float.parseFloat(streamEntities.get(0).getDuration()) * 10));
-//                mgrStream.setGapBig((int)(Float.parseFloat(streamEntities.get(0).getGapBig()) * 10));
+                mgrStream.setGap((int)(Float.parseFloat(streamEntities.get(0).getGap()) * 10));
+                mgrStream.setDuration((int)(Float.parseFloat(streamEntities.get(0).getDuration()) * 10));
+                mgrStream.setGapBig((int)(Float.parseFloat(streamEntities.get(0).getGapBig()) * 10));
                 mgrStream.setLoop(Integer.parseInt(streamEntities.get(0).getLoop()));
                 break;
             default:
@@ -509,7 +472,6 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
                 mgrStream.setLoop(Integer.parseInt(DEFAULT_STREAM_RIDE_LOOP));
                 break;
         }
-        Log.i(TAG, "setDataWithStream: " + mgrStream.getDuration() + " " + mgrStream.getGap());
 
         return mgrStream;
     }
@@ -529,12 +491,9 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         switch (rideEntities.size()) {
             case 1:
                 mgrRide.setDirection(Integer.parseInt(rideEntities.get(0).getDirection()));
-                mgrRide.setGap(Integer.parseInt(rideEntities.get(0).getGap()) * 10);
-                mgrRide.setDuration(Integer.parseInt(rideEntities.get(0).getDuration()) * 10);
-                mgrRide.setGapBig(Integer.parseInt(rideEntities.get(0).getGapBig()) * 10);
-//                mgrRide.setGap((int)(Float.parseFloat(rideEntities.get(0).getGap()) * 10));
-//                mgrRide.setDuration((int)(Float.parseFloat(rideEntities.get(0).getDuration()) * 10));
-//                mgrRide.setGapBig((int)(Float.parseFloat(rideEntities.get(0).getGapBig()) * 10));
+                mgrRide.setGap((int)(Float.parseFloat(rideEntities.get(0).getGap()) * 10));
+                mgrRide.setDuration((int)(Float.parseFloat(rideEntities.get(0).getDuration()) * 10));
+                mgrRide.setGapBig((int)(Float.parseFloat(rideEntities.get(0).getGapBig()) * 10));
                 mgrRide.setLoop(Integer.parseInt(rideEntities.get(0).getLoop()));
                 break;
             default:
@@ -561,10 +520,8 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         mgrInterval.setLoopId(LOOP_ID);
         switch (intervalEntities.size()) {
             case 1:
-//                mgrInterval.setGapBig((int)(Float.parseFloat(intervalEntities.get(0).getGap()) * 10));
-//                mgrInterval.setDuration((int)(Float.parseFloat(intervalEntities.get(0).getDuration()) * 10));
-                mgrInterval.setDuration(Integer.parseInt(intervalEntities.get(0).getDuration()) * 10);
-                mgrInterval.setGapBig(Integer.parseInt(intervalEntities.get(0).getGap()) * 10);
+                mgrInterval.setGapBig((int)(Float.parseFloat(intervalEntities.get(0).getGap()) * 10));
+                mgrInterval.setDuration((int)(Float.parseFloat(intervalEntities.get(0).getDuration()) * 10));
                 mgrInterval.setLoop(Integer.parseInt(intervalEntities.get(0).getFrequency()));
                 break;
             default:
@@ -588,8 +545,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         mgrTogether.setCurrentTime(CURRENT_TIME);
         switch (togetherEntities.size()) {
             case 1:
-//                mgrTogether.setDuration((int)(Float.parseFloat(togetherEntities.get(0).getDuration()) * 10));
-                mgrTogether.setDuration(Integer.parseInt(togetherEntities.get(0).getDuration()) * 10);
+                mgrTogether.setDuration((int)(Float.parseFloat(togetherEntities.get(0).getDuration()) * 10));
                 mgrTogether.setHigh((byte) Integer.parseInt(togetherEntities.get(0).getHigh()));
                 break;
             default:

@@ -7,6 +7,8 @@ import android.util.Log;
  */
 
 public class MgrStreamJet extends MgrOutputJet {
+    private static final String JET = "主控0.1秒";
+
     private int mDirection;      // 方向
     private int mGap;            // 间隔时间
     private int mDuration;       // 持续时间
@@ -15,43 +17,43 @@ public class MgrStreamJet extends MgrOutputJet {
 
     @Override
     public boolean updateWithDataOut(byte[] dataOut) {
-        Log.i("CMCML", "updateWithDataOut: 老子进入流水灯了");
+        Log.i(JET, "updateWithDataOut: 老子进入流水灯了");
         mCurrentTime++;
         // 一次运行时间
         long outputTime = 0;
         switch (mDirection) {
             case 1:
                 // 从左到右
-                Log.i("CMCML", "进入从左到右");
+                Log.i(JET, "进入从左到右");
                 outputTime = leftToRight(dataOut);
-                Log.i("CMCML", "从左到右 outputTime: " + outputTime);
+                Log.i(JET, "从左到右 outputTime: " + outputTime);
                 break;
             case 3:
                 // 从右到左
-                Log.i("CMCML", "进入从右到左");
+                Log.i(JET, "进入从右到左");
                 outputTime = rightToLeft(dataOut);
-                Log.i("CMCML", "从右到左 outputTime: " + outputTime);
+                Log.i(JET, "从右到左 outputTime: " + outputTime);
                 break;
             case 2:
                 // 从两端到中间
-                Log.i("CMCML", "进入从两端到中间");
+                Log.i(JET, "进入从两端到中间");
                 outputTime = endsToMiddle(dataOut);
-                Log.i("CMCML", "从两端到中间 outputTime: " + outputTime);
+                Log.i(JET, "从两端到中间 outputTime: " + outputTime);
                 break;
             case 4:
                 // 从中间到两端
-                Log.i("CMCML", "进入从中间到两端");
+                Log.i(JET, "进入从中间到两端");
                 outputTime = middleToEnds(dataOut);
-                Log.i("CMCML", "从中间到两端 outputTime: " + outputTime);
+                Log.i(JET, "从中间到两端 outputTime: " + outputTime);
                 break;
             default:
                 break;
         }
 
-        Log.i("CMCML", "update over mCurrentTime: " + mCurrentTime);
-        Log.i("CMCML", "update over outputTime: " + outputTime);
-        Log.i("CMCML", "update over mLoopId: " + mLoopId);
-        Log.i("CMCML", "update over mLoop: " + mLoop);
+        Log.i(JET, "update over mCurrentTime: " + mCurrentTime);
+        Log.i(JET, "update over outputTime: " + outputTime);
+        Log.i(JET, "update over mLoopId: " + mLoopId);
+        Log.i(JET, "update over mLoop: " + mLoop);
 
         // 等最后一次循环完毕
         return mCurrentTime > outputTime && mLoopId >= mLoop;

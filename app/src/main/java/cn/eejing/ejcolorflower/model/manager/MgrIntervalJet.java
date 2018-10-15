@@ -7,12 +7,14 @@ import android.util.Log;
  */
 
 public class MgrIntervalJet extends MgrOutputJet {
+    private static final String JET = "主控0.1秒";
+
     private int mDuration;       // 持续时间
     private int mGapBig;         // 大间隔时间
 
     @Override
     public boolean updateWithDataOut(byte[] dataOut) {
-        Log.i("CMCML", "updateWithDataOut: 老子进入间隔高低了");
+        Log.i(JET, "updateWithDataOut: 老子进入间隔高低了");
 
         mCurrentTime++;
         long outputTime = mDuration;
@@ -33,10 +35,10 @@ public class MgrIntervalJet extends MgrOutputJet {
             mCurrentTime = 0;
         }
 
-        Log.i("CMCML", "update over mCurrentTime: " + mCurrentTime);
-        Log.i("CMCML", "update over outputTime: " + outputTime);
-        Log.i("CMCML", "update over mLoopId: " + mLoopId);
-        Log.i("CMCML", "update over mLoop: " + mLoop);
+        Log.i(JET, "update over mCurrentTime: " + mCurrentTime);
+        Log.i(JET, "update over outputTime: " + outputTime);
+        Log.i(JET, "update over mLoopId: " + mLoopId);
+        Log.i(JET, "update over mLoop: " + mLoop);
         // 等最后一次循环完毕
         return mCurrentTime > outputTime && mLoopId >= mLoop;
     }

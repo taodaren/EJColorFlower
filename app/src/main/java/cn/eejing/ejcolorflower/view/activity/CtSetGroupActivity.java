@@ -260,7 +260,6 @@ public class CtSetGroupActivity extends BaseActivity {
             setEntity(entity);
             entity.updateAll("devId=?", String.valueOf(mDevId));
         }
-        setResult(RESULT_OK, new Intent());
         finish();
     }
 
