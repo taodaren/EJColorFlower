@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.gyf.barlibrary.ImmersionBar;
 import com.jaeger.library.StatusBarUtil;
 
 import java.util.HashMap;
@@ -60,7 +61,8 @@ public abstract class BaseActivity extends AppCompatActivity {
      * 沉浸式状态栏
      */
     protected void setStatusBar() {
-        StatusBarUtil.setColorNoTranslucent(this, getResources().getColor(R.color.colorPrimaryDark));
+        // 0.2f 是指在 6.0 以下不能改变状态栏颜色的时候，把背景设置为 0.2 的白色
+        ImmersionBar.with(this).statusBarDarkFont(true,0.2f).init();
     }
 
     /**

@@ -222,11 +222,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     public void onTabReselected(int position) {
     }
 
-    @Override
-    protected void setStatusBar() {
-        StatusBarUtil.setColorNoTranslucent(this, getResources().getColor(R.color.colorPrimary));
-    }
-
     private long exitTime = 0;
 
     @Override

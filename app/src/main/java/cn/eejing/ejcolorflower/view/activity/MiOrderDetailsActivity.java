@@ -60,8 +60,6 @@ public class MiOrderDetailsActivity extends BaseActivity {
     @Override
     public void setToolbar(String title, int titleVisibility, String menu, int menuVisibility) {
         super.setToolbar(title, titleVisibility, menu, menuVisibility);
-        // 沉浸式状态栏
-        StatusBarUtil.setColorNoTranslucent(this, getResources().getColor(R.color.colorWhite));
 
         Toolbar toolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
