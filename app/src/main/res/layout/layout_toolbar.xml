@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/ic_toolbar_bg"
-    android:fitsSystemWindows="true"
     android:minHeight="?attr/actionBarSize"
     android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
@@ -27,7 +26,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:fitsSystemWindows="true"
         android:textColor="@color/colorTitle"
         android:textSize="26sp"
         android:textStyle="bold"
@@ -39,7 +37,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical|end"
         android:layout_marginEnd="8dp"
-        android:fitsSystemWindows="true"
         android:padding="8dp"
         android:textColor="@color/colorWhite"
         android:textSize="16sp"

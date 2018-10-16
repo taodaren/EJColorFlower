@@ -2,6 +2,7 @@ package cn.eejing.ejcolorflower.view.base;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
@@ -11,7 +12,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.gyf.barlibrary.ImmersionBar;
+import com.jaeger.library.StatusBarUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,9 +42,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         initListener();
     }
 
-    /**
-     * 在 setContentView() 调用之前调用，可以设置 WindowFeature (如：this.requestWindowFeature(Window.FEATURE_NO_TITLE);)
-     */
+    /** 在 setContentView() 调用之前调用，可以设置 WindowFeature (如：this.requestWindowFeature(Window.FEATURE_NO_TITLE);) */
     public void init() {
     }
 
@@ -58,8 +57,13 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     /** 沉浸式状态栏 */
     protected void setStatusBar() {
-        // 0.2f 是指在 6.0 以下不能改变状态栏颜色的时候，把背景设置为 0.2 的白色
-        ImmersionBar.with(this).statusBarDarkFont(true, 0.2f).init();
+        // Android 6.0 + 实现状态栏字色和图标浅黑色
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        }
+        // 使状态栏全透明
+        StatusBarUtil.setTranslucent(this, 0);
     }
 
     /**
@@ -102,11 +106,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         textMenu.setText(menu);
     }
 
-    /**
-     * 由子类实现
-     *
-     * @return 当前界面的布局文件 id
-     */
+    /** 由子类实现 @return 当前界面的布局文件 id */
     protected abstract int layoutViewId();
 
     public void jumpToActivity(Intent intent) {

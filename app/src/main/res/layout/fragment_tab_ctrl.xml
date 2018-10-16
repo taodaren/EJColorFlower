@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorWhite"
+    android:background="@color/windowBackground"
     tools:context=".view.fragment.TabCtrlFragment">
 
     <include
@@ -18,8 +18,8 @@
         android:layout_marginStart="52dp"
         android:layout_marginEnd="52dp"
         android:layout_marginBottom="60dp"
-        android:elevation="4dp"
         android:background="@drawable/ic_btn_public"
+        android:elevation="4dp"
         android:text="扫描连接设备"
         android:textColor="@color/colorWhite"
         android:textSize="20sp" />
@@ -27,9 +27,9 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="48dp"
         android:layout_above="@id/btn_ctrl_ble_conn"
-        android:layout_below="@id/toolbar_tab_ctrl">
+        android:layout_below="@id/toolbar_tab_ctrl"
+        android:layout_marginTop="48dp">
 
         <ImageView
             android:layout_width="278dp"
