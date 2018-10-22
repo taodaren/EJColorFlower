@@ -1,38 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="130dp"
+    android:layout_height="138dp"
     android:layout_marginStart="15dp"
     android:layout_marginEnd="15dp"
     android:layout_marginBottom="10dp"
     android:background="@drawable/ic_bg_master_group"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tv_master_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="16dp"
-        android:padding="4dp"
-        android:text="分组"
-        android:textColor="@color/colorConfig"
-        android:textSize="14sp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="4dp"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp">
 
-    <Button
-        android:id="@+id/btn_master_set"
-        android:layout_width="78dp"
-        android:layout_height="36dp"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="18dp"
-        android:background="@drawable/ic_btn_master_set" />
+        <ImageView
+            android:id="@+id/img_group_is_selected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:src="@drawable/ic_group_unselected" />
+
+        <TextView
+            android:id="@+id/tv_master_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:text="分组"
+            android:textColor="@color/colorConfig"
+            android:textSize="14sp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/img_master_is_selected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:src="@drawable/ic_group_master_unselected" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:padding="4dp"
+            android:text="包含主控"
+            android:textColor="@color/colorConfig"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/btn_master_set"
+            android:layout_width="78dp"
+            android:layout_height="36dp"
+            android:background="@drawable/ic_btn_master_set" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="38dp"
-        android:layout_alignParentBottom="true"
         android:layout_marginStart="20dp"
+        android:layout_marginTop="12dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="24dp">
 
@@ -71,4 +103,4 @@
             android:gravity="center"
             android:text="喷射效果" />
     </LinearLayout>
-</RelativeLayout>
+</LinearLayout>

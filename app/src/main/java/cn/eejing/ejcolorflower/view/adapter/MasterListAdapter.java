@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -34,10 +35,20 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         this.mLayoutInflater = LayoutInflater.from(mContext);
     }
 
-    private View.OnClickListener mClickListener;
+    private View.OnClickListener mClickSetMaster;
+    private View.OnClickListener mClickIsSelectedGroup;
+    private View.OnClickListener mClickIsSelectedMaster;
 
-    public void setClickListener(View.OnClickListener clickListener) {
-        this.mClickListener = clickListener;
+    public void setClickSetMaster(View.OnClickListener clickSetMaster) {
+        this.mClickSetMaster = clickSetMaster;
+    }
+
+    public void setClickIsSelectedGroup(View.OnClickListener clickIsSelectedGroup) {
+        this.mClickIsSelectedGroup = clickIsSelectedGroup;
+    }
+
+    public void setClickIsSelectedMaster(View.OnClickListener clickIsSelectedMaster) {
+        this.mClickIsSelectedMaster = clickIsSelectedMaster;
     }
 
     @NonNull
@@ -75,11 +86,13 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     class ItemViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.tv_master_group)        TextView tvGroup;
-        @BindView(R.id.tv_master_num)          TextView tvMasterNum;
-        @BindView(R.id.tv_master_dmx)          TextView tvMasterDmx;
-        @BindView(R.id.tv_master_type)         TextView tvMasterType;
-        @BindView(R.id.btn_master_set)         Button   btnMasterSet;
+        @BindView(R.id.img_group_is_selected)        ImageView imgSelectGroup;
+        @BindView(R.id.img_master_is_selected)       ImageView imgSelectMaster;
+        @BindView(R.id.tv_master_group)              TextView  tvGroupName;
+        @BindView(R.id.tv_master_num)                TextView  tvDevNum;
+        @BindView(R.id.tv_master_dmx)                TextView  tvStartDmx;
+        @BindView(R.id.tv_master_type)               TextView  tvJetMode;
+        @BindView(R.id.btn_master_set)               Button    btnSetMaster;
 
         ItemViewHolder(View itemView) {
             super(itemView);
@@ -88,18 +101,39 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         @SuppressLint("SetTextI18n")
         void setData(MasterGroupListBean bean) {
-            if (bean.getGroupName().equals("分组功能敬请期待...")) {
-                btnMasterSet.setBackground(mContext.getDrawable(R.drawable.ic_btn_master_set_null));
-            } else {
-                btnMasterSet.setBackground(mContext.getDrawable(R.drawable.ic_btn_master_set));
-//                tvMasterNum.setText("设备数量 " + String.valueOf(bean.getCfgInfo().get(0).getDevNum()));
-//                tvMasterDmx.setText("起始DMX " + String.valueOf(bean.getCfgInfo().get(0).getStartDmx()));
-//                tvMasterType.setText(String.valueOf(bean.getCfgInfo().get(0).getJetMode()));
+            // 设置是否选中组
+            switch (bean.getIsSelectedGroup()) {
+                case 1:
+                    imgSelectGroup.setImageDrawable(mContext.getDrawable(R.drawable.ic_group_selected));
+                    break;
+                case 2:
+                    imgSelectGroup.setImageDrawable(mContext.getDrawable(R.drawable.ic_group_unselected));
+                    break;
             }
-            tvGroup.setText(bean.getGroupName());
-            btnMasterSet.setOnClickListener(mClickListener);
+            // 设置是否选中包含主控
+            switch (bean.getIsSelectedMaster()) {
+                case 1:
+                    imgSelectMaster.setImageDrawable(mContext.getDrawable(R.drawable.ic_group_master_selected));
+                    break;
+                case 2:
+                    imgSelectMaster.setImageDrawable(mContext.getDrawable(R.drawable.ic_group_master_unselected));
+                    break;
+            }
+            tvGroupName.setText(bean.getGroupName());
+            tvDevNum.setText("设备数量 " + bean.getDevNum());
+            tvStartDmx.setText("起始 DMX " + bean.getStartDmx());
+            if (bean.getJetModes() == null) {
+                tvJetMode.setText("无效果");
+            } else {
+                tvJetMode.setText("有效果");
+            }
+            btnSetMaster.setOnClickListener(mClickSetMaster);
+            imgSelectGroup.setOnClickListener(mClickIsSelectedGroup);
+            imgSelectMaster.setOnClickListener(mClickIsSelectedMaster);
+            btnSetMaster.setTag(getAdapterPosition());
+            imgSelectGroup.setTag(getAdapterPosition());
+            imgSelectMaster.setTag(getAdapterPosition());
         }
-
     }
 
 }

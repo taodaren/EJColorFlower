@@ -9,5 +9,5 @@
         android:id="@+id/img_master_jet_mode"
         android:layout_width="82dp"
         android:layout_height="91dp"
-        android:src="@drawable/ic_jet_mode_ride" />
+        android:src="@drawable/ic_jet_mode_null" />
 </RelativeLayout>

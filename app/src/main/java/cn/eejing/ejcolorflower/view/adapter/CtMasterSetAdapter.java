@@ -4,13 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +24,7 @@ import cn.eejing.ejcolorflower.view.activity.CoConfigTogetherActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_INTERVAL;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_RIDE;
+import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_STOP;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_STREAM;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
 
@@ -59,7 +58,7 @@ public class CtMasterSetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        ((MasterModeHolder) holder).setData(mList.get(position));
+        ((MasterModeHolder) holder).setData(position);
     }
 
     @Override
@@ -87,54 +86,55 @@ public class CtMasterSetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             ButterKnife.bind(this, itemView);
         }
 
-        private void onClickModeJet(final MasterCtrlModeEntity bean) {
-            imgJetMode.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int millis = (int) mList.get(getAdapterPosition()).getMillis();
-
-                    switch (bean.getType()) {
-                        case CONFIG_STREAM:
-                            mContext.startActivity(new Intent(mContext, CoConfigStreamActivity.class).putExtra("group_id", millis));
-                            break;
-                        case CONFIG_RIDE:
-                            mContext.startActivity(new Intent(mContext, CoConfigRideActivity.class).putExtra("group_id", millis));
-                            break;
-                        case CONFIG_INTERVAL:
-                            mContext.startActivity(new Intent(mContext, CoConfigIntervalActivity.class).putExtra("group_id", millis));
-                            break;
-                        case CONFIG_TOGETHER:
-                            mContext.startActivity(new Intent(mContext, CoConfigTogetherActivity.class).putExtra("group_id", millis));
-                            break;
-                        default:
-                            break;
-                    }
+        public void setData(int position) {
+                Log.i("CtSetGroupActivity", "setData: " + mList.get(position).getType());
+                switch (mList.get(position).getType()) {
+                    case CONFIG_STREAM:
+                        imgJetMode.setImageResource(R.drawable.ic_jet_mode_stream);
+                        break;
+                    case CONFIG_RIDE:
+                        imgJetMode.setImageResource(R.drawable.ic_jet_mode_ride);
+                        break;
+                    case CONFIG_INTERVAL:
+                        imgJetMode.setImageResource(R.drawable.ic_jet_mode_interval);
+                        break;
+                    case CONFIG_TOGETHER:
+                        imgJetMode.setImageResource(R.drawable.ic_jet_mode_together);
+                        break;
+                    case CONFIG_STOP:
+                        imgJetMode.setImageResource(R.drawable.ic_jet_mode_stop);
+                        break;
                 }
-            });
-        }
 
-        public void setData(final MasterCtrlModeEntity bean) {
-            switch (bean.getType()) {
-                case CONFIG_STREAM:
-                    imgJetMode.setImageResource(R.drawable.ic_jet_mode_stream);
-                    break;
-                case CONFIG_RIDE:
-                    imgJetMode.setImageResource(R.drawable.ic_jet_mode_ride);
-                    break;
-                case CONFIG_INTERVAL:
-                    imgJetMode.setImageResource(R.drawable.ic_jet_mode_interval);
-                    break;
-                case CONFIG_TOGETHER:
-                    imgJetMode.setImageResource(R.drawable.ic_jet_mode_together);
-                    break;
-                default:
-                    break;
-            }
-
-            onClickModeJet(bean);
+            onClickModeJet();
 
             imgJetMode.setTag(getAdapterPosition());
             imgJetMode.setOnLongClickListener(mLongClickListener);
+        }
+
+        private void onClickModeJet() {
+            imgJetMode.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    long groupId = mList.get(getAdapterPosition()).getMillis();
+                        switch (mList.get(getAdapterPosition()).getType()) {
+                            case CONFIG_STREAM:
+                                mContext.startActivity(new Intent(mContext, CoConfigStreamActivity.class).putExtra("group_id", groupId));
+                                break;
+                            case CONFIG_RIDE:
+                                mContext.startActivity(new Intent(mContext, CoConfigRideActivity.class).putExtra("group_id", groupId));
+                                break;
+                            case CONFIG_INTERVAL:
+                                mContext.startActivity(new Intent(mContext, CoConfigIntervalActivity.class).putExtra("group_id", groupId));
+                                break;
+                            case CONFIG_TOGETHER:
+                                mContext.startActivity(new Intent(mContext, CoConfigTogetherActivity.class).putExtra("group_id", groupId));
+                                break;
+                            default:
+                                break;
+                        }
+                }
+            });
         }
     }
 

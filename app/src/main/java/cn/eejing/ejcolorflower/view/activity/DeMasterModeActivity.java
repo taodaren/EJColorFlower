@@ -595,7 +595,7 @@ public class DeMasterModeActivity extends BaseActivity {
         // 喷射效果列表
         if (jetModes != null && jetModes.size() > 0) {
             for (int i = 0; i < jetModes.size(); i++) {
-                mList.add(new MasterCtrlModeEntity(jetModes.get(i).getType(), jetModes.get(i).getMillis()));
+//                mList.add(new MasterCtrlModeEntity(jetModes.get(i).getType(), ""));
             }
         }
     }
@@ -652,13 +652,13 @@ public class DeMasterModeActivity extends BaseActivity {
 
             private void setMasterCtrl(String type, long millis) {
                 // 保存主控喷射效果
-                MasterCtrlModeEntity entity = new MasterCtrlModeEntity(type);
+                MasterCtrlModeEntity entity = new MasterCtrlModeEntity();
                 entity.setDevId(mDeviceId);
                 entity.setType(type);
                 entity.setMillis(millis);
                 entity.save();
                 // 添加一条数据到集合，并刷新
-                mList.add(new MasterCtrlModeEntity(type, millis));
+//                mList.add(new MasterCtrlModeEntity(type, ""));
                 mAdapter.refreshList(mList);
             }
         };

@@ -1,12 +1,15 @@
 package cn.eejing.ejcolorflower.view.activity;
 
+import android.content.Intent;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -14,6 +17,7 @@ import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
 
 import org.litepal.LitePal;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +41,7 @@ import cn.eejing.ejcolorflower.model.request.MasterGroupListBean;
 import cn.eejing.ejcolorflower.presenter.IShowListener;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.util.FabScrollListener;
+import cn.eejing.ejcolorflower.util.SelfDialog;
 import cn.eejing.ejcolorflower.view.adapter.MasterListAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
@@ -57,7 +62,6 @@ import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_STREAM_RIDE_LOOP;
 import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_TOGETHER_DURATION;
 import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_TOGETHER_HIGH;
 import static cn.eejing.ejcolorflower.app.AppConstant.INIT_ZERO;
-import static cn.eejing.ejcolorflower.app.AppConstant.JET_EFFECT;
 import static cn.eejing.ejcolorflower.app.AppConstant.LEFT_TO_RIGHT;
 import static cn.eejing.ejcolorflower.app.AppConstant.LOOP_ID;
 
@@ -69,6 +73,8 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
     private static final String TAG = "CtMasterModeActivity";
     private static final String JET = "CtMasterModeJet";
 
+    @BindView(R.id.img_ble_toolbar)         ImageView imgBleToolbar;
+    @BindView(R.id.img_add_toolbar)         ImageView imgAddGroup;
     @BindView(R.id.rv_master_list)          PullLoadMoreRecyclerView rvMasterList;
     @BindView(R.id.btn_master_start)        Button btnMasterStart;
     @BindView(R.id.rl_hide_dialog)          RelativeLayout hideDialog;
@@ -77,12 +83,14 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
     private Device mDevice;
     private long mDeviceId;
     private int mDevNum, mStartDmx;
+    private SelfDialog mDialog;
 
     private boolean isStarJet;                            // 是否开始喷射
     private int mCurrMasterId, mFlagCurrId;               // 当前主控喷射效果 ID 及标志位
     private MgrOutputJet mCurrentManager;                 // 当前喷射效果管理
 
-    private List<MasterGroupListBean> mMasterInfoList;    // 主控分组信息列表集合
+    private MasterListAdapter mAdapter;
+    private List<MasterGroupListBean> mList;              // 主控分组信息列表集合
     private List<MasterCtrlModeEntity> mGroupJetModes;    // 分组喷射效果集合
     private List<MasterCtrlSetEntity> mGroupInfoList;     // 分组配置信息集合
     private List<MgrOutputJet> mMasterCtrlMgrList;        // 主控喷射管理集合
@@ -98,66 +106,111 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
 
         mDevice = MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac());
         mDeviceId = getIntent().getLongExtra("device_id", 0);
-        mMasterInfoList = new ArrayList<>();
         mMasterCtrlMgrList = new ArrayList<>();
+    }
 
-        initDatabase();
-        initRecyclerView();
+    @Override
+    public void setToolbar(String title, int titleVisibility, String menu, int menuVisibility) {
+        super.setToolbar(title, titleVisibility, menu, menuVisibility);
+        imgBleToolbar.setVisibility(View.VISIBLE);
+        imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_desconn));
+        imgAddGroup.setVisibility(View.VISIBLE);
+        imgAddGroup.setImageDrawable(getResources().getDrawable(R.drawable.ic_toolbar_add));
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         // 刷新数据
-        mMasterInfoList.clear();
+        refreshData();
+    }
+
+    /** 刷新数据 */
+    private void refreshData() {
+        if (mList != null) {
+            mList.clear();
+        }
         initDatabase();
-        initRecyclerView();
     }
 
     private void initDatabase() {
+        mList = LitePal.where("devId = ?", String.valueOf(mDeviceId)).find(MasterGroupListBean.class);
+        Log.i(TAG, "init database: " + mList.size());
+        if (mList.size() > 0) {
+            initRecyclerView();
+        }
+
+        // TODO: 2018/10/18 需要优化
         mGroupJetModes = LitePal.where("devId = ?", String.valueOf(mDeviceId)).find(MasterCtrlModeEntity.class);
         mGroupInfoList = LitePal.where("devId = ?", String.valueOf(mDeviceId)).find(MasterCtrlSetEntity.class);
-
-        Log.i(TAG, "mGroupJetModes size: " + mGroupJetModes.size());
-        Log.i(TAG, "mGroupInfoList size: " + mGroupInfoList.size());
-        if (mGroupInfoList.size() == 0) {
-            initGroupInfo(INIT_ZERO, INIT_ZERO, JET_EFFECT);
-        } else {
-            initGroupInfo(mGroupInfoList.get(0).getDevNum(), mGroupInfoList.get(0).getStartDmx(), mGroupJetModes.get(0).getType());
-        }
-    }
-
-    private void initGroupInfo(int devNum, int startDmx, String jetEffect) {
-        String groupName = "分组名称";
-        String jetModel = jetEffect;
-        mDevNum = devNum;
-        mStartDmx = startDmx;
-        Log.w(TAG, "initGroupInfo: " + mDevNum + " " + mStartDmx + " " + jetModel);
-
-        mMasterInfoList.add(new MasterGroupListBean(1, groupName, mGroupInfoList));
-//        for (int i = 0; i < 9; i++) {
-//            mGroupName = "分组功能敬请期待...";
-//            mDevNum = INIT_ZERO;
-//            mStartDmx = INIT_ZERO;
-//            jetModel = JET_EFFECT;
-//            mMasterInfoList.add(new MasterGroupListBean(0, groupName, mGroupInfoList));
-//        }
     }
 
     private void initRecyclerView() {
         // 设置布局
         rvMasterList.setLinearLayout();
         // 绑定适配器
-        MasterListAdapter adapter = new MasterListAdapter(this, mMasterInfoList);
+        mAdapter = new MasterListAdapter(this, mList);
 //        adapter.setHasStableIds(true);
         // 监听设置主控按钮
-        adapter.setClickListener(new View.OnClickListener() {
+        mAdapter.setClickSetMaster(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                jumpToActivity(CtSetGroupActivity.class);
+                int position = (int) v.getTag();
+                for (int i = 0; i < mList.size(); i++) {
+                    if (i == position) {
+                        Intent intent = new Intent(CtMasterModeActivity.this, CtSetGroupActivity.class);
+                        intent.putExtra("group_position", position);
+                        intent.putExtra("group_name", mList.get(position).getGroupName());
+                        intent.putExtra("group_dev_num", mList.get(position).getDevNum());
+                        intent.putExtra("group_start_dmx", mList.get(position).getStartDmx());
+//                        intent.putExtra("group_jet_modes", (Parcelable) mList.get(position).getJetModes());
+                        jumpToActivity(intent);
+                    }
+                }
             }
         });
-        rvMasterList.setAdapter(adapter);
+        // 监听是否选中分组按钮
+        mAdapter.setClickIsSelectedGroup(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int position = (int) v.getTag();
+                switch (mList.get(position).getIsSelectedGroup()) {
+                    case 1:
+                        // 若是选中，点击变为未选中
+                        refreshGroupBySelectedGroup(mList, position, 2);
+                        break;
+                    case 2:
+                        // 若是未选中，点击变为选中
+                        refreshGroupBySelectedGroup(mList, position, 1);
+                        break;
+                }
+            }
+        });
+        // 监听是否选中包含主控按钮
+        mAdapter.setClickIsSelectedMaster(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int position = (int) v.getTag();
+                Log.w(TAG, "onClick selected master: " + position);
+                switch (mList.get(position).getIsSelectedMaster()) {
+                    case 1:
+                        // 若选中，点击变为未选中
+                        refreshGroupBySelectedMaster(mList, position, 2);
+                        break;
+                    case 2:
+                        // 如果其它组有选中包含主控，点击后变为未选中
+                        for (int i = 0; i < mList.size(); i++) {
+                            if (mList.get(i).getIsSelectedMaster() == 1) {
+                                refreshGroupBySelectedMaster(mList, i, 2);
+                            }
+                        }
+                        // 若未选中，点击变为选中
+                        refreshGroupBySelectedMaster(mList, position, 1);
+                        break;
+                }
+            }
+        });
+        rvMasterList.setAdapter(mAdapter);
 
         rvMasterList.getRecyclerView().addOnScrollListener(new FabScrollListener(this));
 
@@ -166,6 +219,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         rvMasterList.setOnPullLoadMoreListener(new PullLoadMoreRecyclerView.PullLoadMoreListener() {
             @Override
             public void onRefresh() {
+                refreshData();
                 // 刷新结束
                 rvMasterList.setPullLoadMoreCompleted();
             }
@@ -205,6 +259,85 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         super.onDestroy();
     }
 
+    @Override
+    public void initListener() {
+        // 添加分组监听
+        imgAddGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDialog();
+            }
+        });
+
+        // 蓝牙连接监听
+        imgBleToolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(CtMasterModeActivity.this, "ble", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void showDialog() {
+        mDialog = new SelfDialog(this);
+        mDialog.setTitle("添加分组");
+        mDialog.setMessage("请输入主控分组名称");
+        mDialog.setYesOnclickListener("确定", new SelfDialog.onYesOnclickListener() {
+            @Override
+            public void onYesClick() {
+                if (mDialog.getEditTextStr().length() > 6) {
+                    // 如果输入的 DMX 不在 1~511 之间，提示用户
+                    Toast.makeText(CtMasterModeActivity.this, "分组名称不能大于 6 个字\n请重新设置", Toast.LENGTH_SHORT).show();
+                    mDialog.dismiss();
+                } else {
+                    // 创建主控分组
+                    createGroup(mDialog.getEditTextStr());
+                    mDialog.dismiss();
+                }
+            }
+        });
+        mDialog.setNoOnclickListener("取消", new SelfDialog.onNoOnclickListener() {
+            @Override
+            public void onNoClick() {
+                mDialog.dismiss();
+            }
+        });
+        mDialog.show();
+    }
+
+    private void createGroup(String groupName) {
+        List<MasterGroupListBean> groupList = LitePal.where("groupName=?", groupName).find(MasterGroupListBean.class);
+        MasterGroupListBean bean = new MasterGroupListBean();
+        if (groupList.size() == 0) {
+            bean.setDevId(String.valueOf(mDeviceId));
+            bean.setGroupName(groupName);
+            bean.setIsSelectedGroup(2);
+            bean.setIsSelectedMaster(2);
+            bean.setJetTime(0);
+            bean.setDevNum(0);
+            bean.setStartDmx(0);
+            bean.setJetModes(null);
+            bean.save();
+        }
+        refreshData();
+    }
+
+    private void refreshGroupBySelectedGroup(List<MasterGroupListBean> list, int position, int isSelectedGroup) {
+        list.get(position).setIsSelectedGroup(isSelectedGroup);
+        MasterGroupListBean listBean = list.get(position);
+        listBean.setIsSelectedGroup(isSelectedGroup);
+        listBean.updateAll("groupName = ?", listBean.getGroupName());
+        mAdapter.notifyDataSetChanged();
+    }
+
+    private void refreshGroupBySelectedMaster(List<MasterGroupListBean> list, int position, int isSelectedMaster) {
+        list.get(position).setIsSelectedMaster(isSelectedMaster);
+        MasterGroupListBean listBean = list.get(position);
+        listBean.setIsSelectedMaster(isSelectedMaster);
+        listBean.updateAll("groupName = ?", listBean.getGroupName());
+        mAdapter.notifyDataSetChanged();
+    }
+
 //    @SuppressLint("HandlerLeak")
 //    Handler mHandler = new Handler() {
 //        @Override
@@ -237,14 +370,14 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
 
     /** 点击开始或停止 */
     private void clickStartStop() {
-        for (int i = 0; i < mMasterInfoList.size(); i++) {
+        for (int i = 0; i < mList.size(); i++) {
             // 选中的分组进行喷射
-            if (mMasterInfoList.get(i).getIsSelected() == 1) {
-                if (mMasterInfoList.get(i).getCfgInfo().get(0).getDevNum() == 0) {
+            if (mList.get(i).getIsSelectedGroup() == 1) {
+                if (mList.get(i).getDevNum() == 0) {
                     Toast.makeText(this, "设备数量不能为 0，请您重新设置", Toast.LENGTH_SHORT).show();
-                } else if (mMasterInfoList.get(i).getCfgInfo().get(0).getStartDmx() == 0) {
+                } else if (mList.get(i).getStartDmx() == 0) {
                     Toast.makeText(this, "起始DMX不能为 0，请您重新设置", Toast.LENGTH_SHORT).show();
-                } else if (mMasterInfoList.get(i).getCfgInfo().get(0).getJetMode().equals("喷射效果")) {
+                } else if (mList.get(i).getJetModes() == null) {
                     Toast.makeText(this, "请添加喷射效果", Toast.LENGTH_SHORT).show();
                 } else {
                     if (isStarJet) {
@@ -326,7 +459,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         }
     };
 
-    /** 定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息）*/
+    /** 定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息） */
     private void timerCallingMethod() {
         Log.w(JET, "FlagCur ID: " + mFlagCurrId);
         Log.i(JET, "Current ID: " + mCurrMasterId);
@@ -459,9 +592,9 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         switch (streamEntities.size()) {
             case 1:
                 mgrStream.setDirection(Integer.parseInt(streamEntities.get(0).getDirection()));
-                mgrStream.setGap((int)(Float.parseFloat(streamEntities.get(0).getGap()) * 10));
-                mgrStream.setDuration((int)(Float.parseFloat(streamEntities.get(0).getDuration()) * 10));
-                mgrStream.setGapBig((int)(Float.parseFloat(streamEntities.get(0).getGapBig()) * 10));
+                mgrStream.setGap((int) (Float.parseFloat(streamEntities.get(0).getGap()) * 10));
+                mgrStream.setDuration((int) (Float.parseFloat(streamEntities.get(0).getDuration()) * 10));
+                mgrStream.setGapBig((int) (Float.parseFloat(streamEntities.get(0).getGapBig()) * 10));
                 mgrStream.setLoop(Integer.parseInt(streamEntities.get(0).getLoop()));
                 break;
             default:
@@ -491,9 +624,9 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         switch (rideEntities.size()) {
             case 1:
                 mgrRide.setDirection(Integer.parseInt(rideEntities.get(0).getDirection()));
-                mgrRide.setGap((int)(Float.parseFloat(rideEntities.get(0).getGap()) * 10));
-                mgrRide.setDuration((int)(Float.parseFloat(rideEntities.get(0).getDuration()) * 10));
-                mgrRide.setGapBig((int)(Float.parseFloat(rideEntities.get(0).getGapBig()) * 10));
+                mgrRide.setGap((int) (Float.parseFloat(rideEntities.get(0).getGap()) * 10));
+                mgrRide.setDuration((int) (Float.parseFloat(rideEntities.get(0).getDuration()) * 10));
+                mgrRide.setGapBig((int) (Float.parseFloat(rideEntities.get(0).getGapBig()) * 10));
                 mgrRide.setLoop(Integer.parseInt(rideEntities.get(0).getLoop()));
                 break;
             default:
@@ -520,8 +653,8 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         mgrInterval.setLoopId(LOOP_ID);
         switch (intervalEntities.size()) {
             case 1:
-                mgrInterval.setGapBig((int)(Float.parseFloat(intervalEntities.get(0).getGap()) * 10));
-                mgrInterval.setDuration((int)(Float.parseFloat(intervalEntities.get(0).getDuration()) * 10));
+                mgrInterval.setGapBig((int) (Float.parseFloat(intervalEntities.get(0).getGap()) * 10));
+                mgrInterval.setDuration((int) (Float.parseFloat(intervalEntities.get(0).getDuration()) * 10));
                 mgrInterval.setLoop(Integer.parseInt(intervalEntities.get(0).getFrequency()));
                 break;
             default:
@@ -545,7 +678,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         mgrTogether.setCurrentTime(CURRENT_TIME);
         switch (togetherEntities.size()) {
             case 1:
-                mgrTogether.setDuration((int)(Float.parseFloat(togetherEntities.get(0).getDuration()) * 10));
+                mgrTogether.setDuration((int) (Float.parseFloat(togetherEntities.get(0).getDuration()) * 10));
                 mgrTogether.setHigh((byte) Integer.parseInt(togetherEntities.get(0).getHigh()));
                 break;
             default:

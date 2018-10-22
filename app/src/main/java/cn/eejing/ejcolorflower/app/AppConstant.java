@@ -72,11 +72,12 @@ public class AppConstant {
     public static final int CLEAR_MATERIAL_MASTER = 2;
 
     // 配置设备效果
-    public static final String JET_EFFECT = "喷射效果";
     public static final String CONFIG_STREAM = "流水灯";
     public static final String CONFIG_RIDE = "跑马灯";
     public static final String CONFIG_INTERVAL = "间隔高低";
     public static final String CONFIG_TOGETHER = "齐喷";
+    public static final String CONFIG_STOP = "停止";
+    public static final String CONFIG_NO_EFFECT = "无效果";
     public static final String CONFIG_DEF = "默认";
 
     // 配置设备喷射方向
