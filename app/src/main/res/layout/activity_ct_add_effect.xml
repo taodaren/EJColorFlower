@@ -12,11 +12,10 @@
     <RelativeLayout
         android:id="@+id/add_ride_effect"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="72dp"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="30dp"
-        android:layout_weight="1"
         android:background="@drawable/ic_add_ride_bg">
 
         <TextView
@@ -26,25 +25,16 @@
             android:layout_marginStart="30dp"
             android:text="@string/config_ride"
             android:textColor="@color/colorWhite"
-            android:textSize="40sp" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="30dp"
-            android:src="@drawable/ic_add_ride_right" />
+            android:textSize="24sp" />
     </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/add_stream_effect"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="72dp"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="30dp"
-        android:layout_weight="1"
         android:background="@drawable/ic_add_stream_bg">
 
         <TextView
@@ -54,25 +44,16 @@
             android:layout_marginStart="30dp"
             android:text="@string/config_stream"
             android:textColor="@color/colorWhite"
-            android:textSize="40sp" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="30dp"
-            android:src="@drawable/ic_add_stream_right" />
+            android:textSize="24sp" />
     </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/add_together_effect"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="72dp"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="30dp"
-        android:layout_weight="1"
         android:background="@drawable/ic_add_together_bg">
 
         <TextView
@@ -82,26 +63,16 @@
             android:layout_marginStart="30dp"
             android:text="@string/config_together"
             android:textColor="@color/colorWhite"
-            android:textSize="40sp" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="30dp"
-            android:src="@drawable/ic_add_together_right" />
+            android:textSize="24sp" />
     </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/add_interval_effect"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="72dp"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="30dp"
-        android:layout_marginBottom="30dp"
-        android:layout_weight="1"
         android:background="@drawable/ic_add_interval_bg">
 
         <TextView
@@ -111,15 +82,26 @@
             android:layout_marginStart="30dp"
             android:text="@string/config_interval"
             android:textColor="@color/colorWhite"
-            android:textSize="40sp" />
+            android:textSize="24sp" />
+    </RelativeLayout>
 
-        <ImageView
+    <RelativeLayout
+        android:id="@+id/add_stop_jet"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="30dp"
+        android:background="@drawable/ic_add_together_bg">
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:layout_marginEnd="30dp"
-            android:src="@drawable/ic_add_interval_right" />
+            android:layout_marginStart="30dp"
+            android:text="@string/config_stop"
+            android:textColor="@color/colorWhite"
+            android:textSize="24sp" />
     </RelativeLayout>
 
 </LinearLayout>
