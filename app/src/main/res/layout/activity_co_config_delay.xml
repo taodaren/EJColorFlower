@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite"
+    android:orientation="vertical"
+    tools:context=".view.activity.CoConfigDelayActivity">
+
+    <include layout="@layout/layout_toolbar" />
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="58dp"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="84dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/text_delay_time"
+                    android:textColor="@color/colorConfig"
+                    android:textSize="15sp" />
+
+                <EditText
+                    android:id="@+id/et_delay_time"
+                    android:layout_width="170dp"
+                    android:layout_height="30dp"
+                    android:background="@drawable/shape_edit_bg"
+                    android:hint="@string/please_input"
+                    android:inputType="numberDecimal"
+                    android:padding="6dp"
+                    android:textColor="@color/colorTitleName"
+                    android:textCursorDrawable="@null"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/text_s"
+                    android:textColor="@color/colorNoClick" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_delay_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="120dp">
+
+                <TextView
+                    android:layout_width="72dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/text_delay_time"
+                    android:textColor="@color/colorTitle"
+                    android:textSize="16sp"
+                    android:textStyle="italic|bold" />
+
+                <TextView
+                    android:id="@+id/tv_delay_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:gravity="center"
+                    android:padding="4dp"
+                    android:textColor="@color/colorTitleName"
+                    android:textSize="16sp"
+                    android:textStyle="italic|bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/text_s"
+                    android:textColor="@color/colorTitleName"
+                    android:textStyle="italic|bold" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_verify_delay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/ic_btn_full"
+                android:text="@string/btn_confirm"
+                android:textColor="@color/colorWhite"
+                android:textSize="19sp" />
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
+</LinearLayout>
