@@ -9,11 +9,12 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import org.greenrobot.eventbus.EventBus;
 import org.litepal.LitePal;
 
 import java.util.List;
@@ -22,15 +23,14 @@ import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.GApp;
-import cn.eejing.ejcolorflower.model.event.JetStatusEvent;
-import cn.eejing.ejcolorflower.model.lite.CtrlRideEntity;
+import cn.eejing.ejcolorflower.model.lite.JetModeConfigLite;
 import cn.eejing.ejcolorflower.util.DecimalInputTextWatcher;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.BORDER_TO_CENTER;
 import static cn.eejing.ejcolorflower.app.AppConstant.CENTER_TO_BORDER;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_RIDE;
-import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_TOGETHER_HIGH;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_HIGH;
 import static cn.eejing.ejcolorflower.app.AppConstant.LEFT_TO_RIGHT;
 import static cn.eejing.ejcolorflower.app.AppConstant.RIGHT_TO_LEFT;
 
@@ -38,7 +38,7 @@ import static cn.eejing.ejcolorflower.app.AppConstant.RIGHT_TO_LEFT;
  * 跑马灯配置
  */
 
-public class CoConfigRideActivity extends BaseActivity implements View.OnClickListener {
+public class CtConfigRideActivity extends BaseActivity implements View.OnClickListener {
 
     @BindView(R.id.rbtn_left_to_right)           RadioButton    rbtnLeftToRight;
     @BindView(R.id.rbtn_border_to_center)        RadioButton    rbtnBorderToCenter;
@@ -51,16 +51,18 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
     @BindView(R.id.et_stream_gap)                EditText       etGap;
     @BindView(R.id.et_stream_duration)           EditText       etDuration;
     @BindView(R.id.et_stream_gap_big)            EditText       etGapBig;
-    @BindView(R.id.et_stream_loop)               EditText       etLoop;
-
-    // 用于保存当前被选中的按钮
-    private String strBtnDirection;
-    private BtnSelected mLrBtnListener, mBcBtnListener, mRlBtnListener, mCbBtnListener;
-    private boolean mLrChecked, mBcChecked, mRlChecked, mCbChecked;
+    @BindView(R.id.et_stream_frequency)          EditText       etFrequency;
+    @BindView(R.id.tv_stream_jet_time)           TextView       tvJetTime;
+    @BindView(R.id.ll_jet_time_stream)           LinearLayout   llJetTime;
 
     private GApp mApp;
-    private int mGroupId;
-
+    private long mJetIdMillis;
+    private int mDevNum;
+    // 喷射效果及配置集合
+    private List<JetModeConfigLite> mListJetModeCfg;
+    // 用于保存当前被选中的按钮
+    private String strBtnDirection;
+    // 监听 EditText 文本
     private TextWatcher textWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -75,21 +77,24 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
             if (etGap.getText().toString().trim().isEmpty()
                     || etDuration.getText().toString().trim().isEmpty()
                     || etGapBig.getText().toString().trim().isEmpty()
-                    || etLoop.getText().toString().trim().isEmpty()) {
+                    || etFrequency.getText().toString().trim().isEmpty()) {
                 // EditText 有空情况
                 btnVerify.setEnabled(Boolean.FALSE);
                 btnVerify.setBackground(getDrawable(R.drawable.ic_btn_no_click));
+                llJetTime.setVisibility(View.INVISIBLE);
             } else {
                 // EditText 同时不为空的情况
                 btnVerify.setEnabled(Boolean.TRUE);
                 btnVerify.setBackground(getDrawable(R.drawable.ic_btn_full));
+                llJetTime.setVisibility(View.VISIBLE);
+                tvJetTime.setText(countTime());
             }
         }
     };
 
     @Override
     protected int layoutViewId() {
-        return R.layout.activity_co_config_strem_ride;
+        return R.layout.activity_ct_config_strem_ride;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -97,14 +102,77 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
     public void initView() {
         setToolbar(CONFIG_RIDE, View.VISIBLE, null, View.GONE);
         mApp = (GApp) getApplication();
-        mGroupId = getIntent().getIntExtra("group_id", 0);
+        mDevNum = getIntent().getIntExtra("device_num", 0);
+        mJetIdMillis = getIntent().getLongExtra("jet_id_millis", 0);
+        initConfig();
 
-        mLrBtnListener = new BtnSelected(LEFT_TO_RIGHT);
-        mBcBtnListener = new BtnSelected(BORDER_TO_CENTER);
-        mRlBtnListener = new BtnSelected(RIGHT_TO_LEFT);
-        mCbBtnListener = new BtnSelected(CENTER_TO_BORDER);
+        tvJetTime.setText(countTime());
+    }
 
-        initConfigDB();
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void initConfig() {
+        mListJetModeCfg = LitePal.where("jetIdMillis = ?", String.valueOf(mJetIdMillis)).find(JetModeConfigLite.class);
+        switch (mListJetModeCfg.get(0).getDirection()) {
+            case LEFT_TO_RIGHT:
+                strBtnDirection = LEFT_TO_RIGHT;
+                btnChangeState(
+                        R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click,
+                        R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick
+                );
+                break;
+            case BORDER_TO_CENTER:
+                strBtnDirection = BORDER_TO_CENTER;
+                btnChangeState(
+                        R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click,
+                        R.color.colorNoClick, R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick
+                );
+                break;
+            case RIGHT_TO_LEFT:
+                strBtnDirection = RIGHT_TO_LEFT;
+                btnChangeState(
+                        R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click,
+                        R.color.colorNoClick, R.color.colorNoClick, R.color.colorWhite, R.color.colorNoClick
+                );
+                break;
+            case CENTER_TO_BORDER:
+                strBtnDirection = CENTER_TO_BORDER;
+                btnChangeState(
+                        R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click,
+                        R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick, R.color.colorWhite
+                );
+                break;
+            default:
+                strBtnDirection = LEFT_TO_RIGHT;
+                btnChangeState(
+                        R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click,
+                        R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick
+                );
+                break;
+        }
+
+        etGap.setText(mListJetModeCfg.get(0).getGap());
+        etDuration.setText(mListJetModeCfg.get(0).getDuration());
+        etGapBig.setText(mListJetModeCfg.get(0).getBigGap());
+        // 展示给用户看需要 +1
+        etFrequency.setText(String.valueOf(Integer.parseInt(mListJetModeCfg.get(0).getJetRound()) + 1));
+    }
+
+    @Override
+    public void initListener() {
+        btnVerify.setOnClickListener(this);
+        btnDemo.setOnClickListener(this);
+
+        BtnSelected lrBtnListener, bcBtnListener, rlBtnListener, cbBtnListener;
+
+        lrBtnListener = new BtnSelected(LEFT_TO_RIGHT);
+        bcBtnListener = new BtnSelected(BORDER_TO_CENTER);
+        rlBtnListener = new BtnSelected(RIGHT_TO_LEFT);
+        cbBtnListener = new BtnSelected(CENTER_TO_BORDER);
+
+        rbtnLeftToRight.setOnClickListener(lrBtnListener);
+        rbtnBorderToCenter.setOnClickListener(bcBtnListener);
+        rbtnRightToLeft.setOnClickListener(rlBtnListener);
+        rbtnCenterToBorder.setOnClickListener(cbBtnListener);
 
         // 不限制整数位数，限制小数位数为 1 位
         etGap.addTextChangedListener(new DecimalInputTextWatcher(etGap, DecimalInputTextWatcher.Type.decimal, 1));
@@ -114,108 +182,17 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
         etGap.addTextChangedListener(textWatcher);
         etDuration.addTextChangedListener(textWatcher);
         etGapBig.addTextChangedListener(textWatcher);
-        etLoop.addTextChangedListener(textWatcher);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private void initConfigDB() {
-        List<CtrlRideEntity> entities = LitePal.where("groupId = ?", String.valueOf(mGroupId)).find(CtrlRideEntity.class);
-
-        switch (entities.size()) {
-            case 0:
-                // 默认配置
-                defaultConfig();
-                break;
-            default:
-                // 更新配置
-                updateConfig(entities.get(0));
-                break;
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private void defaultConfig() {
-        etGap.setText(AppConstant.DEFAULT_STREAM_RIDE_GAP);
-        etDuration.setText(AppConstant.DEFAULT_STREAM_RIDE_DURATION);
-        etGapBig.setText(AppConstant.DEFAULT_STREAM_RIDE_GAP_BIG);
-        etLoop.setText(AppConstant.DEFAULT_STREAM_RIDE_LOOP);
-        strBtnDirection = LEFT_TO_RIGHT;
-        btnChangeState(
-                R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click,
-                R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick,
-                true, false, false, false
-        );
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private void updateConfig(CtrlRideEntity rideEntity) {
-        switch (rideEntity.getDirection()) {
-            case LEFT_TO_RIGHT:
-                btnChangeState(
-                        R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click,
-                        R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick,
-                        true, false, false, false
-                );
-                break;
-            case BORDER_TO_CENTER:
-                btnChangeState(
-                        R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click,
-                        R.color.colorNoClick, R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick,
-                        false, true, false, false
-                );
-                break;
-            case RIGHT_TO_LEFT:
-                btnChangeState(
-                        R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click,
-                        R.color.colorNoClick, R.color.colorNoClick, R.color.colorWhite, R.color.colorNoClick,
-                        false, false, true, false
-                );
-                break;
-            case CENTER_TO_BORDER:
-                btnChangeState(
-                        R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click,
-                        R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick, R.color.colorWhite,
-                        false, false, false, true
-                );
-                break;
-            default:
-                strBtnDirection = LEFT_TO_RIGHT;
-                btnChangeState(
-                        R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click,
-                        R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick,
-                        true, false, false, false
-                );
-                break;
-        }
-
-        etGap.setText(rideEntity.getGap());
-        etDuration.setText(rideEntity.getDuration());
-        etGapBig.setText(rideEntity.getGapBig());
-        // 展示给用户看需要 +1
-        etLoop.setText(String.valueOf(Integer.parseInt(rideEntity.getLoop()) + 1));
-    }
-
-    @Override
-    public void initListener() {
-        btnVerify.setOnClickListener(this);
-        btnDemo.setOnClickListener(this);
-
-        rbtnLeftToRight.setOnClickListener(mLrBtnListener);
-        rbtnBorderToCenter.setOnClickListener(mBcBtnListener);
-        rbtnRightToLeft.setOnClickListener(mRlBtnListener);
-        rbtnCenterToBorder.setOnClickListener(mCbBtnListener);
+        etFrequency.addTextChangedListener(textWatcher);
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_config_verify:
-                if (Integer.parseInt(etLoop.getText().toString()) == 0) {
-                    Toast.makeText(this, "循环次数不能为 0，请重新设置！", Toast.LENGTH_SHORT).show();
+                if (Integer.parseInt(etFrequency.getText().toString()) == 0) {
+                    Toast.makeText(this, "喷射次数不能为 0，请重新设置！", Toast.LENGTH_SHORT).show();
                 } else {
-                    long millis = System.currentTimeMillis();
-                    setSQLiteData(millis);
-                    postEvent(millis);
+                    updateLiteData();
                     finish();
                 }
                 break;
@@ -233,68 +210,52 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
         mApp.setFlagGifDemo(null);
     }
 
-    private void setSQLiteData(long millis) {
-        List<CtrlRideEntity> groupIdList = LitePal
-                .where("groupId=?", String.valueOf(mGroupId))
-                .find(CtrlRideEntity.class);
-
-        CtrlRideEntity entity = new CtrlRideEntity();
-        if (groupIdList.size() == 0) {
-            // 增
-            setEntity(entity, millis);
-            entity.save();
-        } else {
-            // 改
-            setEntity(entity, millis);
-            entity.updateAll("groupId=?", String.valueOf(mGroupId));
-        }
-    }
-
-    private void setEntity(CtrlRideEntity entity, long millis) {
-        int loop = Integer.parseInt(etLoop.getText().toString());
-        entity.setConfigType(CONFIG_RIDE);
-        entity.setGroupId(mGroupId);
-        entity.setDirection(strBtnDirection);
-        entity.setGap(etGap.getText().toString());
-        entity.setDuration(etDuration.getText().toString());
-        entity.setGapBig(etGapBig.getText().toString());
+    private void updateLiteData() {
+        int loop = Integer.parseInt(etFrequency.getText().toString());
+        mListJetModeCfg.get(0).setJetType(CONFIG_RIDE);
+        mListJetModeCfg.get(0).setDirection(strBtnDirection);
+        mListJetModeCfg.get(0).setGap(etGap.getText().toString());
+        mListJetModeCfg.get(0).setDuration(etDuration.getText().toString());
+        mListJetModeCfg.get(0).setBigGap(etGapBig.getText().toString());
         // 用户输入 1 代表喷射一轮不循环
-        entity.setLoop(String.valueOf(loop - 1));
-        entity.setHigh(DEFAULT_TOGETHER_HIGH);
-        entity.setMillis(millis);
+        mListJetModeCfg.get(0).setJetRound(String.valueOf(loop - 1));
+        mListJetModeCfg.get(0).setHigh(DEFAULT_HIGH);
+        mListJetModeCfg.get(0).updateAll("jetIdMillis=?", String.valueOf(mJetIdMillis));
     }
 
-    private void postEvent(long millis) {
-        try {
-            int direction = 0, gap, duration, bigGit, loop, high;
-            if (strBtnDirection == null) {
-                if (mLrChecked) {
-                    direction = Integer.parseInt(LEFT_TO_RIGHT);
-                }
-                if (mRlChecked) {
-                    direction = Integer.parseInt(RIGHT_TO_LEFT);
-                }
-                if (mBcChecked) {
-                    direction = Integer.parseInt(BORDER_TO_CENTER);
-                }
-                if (mCbChecked) {
-                    direction = Integer.parseInt(CENTER_TO_BORDER);
-                }
-            } else {
-                direction = Integer.parseInt(strBtnDirection);
-            }
-            gap = Integer.parseInt(etGap.getText().toString());
-            duration = Integer.parseInt(etDuration.getText().toString());
-            bigGit = Integer.parseInt(etGapBig.getText().toString());
-            loop = Integer.parseInt(etLoop.getText().toString()) - 1;
-            high = Integer.parseInt(DEFAULT_TOGETHER_HIGH);
+    private String countTime() {
+        float gap, duration, gapBig;
+        float onceTime;
+        float totalTime = 0;
+        int frequency;
 
-            JetStatusEvent event = new JetStatusEvent(getString(R.string.config_ride),
-                    direction, gap, duration, bigGit, loop, mGroupId, high, millis);
-            EventBus.getDefault().post(event);
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
+        gap = Float.parseFloat(etGap.getText().toString());
+        duration = Float.parseFloat(etDuration.getText().toString());
+        gapBig = Float.parseFloat(etGapBig.getText().toString());
+        frequency = Integer.parseInt((etFrequency.getText().toString()));
+
+        switch (strBtnDirection) {
+            case LEFT_TO_RIGHT:
+            case RIGHT_TO_LEFT:
+                // 从左到右或者从右到左
+                onceTime = (mDevNum - 1) * gap + duration;
+                totalTime = onceTime * (frequency + 1) + frequency * gapBig;
+                break;
+            case BORDER_TO_CENTER:
+            case CENTER_TO_BORDER:
+                // 从中间到两端或者从两端到中间
+                if (mDevNum % 2 == 0) {
+                    onceTime = (mDevNum / 2 - 1) * gap + duration;
+                    totalTime = onceTime * (frequency + 1) + frequency * gapBig;
+                    break;
+                } else {
+                    onceTime = (mDevNum / 2) * gap + duration;
+                    totalTime = onceTime * (frequency + 1) + frequency * gapBig;
+                    break;
+                }
         }
+
+        return String.valueOf(totalTime);
     }
 
     /**
@@ -324,29 +285,25 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
                 case R.id.rbtn_left_to_right:
                     btnChangeState(
                             R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click,
-                            R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick,
-                            true, false, false, false
+                            R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick
                     );
                     break;
                 case R.id.rbtn_border_to_center:
                     btnChangeState(
                             R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click,
-                            R.color.colorNoClick, R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick,
-                            false, true, false, false
+                            R.color.colorNoClick, R.color.colorWhite, R.color.colorNoClick, R.color.colorNoClick
                     );
                     break;
                 case R.id.rbtn_right_to_left:
                     btnChangeState(
                             R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click, R.drawable.shape_btn_no_click,
-                            R.color.colorNoClick, R.color.colorNoClick, R.color.colorWhite, R.color.colorNoClick,
-                            false, false, true, false
+                            R.color.colorNoClick, R.color.colorNoClick, R.color.colorWhite, R.color.colorNoClick
                     );
                     break;
                 case R.id.rbtn_center_to_border:
                     btnChangeState(
                             R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_no_click, R.drawable.shape_btn_on_click,
-                            R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick, R.color.colorWhite,
-                            false, false, false, true
+                            R.color.colorNoClick, R.color.colorNoClick, R.color.colorNoClick, R.color.colorWhite
                     );
                     break;
                 default:
@@ -358,8 +315,7 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void btnChangeState(@DrawableRes int lr, @DrawableRes int bc, @DrawableRes int rl, @DrawableRes int cb,
-                                @ColorRes int lrColor, @ColorRes int bcColor, @ColorRes int rlColor, @ColorRes int cbColor,
-                                boolean lrCheck, boolean bcCheck, boolean rlCheck, boolean cbCheck) {
+                                @ColorRes int lrColor, @ColorRes int bcColor, @ColorRes int rlColor, @ColorRes int cbColor) {
         rbtnLeftToRight.setBackground(getDrawable(lr));
         rbtnBorderToCenter.setBackground(getDrawable(bc));
         rbtnRightToLeft.setBackground(getDrawable(rl));
@@ -370,10 +326,7 @@ public class CoConfigRideActivity extends BaseActivity implements View.OnClickLi
         rbtnRightToLeft.setTextColor(getColor(rlColor));
         rbtnCenterToBorder.setTextColor(getColor(cbColor));
 
-        mLrChecked = lrCheck;
-        mBcChecked = bcCheck;
-        mRlChecked = rlCheck;
-        mCbChecked = cbCheck;
+        tvJetTime.setText(countTime());
     }
 
 }

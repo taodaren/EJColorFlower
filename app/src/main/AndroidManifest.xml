@@ -87,16 +87,16 @@
             android:name=".view.activity.CoDeviceActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".view.activity.CoConfigStreamActivity"
+            android:name=".view.activity.CtConfigStreamActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".view.activity.CoConfigRideActivity"
+            android:name=".view.activity.CtConfigRideActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".view.activity.CoConfigIntervalActivity"
+            android:name=".view.activity.CtConfigIntervalActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".view.activity.CoConfigTogetherActivity"
+            android:name=".view.activity.CtConfigTogetherActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.activity.MaGoodsDetailsActivity"
@@ -169,6 +169,7 @@
             android:name=".wxapi.WXPayEntryActivity"
             android:exported="true"
             android:launchMode="singleTop" />
+        <activity android:name=".view.activity.CtConfigDelayActivity"></activity>
     </application>
 
 </manifest>

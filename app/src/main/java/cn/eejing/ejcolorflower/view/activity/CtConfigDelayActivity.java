@@ -20,10 +20,9 @@ import cn.eejing.ejcolorflower.util.DecimalInputTextWatcher;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_DELAY;
-import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
 import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_DELAY;
 
-public class CoConfigDelayActivity extends BaseActivity implements View.OnClickListener {
+public class CtConfigDelayActivity extends BaseActivity implements View.OnClickListener {
 
     @BindView(R.id.ll_delay_time)           LinearLayout llJetTime;
     @BindView(R.id.et_delay_time)           EditText     etDelay;
@@ -63,7 +62,7 @@ public class CoConfigDelayActivity extends BaseActivity implements View.OnClickL
 
     @Override
     protected int layoutViewId() {
-        return R.layout.activity_co_config_delay;
+        return R.layout.activity_ct_config_delay;
     }
 
     @Override
