@@ -24,6 +24,7 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.GApp;
 import cn.eejing.ejcolorflower.model.lite.JetModeConfigLite;
+import cn.eejing.ejcolorflower.model.manager.MgrOutputJet;
 import cn.eejing.ejcolorflower.util.DecimalInputTextWatcher;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
@@ -112,6 +113,12 @@ public class CtConfigStreamActivity extends BaseActivity implements View.OnClick
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void initConfig() {
         mListJetModeCfg = LitePal.where("jetIdMillis = ?", String.valueOf(mJetIdMillis)).find(JetModeConfigLite.class);
+        etGap.setText(mListJetModeCfg.get(0).getGap());
+        etDuration.setText(mListJetModeCfg.get(0).getDuration());
+        etGapBig.setText(mListJetModeCfg.get(0).getBigGap());
+        // 展示给用户看需要 +1
+        etFrequency.setText(String.valueOf(Integer.parseInt(mListJetModeCfg.get(0).getJetRound()) + 1));
+
         switch (mListJetModeCfg.get(0).getDirection()) {
             case LEFT_TO_RIGHT:
                 strBtnDirection = LEFT_TO_RIGHT;
@@ -149,12 +156,6 @@ public class CtConfigStreamActivity extends BaseActivity implements View.OnClick
                 );
                 break;
         }
-
-        etGap.setText(mListJetModeCfg.get(0).getGap());
-        etDuration.setText(mListJetModeCfg.get(0).getDuration());
-        etGapBig.setText(mListJetModeCfg.get(0).getBigGap());
-        // 展示给用户看需要 +1
-        etFrequency.setText(String.valueOf(Integer.parseInt(mListJetModeCfg.get(0).getJetRound()) + 1));
     }
 
     @Override
@@ -224,36 +225,13 @@ public class CtConfigStreamActivity extends BaseActivity implements View.OnClick
     }
 
     private String countTime() {
-        int frequency;
-        float gap, duration, gapBig;
-        float onceTime;
-        float totalTime = 0;
-
-        gap = Float.parseFloat(etGap.getText().toString());
-        duration = Float.parseFloat(etDuration.getText().toString());
-        gapBig = Float.parseFloat(etGapBig.getText().toString());
-        frequency = Integer.parseInt((etFrequency.getText().toString()));
-
-        switch (strBtnDirection) {
-            case LEFT_TO_RIGHT:
-            case RIGHT_TO_LEFT:
-                // 从左到右或者从右到左
-                onceTime = (mDevNum - 1) * gap + duration * mDevNum;
-                totalTime = onceTime * (frequency + 1) + frequency * gapBig;
-                break;
-            case BORDER_TO_CENTER:
-            case CENTER_TO_BORDER:
-                // 从中间到两端或者从两端到中间
-                if (mDevNum % 2 == 0) {
-                    onceTime = (mDevNum / 2 - 1) * gap + duration * (mDevNum / 2);
-                    totalTime = onceTime * (frequency + 1) + frequency * gapBig;
-                } else {
-                    onceTime = (mDevNum / 2) * gap + duration * ((mDevNum + 1) / 2);
-                    totalTime = onceTime * (frequency + 1) + frequency * gapBig;
-                }
-                break;
-        }
-
+        float totalTime;
+        totalTime = MgrOutputJet.calCountAloneTime(mDevNum, CONFIG_STREAM, strBtnDirection,
+                etGap.getText().toString(),
+                etDuration.getText().toString(),
+                etGapBig.getText().toString(),
+                String.valueOf(Integer.parseInt(etFrequency.getText().toString()) - 1
+                ));
         return String.valueOf(totalTime);
     }
 

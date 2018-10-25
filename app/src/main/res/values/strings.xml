@@ -131,7 +131,7 @@
     <string name="config_ride">跑马灯</string>
     <string name="config_interval">间隔高低</string>
     <string name="config_together">齐喷</string>
-    <string name="config_stop">停止</string>
+    <string name="config_stop">延迟喷射</string>
     <string name="text_left_to_right">从左到右</string>
     <string name="text_right_to_left">从右到左</string>
     <string name="text_border_to_center">从两端到中间</string>
@@ -163,7 +163,9 @@
     <string name="text_gap">间隔时间</string>
     <string name="text_duration">持续时间</string>
     <string name="text_gap_big">大间隔时间</string>
-    <string name="text_loop">循环次数</string>
+    <string name="text_jet_time">喷射时间</string>
+    <string name="text_delay_time">延时时间</string>
+    <string name="text_loop">喷射次数</string>
     <string name="text_frequency">换向次数</string>
     <string name="text_dev_num">设备数量</string>
     <string name="text_start_dmx">起始 DMX</string>

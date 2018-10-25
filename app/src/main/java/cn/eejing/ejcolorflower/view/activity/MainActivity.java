@@ -646,4 +646,8 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         return mMacById;
     }
 
+    public String getMemberId() {
+        return mMemberId;
+    }
+
 }

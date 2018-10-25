@@ -18,6 +18,7 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.GApp;
 import cn.eejing.ejcolorflower.model.lite.JetModeConfigLite;
+import cn.eejing.ejcolorflower.model.manager.MgrOutputJet;
 import cn.eejing.ejcolorflower.util.DecimalInputTextWatcher;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
@@ -144,13 +145,12 @@ public class CtConfigIntervalActivity extends BaseActivity implements View.OnCli
     }
 
     private String countTime() {
-        float gap, duration, totalTime;
-        int frequency;
-
-        gap = Float.parseFloat(etGap.getText().toString());
-        duration = Float.parseFloat(etDuration.getText().toString());
-        frequency = Integer.parseInt((etFrequency.getText().toString()));
-        totalTime = duration * (frequency + 1) + gap * (frequency);
+        float totalTime;
+        totalTime = MgrOutputJet.calCountAloneTime(0, CONFIG_INTERVAL, "",
+                etGap.getText().toString(),
+                etDuration.getText().toString(),
+                "0",
+                String.valueOf((Integer.parseInt(etFrequency.getText().toString()) - 1)));
         return String.valueOf(totalTime);
     }
 

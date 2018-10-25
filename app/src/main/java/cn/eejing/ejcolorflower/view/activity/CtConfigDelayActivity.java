@@ -20,7 +20,7 @@ import cn.eejing.ejcolorflower.util.DecimalInputTextWatcher;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_DELAY;
-import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_DELAY;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_HIGH_DELAY;
 
 public class CtConfigDelayActivity extends BaseActivity implements View.OnClickListener {
 
@@ -108,7 +108,7 @@ public class CtConfigDelayActivity extends BaseActivity implements View.OnClickL
     private void updateLiteData() {
         mListJetModeCfg.get(0).setJetType(CONFIG_DELAY);
         mListJetModeCfg.get(0).setDuration(etDelay.getText().toString());
-        mListJetModeCfg.get(0).setHigh(DEFAULT_DELAY);
+        mListJetModeCfg.get(0).setHigh(DEFAULT_HIGH_DELAY);
         mListJetModeCfg.get(0).updateAll("jetIdMillis=?", String.valueOf(mJetIdMillis));
     }
 

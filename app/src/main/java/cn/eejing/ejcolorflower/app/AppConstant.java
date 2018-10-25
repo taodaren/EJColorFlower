@@ -76,7 +76,7 @@ public class AppConstant {
     public static final String CONFIG_RIDE = "跑马灯";
     public static final String CONFIG_INTERVAL = "间隔高低";
     public static final String CONFIG_TOGETHER = "齐喷";
-    public static final String CONFIG_STOP = "停止";
+    public static final String CONFIG_DELAY = "延迟喷射";
     public static final String CONFIG_NO_EFFECT = "无效果";
     public static final String CONFIG_DEF = "默认";
 
@@ -92,10 +92,13 @@ public class AppConstant {
     public static final int INIT_ZERO = 0;
 
     // 配置设备喷射默认值
-    public static final String DEFAULT_STREAM_RIDE_GAP = "2";
-    public static final String DEFAULT_STREAM_RIDE_DURATION = "3";
-    public static final String DEFAULT_STREAM_RIDE_GAP_BIG = "5";
-    public static final String DEFAULT_STREAM_RIDE_LOOP = "3";
+    public static final String DEFAULT_GAP = "2";
+    public static final String DEFAULT_DURATION = "3";
+    public static final String DEFAULT_GAP_BIG = "5";
+    public static final String DEFAULT_JET_ROUND = "2";
+    public static final String DEFAULT_HIGH = "100";
+    public static final String DEFAULT_HIGH_DELAY = "0";
+
     public static final String DEFAULT_INTERVAL_GAP = "2";
     public static final String DEFAULT_INTERVAL_DURATION = "5";
     public static final String DEFAULT_INTERVAL_FREQUENCY = "3";
