@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@color/colorPrimary"
+        android:background="@color/colorNavBar"
         android:text="添加新地址"
         android:textColor="@color/colorWhite"
         android:textSize="16sp" />

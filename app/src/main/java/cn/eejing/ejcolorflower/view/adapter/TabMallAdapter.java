@@ -2,6 +2,7 @@ package cn.eejing.ejcolorflower.view.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -11,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
@@ -21,10 +21,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.model.request.GoodsListBean;
+import cn.eejing.ejcolorflower.view.activity.MaGoodsDetailsActivity;
+import cn.eejing.ejcolorflower.view.activity.MainActivity;
 
 /**
- * 实现 Adapter 步骤：
- * 写 ViewHolder → extends RecyclerView.Adapter<泛型是写的VH> → 全局变量与构造方法（Context,list,LayoutInflater）→ 完善重写方法
+ * 商城模块适配器
  */
 
 public class TabMallAdapter extends RecyclerView.Adapter<TabMallAdapter.MallViewHolder> {
@@ -93,15 +94,13 @@ public class TabMallAdapter extends RecyclerView.Adapter<TabMallAdapter.MallView
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Toast.makeText(mContext, "商城模块开发中...", Toast.LENGTH_LONG).show();
-                    // TODO: 2018/10/9 暂时不跳转商品详情
-//                    int goodsId = mList.get(getAdapterPosition()).getGoods_id();
-//                    String name = mList.get(getAdapterPosition()).getName();
-//
-//                    Intent intent = new Intent(mContext, MaGoodsDetailsActivity.class);
-//                    intent.putExtra("goods_id", goodsId);
-//                    intent.putExtra("name", name);
-//                    ((MainActivity) mContext).jumpToActivity(intent);
+                    int goodsId = mList.get(getAdapterPosition()).getGoods_id();
+                    String name = mList.get(getAdapterPosition()).getName();
+
+                    Intent intent = new Intent(mContext, MaGoodsDetailsActivity.class);
+                    intent.putExtra("goods_id", goodsId);
+                    intent.putExtra("name", name);
+                    ((MainActivity) mContext).jumpToActivity(intent);
                 }
             });
         }

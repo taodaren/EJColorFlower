@@ -86,7 +86,7 @@ public class AddrSelectAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 case 1:
                     // 默认地址
                     tvAddress.setText(TextColorSizeHelper.getTextSpan(mContext,
-                            mContext.getResources().getColor(R.color.colorPrimary), defAddress, defColor));
+                            mContext.getResources().getColor(R.color.colorNavBar), defAddress, defColor));
                     break;
                 default:
                     // 新增地址
@@ -98,7 +98,7 @@ public class AddrSelectAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         @OnClick(R.id.layout_address_select)
-        public void clickLayout() {
+        void clickLayout() {
             Bundle bundle = new Bundle();
             bundle.putSerializable("address", mList.get(getAdapterPosition()));
             mContext.setResult(RESULT_OK, new Intent().putExtras(bundle));

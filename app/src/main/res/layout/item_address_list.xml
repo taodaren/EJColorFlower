@@ -33,16 +33,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorWhite"
-        android:paddingBottom="8dp"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
+        android:paddingBottom="8dp"
         android:textColor="@color/colorTitleName" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:layout_marginBottom="10dp"
         android:layout_marginTop="1dp"
+        android:layout_marginBottom="10dp"
         android:background="@color/colorWhite">
 
         <RadioButton
@@ -50,8 +50,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
+            android:layout_marginLeft="8dp"
             android:text="@string/def_addr"
-            android:textSize="10sp"
+            android:textSize="12sp"
             android:textStyle="italic"
             tools:ignore="RelativeOverlap,SmallSp" />
 
@@ -66,9 +67,9 @@
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:background="@drawable/shape_btn_color_primary"
+                android:background="@drawable/shape_btn_no_click"
                 android:text="@string/btn_edit"
-                android:textColor="@color/colorPrimary"
+                android:textColor="@color/colorNavBar"
                 android:textSize="12sp"
                 tools:ignore="ButtonStyle" />
 
@@ -77,9 +78,9 @@
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:background="@drawable/shape_btn_color_no"
+                android:background="@drawable/shape_btn_on_click"
                 android:text="@string/btn_del"
-                android:textColor="@color/colorNoClick"
+                android:textColor="@color/colorWhite"
                 android:textSize="12sp"
                 tools:ignore="ButtonStyle" />
         </LinearLayout>

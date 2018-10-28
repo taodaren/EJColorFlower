@@ -2,8 +2,6 @@ package cn.eejing.ejcolorflower.view.activity;
 
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
@@ -19,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.event.AddrAddEvent;
@@ -32,12 +31,9 @@ import cn.eejing.ejcolorflower.view.base.BaseActivity;
  * 选择收货地址
  */
 
-public class MaAddrSelectActivity extends BaseActivity implements View.OnClickListener {
+public class MaAddrSelectActivity extends BaseActivity {
 
-    @BindView(R.id.tv_title_shipping_address)         TextView  tvTitle;
-    @BindView(R.id.img_back_shipping_address)         ImageView imgBack;
-    @BindView(R.id.tv_manage_shipping_address)        TextView  tvManage;
-    @BindView(R.id.rv_shipping_address)               PullLoadMoreRecyclerView rvAddress;
+    @BindView(R.id.rv_shipping_address)    PullLoadMoreRecyclerView rvAddress;
 
     private Gson mGson;
     private String mMemberId, mToken;
@@ -51,7 +47,8 @@ public class MaAddrSelectActivity extends BaseActivity implements View.OnClickLi
 
     @Override
     public void initView() {
-        tvTitle.setText("选择收货地址");
+        setToolbar("选择收货地址", View.VISIBLE, "管理", View.VISIBLE);
+
         mList = new ArrayList<>();
         mGson = new Gson();
         mMemberId = String.valueOf(Settings.getLoginSessionInfo(this).getMember_id());
@@ -66,29 +63,14 @@ public class MaAddrSelectActivity extends BaseActivity implements View.OnClickLi
     }
 
     @Override
-    public void initListener() {
-        imgBack.setOnClickListener(this);
-        tvManage.setOnClickListener(this);
-    }
-
-    @Override
     protected void onRestart() {
         super.onRestart();
         getDataWithAddressList();
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.img_back_shipping_address:
-                finish();
-                break;
-            case R.id.tv_manage_shipping_address:
-                jumpToActivity(MaAddrManageActivity.class);
-                break;
-            default:
-                break;
-        }
+    @OnClick(R.id.tv_menu_toolbar)
+    public void onClickedMgr() {
+        jumpToActivity(MaAddrManageActivity.class);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

@@ -18,11 +18,11 @@ import java.util.List;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.model.request.GoodsDetailsBean;
+import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.SelfDialogBase;
 import cn.eejing.ejcolorflower.view.adapter.GoodsDetailsAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
-import cn.eejing.ejcolorflower.util.SelfDialogBase;
 
 /**
  * 商品详情
@@ -30,12 +30,9 @@ import cn.eejing.ejcolorflower.util.SelfDialogBase;
 
 public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClickListener {
 
-    @BindView(R.id.rv_goods_details)
-    PullLoadMoreRecyclerView rvGoodsDetails;
-    @BindView(R.id.btn_customer_service)
-    Button btnCustomerService;
-    @BindView(R.id.btn_buy_now)
-    Button btnBuyNow;
+    @BindView(R.id.rv_goods_details)        PullLoadMoreRecyclerView rvGoodsDetails;
+    @BindView(R.id.btn_customer_service)    Button btnCustomerService;
+    @BindView(R.id.btn_buy_now)             Button btnBuyNow;
 
     private Gson mGson;
     private List<GoodsDetailsBean.DataBean> mList;

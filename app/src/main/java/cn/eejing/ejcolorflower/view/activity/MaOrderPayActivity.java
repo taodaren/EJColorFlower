@@ -25,12 +25,12 @@ import java.util.Map;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.model.request.PayWeiBean;
-import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.model.request.CallBackConfirmBean;
 import cn.eejing.ejcolorflower.model.request.PayAliBean;
-import cn.eejing.ejcolorflower.view.base.BaseActivity;
+import cn.eejing.ejcolorflower.model.request.PayWeiBean;
+import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.PayResult;
+import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.APP_ID;
 
@@ -111,13 +111,13 @@ public class MaOrderPayActivity extends BaseActivity implements View.OnClickList
                 break;
             case R.id.ll_pay_ali:
                 mPayFlag = 1;
-                imgPayAli.setImageDrawable(getDrawable(R.drawable.circular_check));
-                imgPayWx.setImageDrawable(getDrawable(R.drawable.circular_not_check));
+                imgPayAli.setImageDrawable(getDrawable(R.drawable.ic_single_selected));
+                imgPayWx.setImageDrawable(getDrawable(R.drawable.ic_single_unselected));
                 break;
             case R.id.ll_pay_wei_xin:
                 mPayFlag = 0;
-                imgPayAli.setImageDrawable(getDrawable(R.drawable.circular_not_check));
-                imgPayWx.setImageDrawable(getDrawable(R.drawable.circular_check));
+                imgPayAli.setImageDrawable(getDrawable(R.drawable.ic_single_unselected));
+                imgPayWx.setImageDrawable(getDrawable(R.drawable.ic_single_selected));
                 break;
             default:
                 break;

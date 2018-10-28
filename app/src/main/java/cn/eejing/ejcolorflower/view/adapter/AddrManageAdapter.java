@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -80,18 +79,10 @@ public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     class AddressListHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.tv_address_list_name)
-        TextView tvName;
-        @BindView(R.id.tv_address_list_phone)
-        TextView tvPhone;
-        @BindView(R.id.tv_address_list_address)
-        TextView tvAddress;
-        @BindView(R.id.rbt_address_list_def)
-        RadioButton rbttDef;
-        @BindView(R.id.btn_address_list_edit)
-        Button btnEdit;
-        @BindView(R.id.btn_address_list_del)
-        Button btnDel;
+        @BindView(R.id.tv_address_list_name)          TextView tvName;
+        @BindView(R.id.tv_address_list_phone)         TextView tvPhone;
+        @BindView(R.id.tv_address_list_address)       TextView tvAddress;
+        @BindView(R.id.rbt_address_list_def)          RadioButton rbttDef;
 
         SelfDialogBase dialog;
 
@@ -107,12 +98,12 @@ public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 case 1:
                     // 默认
                     lastSelectedPosition = position;
-                    rbttDef.setButtonDrawable(R.drawable.circular_check);
-                    rbttDef.setTextColor(mContext.getResources().getColor(R.color.colorPrimary));
+                    rbttDef.setButtonDrawable(R.drawable.ic_single_selected);
+                    rbttDef.setTextColor(mContext.getResources().getColor(R.color.colorNavBar));
                     rbttDef.setChecked(true);
                     break;
                 default:
-                    rbttDef.setButtonDrawable(R.drawable.circular_not_check);
+                    rbttDef.setButtonDrawable(R.drawable.ic_single_unselected);
                     rbttDef.setTextColor(mContext.getResources().getColor(R.color.colorNoClick));
                     rbttDef.setChecked(false);
                     break;
@@ -124,12 +115,12 @@ public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         @OnClick({R.id.rbt_address_list_def})
-        public void clickDefault() {
+        void clickDefault() {
             getDataWithAddressDef(getAdapterPosition());
         }
 
         @OnClick(R.id.btn_address_list_edit)
-        public void clickEdit() {
+        void clickEdit() {
             Bundle bundle = new Bundle();
             bundle.putString("type", "edit");
             bundle.putSerializable("address_info", mList.get(getAdapterPosition()));
@@ -138,7 +129,7 @@ public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         @OnClick(R.id.btn_address_list_del)
-        public void clickDelete() {
+        void clickDelete() {
             showDialog();
         }
 

@@ -9,36 +9,39 @@
         android:id="@+id/toolbar_ma_dtl"
         layout="@layout/layout_toolbar" />
 
+    <com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView
+        android:id="@+id/rv_goods_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar_ma_dtl" />
+
     <LinearLayout
         android:id="@+id/ll_goods_details"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:background="@color/colorTransparent"
+        android:padding="2dp">
 
         <Button
             android:id="@+id/btn_customer_service"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/colorWhite"
+            android:layout_margin="2dp"
+            android:background="@drawable/shape_btn_kefu"
             android:text="@string/customer_service"
-            android:textColor="@color/colorPrimary"
+            android:textColor="@color/colorNavBar"
             tools:ignore="ButtonStyle" />
 
         <Button
             android:id="@+id/btn_buy_now"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:background="@color/colorRed"
+            android:background="@color/colorNavBar"
             android:text="@string/buy_now"
             android:textColor="@color/colorWhite"
             tools:ignore="ButtonStyle" />
     </LinearLayout>
-
-    <com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView
-        android:id="@+id/rv_goods_details"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/ll_goods_details"
-        android:layout_below="@id/toolbar_ma_dtl" />
 </RelativeLayout>

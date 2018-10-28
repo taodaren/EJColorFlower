@@ -244,7 +244,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_margin="8dp"
-            android:background="@drawable/shape_btn_red"
+            android:background="@drawable/shape_btn_blue"
             android:text="提交订单"
             android:textColor="@color/colorWhite" />
     </RelativeLayout>
