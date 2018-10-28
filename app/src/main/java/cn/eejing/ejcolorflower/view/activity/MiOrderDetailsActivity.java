@@ -11,7 +11,6 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
-import com.jaeger.library.StatusBarUtil;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
@@ -57,39 +56,39 @@ public class MiOrderDetailsActivity extends BaseActivity {
         mGson = new Gson();
     }
 
-    @Override
-    public void setToolbar(String title, int titleVisibility, String menu, int menuVisibility) {
-        super.setToolbar(title, titleVisibility, menu, menuVisibility);
-
-        Toolbar toolbar = findViewById(R.id.main_toolbar);
-        setSupportActionBar(toolbar);
-        toolbar.setBackground(getDrawable(R.color.colorWhite));
-
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            // 隐藏 Toolbar 左侧导航按钮
-            actionBar.setDisplayHomeAsUpEnabled(false);
-            // 隐藏 Toolbar 自带标题栏
-            actionBar.setDisplayShowTitleEnabled(false);
-        }
-
-        // 设置标题
-        TextView textTitle = findViewById(R.id.tv_title_toolbar);
-        textTitle.setVisibility(titleVisibility);
-        textTitle.setTextColor(getResources().getColor(R.color.colorTitleName));
-        textTitle.setText(title);
-
-        // 设置返回按钮
-        ImageView imgTitleBack = findViewById(R.id.img_back_toolbar);
-        imgTitleBack.setVisibility(View.VISIBLE);
-        imgTitleBack.setImageDrawable(getDrawable(R.drawable.ic_arrow_black));
-        imgTitleBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-    }
+//    @Override
+//    public void setToolbar(String title, int titleVisibility, String menu, int menuVisibility) {
+//        super.setToolbar(title, titleVisibility, menu, menuVisibility);
+//
+//        Toolbar toolbar = findViewById(R.id.main_toolbar);
+//        setSupportActionBar(toolbar);
+//        toolbar.setBackground(getDrawable(R.color.colorWhite));
+//
+//        ActionBar actionBar = getSupportActionBar();
+//        if (actionBar != null) {
+//            // 隐藏 Toolbar 左侧导航按钮
+//            actionBar.setDisplayHomeAsUpEnabled(false);
+//            // 隐藏 Toolbar 自带标题栏
+//            actionBar.setDisplayShowTitleEnabled(false);
+//        }
+//
+//        // 设置标题
+//        TextView textTitle = findViewById(R.id.tv_title_toolbar);
+//        textTitle.setVisibility(titleVisibility);
+//        textTitle.setTextColor(getResources().getColor(R.color.colorTitleName));
+//        textTitle.setText(title);
+//
+//        // 设置返回按钮
+//        ImageView imgTitleBack = findViewById(R.id.img_back_toolbar);
+//        imgTitleBack.setVisibility(View.VISIBLE);
+//        imgTitleBack.setImageDrawable(getDrawable(R.drawable.ic_arrow_black));
+//        imgTitleBack.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                finish();
+//            }
+//        });
+//    }
 
     @Override
     public void initData() {
@@ -112,7 +111,7 @@ public class MiOrderDetailsActivity extends BaseActivity {
                                 setData(bean.getData());
                                 break;
                             case 0:
-                                Toast.makeText(MiOrderDetailsActivity.this, "亲，请检查您的网络设置", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MiOrderDetailsActivity.this, "对不起，获取订单详情失败！", Toast.LENGTH_SHORT).show();
                                 break;
                             default:
                                 break;

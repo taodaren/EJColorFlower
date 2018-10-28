@@ -96,6 +96,9 @@
             android:name=".view.activity.CtConfigIntervalActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".view.activity.CtConfigDelayActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".view.activity.CtConfigTogetherActivity"
             android:screenOrientation="portrait" />
         <activity
@@ -169,7 +172,6 @@
             android:name=".wxapi.WXPayEntryActivity"
             android:exported="true"
             android:launchMode="singleTop" />
-        <activity android:name=".view.activity.CtConfigDelayActivity"></activity>
     </application>
 
 </manifest>

@@ -19,6 +19,10 @@ import java.util.Map;
 
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
+import cn.eejing.ejcolorflower.util.Settings;
+import cn.eejing.ejcolorflower.view.activity.SignInActivity;
+
+import static cn.eejing.ejcolorflower.app.AppConstant.EXIT_LOGIN;
 
 /**
  * Activity 基类
@@ -134,6 +138,16 @@ public abstract class BaseActivity extends AppCompatActivity {
             activity.finish();
             activityMap.remove(key);
         }
+    }
+
+    public void logout(Activity activity) {
+        // 清空缓存
+        Settings.clearInfo(getBaseContext());
+        // 退出登陆回到登陆界面
+        startActivity(new Intent(activity, SignInActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        activity.finish();
+        // 结束 MainActivity
+        delActivity(EXIT_LOGIN);
     }
 
 }

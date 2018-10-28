@@ -83,22 +83,14 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.img_order_status)
-        ImageView imgGoods;
-        @BindView(R.id.tv_order_status_name)
-        TextView tvName;
-        @BindView(R.id.tv_order_status_money_rmb)
-        TextView tvMoneyRmb;
-        @BindView(R.id.tv_order_status_num)
-        TextView tvNum;
-        @BindView(R.id.tv_order_status_quantity)
-        TextView tvQuantity;
-        @BindView(R.id.tv_order_status_postage)
-        TextView tvPostage;
-        @BindView(R.id.tv_order_status_money)
-        TextView tvMoney;
-        @BindView(R.id.btn_order_status)
-        Button btnEdit;
+        @BindView(R.id.img_order_status)                 ImageView imgGoods;
+        @BindView(R.id.tv_order_status_name)             TextView tvName;
+        @BindView(R.id.tv_order_status_money_rmb)        TextView tvMoneyRmb;
+        @BindView(R.id.tv_order_status_num)              TextView tvNum;
+        @BindView(R.id.tv_order_status_quantity)         TextView tvQuantity;
+        @BindView(R.id.tv_order_status_postage)          TextView tvPostage;
+        @BindView(R.id.tv_order_status_money)            TextView tvMoney;
+        @BindView(R.id.btn_order_status)                 Button btnEdit;
         View outItem;
 
         ViewHolder(View itemView) {

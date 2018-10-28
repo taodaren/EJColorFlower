@@ -46,11 +46,11 @@
         android:id="@+id/btn_exit_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginStart="24dp"
         android:layout_marginTop="100dp"
-        android:background="@color/colorWhite"
+        android:background="@drawable/shape_btn_on_click"
         android:text="@string/exit_login"
-        android:textColor="@android:color/holo_red_light" />
+        android:textColor="@color/colorWhite" />
 
 </LinearLayout>

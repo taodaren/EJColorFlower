@@ -12,6 +12,7 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.request.PwdUpdateBean;
@@ -24,7 +25,7 @@ import cn.eejing.ejcolorflower.view.base.BaseActivity;
  * 修改密码
  */
 
-public class MiPwdModifyActivity extends BaseActivity implements View.OnClickListener {
+public class MiPwdModifyActivity extends BaseActivity {
 
     @BindView(R.id.et_current_psd)        EditText etCurrentPsd;
     @BindView(R.id.et_reset_psd)          EditText etResetPsd;
@@ -41,7 +42,6 @@ public class MiPwdModifyActivity extends BaseActivity implements View.OnClickLis
 
     @Override
     public void initView() {
-        setToolbar("修改密码", View.VISIBLE, null, View.GONE);
         mGson = new Gson();
 
         mIv = Encryption.newIv();
@@ -49,18 +49,14 @@ public class MiPwdModifyActivity extends BaseActivity implements View.OnClickLis
         mToken = Settings.getLoginSessionInfo(this).getToken();
     }
 
-    @Override
-    public void initListener() {
-        btnModifyPwd.setOnClickListener(this);
-    }
-
-    @Override
-    public void onClick(View view) {
+    @OnClick({R.id.img_back_pwd_modify, R.id.btn_modify_pwd})
+    public void onViewClicked(View view) {
         switch (view.getId()) {
+            case R.id.img_back_pwd_modify:
+                finish();
+                break;
             case R.id.btn_modify_pwd:
                 getDataWithPwdUpdate();
-                break;
-            default:
                 break;
         }
     }
@@ -93,7 +89,7 @@ public class MiPwdModifyActivity extends BaseActivity implements View.OnClickLis
                                     Toast.makeText(getBaseContext(), "修改密码失败", Toast.LENGTH_SHORT).show();
                                     break;
                                 case 1:
-                                    finish();
+                                    logout(MiPwdModifyActivity.this);
                                     Toast.makeText(getBaseContext(), "重置密码成功", Toast.LENGTH_SHORT).show();
                                     break;
                                 case 3:
@@ -120,5 +116,4 @@ public class MiPwdModifyActivity extends BaseActivity implements View.OnClickLis
             e.printStackTrace();
         }
     }
-
 }

@@ -15,6 +15,7 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.request.LoginBean;
@@ -28,14 +29,15 @@ import cn.eejing.ejcolorflower.view.base.BaseActivity;
  * 登录
  */
 
-public class SignInActivity extends BaseActivity implements View.OnClickListener {
-    private static final int REQUEST_SIGNUP = 0;
+public class SignInActivity extends BaseActivity {
+    private static final int REQUEST_SIGNUP = 1;
+    private static final int REQUEST_FORGET = 2;
 
     @BindView(R.id.et_login_phone)           EditText etLoginPhone;
     @BindView(R.id.et_login_pwd)             EditText etLoginPwd;
-    @BindView(R.id.btn_login)                SuperButton btnLogin;
     @BindView(R.id.tv_login_register)        TextView tvLoginRegister;
     @BindView(R.id.tv_login_forget)          TextView tvLoginForget;
+    @BindView(R.id.btn_login)                SuperButton btnLogin;
 
     @Override
     protected int layoutViewId() {
@@ -45,48 +47,46 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
     @Override
     public void initView() {
         LoginSession session = Settings.getLoginSessionInfo(this);
-        String mPhone = session.getUsername();
-        String mPassword = session.getPassword();
-        if (mPhone != null) {
-            etLoginPhone.setText(mPhone);
+        String phone = session.getUsername();
+        String password = session.getPassword();
+        if (phone != null) {
+            etLoginPhone.setText(phone);
         }
-        if (mPassword != null) {
-            etLoginPwd.setText(mPassword);
+        if (password != null) {
+            etLoginPwd.setText(password);
         }
-    }
-
-    @Override
-    public void initListener() {
-        btnLogin.setOnClickListener(this);
-        tvLoginRegister.setOnClickListener(this);
-        tvLoginForget.setOnClickListener(this);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_SIGNUP) {
-            if (resultCode == RESULT_OK) {
-                // 默认情况下，我们只需完成活动并自动登录它们
-                this.finish();
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case REQUEST_SIGNUP:
+                    // 默认情况下，我们只需完成活动并自动登录它们
+                    etLoginPhone.setText(data.getStringExtra("register_phone"));
+                    etLoginPwd.setText(data.getStringExtra("register_pwd"));
+                    login();
+                    break;
+                case REQUEST_FORGET:
+                    etLoginPhone.setText(data.getStringExtra("forget_phone"));
+                    break;
             }
         }
     }
 
-    @Override
-    public void onClick(View view) {
+    @OnClick({R.id.btn_login, R.id.tv_login_register, R.id.tv_login_forget})
+    public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_login:
                 login();
                 break;
             case R.id.tv_login_register:
-                jumpToActivity(SignUpActivity.class);
+                startActivityForResult(new Intent(SignInActivity.this, SignUpActivity.class), REQUEST_SIGNUP);
                 break;
             case R.id.tv_login_forget:
-                Intent intent = new Intent(SignInActivity.this, SiPwdForgetActivity.class);
-                intent.putExtra("mobile", etLoginPhone.getText().toString());
-                jumpToActivity(intent);
-                break;
-            default:
+                startActivityForResult(new Intent(SignInActivity.this, SiPwdForgetActivity.class)
+                        .putExtra("mobile", etLoginPhone.getText().toString()), REQUEST_FORGET
+                );
                 break;
         }
     }

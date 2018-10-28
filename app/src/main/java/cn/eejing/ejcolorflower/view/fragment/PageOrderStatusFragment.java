@@ -30,10 +30,8 @@ import cn.eejing.ejcolorflower.util.Settings;
 
 public class PageOrderStatusFragment extends BaseFragment {
 
-    @BindView(R.id.rv_mi_order_status)
-    PullLoadMoreRecyclerView rvOrderStatus;
-    @BindView(R.id.ll_no_order)
-    LinearLayout llNoOrder;
+    @BindView(R.id.rv_mi_order_status)    PullLoadMoreRecyclerView rvOrderStatus;
+    @BindView(R.id.ll_no_order)           LinearLayout llNoOrder;
 
     private Gson mGson;
     private List<OrderPagerBean.DataBean> mList;

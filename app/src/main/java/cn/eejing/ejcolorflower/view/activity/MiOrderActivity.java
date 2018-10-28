@@ -21,10 +21,8 @@ import cn.eejing.ejcolorflower.view.fragment.PageOrderStatusFragment;
 public class MiOrderActivity extends BaseActivity {
     private static final int DEFAULT_SELECTION = 0;
 
-    @BindView(R.id.tl_mi_order)
-    TabLayout mTabLayout;
-    @BindView(R.id.vp_mi_order)
-    ViewPager mViewPager;
+    @BindView(R.id.tl_mi_order)        TabLayout mTabLayout;
+    @BindView(R.id.vp_mi_order)        ViewPager mViewPager;
 
     private String[] mTitles = {"待发货", "待收货", "已完成"};
 

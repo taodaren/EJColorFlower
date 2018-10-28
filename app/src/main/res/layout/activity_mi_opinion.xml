@@ -56,6 +56,6 @@
         android:textColor="@color/white"
         stv:sCornersRadius="50dp"
         stv:sSelectorDisableColor="@color/colorGray"
-        stv:sSelectorNormalColor="@color/colorPrimary"
+        stv:sSelectorNormalColor="@color/colorNavBar"
         stv:sUseSelector="true" />
 </LinearLayout>

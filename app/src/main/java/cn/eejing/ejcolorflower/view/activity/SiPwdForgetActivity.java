@@ -1,5 +1,6 @@
 package cn.eejing.ejcolorflower.view.activity;
 
+import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -13,19 +14,20 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.model.request.PwdFindBean;
 import cn.eejing.ejcolorflower.model.request.SendMsgBean;
-import cn.eejing.ejcolorflower.view.base.BaseActivity;
+import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.Encryption;
+import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 /**
  * 忘记密码
  */
 
-public class SiPwdForgetActivity extends BaseActivity implements View.OnClickListener {
+public class SiPwdForgetActivity extends BaseActivity {
 
     @BindView(R.id.et_forget_phone)              EditText etForgetPhone;
     @BindView(R.id.et_forget_set_pwd)            EditText etForgetSetPwd;
@@ -35,7 +37,7 @@ public class SiPwdForgetActivity extends BaseActivity implements View.OnClickLis
     @BindView(R.id.btn_reset_pwd)                SuperButton btnResetPwd;
 
     private Gson mGson;
-    private String mMobile, mIv;
+    private String mIv;
 
     @Override
     protected int layoutViewId() {
@@ -46,20 +48,28 @@ public class SiPwdForgetActivity extends BaseActivity implements View.OnClickLis
     public void initView() {
         String mobile = getIntent().getStringExtra("mobile");
         etForgetPhone.setText(mobile);
-        mMobile = etForgetPhone.getText().toString();
 
         mIv = Encryption.newIv();
     }
 
-    @Override
-    public void initListener() {
-        btnForgetGetCode.setOnClickListener(this);
-        btnResetPwd.setOnClickListener(this);
+    @OnClick({R.id.img_back_pwd_forget, R.id.btn_forget_get_code, R.id.btn_reset_pwd})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.img_back_pwd_forget:
+                finish();
+                break;
+            case R.id.btn_forget_get_code:
+                getDateWithSendMsg();
+                break;
+            case R.id.btn_reset_pwd:
+                getDataWithPwdFind();
+                break;
+        }
     }
 
     private void getDateWithSendMsg() {
         try {
-            String encryptPhone = Encryption.encrypt(mMobile, mIv);
+            String encryptPhone = Encryption.encrypt(etForgetPhone.getText().toString(), mIv);
 
             OkGo.<String>post(Urls.SEND_MSG)
                     .tag(this)
@@ -101,7 +111,7 @@ public class SiPwdForgetActivity extends BaseActivity implements View.OnClickLis
 
             OkGo.<String>post(Urls.PWD_FIND)
                     .tag(this)
-                    .params("mobile", mMobile)
+                    .params("mobile", etForgetPhone.getText().toString())
                     .params("password", encryptPwd)
                     .params("re_password", encryptPwd)
                     .params("code", code)
@@ -120,8 +130,11 @@ public class SiPwdForgetActivity extends BaseActivity implements View.OnClickLis
                                     Toast.makeText(getBaseContext(), "重置密码失败", Toast.LENGTH_SHORT).show();
                                     break;
                                 case 1:
-                                    finish();
                                     Toast.makeText(getBaseContext(), "重置密码成功", Toast.LENGTH_SHORT).show();
+                                    setResult(RESULT_OK, new Intent()
+                                            .putExtra("forget_phone", etForgetPhone.getText().toString())
+                                    );
+                                    finish();
                                     break;
                                 case 2:
                                     Toast.makeText(getBaseContext(), "手机号码不能为空", Toast.LENGTH_SHORT).show();
@@ -154,19 +167,4 @@ public class SiPwdForgetActivity extends BaseActivity implements View.OnClickLis
         }
 
     }
-
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.btn_forget_get_code:
-                getDateWithSendMsg();
-                break;
-            case R.id.btn_reset_pwd:
-                getDataWithPwdFind();
-                break;
-            default:
-                break;
-        }
-    }
-
 }

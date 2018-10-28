@@ -1,10 +1,14 @@
 package cn.eejing.ejcolorflower.view.fragment;
 
 import android.view.View;
+import android.widget.Toast;
 
 import com.allen.library.SuperTextView;
 
+import java.util.Objects;
+
 import butterknife.BindView;
+import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.view.activity.MainActivity;
 import cn.eejing.ejcolorflower.view.activity.MiAboutActivity;
@@ -43,30 +47,34 @@ public class TabMineFragment extends BaseFragment {
         stvMineOrder.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
             @Override
             public void onClickListener(SuperTextView superTextView) {
-                ((MainActivity) getActivity()).jumpToActivity(MiOrderActivity.class);
+                ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(MiOrderActivity.class);
             }
         });
 
         stvMineOpinion.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
             @Override
             public void onClickListener(SuperTextView superTextView) {
-                ((MainActivity) getActivity()).jumpToActivity(MiOpinionActivity.class);
+                ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(MiOpinionActivity.class);
             }
         });
 
         stvMineAbout.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
             @Override
             public void onClickListener(SuperTextView superTextView) {
-                ((MainActivity) getActivity()).jumpToActivity(MiAboutActivity.class);
+                ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(MiAboutActivity.class);
             }
         });
 
         stvMineSet.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
             @Override
             public void onClickListener(SuperTextView superTextView) {
-                ((MainActivity) getActivity()).jumpToActivity(MiSetActivity.class);
+                ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(MiSetActivity.class);
             }
         });
     }
 
+    @OnClick(R.id.btn_mine_upgrade)
+    public void onViewClicked() {
+        Toast.makeText(getContext(), "后续功能开发中！敬请期待...", Toast.LENGTH_SHORT).show();
+    }
 }

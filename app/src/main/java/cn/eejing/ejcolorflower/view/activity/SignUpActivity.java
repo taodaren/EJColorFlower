@@ -1,6 +1,7 @@
 package cn.eejing.ejcolorflower.view.activity;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -14,6 +15,7 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.request.RegisterBean;
@@ -26,7 +28,7 @@ import cn.eejing.ejcolorflower.view.base.BaseActivity;
  * 注册
  */
 
-public class SignUpActivity extends BaseActivity implements View.OnClickListener {
+public class SignUpActivity extends BaseActivity {
 
     @BindView(R.id.et_register_phone)              EditText mPhone;
     @BindView(R.id.et_register_set_pwd)            EditText mSetPwd;
@@ -48,22 +50,17 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
         mIv = Encryption.newIv();
     }
 
-    @Override
-    public void initListener() {
-        btnGetCode.setOnClickListener(this);
-        btnRegister.setOnClickListener(this);
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
+    @OnClick({R.id.img_back_sign_up, R.id.btn_register_get_code, R.id.btn_register_register})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.img_back_sign_up:
+                finish();
+                break;
             case R.id.btn_register_get_code:
                 getDateWithSendMsg();
                 break;
             case R.id.btn_register_register:
                 signup();
-                break;
-            default:
                 break;
         }
     }
@@ -183,7 +180,10 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
 
     public void onSignupSuccess() {
         btnRegister.setEnabled(true);
-        setResult(RESULT_OK, null);
+        setResult(RESULT_OK, new Intent()
+                .putExtra("register_phone", mPhone.getText().toString())
+                .putExtra("register_pwd", mSetPwd.getText().toString())
+        );
         finish();
     }
 

@@ -13,10 +13,10 @@
         android:id="@+id/tl_mi_order"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        app:tabIndicatorColor="@color/colorPrimary"
+        app:tabIndicatorColor="@color/colorNavBar"
         app:tabIndicatorHeight="1.5dp"
         app:tabMode="fixed"
-        app:tabSelectedTextColor="@color/colorPrimary"
+        app:tabSelectedTextColor="@color/colorNavBar"
         app:tabTextColor="@color/colorNoClick" />
 
     <android.support.v4.view.ViewPager

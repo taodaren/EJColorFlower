@@ -1,6 +1,5 @@
 package cn.eejing.ejcolorflower.view.activity;
 
-import android.content.Intent;
 import android.view.View;
 import android.widget.Button;
 
@@ -8,11 +7,8 @@ import com.allen.library.SuperTextView;
 
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.view.base.BaseActivity;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
-import cn.eejing.ejcolorflower.util.Settings;
-
-import static cn.eejing.ejcolorflower.app.AppConstant.EXIT_LOGIN;
+import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 /**
  * 设置
@@ -71,7 +67,7 @@ public class MiSetActivity extends BaseActivity {
         mDialog.setYesOnclickListener("确认", new SelfDialogBase.onYesOnclickListener() {
             @Override
             public void onYesClick() {
-                logout();
+                logout(MiSetActivity.this);
                 mDialog.dismiss();
             }
         });
@@ -82,16 +78,6 @@ public class MiSetActivity extends BaseActivity {
             }
         });
         mDialog.show();
-    }
-
-    private void logout() {
-        // 清空缓存
-        Settings.clearInfo(getBaseContext());
-        // 退出登陆回到登陆界面
-        startActivity(new Intent(MiSetActivity.this, SignInActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-        finish();
-        // 结束 MainActivity
-        delActivity(EXIT_LOGIN);
     }
 
 }

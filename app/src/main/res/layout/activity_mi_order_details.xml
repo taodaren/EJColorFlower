@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginStart="32dp"
-            android:textColor="@color/colorWhite"
+            android:textColor="@color/colorTitle"
             android:textSize="18sp" />
     </RelativeLayout>
 
@@ -38,14 +38,16 @@
                 android:id="@+id/tv_order_dtl_consignee"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="4dp" />
+                android:padding="4dp"
+                android:textColor="@color/colorTitle" />
 
             <TextView
                 android:id="@+id/tv_order_dtl_phone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:padding="4dp" />
+                android:padding="4dp"
+                android:textColor="@color/colorTitleName" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -56,7 +58,8 @@
             <TextView
                 android:id="@+id/tv_order_dtl_address"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorTitleName" />
         </RelativeLayout>
     </LinearLayout>
 
@@ -80,7 +83,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_toEndOf="@id/img_order_dtl_show"
-            android:textColor="@color/colorBlack"
+            android:textColor="@color/colorTitle"
             android:textSize="16sp" />
 
         <TextView
@@ -90,16 +93,17 @@
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="8dp"
             android:layout_toEndOf="@id/img_order_dtl_show"
-            android:textColor="@color/colorPrimary"
+            android:textColor="@color/colorTitle"
             android:textSize="14sp" />
 
         <TextView
             android:id="@+id/tv_order_dtl_num"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
             android:layout_margin="8dp"
+            android:textColor="@color/colorTitleName"
             tools:ignore="RelativeOverlap" />
     </RelativeLayout>
 
@@ -115,13 +119,15 @@
             android:id="@+id/tv_order_dtl_odd"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="4dp" />
+            android:padding="4dp"
+            android:textColor="@color/colorTitleName" />
 
         <TextView
             android:id="@+id/tv_order_dtl_time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="4dp" />
+            android:padding="4dp"
+            android:textColor="@color/colorTitleName" />
     </LinearLayout>
 
 </LinearLayout>
