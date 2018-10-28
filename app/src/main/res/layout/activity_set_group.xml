@@ -9,271 +9,281 @@
 
     <include layout="@layout/layout_toolbar" />
 
-    <LinearLayout
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="20dp"
-            android:text="设备数量"
-            android:textColor="@color/colorTitle"
-            android:textSize="14sp" />
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="25dp"
-            android:layout_marginBottom="20dp"
-            android:background="@drawable/shape_seekbar_bg"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/tv_dev_num_subtract"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:padding="4dp"
-                android:text="－"
-                android:textColor="@color/colorNoClick"
-                android:textSize="20sp" />
-
-            <SeekBar
-                android:id="@+id/sb_dev_num"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:max="200"
-                android:maxHeight="2dp"
-                android:minHeight="2dp"
-                android:progressDrawable="@drawable/bg_seek_bar"
-                android:splitTrack="false"
-                android:thumb="@drawable/thumb_image" />
-
-            <TextView
-                android:id="@+id/tv_dev_num"
-                android:layout_width="36dp"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="200"
-                android:textColor="@color/colorConfig"
-                android:textSize="19sp" />
-
-            <TextView
-                android:id="@+id/tv_dev_num_add"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
-                android:padding="4dp"
-                android:text="＋"
-                android:textColor="@color/colorNoClick"
-                android:textSize="20sp" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="20dp"
-            android:text="起始DMX"
-            android:textColor="@color/colorTitle"
-            android:textSize="14sp" />
+            android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="25dp"
-            android:layout_marginBottom="20dp"
-            android:background="@drawable/shape_seekbar_bg"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/tv_start_dmx_subtract"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:padding="4dp"
-                android:text="－"
-                android:textColor="@color/colorNoClick"
-                android:textSize="20sp" />
+                android:orientation="vertical">
 
-            <SeekBar
-                android:id="@+id/sb_start_dmx"
-                android:layout_width="0dp"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="25dp"
+                    android:layout_marginTop="20dp"
+                    android:text="设备数量"
+                    android:textColor="@color/colorTitle"
+                    android:textSize="14sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="25dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="25dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="@drawable/shape_seekbar_bg"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tv_dev_num_subtract"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:padding="4dp"
+                        android:text="－"
+                        android:textColor="@color/colorNoClick"
+                        android:textSize="20sp" />
+
+                    <SeekBar
+                        android:id="@+id/sb_dev_num"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:max="200"
+                        android:maxHeight="2dp"
+                        android:minHeight="2dp"
+                        android:progressDrawable="@drawable/bg_seek_bar"
+                        android:splitTrack="false"
+                        android:thumb="@drawable/thumb_image" />
+
+                    <TextView
+                        android:id="@+id/tv_dev_num"
+                        android:layout_width="36dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="200"
+                        android:textColor="@color/colorConfig"
+                        android:textSize="19sp" />
+
+                    <TextView
+                        android:id="@+id/tv_dev_num_add"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:padding="4dp"
+                        android:text="＋"
+                        android:textColor="@color/colorNoClick"
+                        android:textSize="20sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:max="255"
-                android:maxHeight="2dp"
-                android:minHeight="2dp"
-                android:progressDrawable="@drawable/bg_seek_bar"
-                android:splitTrack="false"
-                android:thumb="@drawable/thumb_image" />
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tv_start_dmx"
-                android:layout_width="36dp"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="25dp"
+                    android:layout_marginTop="20dp"
+                    android:text="起始DMX"
+                    android:textColor="@color/colorTitle"
+                    android:textSize="14sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="25dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="25dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="@drawable/shape_seekbar_bg"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tv_start_dmx_subtract"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:padding="4dp"
+                        android:text="－"
+                        android:textColor="@color/colorNoClick"
+                        android:textSize="20sp" />
+
+                    <SeekBar
+                        android:id="@+id/sb_start_dmx"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:max="255"
+                        android:maxHeight="2dp"
+                        android:minHeight="2dp"
+                        android:progressDrawable="@drawable/bg_seek_bar"
+                        android:splitTrack="false"
+                        android:thumb="@drawable/thumb_image" />
+
+                    <TextView
+                        android:id="@+id/tv_start_dmx"
+                        android:layout_width="36dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="510"
+                        android:textColor="@color/colorConfig"
+                        android:textSize="19sp" />
+
+                    <TextView
+                        android:id="@+id/tv_start_dmx_add"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:padding="4dp"
+                        android:text="＋"
+                        android:textColor="@color/colorNoClick"
+                        android:textSize="20sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="510"
-                android:textColor="@color/colorConfig"
-                android:textSize="19sp" />
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tv_start_dmx_add"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
-                android:padding="4dp"
-                android:text="＋"
-                android:textColor="@color/colorNoClick"
-                android:textSize="20sp" />
-        </LinearLayout>
-    </LinearLayout>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="25dp"
+                        android:text="添加效果"
+                        android:textColor="@color/colorTitle"
+                        android:textSize="14sp" />
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="25dp"
+                        android:src="@drawable/ic_mine_right" />
+                </RelativeLayout>
+            </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="92dp"
                 android:layout_marginStart="25dp"
-                android:text="添加效果"
+                android:layout_marginEnd="25dp">
+
+                <RelativeLayout
+                    android:id="@+id/rl_add_effect"
+                    android:layout_width="48dp"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:background="@drawable/shape_add_effect">
+
+                    <ImageView
+                        android:layout_width="23dp"
+                        android:layout_height="23dp"
+                        android:layout_centerInParent="true"
+                        android:src="@drawable/ic_add_effect_jet" />
+                </RelativeLayout>
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rv_master_set"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_toStartOf="@id/rl_add_effect"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/ll_no_jet_mode"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_toStartOf="@id/rl_add_effect"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:src="@drawable/ic_jet_mode_null" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="8dp"
+                        android:text="请添加喷射效果"
+                        android:textSize="18sp" />
+                </LinearLayout>
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="20dp"
+                android:text="累计时间"
                 android:textColor="@color/colorTitle"
                 android:textSize="14sp" />
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="25dp"
-                android:src="@drawable/ic_mine_right" />
-        </RelativeLayout>
-    </LinearLayout>
+            <RelativeLayout
+                android:layout_width="145dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/shape_add_effect">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="92dp"
-        android:layout_marginStart="25dp"
-        android:layout_marginEnd="25dp">
+                <TextView
+                    android:id="@+id/tv_jet_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/ic_add_effect_jet"
+                    android:text="300s"
+                    android:textColor="@color/colorTitleName"
+                    android:textSize="20dp"
+                    android:textStyle="bold|italic" />
+            </RelativeLayout>
 
-        <RelativeLayout
-            android:id="@+id/rl_add_effect"
-            android:layout_width="48dp"
-            android:layout_height="match_parent"
-            android:layout_alignParentEnd="true"
-            android:background="@drawable/shape_add_effect">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="28dp"
+                android:layout_marginRight="25dp">
 
-            <ImageView
-                android:layout_width="23dp"
-                android:layout_height="23dp"
-                android:layout_centerInParent="true"
-                android:src="@drawable/ic_add_effect_jet" />
-        </RelativeLayout>
+                <Button
+                    android:id="@+id/btn_clear_material"
+                    android:layout_width="120dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/ic_btn_null"
+                    android:text="@string/clear_material"
+                    android:textColor="@color/colorNavBar"
+                    android:textSize="19sp" />
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rv_master_set"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_toStartOf="@id/rl_add_effect"
-            android:visibility="gone" />
-
-        <LinearLayout
-            android:id="@+id/ll_no_jet_mode"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_toStartOf="@id/rl_add_effect"
-            android:gravity="center">
-
-            <ImageView
-                android:layout_width="38dp"
-                android:layout_height="38dp"
-                android:src="@drawable/ic_jet_mode_null" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:text="请添加喷射效果"
-                android:textSize="18sp" />
+                <Button
+                    android:id="@+id/btn_save_master"
+                    android:layout_width="120dp"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:background="@drawable/ic_btn_full"
+                    android:text="@string/btn_save"
+                    android:textColor="@color/white"
+                    android:textSize="19sp" />
+            </RelativeLayout>
         </LinearLayout>
-    </RelativeLayout>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="20dp"
-        android:text="累计时间"
-        android:textColor="@color/colorTitle"
-        android:textSize="14sp" />
-
-    <RelativeLayout
-        android:layout_width="145dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="12dp"
-        android:background="@drawable/shape_add_effect">
-
-        <TextView
-            android:id="@+id/tv_jet_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:src="@drawable/ic_add_effect_jet"
-            android:text="300 s"
-            android:textColor="@color/colorTitleName"
-            android:textSize="20dp"
-            android:textStyle="bold" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginLeft="25dp"
-        android:layout_marginTop="28dp"
-        android:layout_marginRight="25dp">
-
-        <Button
-            android:id="@+id/btn_clear_material"
-            android:layout_width="120dp"
-            android:layout_height="match_parent"
-            android:background="@drawable/ic_btn_null"
-            android:text="@string/clear_material"
-            android:textColor="@color/colorNavBar"
-            android:textSize="19sp" />
-
-        <Button
-            android:id="@+id/btn_save_master"
-            android:layout_width="120dp"
-            android:layout_height="match_parent"
-            android:layout_alignParentEnd="true"
-            android:background="@drawable/ic_btn_full"
-            android:text="@string/btn_save"
-            android:textColor="@color/white"
-            android:textSize="19sp" />
-    </RelativeLayout>
-
+    </android.support.v4.widget.NestedScrollView>
 </LinearLayout>

@@ -34,7 +34,7 @@ public class CtDemoDescriptionActivity extends BaseActivity {
         GApp gApp = (GApp) getApplication();
         switch (gApp.getFlagGifDemo()) {
             case CONFIG_STREAM:
-                showDemoGif("齐喷演示", R.drawable.ic_gif_stream);
+                showDemoGif("流水灯演示", R.drawable.ic_gif_stream);
                 break;
             case CONFIG_RIDE:
                 showDemoGif("跑马灯演示", R.drawable.ic_gif_ride);

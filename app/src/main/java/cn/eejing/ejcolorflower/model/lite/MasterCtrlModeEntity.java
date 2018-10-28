@@ -10,18 +10,12 @@ import org.litepal.crud.LitePalSupport;
  */
 
 public class MasterCtrlModeEntity extends LitePalSupport implements Parcelable {
-    private String devId;        // 主控设备ID
-    private String groupName;    // 分组名称
-    private String type;         // 喷射效果
-    private long millis;         // 时间戳
+    private String devId;              // 主控设备ID
+    private String groupName;          // 分组名称
+    private String type;               // 喷射效果 有效果 无效果
+    private long groupIdMillis;        // 时间戳-当分组ID使用
 
     public MasterCtrlModeEntity() {
-    }
-
-    public MasterCtrlModeEntity(String groupName, String type, long millis) {
-        this.groupName = groupName;
-        this.type = type;
-        this.millis = millis;
     }
 
     public String getDevId() {
@@ -48,12 +42,12 @@ public class MasterCtrlModeEntity extends LitePalSupport implements Parcelable {
         this.type = type;
     }
 
-    public long getMillis() {
-        return millis;
+    public long getGroupIdMillis() {
+        return groupIdMillis;
     }
 
-    public void setMillis(long millis) {
-        this.millis = millis;
+    public void setGroupIdMillis(long groupIdMillis) {
+        this.groupIdMillis = groupIdMillis;
     }
 
     @Override
@@ -66,14 +60,14 @@ public class MasterCtrlModeEntity extends LitePalSupport implements Parcelable {
         dest.writeString(this.devId);
         dest.writeString(this.groupName);
         dest.writeString(this.type);
-        dest.writeLong(this.millis);
+        dest.writeLong(this.groupIdMillis);
     }
 
     protected MasterCtrlModeEntity(Parcel in) {
         this.devId = in.readString();
         this.groupName = in.readString();
         this.type = in.readString();
-        this.millis = in.readLong();
+        this.groupIdMillis = in.readLong();
     }
 
     public static final Creator<MasterCtrlModeEntity> CREATOR = new Creator<MasterCtrlModeEntity>() {

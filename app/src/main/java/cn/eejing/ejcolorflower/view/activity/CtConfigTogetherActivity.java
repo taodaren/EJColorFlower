@@ -125,7 +125,7 @@ public class CtConfigTogetherActivity extends BaseActivity implements View.OnCli
     private void updateLiteData() {
         mListJetModeCfg.get(0).setJetType(CONFIG_TOGETHER);
         mListJetModeCfg.get(0).setDuration(etDuration.getText().toString());
-        mListJetModeCfg.get(0).setHigh(DEFAULT_HIGH);
+        mListJetModeCfg.get(0).setHigh(etHigh.getText().toString());
         mListJetModeCfg.get(0).updateAll("jetIdMillis=?", String.valueOf(mJetIdMillis));
     }
 

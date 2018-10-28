@@ -1,7 +1,6 @@
 package cn.eejing.ejcolorflower.view.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -16,15 +15,11 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.model.lite.MasterCtrlModeEntity;
-import cn.eejing.ejcolorflower.view.activity.CoConfigIntervalActivity;
-import cn.eejing.ejcolorflower.view.activity.CoConfigRideActivity;
-import cn.eejing.ejcolorflower.view.activity.CoConfigStreamActivity;
-import cn.eejing.ejcolorflower.view.activity.CoConfigTogetherActivity;
+import cn.eejing.ejcolorflower.model.lite.JetModeConfigLite;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_INTERVAL;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_RIDE;
-import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_STOP;
+import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_DELAY;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_STREAM;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
 
@@ -33,21 +28,24 @@ import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
  */
 
 public class CtMasterSetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private Context mContext;
     private LayoutInflater mLayoutInflater;
-    private List<MasterCtrlModeEntity> mList;
+    private List<JetModeConfigLite> mListJetModeCfg;
 
+    private View.OnClickListener mClickListener;
     private View.OnLongClickListener mLongClickListener;
 
-    public void setLongClickListener(View.OnLongClickListener listener) {
-        mLongClickListener = listener;
+    public void setClickListener(View.OnClickListener clickListener) {
+        this.mClickListener = clickListener;
     }
 
-    public CtMasterSetAdapter(Context context, List<MasterCtrlModeEntity> list) {
-        this.mContext = context;
+    public void setLongClickListener(View.OnLongClickListener listener) {
+        this.mLongClickListener = listener;
+    }
+
+    public CtMasterSetAdapter(Context context, List<JetModeConfigLite> list) {
         this.mLayoutInflater = LayoutInflater.from(context);
-        this.mList = new ArrayList<>();
-        this.mList.addAll(list);
+        this.mListJetModeCfg = new ArrayList<>();
+        this.mListJetModeCfg.addAll(list);
     }
 
     @NonNull
@@ -63,18 +61,18 @@ public class CtMasterSetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @Override
     public int getItemCount() {
-        return mList.size();
+        return mListJetModeCfg.size();
     }
 
-    public void refreshList(List<MasterCtrlModeEntity> list) {
+    public void refreshList(List<JetModeConfigLite> list) {
         if (list != null) {
-            mList.clear();
+            mListJetModeCfg.clear();
             addList(list);
         }
     }
 
-    private void addList(List<MasterCtrlModeEntity> list) {
-        mList.addAll(list);
+    private void addList(List<JetModeConfigLite> list) {
+        mListJetModeCfg.addAll(list);
         notifyDataSetChanged();
     }
 
@@ -87,8 +85,8 @@ public class CtMasterSetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
 
         public void setData(int position) {
-                Log.i("CtSetGroupActivity", "setData: " + mList.get(position).getType());
-                switch (mList.get(position).getType()) {
+                Log.i("CtSetGroupActivity", "setData: " + mListJetModeCfg.get(position).getJetType());
+                switch (mListJetModeCfg.get(position).getJetType()) {
                     case CONFIG_STREAM:
                         imgJetMode.setImageResource(R.drawable.ic_jet_mode_stream);
                         break;
@@ -101,40 +99,14 @@ public class CtMasterSetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     case CONFIG_TOGETHER:
                         imgJetMode.setImageResource(R.drawable.ic_jet_mode_together);
                         break;
-                    case CONFIG_STOP:
+                    case CONFIG_DELAY:
                         imgJetMode.setImageResource(R.drawable.ic_jet_mode_stop);
                         break;
                 }
 
-            onClickModeJet();
-
             imgJetMode.setTag(getAdapterPosition());
             imgJetMode.setOnLongClickListener(mLongClickListener);
-        }
-
-        private void onClickModeJet() {
-            imgJetMode.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    long groupId = mList.get(getAdapterPosition()).getMillis();
-                        switch (mList.get(getAdapterPosition()).getType()) {
-                            case CONFIG_STREAM:
-                                mContext.startActivity(new Intent(mContext, CoConfigStreamActivity.class).putExtra("group_id", groupId));
-                                break;
-                            case CONFIG_RIDE:
-                                mContext.startActivity(new Intent(mContext, CoConfigRideActivity.class).putExtra("group_id", groupId));
-                                break;
-                            case CONFIG_INTERVAL:
-                                mContext.startActivity(new Intent(mContext, CoConfigIntervalActivity.class).putExtra("group_id", groupId));
-                                break;
-                            case CONFIG_TOGETHER:
-                                mContext.startActivity(new Intent(mContext, CoConfigTogetherActivity.class).putExtra("group_id", groupId));
-                                break;
-                            default:
-                                break;
-                        }
-                }
-            });
+            imgJetMode.setOnClickListener(mClickListener);
         }
     }
 

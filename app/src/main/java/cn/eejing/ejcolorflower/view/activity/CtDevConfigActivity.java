@@ -168,7 +168,7 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
                 break;
             case R.id.btn_enter_master:
                 if (isEnterMasterCtrl) {
-                    jumpToActivity(new Intent(this, CtMasterModeActivity.class).putExtra("device_id", mDevId));
+                    jumpToActivity(new Intent(this, CtMasterModeActivity.class).putExtra("device_id", mDevId).putExtra("member_id", mMemberId));
                 } else {
                     Toast.makeText(this, "DMX 为 0 方可进入主控模式", Toast.LENGTH_SHORT).show();
                 }

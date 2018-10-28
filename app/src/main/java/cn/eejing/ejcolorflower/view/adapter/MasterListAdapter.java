@@ -4,11 +4,13 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.List;
@@ -16,10 +18,10 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.model.request.MasterGroupListBean;
+import cn.eejing.ejcolorflower.model.lite.MasterGroupLite;
 
 /**
- * 主控分組列表适配器
+ * 主控界面-分組列表适配器
  */
 
 public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -27,17 +29,19 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     private Context mContext;
     private LayoutInflater mLayoutInflater;
-    private List<MasterGroupListBean> mList;
+    private List<MasterGroupLite> mListMasterGroup;
 
-    public MasterListAdapter(Context context, List<MasterGroupListBean> list) {
+    public MasterListAdapter(Context context, List<MasterGroupLite> list) {
+        Log.i(TAG, "MasterListAdapter size: " + list.size());
         this.mContext = context;
-        this.mList = list;
+        this.mListMasterGroup = list;
         this.mLayoutInflater = LayoutInflater.from(mContext);
     }
 
     private View.OnClickListener mClickSetMaster;
     private View.OnClickListener mClickIsSelectedGroup;
     private View.OnClickListener mClickIsSelectedMaster;
+    private View.OnLongClickListener mLongClickListener;
 
     public void setClickSetMaster(View.OnClickListener clickSetMaster) {
         this.mClickSetMaster = clickSetMaster;
@@ -51,6 +55,10 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         this.mClickIsSelectedMaster = clickIsSelectedMaster;
     }
 
+    public void setLongClickListener(View.OnLongClickListener longClickListener) {
+        this.mLongClickListener = longClickListener;
+    }
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -59,40 +67,25 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        if (mList != null) {
-            ((ItemViewHolder) holder).setData(mList.get(position));
+        if (mListMasterGroup != null) {
+            ((ItemViewHolder) holder).setData(mListMasterGroup.get(position));
         }
     }
 
     @Override
     public int getItemCount() {
-        return mList.size();
-    }
-
-    public void refreshList(List<MasterGroupListBean> list) {
-        if (list != null) {
-            mList.clear();
-            addList(list);
-        }
-        if (list == null) {
-            mList.clear();
-            notifyDataSetChanged();
-        }
-    }
-
-    private void addList(List<MasterGroupListBean> list) {
-        mList.addAll(list);
-        notifyDataSetChanged();
+        return mListMasterGroup.size();
     }
 
     class ItemViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.img_group_is_selected)        ImageView imgSelectGroup;
-        @BindView(R.id.img_master_is_selected)       ImageView imgSelectMaster;
-        @BindView(R.id.tv_master_group)              TextView  tvGroupName;
-        @BindView(R.id.tv_master_num)                TextView  tvDevNum;
-        @BindView(R.id.tv_master_dmx)                TextView  tvStartDmx;
-        @BindView(R.id.tv_master_type)               TextView  tvJetMode;
-        @BindView(R.id.btn_master_set)               Button    btnSetMaster;
+        @BindView(R.id.ll_group_mst)                 LinearLayout layoutGroupMst;
+        @BindView(R.id.img_group_is_selected)        ImageView    imgSelectGroup;
+        @BindView(R.id.img_master_is_selected)       ImageView    imgSelectMaster;
+        @BindView(R.id.tv_master_group)              TextView     tvGroupName;
+        @BindView(R.id.tv_master_num)                TextView     tvDevNum;
+        @BindView(R.id.tv_master_dmx)                TextView     tvStartDmx;
+        @BindView(R.id.tv_master_type)               TextView     tvJetMode;
+        @BindView(R.id.btn_master_set)               Button       btnSetMaster;
 
         ItemViewHolder(View itemView) {
             super(itemView);
@@ -100,29 +93,30 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         @SuppressLint("SetTextI18n")
-        void setData(MasterGroupListBean bean) {
+        void setData(MasterGroupLite bean) {
             // 设置是否选中组
             switch (bean.getIsSelectedGroup()) {
                 case 1:
-                    imgSelectGroup.setImageDrawable(mContext.getDrawable(R.drawable.ic_group_selected));
+                    imgSelectGroup.setImageDrawable(mContext.getDrawable(R.drawable.ic_check_selected));
                     break;
                 case 2:
-                    imgSelectGroup.setImageDrawable(mContext.getDrawable(R.drawable.ic_group_unselected));
+                    imgSelectGroup.setImageDrawable(mContext.getDrawable(R.drawable.ic_check_unselected));
                     break;
             }
             // 设置是否选中包含主控
             switch (bean.getIsSelectedMaster()) {
                 case 1:
-                    imgSelectMaster.setImageDrawable(mContext.getDrawable(R.drawable.ic_group_master_selected));
+                    imgSelectMaster.setImageDrawable(mContext.getDrawable(R.drawable.ic_single_selected));
                     break;
                 case 2:
-                    imgSelectMaster.setImageDrawable(mContext.getDrawable(R.drawable.ic_group_master_unselected));
+                    imgSelectMaster.setImageDrawable(mContext.getDrawable(R.drawable.ic_single_unselected));
                     break;
             }
             tvGroupName.setText(bean.getGroupName());
             tvDevNum.setText("设备数量 " + bean.getDevNum());
             tvStartDmx.setText("起始 DMX " + bean.getStartDmx());
-            if (bean.getJetModes() == null) {
+            Log.i(TAG, "setData: " + bean.getJetModes());
+            if (bean.getJetModes() == null || bean.getJetModes().size() == 0) {
                 tvJetMode.setText("无效果");
             } else {
                 tvJetMode.setText("有效果");
@@ -130,9 +124,11 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             btnSetMaster.setOnClickListener(mClickSetMaster);
             imgSelectGroup.setOnClickListener(mClickIsSelectedGroup);
             imgSelectMaster.setOnClickListener(mClickIsSelectedMaster);
+            layoutGroupMst.setOnLongClickListener(mLongClickListener);
             btnSetMaster.setTag(getAdapterPosition());
             imgSelectGroup.setTag(getAdapterPosition());
             imgSelectMaster.setTag(getAdapterPosition());
+            layoutGroupMst.setTag(getAdapterPosition());
         }
     }
 

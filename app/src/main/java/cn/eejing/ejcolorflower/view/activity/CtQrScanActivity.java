@@ -5,21 +5,12 @@ import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
 
 import butterknife.BindView;
 import cn.bingoogolapple.qrcode.core.QRCodeView;
 import cn.bingoogolapple.qrcode.zxing.ZXingView;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.app.GApp;
-import cn.eejing.ejcolorflower.model.request.AddDeviceBean;
-import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.APP_QR_GET_DID;

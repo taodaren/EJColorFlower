@@ -14,23 +14,35 @@ import android.widget.Toast;
 
 import org.litepal.LitePal;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
-import cn.eejing.ejcolorflower.model.lite.MasterCtrlModeEntity;
-import cn.eejing.ejcolorflower.model.lite.MasterCtrlSetEntity;
-import cn.eejing.ejcolorflower.model.request.MasterGroupListBean;
+import cn.eejing.ejcolorflower.model.lite.JetModeConfigLite;
+import cn.eejing.ejcolorflower.model.lite.MasterGroupLite;
+import cn.eejing.ejcolorflower.model.manager.MgrOutputJet;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
+import cn.eejing.ejcolorflower.util.GsonUtils;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
 import cn.eejing.ejcolorflower.view.adapter.CtMasterSetAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.CLEAR_MATERIAL_MASTER;
+import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_DELAY;
+import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_INTERVAL;
+import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_RIDE;
+import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_STREAM;
+import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
 import static cn.eejing.ejcolorflower.app.AppConstant.CTRL_DEV_NUM;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_DURATION;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_GAP;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_GAP_BIG;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_HIGH;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_HIGH_DELAY;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_JET_ROUND;
+import static cn.eejing.ejcolorflower.app.AppConstant.LEFT_TO_RIGHT;
 
 /**
  * 设置主控分组
@@ -49,12 +61,14 @@ public class CtSetGroupActivity extends BaseActivity {
 
     private long mDevId;
     private String mDevMac;
-    private int mPosition;
     private String mGroupName;
     private int mDevNum, mStartDmx;
-    private int mJetTime;
+    private long mGroupIdMillis;
+    private float mJetTime;
     private CtMasterSetAdapter mAdapter;
-    private List<MasterCtrlModeEntity> mList;
+    private List<MasterGroupLite> mListMasterGroup;         // 主控分组信息列表集合
+    private List<JetModeConfigLite> mListJetModeCfg;        // 喷射效果及配置集合
+
     private SelfDialogBase mDialog;
 
     @Override
@@ -64,21 +78,24 @@ public class CtSetGroupActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        mPosition = getIntent().getIntExtra("group_position", 0);
-        mGroupName = getIntent().getStringExtra("group_name");
-        setToolbar(mGroupName, View.VISIBLE, null, View.GONE);
-        mDevNum = getIntent().getIntExtra("group_dev_num", 0);
-        mStartDmx = getIntent().getIntExtra("group_start_dmx", 0);
-
-//        mList = LitePal.where("groupName = ?", String.valueOf(mGroupName)).find(MasterCtrlModeEntity.class);
-//        if (mList == null) {
-//            mList = new ArrayList<>();
-//        }
-
         mDevId = MainActivity.getAppCtrl().getDevId();
         mDevMac = MainActivity.getAppCtrl().getDevMac();
+        mListMasterGroup = LitePal.where("devId = ?", String.valueOf(mDevId)).find(MasterGroupLite.class);
 
+        MasterGroupLite groupLite = mListMasterGroup.get(getIntent().getIntExtra("group_position", 0));
+        mGroupName = groupLite.getGroupName();
+        mDevNum = groupLite.getDevNum();
+        mStartDmx = groupLite.getStartDmx();
+        mGroupIdMillis = groupLite.getGroupIdMillis();
+
+        setToolbar(mGroupName, View.VISIBLE, null, View.GONE);
         showData();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        refreshData();
     }
 
     @Override
@@ -89,6 +106,7 @@ public class CtSetGroupActivity extends BaseActivity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 // 当拖动条的滑块位置发生改变时触发该方法,在这里直接使用参数 progress，即当前滑块代表的进度值
                 tvDevNum.setText(Integer.toString(progress));
+                tvJetTime.setText(String.valueOf(countTotalTime()) + "s");
             }
             /** 开始滑动 **/
             @Override
@@ -124,30 +142,49 @@ public class CtSetGroupActivity extends BaseActivity {
         // 起始 DMX
         sbStartDmx.setProgress(mStartDmx / 2);
         tvStartDmx.setText(String.valueOf(mStartDmx));
-
         // 喷射效果列表
         refreshData();
     }
 
     /** 刷新数据 */
     private void refreshData() {
-        if (mList != null) {
-            mList.clear();
+        if (mListJetModeCfg != null) {
+            mListJetModeCfg.clear();
         }
         initDatabase();
     }
 
+    @SuppressLint("SetTextI18n")
     private void initDatabase() {
-        mList = LitePal.where("groupName = ?", mGroupName).find(MasterCtrlModeEntity.class);
-        if (mList.size() != 0) {
+        mListJetModeCfg = LitePal.where("groupIdMillis = ?", String.valueOf(mGroupIdMillis)).find(JetModeConfigLite.class);
+        if (mListJetModeCfg.size() != 0) {
             rvMasterSet.setVisibility(View.VISIBLE);
             llNoJetModes.setVisibility(View.GONE);
-
             initRecyclerView();
         } else {
             rvMasterSet.setVisibility(View.GONE);
             llNoJetModes.setVisibility(View.VISIBLE);
         }
+        tvJetTime.setText(String.valueOf(countTotalTime()) + "s");
+    }
+
+    /** 计算总时间 */
+    private float countTotalTime() {
+        float totalTime = 0.0f;
+        for (int position = 0; position < mListJetModeCfg.size(); position++) {
+            totalTime += MgrOutputJet.calCountAloneTime(
+                    Integer.parseInt(tvDevNum.getText().toString()),
+                    mListJetModeCfg.get(position).getJetType(),
+                    mListJetModeCfg.get(position).getDirection(),
+                    mListJetModeCfg.get(position).getGap(),
+                    mListJetModeCfg.get(position).getDuration(),
+                    mListJetModeCfg.get(position).getBigGap(),
+                    mListJetModeCfg.get(position).getJetRound()
+            );
+        }
+
+        mJetTime = totalTime;
+        return totalTime;
     }
 
     private void initRecyclerView() {
@@ -157,7 +194,7 @@ public class CtSetGroupActivity extends BaseActivity {
         LinearLayoutManager manager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         rvMasterSet.setLayoutManager(manager);
         // 绑定适配器
-        mAdapter = new CtMasterSetAdapter(this, mList);
+        mAdapter = new CtMasterSetAdapter(this, mListJetModeCfg);
         // 监听长按点击事件
         mAdapter.setLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -165,6 +202,45 @@ public class CtSetGroupActivity extends BaseActivity {
                 int position = (int) v.getTag();
                 showDelDialog(position);
                 return true;
+            }
+        });
+        // 监听单击事件
+        mAdapter.setClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (tvDevNum.getText().equals("0")) {
+                    Toast.makeText(CtSetGroupActivity.this, "设备数量不能为0", Toast.LENGTH_SHORT).show();
+                } else {
+                    int position = (int) v.getTag();
+                    long jetIdMillis = mListJetModeCfg.get(position).getJetIdMillis();
+                    switch (mListJetModeCfg.get(position).getJetType()) {
+                        case CONFIG_STREAM:
+                            startActivity(new Intent(CtSetGroupActivity.this, CtConfigStreamActivity.class)
+                                    .putExtra("device_num", Integer.parseInt(tvDevNum.getText().toString()))
+                                    .putExtra("jet_id_millis", jetIdMillis));
+                            break;
+                        case CONFIG_RIDE:
+                            startActivity(new Intent(CtSetGroupActivity.this, CtConfigRideActivity.class)
+                                    .putExtra("device_num", Integer.parseInt(tvDevNum.getText().toString()))
+                                    .putExtra("jet_id_millis", jetIdMillis));
+                            break;
+                        case CONFIG_INTERVAL:
+                            startActivity(new Intent(CtSetGroupActivity.this, CtConfigIntervalActivity.class)
+                                    .putExtra("device_num", Integer.parseInt(tvDevNum.getText().toString()))
+                                    .putExtra("jet_id_millis", jetIdMillis));
+                            break;
+                        case CONFIG_TOGETHER:
+                            startActivity(new Intent(CtSetGroupActivity.this, CtConfigTogetherActivity.class)
+                                    .putExtra("jet_id_millis", jetIdMillis));
+                            break;
+                        case CONFIG_DELAY:
+                            startActivity(new Intent(CtSetGroupActivity.this, CtConfigDelayActivity.class)
+                                    .putExtra("jet_id_millis", jetIdMillis));
+                            break;
+                        default:
+                            break;
+                    }
+                }
             }
         });
 
@@ -178,7 +254,7 @@ public class CtSetGroupActivity extends BaseActivity {
             @Override
             public void onYesClick() {
                 // 删除喷射效果
-                LitePal.deleteAll(MasterCtrlModeEntity.class, "millis = ?", String.valueOf(mList.get(position).getMillis()));
+                LitePal.deleteAll(JetModeConfigLite.class, "jetIdMillis = ?", String.valueOf(mListJetModeCfg.get(position).getJetIdMillis()));
                 refreshData();
                 mDialog.dismiss();
             }
@@ -226,23 +302,29 @@ public class CtSetGroupActivity extends BaseActivity {
             case 1:
                 if (resultCode == RESULT_OK) {
                     // 选择喷射效果后保存喷射效果，并刷新喷射效果列表
-                    setMasterCtrl(data.getStringExtra("jet_mode"), System.currentTimeMillis());
+                    createJetModes(data.getStringExtra("jet_mode"));
                 }
                 break;
             default:
         }
     }
 
-    private void setMasterCtrl(String type, long millis) {
-        Log.i(TAG, "setMasterCtrl");
-        // 保存主控喷射效果
-        MasterCtrlModeEntity entity = new MasterCtrlModeEntity();
-        entity.setDevId(String.valueOf(mDevId));
-        entity.setGroupName(mGroupName);
-        entity.setType(type);
-        entity.setMillis(millis);
-        entity.save();
-        // 添加一条数据到集合，并刷新
+    private void createJetModes(String jetType) {
+        JetModeConfigLite lite = new JetModeConfigLite();
+        lite.setGroupIdMillis(mGroupIdMillis);
+        lite.setJetIdMillis(System.currentTimeMillis());
+        lite.setJetType(jetType);
+        lite.setDirection(LEFT_TO_RIGHT);
+        lite.setGap(DEFAULT_GAP);
+        lite.setDuration(DEFAULT_DURATION);
+        lite.setBigGap(DEFAULT_GAP_BIG);
+        lite.setJetRound(DEFAULT_JET_ROUND);
+        if (jetType.equals(CONFIG_DELAY)) {
+            lite.setHigh(DEFAULT_HIGH_DELAY);
+        } else {
+            lite.setHigh(DEFAULT_HIGH);
+        }
+        lite.save();
         refreshData();
     }
 
@@ -278,15 +360,12 @@ public class CtSetGroupActivity extends BaseActivity {
                 });
     }
 
-    /** 点击保存 */
+    /** 点击保存 更新主控分组信息 */
     private void saveMasterConfig() {
-        List<MasterGroupListBean> groupList = LitePal
-                .where("groupName = ?", mGroupName)
-                .find(MasterGroupListBean.class);
-        groupList.get(0).setDevNum(sbDevNum.getProgress());
-        groupList.get(0).setStartDmx(Integer.parseInt(tvStartDmx.getText().toString()));
-        groupList.get(0).setJetModes(mList);
-        groupList.get(0).updateAll("groupName = ?", mGroupName);
+        mListMasterGroup = LitePal.where("groupIdMillis = ?", String.valueOf(mGroupIdMillis)).find(MasterGroupLite.class);
+        mListMasterGroup.get(0).setDevNum(sbDevNum.getProgress());
+        mListMasterGroup.get(0).setStartDmx(Integer.parseInt(tvStartDmx.getText().toString()));
+        mListMasterGroup.get(0).updateAll("groupIdMillis = ?", String.valueOf(mGroupIdMillis));
         finish();
     }
 

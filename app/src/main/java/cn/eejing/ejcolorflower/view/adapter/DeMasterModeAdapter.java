@@ -11,8 +11,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.litepal.LitePal;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,11 +18,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.model.lite.MasterCtrlModeEntity;
-import cn.eejing.ejcolorflower.util.SelfDialogBase;
-import cn.eejing.ejcolorflower.view.activity.CoConfigIntervalActivity;
-import cn.eejing.ejcolorflower.view.activity.CoConfigRideActivity;
-import cn.eejing.ejcolorflower.view.activity.CoConfigStreamActivity;
-import cn.eejing.ejcolorflower.view.activity.CoConfigTogetherActivity;
+import cn.eejing.ejcolorflower.view.activity.CtConfigIntervalActivity;
+import cn.eejing.ejcolorflower.view.activity.CtConfigRideActivity;
+import cn.eejing.ejcolorflower.view.activity.CtConfigStreamActivity;
+import cn.eejing.ejcolorflower.view.activity.CtConfigTogetherActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_INTERVAL;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_RIDE;
@@ -103,20 +100,20 @@ public class DeMasterModeAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 layoutJet.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        int millis = (int) mList.get(getAdapterPosition()).getMillis();
+                        int millis = (int) mList.get(getAdapterPosition()).getGroupIdMillis();
 
                         switch (bean.getType()) {
                             case CONFIG_STREAM:
-                                mContext.startActivity(new Intent(mContext, CoConfigStreamActivity.class).putExtra("group_id", millis));
+                                mContext.startActivity(new Intent(mContext, CtConfigStreamActivity.class).putExtra("group_id", millis));
                                 break;
                             case CONFIG_RIDE:
-                                mContext.startActivity(new Intent(mContext, CoConfigRideActivity.class).putExtra("group_id", millis));
+                                mContext.startActivity(new Intent(mContext, CtConfigRideActivity.class).putExtra("group_id", millis));
                                 break;
                             case CONFIG_INTERVAL:
-                                mContext.startActivity(new Intent(mContext, CoConfigIntervalActivity.class).putExtra("group_id", millis));
+                                mContext.startActivity(new Intent(mContext, CtConfigIntervalActivity.class).putExtra("group_id", millis));
                                 break;
                             case CONFIG_TOGETHER:
-                                mContext.startActivity(new Intent(mContext, CoConfigTogetherActivity.class).putExtra("group_id", millis));
+                                mContext.startActivity(new Intent(mContext, CtConfigTogetherActivity.class).putExtra("group_id", millis));
                                 break;
                             default:
                                 break;

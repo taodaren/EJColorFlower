@@ -24,6 +24,9 @@ public class MgrOutputJet {
     public void setDevCount(int devCount) {
         this.mDevCount = devCount;
     }
+    public int getDevCount() {
+        return mDevCount;
+    }
 
     public void setLoop(int loop) {
         this.mLoop = loop;

@@ -44,7 +44,7 @@ public class CtAddEffectActivity extends BaseActivity {
                 finish();
                 break;
             case R.id.add_stop_jet:
-                setResult(RESULT_OK, new Intent().putExtra("jet_mode", AppConstant.CONFIG_STOP));
+                setResult(RESULT_OK, new Intent().putExtra("jet_mode", AppConstant.CONFIG_DELAY));
                 finish();
                 break;
         }

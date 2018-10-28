@@ -89,7 +89,7 @@ public class TabCtrlFragment extends BaseFragment implements EasyPermissions.Per
         Log.i(TAG, "ctrl model: " + event.getMac() + " | " + event.getId() + " | " + mStatus);
         if (mStatus.equals("已连接")) {
             if (mFlagConnStatus == 0 && mFlagStopContext != 2) {
-                // 如果连接状态为不可连接，并且回到 TabCtrlFragment，跳转到设备配置界面
+                // 如果连接状态为已连接，并且回到 TabCtrlFragment，跳转到设备配置界面
                 startActivity(new Intent(getContext(), CtDevConfigActivity.class)
                         .putExtra(QR_DEV_ID, event.getId())
                         .putExtra(QR_DEV_MAC, event.getMac())

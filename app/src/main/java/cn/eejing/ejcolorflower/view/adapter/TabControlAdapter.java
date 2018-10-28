@@ -59,10 +59,10 @@ import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.JetCommandTools;
 import cn.eejing.ejcolorflower.util.SelfDialog;
 import cn.eejing.ejcolorflower.util.Settings;
-import cn.eejing.ejcolorflower.view.activity.CoConfigIntervalActivity;
-import cn.eejing.ejcolorflower.view.activity.CoConfigRideActivity;
-import cn.eejing.ejcolorflower.view.activity.CoConfigStreamActivity;
-import cn.eejing.ejcolorflower.view.activity.CoConfigTogetherActivity;
+import cn.eejing.ejcolorflower.view.activity.CtConfigIntervalActivity;
+import cn.eejing.ejcolorflower.view.activity.CtConfigRideActivity;
+import cn.eejing.ejcolorflower.view.activity.CtConfigStreamActivity;
+import cn.eejing.ejcolorflower.view.activity.CtConfigTogetherActivity;
 import cn.eejing.ejcolorflower.view.activity.CoDeviceActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.CLEAR_MATERIAL_GROUP;
@@ -484,16 +484,16 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     }
                     switch (v.getId()) {
                         case R.id.pop_config_stream:
-                            mContext.startActivity(new Intent(mContext, CoConfigStreamActivity.class).putExtra("group_id", groupId));
+                            mContext.startActivity(new Intent(mContext, CtConfigStreamActivity.class).putExtra("group_id", groupId));
                             break;
                         case R.id.pop_config_ride:
-                            mContext.startActivity(new Intent(mContext, CoConfigRideActivity.class).putExtra("group_id", groupId));
+                            mContext.startActivity(new Intent(mContext, CtConfigRideActivity.class).putExtra("group_id", groupId));
                             break;
                         case R.id.pop_config_interval:
-                            mContext.startActivity(new Intent(mContext, CoConfigIntervalActivity.class).putExtra("group_id", groupId));
+                            mContext.startActivity(new Intent(mContext, CtConfigIntervalActivity.class).putExtra("group_id", groupId));
                             break;
                         case R.id.pop_config_together:
-                            mContext.startActivity(new Intent(mContext, CoConfigTogetherActivity.class).putExtra("group_id", groupId));
+                            mContext.startActivity(new Intent(mContext, CtConfigTogetherActivity.class).putExtra("group_id", groupId));
                             break;
                         default:
                             break;

@@ -12,7 +12,7 @@ public class CtrlStreamEntity extends LitePalSupport {
     private String gap;             // 间隔时间
     private String duration;        // 持续时间
     private String gapBig;          // 大间隔时间
-    private String loop;            // 循环次数
+    private String loop;            // 喷射次数
     private String high;            // 高度
     private int groupId;            // 分组 ID
     private long millis;            // 时间戳

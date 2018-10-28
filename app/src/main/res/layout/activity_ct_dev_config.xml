@@ -10,81 +10,91 @@
 
     <include layout="@layout/layout_toolbar" />
 
-    <com.flyco.tablayout.SegmentTabLayout
-        android:id="@+id/tl_device_del"
-        android:layout_width="120dp"
-        android:layout_height="32dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="36dp"
-        android:layout_marginBottom="48dp"
-        app:tl_bar_color="@color/colorWhite"
-        app:tl_divider_color="@color/colorPrimary"
-        app:tl_divider_width="1dp"
-        app:tl_indicator_anim_enable="true"
-        app:tl_indicator_color="@color/colorNavBar"
-        app:tl_indicator_corner_radius="5dp"
-        app:tl_textsize="16sp" />
-
-    <android.support.v4.view.ViewPager
-        android:id="@+id/vp_device"
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="wrap_content">
 
-    <LinearLayout
-        android:id="@+id/layout_dmx_set"
-        android:layout_width="120dp"
-        android:layout_height="40dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="28dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tv_dmx_show"
-            android:layout_width="86dp"
-            android:layout_height="match_parent"
-            android:background="@drawable/ic_cfg_dmx_left"
-            android:gravity="center"
-            android:text="DMX地址"
-            android:textColor="@color/colorTitleName"
-            android:textSize="14sp" />
+            <com.flyco.tablayout.SegmentTabLayout
+                android:id="@+id/tl_device_del"
+                android:layout_width="120dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="36dp"
+                android:layout_marginBottom="48dp"
+                app:tl_bar_color="@color/colorWhite"
+                app:tl_divider_color="@color/colorPrimary"
+                app:tl_divider_width="1dp"
+                app:tl_indicator_anim_enable="true"
+                app:tl_indicator_color="@color/colorNavBar"
+                app:tl_indicator_corner_radius="5dp"
+                app:tl_textsize="16sp" />
 
-        <RelativeLayout
-            android:layout_width="34dp"
-            android:layout_height="match_parent"
-            android:background="@drawable/ic_cfg_dmx_right">
+            <android.support.v4.view.ViewPager
+                android:id="@+id/vp_device"
+                android:layout_width="match_parent"
+                android:layout_height="180dp" />
 
-            <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="6dp"
-                android:gravity="center"
-                android:src="@drawable/ic_cfg_dmx_down" />
-        </RelativeLayout>
-    </LinearLayout>
+            <LinearLayout
+                android:id="@+id/layout_dmx_set"
+                android:layout_width="120dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="28dp">
 
-    <Button
-        android:id="@+id/btn_add_material"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginLeft="48dp"
-        android:layout_marginTop="48dp"
-        android:layout_marginRight="48dp"
-        android:background="@drawable/ic_btn_null"
-        android:text="@string/add_material"
-        android:textColor="@color/colorNavBar"
-        android:textSize="19sp" />
+                <TextView
+                    android:id="@+id/tv_dmx_show"
+                    android:layout_width="86dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/ic_cfg_dmx_left"
+                    android:gravity="center"
+                    android:text="DMX地址"
+                    android:textColor="@color/colorTitleName"
+                    android:textSize="14sp" />
 
-    <Button
-        android:id="@+id/btn_enter_master"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginLeft="48dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginRight="48dp"
-        android:layout_marginBottom="38dp"
-        android:background="@drawable/ic_btn_full"
-        android:text="@string/text_enter_master_mode"
-        android:textColor="@color/white"
-        android:textSize="19sp" />
+                <RelativeLayout
+                    android:layout_width="34dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/ic_cfg_dmx_right">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="6dp"
+                        android:gravity="center"
+                        android:src="@drawable/ic_cfg_dmx_down" />
+                </RelativeLayout>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_add_material"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginLeft="48dp"
+                android:layout_marginTop="48dp"
+                android:layout_marginRight="48dp"
+                android:background="@drawable/ic_btn_null"
+                android:text="@string/add_material"
+                android:textColor="@color/colorNavBar"
+                android:textSize="19sp" />
+
+            <Button
+                android:id="@+id/btn_enter_master"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginLeft="48dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginRight="48dp"
+                android:layout_marginBottom="38dp"
+                android:background="@drawable/ic_btn_full"
+                android:text="@string/text_enter_master_mode"
+                android:textColor="@color/white"
+                android:textSize="19sp" />
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
 </LinearLayout>

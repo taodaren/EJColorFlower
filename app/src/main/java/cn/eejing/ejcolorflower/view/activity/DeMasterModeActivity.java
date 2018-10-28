@@ -24,7 +24,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.model.lite.CtrlIntervalEntity;
 import cn.eejing.ejcolorflower.model.lite.CtrlRideEntity;
 import cn.eejing.ejcolorflower.model.lite.CtrlStreamEntity;
@@ -48,15 +47,15 @@ import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_STREAM;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
 import static cn.eejing.ejcolorflower.app.AppConstant.CTRL_DEV_NUM;
 import static cn.eejing.ejcolorflower.app.AppConstant.CURRENT_TIME;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_DURATION;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_GAP;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_GAP_BIG;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_HIGH;
 import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_INTERVAL_DURATION;
 import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_INTERVAL_FREQUENCY;
 import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_INTERVAL_GAP;
-import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_STREAM_RIDE_DURATION;
-import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_STREAM_RIDE_GAP;
-import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_STREAM_RIDE_GAP_BIG;
-import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_STREAM_RIDE_LOOP;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_JET_ROUND;
 import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_TOGETHER_DURATION;
-import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_TOGETHER_HIGH;
 import static cn.eejing.ejcolorflower.app.AppConstant.LEFT_TO_RIGHT;
 import static cn.eejing.ejcolorflower.app.AppConstant.LOOP_ID;
 
@@ -427,14 +426,14 @@ public class DeMasterModeActivity extends BaseActivity {
     @NonNull
     private MgrOutputJet setDataWithStream(int currMasterId) {
         List<CtrlStreamEntity> streamEntities =
-                LitePal.where("groupId = ?", String.valueOf((int) mJetModes.get(currMasterId).getMillis())).find(CtrlStreamEntity.class);
+                LitePal.where("groupId = ?", String.valueOf((int) mJetModes.get(currMasterId).getGroupIdMillis())).find(CtrlStreamEntity.class);
 
         MgrStreamJet mgrStream = new MgrStreamJet();
         mgrStream.setType(CONFIG_STREAM);
         mgrStream.setDevCount(Integer.parseInt(etDevNum.getText().toString()));
         mgrStream.setCurrentTime(CURRENT_TIME);
         mgrStream.setLoopId(LOOP_ID);
-        mgrStream.setHigh((byte) Integer.parseInt(DEFAULT_TOGETHER_HIGH));
+        mgrStream.setHigh((byte) Integer.parseInt(DEFAULT_HIGH));
         switch (streamEntities.size()) {
             case 1:
                 mgrStream.setDirection(Integer.parseInt(streamEntities.get(0).getDirection()));
@@ -445,10 +444,10 @@ public class DeMasterModeActivity extends BaseActivity {
                 break;
             default:
                 mgrStream.setDirection(Integer.parseInt(LEFT_TO_RIGHT));
-                mgrStream.setGap(Integer.parseInt(DEFAULT_STREAM_RIDE_GAP) * 10);
-                mgrStream.setDuration(Integer.parseInt(DEFAULT_STREAM_RIDE_DURATION) * 10);
-                mgrStream.setGapBig(Integer.parseInt(DEFAULT_STREAM_RIDE_GAP_BIG) * 10);
-                mgrStream.setLoop(Integer.parseInt(DEFAULT_STREAM_RIDE_LOOP));
+                mgrStream.setGap(Integer.parseInt(DEFAULT_GAP) * 10);
+                mgrStream.setDuration(Integer.parseInt(DEFAULT_DURATION) * 10);
+                mgrStream.setGapBig(Integer.parseInt(DEFAULT_GAP_BIG) * 10);
+                mgrStream.setLoop(Integer.parseInt(DEFAULT_JET_ROUND));
                 break;
         }
 
@@ -458,14 +457,14 @@ public class DeMasterModeActivity extends BaseActivity {
     @NonNull
     private MgrOutputJet setDataWithRide(int currMasterId) {
         List<CtrlRideEntity> rideEntities =
-                LitePal.where("groupId = ?", String.valueOf((int) mJetModes.get(currMasterId).getMillis())).find(CtrlRideEntity.class);
+                LitePal.where("groupId = ?", String.valueOf((int) mJetModes.get(currMasterId).getGroupIdMillis())).find(CtrlRideEntity.class);
 
         MgrRideJet mgrRide = new MgrRideJet();
         mgrRide.setType(CONFIG_RIDE);
         mgrRide.setDevCount(Integer.parseInt(etDevNum.getText().toString()));
         mgrRide.setCurrentTime(CURRENT_TIME);
         mgrRide.setLoopId(LOOP_ID);
-        mgrRide.setHigh((byte) Integer.parseInt(DEFAULT_TOGETHER_HIGH));
+        mgrRide.setHigh((byte) Integer.parseInt(DEFAULT_HIGH));
 
         switch (rideEntities.size()) {
             case 1:
@@ -477,10 +476,10 @@ public class DeMasterModeActivity extends BaseActivity {
                 break;
             default:
                 mgrRide.setDirection(Integer.parseInt(LEFT_TO_RIGHT));
-                mgrRide.setGap(Integer.parseInt(DEFAULT_STREAM_RIDE_GAP) * 10);
-                mgrRide.setDuration(Integer.parseInt(DEFAULT_STREAM_RIDE_DURATION) * 10);
-                mgrRide.setGapBig(Integer.parseInt(DEFAULT_STREAM_RIDE_GAP_BIG) * 10);
-                mgrRide.setLoop(Integer.parseInt(DEFAULT_STREAM_RIDE_LOOP));
+                mgrRide.setGap(Integer.parseInt(DEFAULT_GAP) * 10);
+                mgrRide.setDuration(Integer.parseInt(DEFAULT_DURATION) * 10);
+                mgrRide.setGapBig(Integer.parseInt(DEFAULT_GAP_BIG) * 10);
+                mgrRide.setLoop(Integer.parseInt(DEFAULT_JET_ROUND));
                 break;
         }
 
@@ -490,7 +489,7 @@ public class DeMasterModeActivity extends BaseActivity {
     @NonNull
     private MgrOutputJet setDataWithInterval(int currMasterId) {
         List<CtrlIntervalEntity> intervalEntities =
-                LitePal.where("groupId = ?", String.valueOf((int) mJetModes.get(currMasterId).getMillis())).find(CtrlIntervalEntity.class);
+                LitePal.where("groupId = ?", String.valueOf((int) mJetModes.get(currMasterId).getGroupIdMillis())).find(CtrlIntervalEntity.class);
 
         MgrIntervalJet mgrInterval = new MgrIntervalJet();
         mgrInterval.setType(CONFIG_INTERVAL);
@@ -516,7 +515,7 @@ public class DeMasterModeActivity extends BaseActivity {
     @NonNull
     private MgrOutputJet setDataWithTogether(int currMasterId) {
         List<CtrlTogetherEntity> togetherEntities =
-                LitePal.where("groupId = ?", String.valueOf((int) mJetModes.get(currMasterId).getMillis())).find(CtrlTogetherEntity.class);
+                LitePal.where("groupId = ?", String.valueOf((int) mJetModes.get(currMasterId).getGroupIdMillis())).find(CtrlTogetherEntity.class);
 
         MgrTogetherJet mgrTogether = new MgrTogetherJet();
         mgrTogether.setType(CONFIG_TOGETHER);
@@ -529,7 +528,7 @@ public class DeMasterModeActivity extends BaseActivity {
                 break;
             default:
                 mgrTogether.setDuration(Integer.parseInt(DEFAULT_TOGETHER_DURATION) * 10);
-                mgrTogether.setHigh((byte) Integer.parseInt(DEFAULT_TOGETHER_HIGH));
+                mgrTogether.setHigh((byte) Integer.parseInt(DEFAULT_HIGH));
                 break;
         }
 
@@ -655,7 +654,7 @@ public class DeMasterModeActivity extends BaseActivity {
                 MasterCtrlModeEntity entity = new MasterCtrlModeEntity();
                 entity.setDevId(mDeviceId);
                 entity.setType(type);
-                entity.setMillis(millis);
+                entity.setGroupIdMillis(millis);
                 entity.save();
                 // 添加一条数据到集合，并刷新
 //                mList.add(new MasterCtrlModeEntity(type, ""));
@@ -675,7 +674,7 @@ public class DeMasterModeActivity extends BaseActivity {
             @Override
             public void onYesClick() {
                 // 删除喷射效果
-                LitePal.deleteAll(MasterCtrlModeEntity.class, "millis = ?", String.valueOf(mList.get(position).getMillis()));
+                LitePal.deleteAll(MasterCtrlModeEntity.class, "millis = ?", String.valueOf(mList.get(position).getGroupIdMillis()));
                 mList.remove(position);
                 mAdapter.refreshList(mList);
                 mDialog.dismiss();

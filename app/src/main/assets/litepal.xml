@@ -16,7 +16,7 @@
         For example:
         <version value="1" />
     -->
-    <version value="12" />
+    <version value="17" />
 
     <!--
         要映射的实体类路径
@@ -37,7 +37,8 @@
         <mapping class="cn.eejing.ejcolorflower.model.lite.MasterCtrlNumEntity" />
         <mapping class="cn.eejing.ejcolorflower.model.lite.JetStartStopEntity" />
         <mapping class="cn.eejing.ejcolorflower.model.lite.MasterCtrlSetEntity" />
-        <mapping class="cn.eejing.ejcolorflower.model.request.MasterGroupListBean" />
+        <mapping class="cn.eejing.ejcolorflower.model.lite.MasterGroupLite" />
+        <mapping class="cn.eejing.ejcolorflower.model.lite.JetModeConfigLite" />
     </list>
 
     <!--
