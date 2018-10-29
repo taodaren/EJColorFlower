@@ -24,7 +24,6 @@ import cn.eejing.ejcolorflower.model.lite.JetModeConfigLite;
 import cn.eejing.ejcolorflower.model.lite.MasterGroupLite;
 import cn.eejing.ejcolorflower.model.manager.MgrOutputJet;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
-import cn.eejing.ejcolorflower.util.GsonUtils;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
 import cn.eejing.ejcolorflower.view.adapter.CtMasterSetAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
@@ -196,50 +195,44 @@ public class CtSetGroupActivity extends BaseActivity {
         // 绑定适配器
         mAdapter = new CtMasterSetAdapter(this, mListJetModeCfg);
         // 监听长按点击事件
-        mAdapter.setLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                int position = (int) v.getTag();
-                showDelDialog(position);
-                return true;
-            }
+        mAdapter.setLongClickListener(v -> {
+            int position = (int) v.getTag();
+            showDelDialog(position);
+            return true;
         });
         // 监听单击事件
-        mAdapter.setClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (tvDevNum.getText().equals("0")) {
-                    Toast.makeText(CtSetGroupActivity.this, "设备数量不能为0", Toast.LENGTH_SHORT).show();
-                } else {
-                    int position = (int) v.getTag();
-                    long jetIdMillis = mListJetModeCfg.get(position).getJetIdMillis();
-                    switch (mListJetModeCfg.get(position).getJetType()) {
-                        case CONFIG_STREAM:
-                            startActivity(new Intent(CtSetGroupActivity.this, CtConfigStreamActivity.class)
-                                    .putExtra("device_num", Integer.parseInt(tvDevNum.getText().toString()))
-                                    .putExtra("jet_id_millis", jetIdMillis));
-                            break;
-                        case CONFIG_RIDE:
-                            startActivity(new Intent(CtSetGroupActivity.this, CtConfigRideActivity.class)
-                                    .putExtra("device_num", Integer.parseInt(tvDevNum.getText().toString()))
-                                    .putExtra("jet_id_millis", jetIdMillis));
-                            break;
-                        case CONFIG_INTERVAL:
-                            startActivity(new Intent(CtSetGroupActivity.this, CtConfigIntervalActivity.class)
-                                    .putExtra("device_num", Integer.parseInt(tvDevNum.getText().toString()))
-                                    .putExtra("jet_id_millis", jetIdMillis));
-                            break;
-                        case CONFIG_TOGETHER:
-                            startActivity(new Intent(CtSetGroupActivity.this, CtConfigTogetherActivity.class)
-                                    .putExtra("jet_id_millis", jetIdMillis));
-                            break;
-                        case CONFIG_DELAY:
-                            startActivity(new Intent(CtSetGroupActivity.this, CtConfigDelayActivity.class)
-                                    .putExtra("jet_id_millis", jetIdMillis));
-                            break;
-                        default:
-                            break;
-                    }
+        mAdapter.setClickListener(v -> {
+            if (tvDevNum.getText().equals("0")) {
+                Toast.makeText(CtSetGroupActivity.this, "设备数量不能为0", Toast.LENGTH_SHORT).show();
+            } else {
+                int position = (int) v.getTag();
+                long jetIdMillis = mListJetModeCfg.get(position).getJetIdMillis();
+                switch (mListJetModeCfg.get(position).getJetType()) {
+                    case CONFIG_STREAM:
+                        startActivity(new Intent(CtSetGroupActivity.this, CtConfigStreamActivity.class)
+                                .putExtra("device_num", Integer.parseInt(tvDevNum.getText().toString()))
+                                .putExtra("jet_id_millis", jetIdMillis));
+                        break;
+                    case CONFIG_RIDE:
+                        startActivity(new Intent(CtSetGroupActivity.this, CtConfigRideActivity.class)
+                                .putExtra("device_num", Integer.parseInt(tvDevNum.getText().toString()))
+                                .putExtra("jet_id_millis", jetIdMillis));
+                        break;
+                    case CONFIG_INTERVAL:
+                        startActivity(new Intent(CtSetGroupActivity.this, CtConfigIntervalActivity.class)
+                                .putExtra("device_num", Integer.parseInt(tvDevNum.getText().toString()))
+                                .putExtra("jet_id_millis", jetIdMillis));
+                        break;
+                    case CONFIG_TOGETHER:
+                        startActivity(new Intent(CtSetGroupActivity.this, CtConfigTogetherActivity.class)
+                                .putExtra("jet_id_millis", jetIdMillis));
+                        break;
+                    case CONFIG_DELAY:
+                        startActivity(new Intent(CtSetGroupActivity.this, CtConfigDelayActivity.class)
+                                .putExtra("jet_id_millis", jetIdMillis));
+                        break;
+                    default:
+                        break;
                 }
             }
         });
@@ -250,21 +243,13 @@ public class CtSetGroupActivity extends BaseActivity {
     private void showDelDialog(final int position) {
         mDialog = new SelfDialogBase(this);
         mDialog.setTitle("确定要删除");
-        mDialog.setYesOnclickListener("确定", new SelfDialogBase.onYesOnclickListener() {
-            @Override
-            public void onYesClick() {
-                // 删除喷射效果
-                LitePal.deleteAll(JetModeConfigLite.class, "jetIdMillis = ?", String.valueOf(mListJetModeCfg.get(position).getJetIdMillis()));
-                refreshData();
-                mDialog.dismiss();
-            }
+        mDialog.setYesOnclickListener("确定", () -> {
+            // 删除喷射效果
+            LitePal.deleteAll(JetModeConfigLite.class, "jetIdMillis = ?", String.valueOf(mListJetModeCfg.get(position).getJetIdMillis()));
+            refreshData();
+            mDialog.dismiss();
         });
-        mDialog.setNoOnclickListener("取消", new SelfDialogBase.onNoOnclickListener() {
-            @Override
-            public void onNoClick() {
-                mDialog.dismiss();
-            }
-        });
+        mDialog.setNoOnclickListener("取消", () -> mDialog.dismiss());
         mDialog.show();
     }
 
@@ -342,13 +327,16 @@ public class CtSetGroupActivity extends BaseActivity {
     /** 发送清料命令 */
     private void cmdClearMaterial() {
         byte[] byHighs = new byte[CTRL_DEV_NUM];
-        for (int i = 0; i < sbDevNum.getProgress(); i++) {
+        for (int i = 0; i < CTRL_DEV_NUM ; i++) {
             int high = 20;
             byHighs[i] = (byte) high;
         }
+        // +1代表主控 *2进度关联
+        int startDmx = (sbStartDmx.getProgress() + 1) * 2;
         MainActivity.getAppCtrl().sendCommand(
                 MainActivity.getAppCtrl().getDevice(mDevMac),
-                BleDeviceProtocol.pkgClearMaterial(mDevId, CLEAR_MATERIAL_MASTER, sbStartDmx.getProgress(), sbDevNum.getProgress(), byHighs),
+                BleDeviceProtocol.pkgClearMaterial(mDevId, CLEAR_MATERIAL_MASTER,
+                        startDmx, sbDevNum.getProgress(), byHighs),
                 new OnReceivePackage() {
                     @Override
                     public void ack(@NonNull byte[] pkg) {

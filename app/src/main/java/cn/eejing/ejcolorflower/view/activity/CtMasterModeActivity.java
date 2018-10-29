@@ -16,6 +16,9 @@ import android.widget.Toast;
 
 import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.litepal.LitePal;
 
 import java.util.ArrayList;
@@ -26,6 +29,7 @@ import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.device.Device;
+import cn.eejing.ejcolorflower.model.event.DevConnEvent;
 import cn.eejing.ejcolorflower.model.lite.JetModeConfigLite;
 import cn.eejing.ejcolorflower.model.lite.MasterGroupLite;
 import cn.eejing.ejcolorflower.model.manager.MgrTogetherJet;
@@ -77,6 +81,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
 
     @Override
     public void initView() {
+        EventBus.getDefault().register(this);
         setToolbar("主控", View.VISIBLE, null, View.GONE);
 
         mDevice = MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac());
@@ -127,66 +132,54 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         mAdapter = new MasterListAdapter(this, mListMstGroup);
         mAdapter.setHasStableIds(true);
         // 监听长按点击分组
-        mAdapter.setLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                int position = (int) v.getTag();
-                showDialogDel(position);
-                return true;
-            }
+        mAdapter.setLongClickListener(v -> {
+            int position = (int) v.getTag();
+            showDialogDel(position);
+            return true;
         });
         // 监听设置主控按钮
-        mAdapter.setClickSetMaster(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int position = (int) v.getTag();
-                for (int i = 0; i < mListMstGroup.size(); i++) {
-                    if (i == position) {
-                        Intent intent = new Intent(CtMasterModeActivity.this, CtSetGroupActivity.class);
-                        intent.putExtra("group_position", position);
-                        jumpToActivity(intent);
-                    }
+        mAdapter.setClickSetMaster(v -> {
+            int position = (int) v.getTag();
+            for (int i = 0; i < mListMstGroup.size(); i++) {
+                if (i == position) {
+                    Intent intent = new Intent(CtMasterModeActivity.this, CtSetGroupActivity.class);
+                    intent.putExtra("group_position", position);
+                    jumpToActivity(intent);
                 }
             }
         });
         // 监听是否选中分组按钮
-        mAdapter.setClickIsSelectedGroup(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int position = (int) v.getTag();
-                switch (mListMstGroup.get(position).getIsSelectedGroup()) {
-                    case 1:
-                        // 若是选中，点击变为未选中
-                        refreshGroupBySelectedGroup(mListMstGroup, position, 2);
-                        break;
-                    case 2:
-                        // 若是未选中，点击变为选中
-                        refreshGroupBySelectedGroup(mListMstGroup, position, 1);
-                        break;
-                }
+        mAdapter.setClickIsSelectedGroup(v -> {
+            int position = (int) v.getTag();
+            switch (mListMstGroup.get(position).getIsSelectedGroup()) {
+                case 1:
+                    // 若是选中，点击变为未选中
+                    refreshGroupBySelectedGroup(mListMstGroup, position, 2);
+                    break;
+                case 2:
+                    // 若是未选中，点击变为选中
+                    refreshGroupBySelectedGroup(mListMstGroup, position, 1);
+                    break;
             }
         });
         // 监听是否选中包含主控按钮
-        mAdapter.setClickIsSelectedMaster(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int position = (int) v.getTag();
-                switch (mListMstGroup.get(position).getIsSelectedMaster()) {
-                    case 1:
-                        // 若选中，点击变为未选中
-                        refreshGroupBySelectedMaster(mListMstGroup, position, 2);
-                        break;
-                    case 2:
-                        // 如果其它组有选中包含主控，点击后变为未选中
-                        for (int i = 0; i < mListMstGroup.size(); i++) {
-                            if (mListMstGroup.get(i).getIsSelectedMaster() == 1) {
-                                refreshGroupBySelectedMaster(mListMstGroup, i, 2);
-                            }
+        mAdapter.setClickIsSelectedMaster(v -> {
+            int position = (int) v.getTag();
+            switch (mListMstGroup.get(position).getIsSelectedMaster()) {
+                case 1:
+                    // 若选中，点击变为未选中
+                    refreshGroupBySelectedMaster(mListMstGroup, position, 2);
+                    break;
+                case 2:
+                    // 如果其它组有选中包含主控，点击后变为未选中
+                    for (int i = 0; i < mListMstGroup.size(); i++) {
+                        if (mListMstGroup.get(i).getIsSelectedMaster() == 1) {
+                            refreshGroupBySelectedMaster(mListMstGroup, i, 2);
                         }
-                        // 若未选中，点击变为选中
-                        refreshGroupBySelectedMaster(mListMstGroup, position, 1);
-                        break;
-                }
+                    }
+                    // 若未选中，点击变为选中
+                    refreshGroupBySelectedMaster(mListMstGroup, position, 1);
+                    break;
             }
         });
         rvMasterList.setAdapter(mAdapter);
@@ -234,6 +227,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
 
     @Override
     protected void onDestroy() {
+        EventBus.getDefault().unregister(this);
         isStarJet = false;
         super.onDestroy();
     }
@@ -241,20 +235,28 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
     @Override
     public void initListener() {
         // 添加分组监听
-        imgAddGroup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDialogCrt();
-            }
-        });
-
+        imgAddGroup.setOnClickListener(v -> showDialogCrt());
         // 蓝牙连接监听
-        imgBleToolbar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(CtMasterModeActivity.this, "ble", Toast.LENGTH_SHORT).show();
+        imgBleToolbar.setOnClickListener(v -> Toast.makeText(CtMasterModeActivity.this, "ble", Toast.LENGTH_SHORT).show());
+    }
+
+    /** 蓝牙连接状态 */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventDevConn(DevConnEvent event) {
+        Log.i(TAG, "onEventDevConn: ");
+        // 接收硬件传过来的已连接设备信息添加到 HashSet
+        if (event.getDeviceConfig() != null) {
+            Log.i(TAG, "dev cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
+
+            switch (event.getStatus()) {
+                case "已连接":
+                    mHandler.sendEmptyMessage(HANDLE_BLE_CONN);
+                    break;
+                case "不可连接":
+                    mHandler.sendEmptyMessage(HANDLE_BLE_DISCONN);
+                    break;
             }
-        });
+        }
     }
 
     /** 保存分组数据 */
@@ -289,29 +291,21 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         mDialogCrt = new SelfDialog(this);
         mDialogCrt.setTitle("添加分组");
         mDialogCrt.setMessage("请输入主控分组名称");
-        mDialogCrt.setYesOnclickListener("确定", new SelfDialog.onYesOnclickListener() {
-            @Override
-            public void onYesClick() {
-                if (mDialogCrt.getEditTextStr().length() > 6) {
-                    // 如果输入的 DMX 不在 1~511 之间，提示用户
-                    Toast.makeText(CtMasterModeActivity.this, "分组名称不能大于 6 个字\n请重新设置", Toast.LENGTH_SHORT).show();
-                    mDialogCrt.dismiss();
-                } else if (checkGroupName(mDialogCrt.getEditTextStr()) > 0) {
-                    Toast.makeText(CtMasterModeActivity.this, "分组名已使用\n请重新设置", Toast.LENGTH_SHORT).show();
-                } else {
-                    // 创建主控分组
-                    saveGroupLite(mDialogCrt.getEditTextStr());
-                    refreshData();
-                    mDialogCrt.dismiss();
-                }
-            }
-        });
-        mDialogCrt.setNoOnclickListener("取消", new SelfDialog.onNoOnclickListener() {
-            @Override
-            public void onNoClick() {
+        mDialogCrt.setYesOnclickListener("确定", () -> {
+            if (mDialogCrt.getEditTextStr().length() > 6) {
+                // 如果输入的 DMX 不在 1~511 之间，提示用户
+                Toast.makeText(CtMasterModeActivity.this, "分组名称不能大于 6 个字\n请重新设置", Toast.LENGTH_SHORT).show();
+                mDialogCrt.dismiss();
+            } else if (checkGroupName(mDialogCrt.getEditTextStr()) > 0) {
+                Toast.makeText(CtMasterModeActivity.this, "分组名已使用\n请重新设置", Toast.LENGTH_SHORT).show();
+            } else {
+                // 创建主控分组
+                saveGroupLite(mDialogCrt.getEditTextStr());
+                refreshData();
                 mDialogCrt.dismiss();
             }
         });
+        mDialogCrt.setNoOnclickListener("取消", () -> mDialogCrt.dismiss());
         mDialogCrt.show();
     }
 
@@ -319,21 +313,13 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
     private void showDialogDel(final int position) {
         mDialogDel = new SelfDialogBase(this);
         mDialogDel.setTitle("确定要删除");
-        mDialogDel.setYesOnclickListener("确定", new SelfDialogBase.onYesOnclickListener() {
-            @Override
-            public void onYesClick() {
-                // 删除喷射效果
-                LitePal.deleteAll(MasterGroupLite.class, "groupIdMillis = ?", String.valueOf(mListMstGroup.get(position).getGroupIdMillis()));
-                refreshData();
-                mDialogDel.dismiss();
-            }
+        mDialogDel.setYesOnclickListener("确定", () -> {
+            // 删除喷射效果
+            LitePal.deleteAll(MasterGroupLite.class, "groupIdMillis = ?", String.valueOf(mListMstGroup.get(position).getGroupIdMillis()));
+            refreshData();
+            mDialogDel.dismiss();
         });
-        mDialogDel.setNoOnclickListener("取消", new SelfDialogBase.onNoOnclickListener() {
-            @Override
-            public void onNoClick() {
-                mDialogDel.dismiss();
-            }
-        });
+        mDialogDel.setNoOnclickListener("取消", () -> mDialogDel.dismiss());
         mDialogDel.show();
     }
 
@@ -353,8 +339,10 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         mAdapter.notifyDataSetChanged();
     }
 
-    private static final int HANDLE_MST_JET = 1;        // 主控 0.1s 一次
-    private static final int HANDLE_ZERO_FIVE = 2;      // 齐喷 5 次
+    private static final int HANDLE_BLE_CONN = 1;       // 蓝牙连接
+    private static final int HANDLE_BLE_DISCONN = 2;    // 蓝牙断开连接
+    private static final int HANDLE_MST_JET = 3;        // 主控 0.1s 一次
+    private static final int HANDLE_ZERO_FIVE = 4;      // 齐喷 5 次
 
     @SuppressLint("HandlerLeak")
     Handler mHandler = new Handler() {
@@ -362,12 +350,18 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
+                case HANDLE_BLE_CONN:
+                    imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_conn));
+                    break;
+                case HANDLE_BLE_DISCONN:
+                    imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_desconn));
+                    break;
                 case HANDLE_MST_JET:
                     // 主控输入控制
                     timerCallingMethod();
                     if (isStarJet) {
                         // 如果喷射中，继续发送。定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息）
-                        mHandler.sendEmptyMessageDelayed(1, 100);
+                        mHandler.sendEmptyMessageDelayed(HANDLE_MST_JET, 100);
                     }
                     break;
                 case HANDLE_ZERO_FIVE:
@@ -375,7 +369,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
                     if (mFlagFive < 5) {
                         mFlagFive++;
                         togetherZeroStop();
-                        mHandler.sendEmptyMessageDelayed(2, 100);
+                        mHandler.sendEmptyMessageDelayed(HANDLE_ZERO_FIVE, 100);
                     } else {
                         mFlagFive = 0;
                     }
@@ -385,8 +379,6 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
 //            showStartDialog();
         }
     };
-
-//    private Handler mHandler = new Handler();
 
     @OnClick({R.id.btn_master_start, R.id.img_start_hide, R.id.rl_show_dialog})
     public void onViewClicked(View view) {
@@ -487,7 +479,6 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         Log.i(JET, "jet=true: " + " jet= " + isStarJet );
 
         // 启动计时器 0.1s
-//        mHandler.post(mRunnableMst);
         mHandler.sendEmptyMessage(HANDLE_MST_JET);
     }
 
@@ -500,22 +491,9 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         mHandler.sendEmptyMessage(HANDLE_ZERO_FIVE);
     }
 
-//    // 主控输入控制
-//    private final Runnable mRunnableMst = new Runnable() {
-//        @Override
-//        public void run() {
-//            // 定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息）
-//            timerCallingMethod();
-//            if (isStarJet) {
-//                // 如果喷射中，继续发送
-//                mHandler.postDelayed(this, 100);
-//            }
-//        }
-//    };
-
     /** 定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息） */
     private void timerCallingMethod() {
-        Log.i(JET, "timerCallingMethod: " + " jet= " + isStarJet );
+        Log.i(JET, "timerCallingMethod isStarJet = " + isStarJet );
         byte[] dataOut = new byte[CTRL_DEV_NUM];
         // 调用方法判断全部组是否完成喷射
         boolean isAllFinish = true;
@@ -541,10 +519,9 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
 
         MainActivity.getAppCtrl().sendCommand(mDevice,
                 BleDeviceProtocol.pkgEnterRealTimeCtrlMode(mDeviceId, mJetOutRealDmxMin, mJetOutRealDevCnt , dataOut));
-        Log.i(JET, "timerCallingMethod2: " +dataOut[0]+" "+dataOut[1]+" "+dataOut[2]);
+        Log.i(JET, "timerCallingMethod2: " + dataOut[0] + " " + dataOut[1] + " " + dataOut[2]);
         Log.i(JET, "timerCallingMethod: " + mDeviceId + " " + mJetOutRealDmxMin + " " + mJetOutRealDevCnt
                 + " " + isAllFinish + " jet = " + isStarJet);
-
         if (isAllFinish) {
             Log.i(JET, "终于喷完了！！！");
 

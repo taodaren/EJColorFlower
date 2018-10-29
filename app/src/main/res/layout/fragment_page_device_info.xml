@@ -26,9 +26,8 @@
             android:id="@+id/tv_dev_temp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="34℃"
             android:textColor="@color/colorConfig"
-            android:textSize="38sp"
+            android:textSize="28sp"
             android:visibility="gone" />
 
         <Chronometer
@@ -44,7 +43,7 @@
             android:id="@+id/tv_switch_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="16dp"
             android:text="温度"
             android:textColor="@color/colorNoClick"
             android:textSize="18sp" />

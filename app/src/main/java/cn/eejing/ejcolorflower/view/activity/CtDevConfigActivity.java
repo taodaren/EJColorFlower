@@ -66,6 +66,10 @@ import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_END_USED;
 import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_NO_USED;
 import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_WAIT_USED;
 
+/**
+ * 设备配置
+ */
+
 public class CtDevConfigActivity extends BaseActivity implements View.OnClickListener, EasyPermissions.PermissionCallbacks {
     private static final String TAG = "CtDevConfigActivity";
     private static final String JL = "about_add_material";
@@ -723,39 +727,31 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
         mDialog = new SelfDialog(this);
         mDialog.setTitle("修改设备 DMX 地址");
         mDialog.setMessage("设置 DMX 地址和取值范围0~510");
-        mDialog.setYesOnclickListener("确定", new SelfDialog.onYesOnclickListener() {
-            @Override
-            public void onYesClick() {
-                if (!(mDialog.getEditTextStr().equals(""))) {
-                    try {
-                        final int niDmx = Integer.parseInt(mDialog.getEditTextStr());
-                        if (!(niDmx >= 0 && niDmx <= 510)) {
-                            // 如果输入的 DMX 不在 1~511 之间，提示用户
-                            Toast.makeText(CtDevConfigActivity.this, "您设置的 DMX 地址超出范围\n请重新设置", Toast.LENGTH_SHORT).show();
-                            mDialog.dismiss();
-                        } else {
-                            // 更新 DMX 地址
-                            updateDmx(niDmx);
-                            mDialog.dismiss();
-                        }
-                    } catch (NumberFormatException e) {
-                        e.printStackTrace();
-                        // 还有不按规矩出牌的？有！
-                        Toast.makeText(CtDevConfigActivity.this, "请设置正确的 DMX 地址", Toast.LENGTH_SHORT).show();
+        mDialog.setYesOnclickListener("确定", () -> {
+            if (!(mDialog.getEditTextStr().equals(""))) {
+                try {
+                    final int niDmx = Integer.parseInt(mDialog.getEditTextStr());
+                    if (!(niDmx >= 0 && niDmx <= 510)) {
+                        // 如果输入的 DMX 不在 1~511 之间，提示用户
+                        Toast.makeText(CtDevConfigActivity.this, "您设置的 DMX 地址超出范围\n请重新设置", Toast.LENGTH_SHORT).show();
+                        mDialog.dismiss();
+                    } else {
+                        // 更新 DMX 地址
+                        updateDmx(niDmx);
                         mDialog.dismiss();
                     }
-                } else {
-                    Toast.makeText(CtDevConfigActivity.this, "未更新 DMX 地址", Toast.LENGTH_SHORT).show();
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                    // 还有不按规矩出牌的？有！
+                    Toast.makeText(CtDevConfigActivity.this, "请设置正确的 DMX 地址", Toast.LENGTH_SHORT).show();
                     mDialog.dismiss();
                 }
-            }
-        });
-        mDialog.setNoOnclickListener("取消", new SelfDialog.onNoOnclickListener() {
-            @Override
-            public void onNoClick() {
+            } else {
+                Toast.makeText(CtDevConfigActivity.this, "未更新 DMX 地址", Toast.LENGTH_SHORT).show();
                 mDialog.dismiss();
             }
         });
+        mDialog.setNoOnclickListener("取消", () -> mDialog.dismiss());
         mDialog.show();
     }
 

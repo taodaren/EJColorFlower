@@ -1,8 +1,6 @@
 package cn.eejing.ejcolorflower.view.activity;
 
 import android.annotation.SuppressLint;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -55,40 +53,6 @@ public class MiOrderDetailsActivity extends BaseActivity {
         mOrderId = getIntent().getIntExtra("order_id", 0);
         mGson = new Gson();
     }
-
-//    @Override
-//    public void setToolbar(String title, int titleVisibility, String menu, int menuVisibility) {
-//        super.setToolbar(title, titleVisibility, menu, menuVisibility);
-//
-//        Toolbar toolbar = findViewById(R.id.main_toolbar);
-//        setSupportActionBar(toolbar);
-//        toolbar.setBackground(getDrawable(R.color.colorWhite));
-//
-//        ActionBar actionBar = getSupportActionBar();
-//        if (actionBar != null) {
-//            // 隐藏 Toolbar 左侧导航按钮
-//            actionBar.setDisplayHomeAsUpEnabled(false);
-//            // 隐藏 Toolbar 自带标题栏
-//            actionBar.setDisplayShowTitleEnabled(false);
-//        }
-//
-//        // 设置标题
-//        TextView textTitle = findViewById(R.id.tv_title_toolbar);
-//        textTitle.setVisibility(titleVisibility);
-//        textTitle.setTextColor(getResources().getColor(R.color.colorTitleName));
-//        textTitle.setText(title);
-//
-//        // 设置返回按钮
-//        ImageView imgTitleBack = findViewById(R.id.img_back_toolbar);
-//        imgTitleBack.setVisibility(View.VISIBLE);
-//        imgTitleBack.setImageDrawable(getDrawable(R.drawable.ic_arrow_black));
-//        imgTitleBack.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                finish();
-//            }
-//        });
-//    }
 
     @Override
     public void initData() {

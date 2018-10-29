@@ -161,7 +161,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .subscribe(granted -> {
                     if (granted) {
                         // 申请的权限全部允许
-                        Toast.makeText(BaseActivity.this, "已允许权限", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(BaseActivity.this, "已允许权限", Toast.LENGTH_SHORT).show();
                     } else {
                         // 只要有一个权限被拒绝，就会执行
                         Toast.makeText(BaseActivity.this, "未授权权限，部分功能不能使用", Toast.LENGTH_SHORT).show();

@@ -14,6 +14,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.Objects;
+
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.model.event.DevConnEvent;
@@ -32,6 +34,7 @@ public class ConfigTempFragment extends BaseFragment {
     @BindView(R.id.tv_dev_temp)            TextView mTvDevTemp;
 
     private static int mDevTemp;
+    private int mHeating;
 
     public static ConfigTempFragment newInstance(int temp) {
         ConfigTempFragment fragment = new ConfigTempFragment();
@@ -55,7 +58,11 @@ public class ConfigTempFragment extends BaseFragment {
             mTvDevTemp.setVisibility(View.GONE);
             setCircleInfo(0);
         } else {
-            mTvDevTemp.setText(String.valueOf(temp) + "℃");
+            if (mDevTemp < mHeating) {
+                mTvDevTemp.setText("预热中...");
+            } else {
+                mTvDevTemp.setText("预热完成");
+            }
             setCircleInfo(mDevTemp);
         }
     }
@@ -66,18 +73,15 @@ public class ConfigTempFragment extends BaseFragment {
         mCircleProgress.setProgress(curProgress);
         mTvDevTemp.setVisibility(View.VISIBLE);
         mTvSwitchInfo.setText("温度");
-        mCircleProgress.post(new Runnable() {
-            @Override
-            public void run() {
-                LinearGradient linearGradient = new LinearGradient(
-                        0, 0,
-                        mCircleProgress.getWidth(), mCircleProgress.getHeight(),
-                        ContextCompat.getColor(getContext(), R.color.colorTempLow),
-                        ContextCompat.getColor(getContext(), R.color.colorTempHigh),
-                        Shader.TileMode.MIRROR
-                );
-                mCircleProgress.setProgressShader(linearGradient);
-            }
+        mCircleProgress.post(() -> {
+            LinearGradient linearGradient = new LinearGradient(
+                    0, 0,
+                    mCircleProgress.getWidth(), mCircleProgress.getHeight(),
+                    ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.colorTempLow),
+                    ContextCompat.getColor(getContext(), R.color.colorTempHigh),
+                    Shader.TileMode.MIRROR
+            );
+            mCircleProgress.setProgressShader(linearGradient);
         });
     }
 
@@ -103,6 +107,7 @@ public class ConfigTempFragment extends BaseFragment {
 
         switch (event.getStatus()) {
             case "已连接":
+                mHeating = event.getDeviceConfig().mTemperatureThresholdLow;
                 mDevTemp = event.getDeviceStatus().mTemperature;
                 mHandler.sendEmptyMessage(1);
                 break;
@@ -113,7 +118,7 @@ public class ConfigTempFragment extends BaseFragment {
     }
 
     @SuppressLint("HandlerLeak")
-    private Handler mHandler = new Handler(){
+    private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
