@@ -55,6 +55,9 @@ public class SignInActivity extends BaseActivity {
         if (phone != null) {
             etPhone.setText(phone);
         }
+        if (password != null) {
+            etPwd.setText(password);
+        }
         if (phone != null && password != null) {
             // 如果存在手机号和密码，隐藏操作相关布局，延迟 1s 自动登陆
             layoutHide.setVisibility(View.INVISIBLE);
@@ -187,6 +190,7 @@ public class SignInActivity extends BaseActivity {
     public void onLoginFailed() {
         Toast.makeText(getBaseContext(), "登录失败", Toast.LENGTH_LONG).show();
         btnLogin.setEnabled(true);
+        layoutHide.setVisibility(View.VISIBLE);
     }
 
     public void onInputError() {

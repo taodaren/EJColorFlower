@@ -17,7 +17,6 @@ import android.widget.Toast;
 import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
 import com.google.gson.Gson;
-import com.jaeger.library.StatusBarUtil;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
@@ -76,6 +75,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     @Override
     public void initView() {
         super.initView();
+        setRxPermission();
         AppInstance = this;
         addActivity(EXIT_LOGIN, this);
         LoginSession session = Settings.getLoginSessionInfo(this);

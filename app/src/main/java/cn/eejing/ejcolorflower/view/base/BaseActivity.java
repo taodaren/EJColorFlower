@@ -1,5 +1,7 @@
 package cn.eejing.ejcolorflower.view.base;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
@@ -11,8 +13,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jaeger.library.StatusBarUtil;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +25,7 @@ import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.util.Settings;
 import cn.eejing.ejcolorflower.view.activity.SignInActivity;
+import io.reactivex.functions.Consumer;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.EXIT_LOGIN;
 
@@ -98,12 +103,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         // 设置返回按钮
         ImageView imgTitleBack = findViewById(R.id.img_back_toolbar);
         imgTitleBack.setVisibility(View.VISIBLE);
-        imgTitleBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        imgTitleBack.setOnClickListener(v -> finish());
         // 设置右侧菜单按钮
         TextView textMenu = findViewById(R.id.tv_menu_toolbar);
         textMenu.setVisibility(menuVisibility);
@@ -148,6 +148,25 @@ public abstract class BaseActivity extends AppCompatActivity {
         activity.finish();
         // 结束 MainActivity
         delActivity(EXIT_LOGIN);
+    }
+
+    @SuppressLint("CheckResult")
+    public void setRxPermission() {
+        final RxPermissions rxPermissions = new RxPermissions(this);
+        rxPermissions
+                .request(Manifest.permission.INTERNET,
+                        Manifest.permission.CAMERA,
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .subscribe(granted -> {
+                    if (granted) {
+                        // 申请的权限全部允许
+                        Toast.makeText(BaseActivity.this, "已允许权限", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // 只要有一个权限被拒绝，就会执行
+                        Toast.makeText(BaseActivity.this, "未授权权限，部分功能不能使用", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
 }
