@@ -2,9 +2,11 @@ package cn.eejing.ejcolorflower.view.activity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,11 +35,12 @@ public class SignInActivity extends BaseActivity {
     private static final int REQUEST_SIGNUP = 1;
     private static final int REQUEST_FORGET = 2;
 
-    @BindView(R.id.et_login_phone)           EditText etLoginPhone;
-    @BindView(R.id.et_login_pwd)             EditText etLoginPwd;
-    @BindView(R.id.tv_login_register)        TextView tvLoginRegister;
-    @BindView(R.id.tv_login_forget)          TextView tvLoginForget;
+    @BindView(R.id.et_login_phone)           EditText etPhone;
+    @BindView(R.id.et_login_pwd)             EditText etPwd;
+    @BindView(R.id.tv_login_register)        TextView tvRegister;
+    @BindView(R.id.tv_login_forget)          TextView tvForgetPwd;
     @BindView(R.id.btn_login)                SuperButton btnLogin;
+    @BindView(R.id.layout_hide)              LinearLayout layoutHide;
 
     @Override
     protected int layoutViewId() {
@@ -50,10 +53,19 @@ public class SignInActivity extends BaseActivity {
         String phone = session.getUsername();
         String password = session.getPassword();
         if (phone != null) {
-            etLoginPhone.setText(phone);
+            etPhone.setText(phone);
         }
-        if (password != null) {
-            etLoginPwd.setText(password);
+        if (phone != null && password != null) {
+            // 如果存在手机号和密码，隐藏操作相关布局，延迟 1s 自动登陆
+            layoutHide.setVisibility(View.INVISIBLE);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    login();
+                }
+            }, 1000);
+        } else {
+            layoutHide.setVisibility(View.VISIBLE);
         }
     }
 
@@ -63,12 +75,12 @@ public class SignInActivity extends BaseActivity {
             switch (requestCode) {
                 case REQUEST_SIGNUP:
                     // 默认情况下，我们只需完成活动并自动登录它们
-                    etLoginPhone.setText(data.getStringExtra("register_phone"));
-                    etLoginPwd.setText(data.getStringExtra("register_pwd"));
+                    etPhone.setText(data.getStringExtra("register_phone"));
+                    etPwd.setText(data.getStringExtra("register_pwd"));
                     login();
                     break;
                 case REQUEST_FORGET:
-                    etLoginPhone.setText(data.getStringExtra("forget_phone"));
+                    etPhone.setText(data.getStringExtra("forget_phone"));
                     break;
             }
         }
@@ -85,7 +97,7 @@ public class SignInActivity extends BaseActivity {
                 break;
             case R.id.tv_login_forget:
                 startActivityForResult(new Intent(SignInActivity.this, SiPwdForgetActivity.class)
-                        .putExtra("mobile", etLoginPhone.getText().toString()), REQUEST_FORGET
+                        .putExtra("mobile", etPhone.getText().toString()), REQUEST_FORGET
                 );
                 break;
         }
@@ -105,8 +117,8 @@ public class SignInActivity extends BaseActivity {
         progressDialog.setMessage("登录中...");
         progressDialog.show();
 
-        String phone = etLoginPhone.getText().toString();
-        String password = etLoginPwd.getText().toString();
+        String phone = etPhone.getText().toString();
+        String password = etPwd.getText().toString();
 
         // 给密码加密
         String iv = Encryption.newIv();
@@ -141,8 +153,8 @@ public class SignInActivity extends BaseActivity {
                                 break;
                             case 1:
                                 Settings.storeSessionInfo(SignInActivity.this, new LoginSession(
-                                        etLoginPhone.getText().toString(),
-                                        etLoginPwd.getText().toString(),
+                                        etPhone.getText().toString(),
+                                        etPwd.getText().toString(),
                                         bean.getData().getMember_id(),
                                         bean.getData().getToken()
                                 ));
@@ -185,21 +197,21 @@ public class SignInActivity extends BaseActivity {
     public boolean validate() {
         boolean valid = true;
 
-        String phone = etLoginPhone.getText().toString();
-        String password = etLoginPwd.getText().toString();
+        String phone = etPhone.getText().toString();
+        String password = etPwd.getText().toString();
 
         if (phone.isEmpty() || phone.length() != 11) {
-            etLoginPhone.setError("请输入一个有效的手机号码");
+            etPhone.setError("请输入一个有效的手机号码");
             valid = false;
         } else {
-            etLoginPhone.setError(null);
+            etPhone.setError(null);
         }
 
         if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
-            etLoginPwd.setError("4至10个字母数字字符");
+            etPwd.setError("4至10个字母数字字符");
             valid = false;
         } else {
-            etLoginPwd.setError(null);
+            etPwd.setError(null);
         }
 
         return valid;
