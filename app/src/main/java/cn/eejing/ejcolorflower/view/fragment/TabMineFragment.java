@@ -75,6 +75,6 @@ public class TabMineFragment extends BaseFragment {
 
     @OnClick(R.id.btn_mine_upgrade)
     public void onViewClicked() {
-        Toast.makeText(getContext(), "后续功能开发中！敬请期待...", Toast.LENGTH_SHORT).show();
+        // 升级为黄金
     }
 }
