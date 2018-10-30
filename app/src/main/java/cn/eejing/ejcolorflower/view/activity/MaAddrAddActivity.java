@@ -3,7 +3,6 @@ package cn.eejing.ejcolorflower.view.activity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -62,21 +61,14 @@ public class MaAddrAddActivity extends BaseActivity {
 
     @Override
     public void initListener() {
-        stvSwitch.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
-            @Override
-            public void onClickListener(SuperTextView superTextView) {
-                superTextView.setSwitchIsChecked(!superTextView.getSwitchIsChecked());
-            }
-        }).setSwitchCheckedChangeListener(new SuperTextView.OnSwitchCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked) {
-                    mFlag = 1;
-                } else {
-                    mFlag = 0;
-                }
-            }
-        });
+        stvSwitch.setOnSuperTextViewClickListener(superTextView -> superTextView.setSwitchIsChecked(!superTextView.getSwitchIsChecked()))
+                .setSwitchCheckedChangeListener((compoundButton, isChecked) -> {
+                    if (isChecked) {
+                        mFlag = 1;
+                    } else {
+                        mFlag = 0;
+                    }
+                });
     }
 
     @OnClick(R.id.btn_address_add_save)

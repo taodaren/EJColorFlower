@@ -3,6 +3,7 @@ package cn.eejing.ejcolorflower.view.activity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
@@ -36,6 +37,7 @@ public class MaAddrManageActivity extends BaseActivity {
 
     @BindView(R.id.btn_shipping_address)        Button btnAddAddress;
     @BindView(R.id.rv_shipping_address)         PullLoadMoreRecyclerView rvAddress;
+    @BindView(R.id.ll_shipping_address)         LinearLayout nullAddress;
 
     private Gson mGson;
     private String mMemberId, mToken;
@@ -118,12 +120,18 @@ public class MaAddrManageActivity extends BaseActivity {
                                  AddrListBean bean = mGson.fromJson(body, AddrListBean.class);
                                  switch (bean.getCode()) {
                                      case 1:
+                                         nullAddress.setVisibility(View.GONE);
+                                         rvAddress.setVisibility(View.VISIBLE);
                                          mList = bean.getData();
                                          // 刷新数据
                                          mAdapter.refreshList(mList);
                                          // 刷新结束
                                          rvAddress.setPullLoadMoreCompleted();
                                          break;
+                                     case 0:
+                                         // 该会员暂无地址
+                                         nullAddress.setVisibility(View.VISIBLE);
+                                         rvAddress.setVisibility(View.GONE);
                                      default:
                                          break;
                                  }

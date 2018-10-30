@@ -73,8 +73,6 @@ public class TabMallFragment extends BaseFragment {
                         mList = bean.getData();
                         // 刷新数据
                         mMallAdapter.refreshList(mList);
-                        // 刷新结束
-                        rvTabMall.setPullLoadMoreCompleted();
                     }
                 });
     }
@@ -92,6 +90,8 @@ public class TabMallFragment extends BaseFragment {
             @Override
             public void onRefresh() {
                 getDataWithGoodsList();
+                // 刷新结束
+                rvTabMall.setPullLoadMoreCompleted();
             }
 
             @Override

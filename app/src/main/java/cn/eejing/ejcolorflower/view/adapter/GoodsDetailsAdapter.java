@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,7 +13,6 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -30,17 +28,15 @@ import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.request.GoodsDetailsBean;
 
 public class GoodsDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private static final String TAG = "GoodsDetailsAdapter";
-    public static final int TYPE_BANNER = 0;
-    public static final int TYPE_LAYOUT = 1;
-    public static final int TYPE_WEBVIEW = 2;
+    private static final int TYPE_BANNER = 0;
+    private static final int TYPE_LAYOUT = 1;
+    private static final int TYPE_WEB_VIEW = 2;
 
     private Context mContext;
     private LayoutInflater mInflater;
     private List<GoodsDetailsBean.DataBean> mList;
 
     public GoodsDetailsAdapter(Context context, List<GoodsDetailsBean.DataBean> list) {
-        Log.i(TAG, "GoodsDetailsAdapter--->" + list.size());
         this.mContext = context;
         this.mInflater = LayoutInflater.from(mContext);
         this.mList = new ArrayList<>();
@@ -55,7 +51,7 @@ public class GoodsDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 return new BannerViewHolder(mInflater.inflate(R.layout.type_goods_banner, parent, false));
             case TYPE_LAYOUT:
                 return new LayoutViewHolder(mInflater.inflate(R.layout.type_goods_layout, parent, false));
-            case TYPE_WEBVIEW:
+            case TYPE_WEB_VIEW:
                 return new WebViewHolder(mInflater.inflate(R.layout.type_goods_web, parent, false));
             default:
                 Log.e(AppConstant.TAG, "onCreateViewHolder: is null");
@@ -72,7 +68,7 @@ public class GoodsDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             case TYPE_LAYOUT:
                 ((LayoutViewHolder) holder).setData(mList.get(0));
                 break;
-            case TYPE_WEBVIEW:
+            case TYPE_WEB_VIEW:
                 ((WebViewHolder) holder).setData(mList.get(0));
                 break;
         }
@@ -88,75 +84,56 @@ public class GoodsDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         if (position == 0) {
             return TYPE_BANNER;
         } else if (position == getItemCount() - 1) {
-            return TYPE_WEBVIEW;
+            return TYPE_WEB_VIEW;
         } else {
             return TYPE_LAYOUT;
         }
     }
 
     class BannerViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.banner_goods_dtl)
-        BGABanner bgaBanner;
+        @BindView(R.id.banner_goods_dtl)        BGABanner bgaBanner;
 
-        public BannerViewHolder(View itemView) {
+        BannerViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
 
         public void setData(GoodsDetailsBean.DataBean bean) {
-            /**
-             * 设置是否开启自动轮播，需要在 setDataConn 方法之前调用，并且调了该方法后必须再调用一次 setDataConn 方法
-             * 例如根据图片当图片数量大于 1 时开启自动轮播，等于 1 时不开启自动轮播
-             */
+            /* 设置是否开启自动轮播，需要在 setDataConn 方法之前调用，并且调了该方法后必须再调用一次 setDataConn 方法
+               例如根据图片当图片数量大于 1 时开启自动轮播，等于 1 时不开启自动轮播 */
             bgaBanner.setAutoPlayAble(bean.getImage().size() > 1);
 
-            bgaBanner.setAdapter(new BGABanner.Adapter<ImageView, String>() {
-                @Override
-                public void fillBannerItem(BGABanner banner, ImageView itemView, String model, int position) {
-                    Glide.with(mContext)
-                            .load(model)
-                            .apply(new RequestOptions()
-                                    .placeholder(R.drawable.banner_default)
-                                    .error(R.drawable.banner_default)
-                                    .dontAnimate()
-                                    .centerCrop())
-                            .into(itemView);
-                }
-            });
+            bgaBanner.setAdapter((BGABanner.Adapter<ImageView, String>) (banner, itemView, model, position) -> Glide.with(mContext)
+                    .load(model)
+                    .apply(new RequestOptions()
+                            .placeholder(R.drawable.banner_default)
+                            .error(R.drawable.banner_default)
+                            .dontAnimate()
+                            .centerCrop())
+                    .into(itemView));
             bgaBanner.setData(bean.getImage(), null);
 
-            bgaBanner.setDelegate(new BGABanner.Delegate() {
-                @Override
-                public void onBannerItemClick(BGABanner banner, View itemView, @Nullable Object model, int position) {
-                    Toast.makeText(banner.getContext(), "click " + position, Toast.LENGTH_SHORT).show();
-                }
-            });
+//            // 监听 banner 点击事件
+//            bgaBanner.setDelegate((banner, itemView, model, position) -> Toast.makeText(banner.getContext(), "click " + position, Toast.LENGTH_SHORT).show());
         }
 
     }
 
     class LayoutViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        @BindView(R.id.tv_name)
-        TextView tvName;
-        @BindView(R.id.tv_money)
-        TextView tvMoney;
-        @BindView(R.id.tv_stock)
-        TextView tvStock;
-        @BindView(R.id.tv_basics_postage)
-        TextView tvBasicsPostage;
-        @BindView(R.id.tv_postage)
-        TextView tvPostage;
-        @BindView(R.id.tv_sold)
-        TextView tvSold;
+        @BindView(R.id.tv_name)                  TextView tvName;
+        @BindView(R.id.tv_money)                 TextView tvMoney;
+        @BindView(R.id.tv_stock)                 TextView tvStock;
+        @BindView(R.id.tv_basics_postage)        TextView tvBasicsPostage;
+        @BindView(R.id.tv_postage)               TextView tvPostage;
+        @BindView(R.id.tv_sold)                  TextView tvSold;
 
-        public LayoutViewHolder(View itemView) {
+        LayoutViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
 
         @SuppressLint("SetTextI18n")
         public void setData(GoodsDetailsBean.DataBean bean) {
-            Log.i(TAG, "LayoutViewHolder: name--->" + bean.getName());
             tvName.setText(bean.getName());
             tvMoney.setText(mContext.getResources().getString(R.string.rmb) + bean.getMoney());
             tvBasicsPostage.setText(mContext.getResources().getString(R.string.basic_postage) + bean.getBasics_postage() + mContext.getResources().getString(R.string.yuan));
@@ -176,10 +153,9 @@ public class GoodsDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
     class WebViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        @BindView(R.id.web_goods_dtl)
-        WebView webGoodsDtl;
+        @BindView(R.id.web_goods_dtl)        WebView webGoodsDtl;
 
-        public WebViewHolder(View itemView) {
+        WebViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }

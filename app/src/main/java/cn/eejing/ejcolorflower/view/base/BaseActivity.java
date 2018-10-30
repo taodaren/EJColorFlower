@@ -214,7 +214,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         OkGo.<String>post(Urls.VERSION_UPDATE)
                 .tag(this)
                 .params("app_id", 2)// 2代表安卓客户端
-                .params("version_code", getVersionName(this))
+//                .params("version_code", getVersionName(this))
+                .params("version_code", 3.0)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {

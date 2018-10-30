@@ -2,6 +2,7 @@ package cn.eejing.ejcolorflower.view.activity;
 
 import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
@@ -34,6 +35,7 @@ import cn.eejing.ejcolorflower.view.base.BaseActivity;
 public class MaAddrSelectActivity extends BaseActivity {
 
     @BindView(R.id.rv_shipping_address)    PullLoadMoreRecyclerView rvAddress;
+    @BindView(R.id.ll_shipping_address)    LinearLayout nullAddress;
 
     private Gson mGson;
     private String mMemberId, mToken;
@@ -47,24 +49,20 @@ public class MaAddrSelectActivity extends BaseActivity {
 
     @Override
     public void initView() {
+        EventBus.getDefault().register(this);
         setToolbar("选择收货地址", View.VISIBLE, "管理", View.VISIBLE);
 
         mList = new ArrayList<>();
         mGson = new Gson();
         mMemberId = String.valueOf(MySettings.getLoginSessionInfo(this).getMember_id());
         mToken = MySettings.getLoginSessionInfo(this).getToken();
+
         initRecyclerView();
-        EventBus.getDefault().register(this);
     }
 
     @Override
-    public void initData() {
-        getDataWithAddressList();
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
+    protected void onStart() {
+        super.onStart();
         getDataWithAddressList();
     }
 
@@ -92,6 +90,8 @@ public class MaAddrSelectActivity extends BaseActivity {
             @Override
             public void onRefresh() {
                 getDataWithAddressList();
+                // 刷新结束
+                rvAddress.setPullLoadMoreCompleted();
             }
 
             @Override
@@ -117,12 +117,18 @@ public class MaAddrSelectActivity extends BaseActivity {
                                  AddrListBean bean = mGson.fromJson(body, AddrListBean.class);
                                  switch (bean.getCode()) {
                                      case 1:
+                                         nullAddress.setVisibility(View.GONE);
+                                         rvAddress.setVisibility(View.VISIBLE);
                                          mList = bean.getData();
                                          // 刷新数据
                                          mAdapter.refreshList(mList);
                                          // 刷新结束
                                          rvAddress.setPullLoadMoreCompleted();
                                          break;
+                                     case 0:
+                                         // 该会员暂无地址
+                                         nullAddress.setVisibility(View.VISIBLE);
+                                         rvAddress.setVisibility(View.GONE);
                                      default:
                                          break;
                                  }
