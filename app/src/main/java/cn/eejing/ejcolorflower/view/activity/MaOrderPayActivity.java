@@ -136,7 +136,8 @@ public class MaOrderPayActivity extends BaseActivity implements View.OnClickList
         switch (resultStatus) {
             case "9000":
                 // 判断 resultStatus 为“9000”则代表支付成功，具体状态码代表含义可参考接口文档
-                Toast.makeText(MaOrderPayActivity.this, "支付成功", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MaOrderPayActivity.this, "支付宝支付成功", Toast.LENGTH_SHORT).show();
+                jumpToActivity(MainActivity.class);
                 break;
             case "8000":
                 // 支付确认中（小概率事件）
@@ -150,23 +151,18 @@ public class MaOrderPayActivity extends BaseActivity implements View.OnClickList
         }
     }
 
-    /**
-     * 调用支付宝
-     */
+    /** 调用支付宝 */
     public void callAlipay(final String orderString) {
-        Runnable payRunnable = new Runnable() {
-            @Override
-            public void run() {
-                // 构造 PayTask 对象
-                PayTask alipay = new PayTask(MaOrderPayActivity.this);
-                // 调用支付接口，获取支付结果
-                Map<String, String> result = alipay.payV2(orderString, true);
+        Runnable payRunnable = () -> {
+            // 构造 PayTask 对象
+            PayTask alipay = new PayTask(MaOrderPayActivity.this);
+            // 调用支付接口，获取支付结果
+            Map<String, String> result = alipay.payV2(orderString, true);
 
-                Message msg = new Message();
-                msg.what = SDK_PAY_FLAG;
-                msg.obj = result;
-                mHandler.sendMessage(msg);
-            }
+            Message msg = new Message();
+            msg.what = SDK_PAY_FLAG;
+            msg.obj = result;
+            mHandler.sendMessage(msg);
         };
 
         // 必须异步调用
@@ -174,9 +170,7 @@ public class MaOrderPayActivity extends BaseActivity implements View.OnClickList
         payThread.start();
     }
 
-    /**
-     * 调用微信支付
-     */
+    /** 调用微信支付 */
     public void sendPayRequest() {
         PayReq req = new PayReq();
         req.appId = mBeanWei.getAppid();

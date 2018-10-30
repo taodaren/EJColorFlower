@@ -16,6 +16,7 @@ import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 
 import cn.eejing.ejcolorflower.R;
+import cn.eejing.ejcolorflower.view.activity.MainActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.APP_ID;
 
@@ -51,11 +52,13 @@ public class WXPayEntryActivity extends Activity implements IWXAPIEventHandler {
 
         // 支付成功
         if (resp.getType() == ConstantsAPI.COMMAND_PAY_BY_WX) {
+            Toast.makeText(this, "微信支付成功", Toast.LENGTH_SHORT).show();
             finish();
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(R.string.app_tip);
             builder.setMessage(getString(R.string.pay_result_callback_msg, String.valueOf(resp.errCode)));
             builder.show();
+            startActivity(new Intent(this, MainActivity.class));
         }
     }
 
