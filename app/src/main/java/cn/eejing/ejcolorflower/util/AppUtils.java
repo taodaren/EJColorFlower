@@ -1,14 +1,17 @@
 package cn.eejing.ejcolorflower.util;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.support.v4.content.FileProvider;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -19,43 +22,37 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Objects;
 
 import cn.eejing.ejcolorflower.app.GApp;
 
-/**
- * Created by Administrator on 2018/3/17.
- */
-
 public class AppUtils {
-    public final static String SD_FOLDER = Environment.getExternalStorageDirectory() + "/VersionChecker/";
+    private final static String SD_FOLDER = Environment.getExternalStorageDirectory() + "/VersionChecker/";
     private static final String TAG = AppUtils.class.getSimpleName();
 
-    /**
-     * 从服务器中下载APK
-     */
+    /** 从服务器中下载APK */
     @SuppressWarnings("unused")
     public static void downLoadApk(final Context mContext, final String downURL, final String appName) {
+        // 进度条对话框
+        final ProgressDialog dialog;
+        dialog = new ProgressDialog(mContext);
+        // 必须一直下载完，不可取消
+        dialog.setCancelable(false);
+        dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        dialog.setMessage("正在下载安装包，请稍后");
+        dialog.setTitle("版本升级");
+        dialog.show();
 
-        final ProgressDialog pd; // 进度条对话框
-        pd = new ProgressDialog(mContext);
-        pd.setCancelable(false);// 必须一直下载完，不可取消
-        pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        pd.setMessage("正在下载安装包，请稍后");
-        pd.setTitle("版本升级");
-
-        pd.show();
         new Thread() {
             @Override
             public void run() {
                 try {
-                    File file = downloadFile(downURL, appName, pd);
-                    sleep(3000);
-                    installApk(mContext, file);
-                    // 结束掉进度条对话框
-                    pd.dismiss();
+                    File file = downloadFile(downURL, appName, dialog);
+                    sleep(1000);
+                    installApk(file, GApp.getContext());
+                    dialog.dismiss();
                 } catch (Exception e) {
-                    pd.dismiss();
-
+                    dialog.dismiss();
                 }
             }
         }.start();
@@ -64,27 +61,26 @@ public class AppUtils {
     /**
      * 从服务器下载最新更新文件
      *
-     * @param path 下载路径
-     * @param pd   进度条
+     * @param downloadPath   下载路径
+     * @param appName        应用名
+     * @param progressDialog 进度条
      */
-    private static File downloadFile(String path, String appName, ProgressDialog pd) throws Exception {
+    private static File downloadFile(String downloadPath, String appName, ProgressDialog progressDialog) throws Exception {
         // 如果相等的话表示当前的sdcard挂载在手机上并且是可用的
-
-        if (Environment.MEDIA_MOUNTED.equals(Environment
-                .getExternalStorageState())) {
-            URL url = new URL(path);
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            URL url = new URL(downloadPath);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setConnectTimeout(5000);
             // 获取到文件的大小
             int all = conn.getContentLength();
-            pd.setMax(all);
+            progressDialog.setMax(all);
             InputStream is = conn.getInputStream();
-            String fileName = SD_FOLDER
-                    + appName + ".apk";
+            String fileName = SD_FOLDER + appName + ".apk";
             File file = new File(fileName);
             // 目录不存在创建目录
-            if (!file.getParentFile().exists())
+            if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
+            }
             FileOutputStream fos = new FileOutputStream(file);
             BufferedInputStream bis = new BufferedInputStream(is);
             byte[] buffer = new byte[1024];
@@ -94,11 +90,11 @@ public class AppUtils {
                 fos.write(buffer, 0, len);
                 total += len;
                 // 获取当前下载量
-                pd.setProgress(total);
+                progressDialog.setProgress(total);
                 String progress = bytes2kb(total);
                 String count = bytes2kb(all);
                 String format = String.format("%1s/%2s", progress, count);
-                pd.setProgressNumberFormat(format);
+                progressDialog.setProgressNumberFormat(format);
             }
             fos.close();
             bis.close();
@@ -111,35 +107,47 @@ public class AppUtils {
     }
 
     /** 安装 Apk */
-    private static void installApk(Context mContext, File file) {
-        Log.e(TAG, "开始安装");
+    private static void installApk(File apk, Context context) {
+        Log.d(TAG, "开始安装");
 
-        if (Build.VERSION.SDK_INT >= 24) {
-            Uri apkUri = FileProvider.getUriForFile(mContext,
-                    "com.ZhiHuiYiMeiQ.zhihuiyimeiq.fileProvider", file);//在AndroidManifest中的android:authorities值
-            Intent install = new Intent(Intent.ACTION_VIEW);
-            install.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            install.setDataAndType(apkUri, "application/vnd.android.package-archive");
-            mContext.startActivity(install);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            intent.setDataAndType(Uri.fromFile(apk), "application/vnd.android.package-archive");
         } else {
-            Uri fileUri = Uri.fromFile(file);
-            Intent it = new Intent();
-            it.setAction(Intent.ACTION_VIEW);
-            it.setDataAndType(fileUri, "application/vnd.android.package-archive");
-            it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);// 防止打不开应用
-            mContext.startActivity(it);
+            // Android 7.0 之后获取 uri 要用 contentProvider
+            Uri uri = getImageContentUri(context, apk);
+            intent.setDataAndType(uri, "application/vnd.android.package-archive");
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        }
+
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+    }
+
+    private static Uri getImageContentUri(Context context, File imageFile) {
+        String filePath = imageFile.getAbsolutePath();
+        @SuppressLint("Recycle") Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                new String[] { MediaStore.Images.Media._ID }, MediaStore.Images.Media.DATA + "=? ",
+                new String[] { filePath }, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            int id = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
+            Uri baseUri = Uri.parse("content://media/external/images/media");
+            return Uri.withAppendedPath(baseUri, "" + id);
+        } else {
+            if (imageFile.exists()) {
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Images.Media.DATA, filePath);
+                return context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+            } else {
+                return null;
+            }
         }
     }
 
-    /**
-     * 获取应用程序版本（versionName）
-     *
-     * @return 当前应用的版本号
-     */
+    /** 获取应用程序版本（versionName）*/
     private static double getLocalVersion(Context context) {
         PackageManager manager = context.getPackageManager();
-        PackageInfo info = null;
+        PackageInfo info;
         try {
             info = manager.getPackageInfo(context.getPackageName(), 0);
         } catch (PackageManager.NameNotFoundException e) {
@@ -150,25 +158,21 @@ public class AppUtils {
         return Double.valueOf(info.versionName);
     }
 
-    /**
-     * byte(字节)根据长度转成kb(千字节)和mb(兆字节)
-     */
+    /** byte(字节) 根据长度转成 kb(千字节) 和 mb(兆字节) */
     public static String bytes2kb(long bytes) {
-        BigDecimal filesize = new BigDecimal(bytes);
+        BigDecimal fileSize = new BigDecimal(bytes);
         BigDecimal megabyte = new BigDecimal(1024 * 1024);
-        float returnValue = filesize.divide(megabyte, 2, BigDecimal.ROUND_UP)
+        float returnValue = fileSize.divide(megabyte, 2, BigDecimal.ROUND_UP)
                 .floatValue();
         if (returnValue > 1)
             return (returnValue + "MB");
         BigDecimal kilobyte = new BigDecimal(1024);
-        returnValue = filesize.divide(kilobyte, 2, BigDecimal.ROUND_UP)
+        returnValue = fileSize.divide(kilobyte, 2, BigDecimal.ROUND_UP)
                 .floatValue();
         return (returnValue + "KB");
     }
 
-    /**
-     * 获取缓存大小
-     */
+    /** 获取缓存大小 */
     public static String getTotalCacheSize(Context context) throws Exception {
         long cacheSize = getFolderSize(context.getCacheDir());
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
@@ -177,9 +181,7 @@ public class AppUtils {
         return getFormatSize(cacheSize);
     }
 
-    /**
-     * 清除缓存
-     */
+    /** 清除缓存 */
     public static void clearAllCache(Context context) {
         deleteDir(context.getCacheDir());
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
@@ -190,29 +192,32 @@ public class AppUtils {
     private static boolean deleteDir(File dir) {
         if (dir != null && dir.isDirectory()) {
             String[] children = dir.list();
-            for (int i = 0; i < children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
+            for (String aChildren : children) {
+                boolean success = deleteDir(new File(dir, aChildren));
                 if (!success) {
                     return false;
                 }
             }
         }
-        return dir.delete();
+        return Objects.requireNonNull(dir).delete();
     }
 
-    // 获取文件大小
-    //Context.getExternalFilesDir() --> SDCard/Android/data/你的应用的包名/files/ 目录，一般放一些长时间保存的数据
-    //Context.getExternalCacheDir() --> SDCard/Android/data/你的应用包名/cache/目录，一般存放临时缓存数据
+    /**
+     * 获取文件大小
+     *
+     * Context.getExternalFilesDir() --> SDCard/Android/data/你的应用的包名/files/ 目录，一般放一些长时间保存的数据
+     * Context.getExternalCacheDir() --> SDCard/Android/data/你的应用包名/cache/目录，一般存放临时缓存数据
+     */
     public static long getFolderSize(File file) throws Exception {
         long size = 0;
         try {
             File[] fileList = file.listFiles();
-            for (int i = 0; i < fileList.length; i++) {
+            for (File aFileList : fileList) {
                 // 如果下面还有文件
-                if (fileList[i].isDirectory()) {
-                    size = size + getFolderSize(fileList[i]);
+                if (aFileList.isDirectory()) {
+                    size = size + getFolderSize(aFileList);
                 } else {
-                    size = size + fileList[i].length();
+                    size = size + aFileList.length();
                 }
             }
         } catch (Exception e) {
@@ -221,9 +226,7 @@ public class AppUtils {
         return size;
     }
 
-    /**
-     * 格式化单位
-     */
+    /** 格式化单位 */
     public static String getFormatSize(double size) {
         double kiloByte = size / 1024;
         if (kiloByte < 1) {

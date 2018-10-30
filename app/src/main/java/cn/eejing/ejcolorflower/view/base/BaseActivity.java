@@ -3,16 +3,12 @@ package cn.eejing.ejcolorflower.view.base;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -28,26 +24,21 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.jaeger.library.StatusBarUtil;
 import com.lzy.okgo.OkGo;
-import com.lzy.okgo.adapter.Call;
-import com.lzy.okgo.callback.Callback;
-import com.lzy.okgo.callback.FileCallback;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.app.GApp;
 import cn.eejing.ejcolorflower.model.request.VersionUpdateBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.AppUtils;
-import cn.eejing.ejcolorflower.util.SelfDialogBase;
 import cn.eejing.ejcolorflower.util.MySettings;
+import cn.eejing.ejcolorflower.util.SelfDialogBase;
 import cn.eejing.ejcolorflower.view.activity.MainActivity;
 import cn.eejing.ejcolorflower.view.activity.SignInActivity;
 
@@ -65,20 +56,13 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        init();
-
         // 子类不再需要设置布局 ID，也不再需要使用 ButterKnife.BindView()
         setContentView(layoutViewId());
         ButterKnife.bind(this);
-
         setStatusBar();
         initView();
         initData();
         initListener();
-    }
-
-    /** 在 setContentView() 调用之前调用，可以设置 WindowFeature (如：this.requestWindowFeature(Window.FEATURE_NO_TITLE);) */
-    public void init() {
     }
 
     public void initView() {
@@ -166,6 +150,14 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
+    public void finishAllActivity() {
+        for (Map.Entry<String, Activity> entry : activityMap.entrySet()) {
+            Log.i("TYC", "Key = " + entry.getKey() + ", Value = " + entry.getValue());
+            finish();
+        }
+        activityMap.clear();
+    }
+
     public void logout(Activity activity) {
         // 清空缓存
         MySettings.clearInfo(getBaseContext());
@@ -185,10 +177,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                         Manifest.permission.READ_EXTERNAL_STORAGE,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .subscribe(granted -> {
-                    if (granted) {
-                        // 申请的权限全部允许
-//                        Toast.makeText(BaseActivity.this, "已允许权限", Toast.LENGTH_SHORT).show();
-                    } else {
+                    if (!granted) {
                         // 只要有一个权限被拒绝，就会执行
                         Toast.makeText(BaseActivity.this, "未授权权限，部分功能不能使用", Toast.LENGTH_SHORT).show();
                     }
@@ -205,63 +194,6 @@ public abstract class BaseActivity extends AppCompatActivity {
             startActivity(new Intent(activity, MainActivity.class));
         });
         dialog.show();
-    }
-
-    /** 强制版本更新 Dialog */
-    private void showDialogByVersionUpdate() {
-        SelfDialogBase dialog;
-        dialog = new SelfDialogBase(this);
-        dialog.setTitle("更新到最新版本方可继续使用！");
-        dialog.setYesOnclickListener("更新", () -> {
-            dialog.dismiss();
-            installProcess();
-        });
-        dialog.setNoOnclickListener("退出APP", () -> {
-            dialog.dismiss();
-        });
-        dialog.show();
-    }
-
-    /** 安装应用的流程 */
-    public void installProcess() {
-        Log.w("TYC", "installProcess: ");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // 先获取是否有安装未知来源应用的权限
-            if (!getPackageManager().canRequestPackageInstalls()) {
-                // 没有权限
-                showDialogByUnknownPermission();
-                return;
-            }
-            Log.w("TYC", "有权限: ");
-            // 有权限，开始安装应用程序
-//            Toast.makeText(this, "有权限，开始安装应用程序", Toast.LENGTH_SHORT).show();
-            AppUtils.downLoadApk(getApplication(), DOWN_LOAD_APK, "异景炫彩");
-//            installApk();
-        }
-    }
-
-    /** 打开未知来源权限 Dialog */
-    private void showDialogByUnknownPermission() {
-        SelfDialogBase dialog;
-        dialog = new SelfDialogBase(this);
-        dialog.setTitle("安装应用需要打开未知来源权限，请去设置中开启权限！");
-        dialog.setYesOnclickListener("设置", () -> {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startInstallPermissionSettingActivity();
-            }
-            dialog.dismiss();
-        });
-        dialog.setNoOnclickListener("退出APP", () -> {
-            dialog.dismiss();
-        });
-        dialog.show();
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void startInstallPermissionSettingActivity() {
-        // 注意这个是 8.0 新 API
-        Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
-        startActivityForResult(intent, FORCED_UPDATE);
     }
 
     private String getVersionName(Context context) {
@@ -282,7 +214,6 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .tag(this)
                 .params("app_id", 2)// 2代表安卓客户端
                 .params("version_code", getVersionName(this))
-//                .params("version_code", 3.0)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -291,70 +222,70 @@ public abstract class BaseActivity extends AppCompatActivity {
 
                         Gson gson = new Gson();
                         VersionUpdateBean bean = gson.fromJson(body, VersionUpdateBean.class);
-                        Log.i(AppConstant.TAG, "Is_upload: " + bean.getData().getVersionData().getIs_upload());
-                        Log.i(AppConstant.TAG, "getCode: " + bean.getCode());
                         if (bean.getCode() == 1) {
-                            // 版本升级信息获取成功
-                            switch (bean.getData().getVersionData().getIs_upload()) {
-                                case 1:
-                                    // 强制更新
-                                    showDialogByVersionUpdate();
-                                    break;
-                                case 0:
-                                    // 可选更新
-                                    break;
+                            // 版本升级信息获取成功强制更新（is_upload 1-强制更新 0-可选更新）
+                            if (bean.getData().getVersionData().getIs_upload() == 1) {
+                                showDialogByVersionUpdate();
                             }
                         }
                     }
                 });
     }
 
-    /** 强制版本更新 */
-    public void urlDownload() {
-//        OkGo.get(DOWN_LOAD_APK)//
-//                .tag(this)//
-//                .execute(new FileCallback(destFileDir, destFileName) {
-//                    @Override
-//                    public void onSuccess(Response<File> response) {
-//
-//                    }
-//                });
+    /** 强制版本更新 Dialog */
+    private void showDialogByVersionUpdate() {
+        SelfDialogBase dialog;
+        dialog = new SelfDialogBase(this);
+        dialog.setTitle("更新到最新版本方可继续使用！");
+        dialog.setYesOnclickListener("更新", () -> {
+            dialog.dismiss();
+            installProcess();
+        });
+        dialog.setNoOnclickListener("退出APP", () -> {
+            finishAllActivity();
+            dialog.dismiss();
+        });
+        dialog.show();
     }
 
-    // 安装应用
-    private void installApk(File apk) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            intent.setDataAndType(Uri.fromFile(apk), "application/vnd.android.package-archive");
-        } else {// Android7.0之后获取 uri 要用 contentProvider
-            Uri uri = getImageContentUri(GApp.getContext(), apk);
-            intent.setDataAndType(uri, "application/vnd.android.package-archive");
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        }
-
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        getBaseContext().startActivity(intent);
-    }
-
-
-    public static Uri getImageContentUri(Context context,File imageFile) {
-        String filePath = imageFile.getAbsolutePath();
-        Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                new String[] { MediaStore.Images.Media._ID }, MediaStore.Images.Media.DATA + "=? ",
-                new String[] { filePath }, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            int id = cursor.getInt(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
-            Uri baseUri = Uri.parse("content://media/external/images/media");
-            return Uri.withAppendedPath(baseUri, "" + id);
-        } else {
-            if (imageFile.exists()) {
-                ContentValues values = new ContentValues();
-                values.put(MediaStore.Images.Media.DATA, filePath);
-                return context.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-            } else {
-                return null;
+    /** 安装应用的流程 */
+    public void installProcess() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // 先获取是否有安装未知来源应用的权限
+            if (!getPackageManager().canRequestPackageInstalls()) {
+                // 没有权限，设置未知来源权限
+                showDialogByUnknownPermission();
+                return;
             }
+            // 有权限，开始安装应用程序
+            AppUtils.downLoadApk(this, DOWN_LOAD_APK, "异景炫彩");
         }
+    }
+
+    /** 打开未知来源权限 Dialog */
+    private void showDialogByUnknownPermission() {
+        SelfDialogBase dialog;
+        dialog = new SelfDialogBase(this);
+        dialog.setTitle("安装应用需要打开未知来源权限，请去设置中开启权限！");
+        dialog.setYesOnclickListener("设置", () -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startInstallPermissionSettingActivity();
+            }
+            dialog.dismiss();
+        });
+        dialog.setNoOnclickListener("退出APP", () -> {
+            finishAllActivity();
+            dialog.dismiss();
+        });
+        dialog.show();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void startInstallPermissionSettingActivity() {
+        // 注意这个是 8.0 新 API
+        Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
+        // 在 MainActivity 进行回调
+        startActivityForResult(intent, FORCED_UPDATE);
     }
 
 }
