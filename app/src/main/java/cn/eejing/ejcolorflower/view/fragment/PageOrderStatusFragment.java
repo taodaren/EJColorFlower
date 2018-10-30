@@ -22,7 +22,7 @@ import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.model.request.OrderPagerBean;
 import cn.eejing.ejcolorflower.view.adapter.OrderStatusAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseFragment;
-import cn.eejing.ejcolorflower.util.Settings;
+import cn.eejing.ejcolorflower.util.MySettings;
 
 /**
  * 订单状态
@@ -68,8 +68,8 @@ public class PageOrderStatusFragment extends BaseFragment {
     public void initView(View rootView) {
         mGson = new Gson();
         mList = new ArrayList<>();
-        mMemberId = String.valueOf(Settings.getLoginSessionInfo(getActivity()).getMember_id());
-        mToken = Settings.getLoginSessionInfo(getActivity()).getToken();
+        mMemberId = String.valueOf(MySettings.getLoginSessionInfo(getActivity()).getMember_id());
+        mToken = MySettings.getLoginSessionInfo(getActivity()).getToken();
         initRecyclerView();
     }
 

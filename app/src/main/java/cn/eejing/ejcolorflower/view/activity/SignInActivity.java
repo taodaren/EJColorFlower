@@ -24,7 +24,7 @@ import cn.eejing.ejcolorflower.model.request.LoginBean;
 import cn.eejing.ejcolorflower.model.session.LoginSession;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.Encryption;
-import cn.eejing.ejcolorflower.util.Settings;
+import cn.eejing.ejcolorflower.util.MySettings;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 /**
@@ -49,7 +49,7 @@ public class SignInActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        LoginSession session = Settings.getLoginSessionInfo(this);
+        LoginSession session = MySettings.getLoginSessionInfo(this);
         String phone = session.getUsername();
         String password = session.getPassword();
         if (phone != null) {
@@ -155,7 +155,7 @@ public class SignInActivity extends BaseActivity {
                                 dialog.dismiss();
                                 break;
                             case 1:
-                                Settings.storeSessionInfo(SignInActivity.this, new LoginSession(
+                                MySettings.storeSessionInfo(SignInActivity.this, new LoginSession(
                                         etPhone.getText().toString(),
                                         etPwd.getText().toString(),
                                         bean.getData().getMember_id(),

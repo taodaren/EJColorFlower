@@ -25,7 +25,7 @@ import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.event.AddrAddEvent;
 import cn.eejing.ejcolorflower.model.request.AddrAddBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
-import cn.eejing.ejcolorflower.util.Settings;
+import cn.eejing.ejcolorflower.util.MySettings;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 /**
@@ -54,8 +54,8 @@ public class MaAddrAddActivity extends BaseActivity {
     public void initView() {
         EventBus.getDefault().register(this);
         mGson = new Gson();
-        mMemberId = String.valueOf(Settings.getLoginSessionInfo(this).getMember_id());
-        mToken = Settings.getLoginSessionInfo(this).getToken();
+        mMemberId = String.valueOf(MySettings.getLoginSessionInfo(this).getMember_id());
+        mToken = MySettings.getLoginSessionInfo(this).getToken();
 
         setToolbar("添加收货地址", View.VISIBLE, null, View.GONE);
     }

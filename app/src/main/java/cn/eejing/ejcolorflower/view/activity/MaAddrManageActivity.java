@@ -24,7 +24,7 @@ import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.event.AddrAddEvent;
 import cn.eejing.ejcolorflower.model.request.AddrListBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
-import cn.eejing.ejcolorflower.util.Settings;
+import cn.eejing.ejcolorflower.util.MySettings;
 import cn.eejing.ejcolorflower.view.adapter.AddrManageAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
@@ -52,8 +52,8 @@ public class MaAddrManageActivity extends BaseActivity {
         setToolbar("管理收货地址", View.VISIBLE, null, View.GONE);
         mList = new ArrayList<>();
         mGson = new Gson();
-        mMemberId = String.valueOf(Settings.getLoginSessionInfo(this).getMember_id());
-        mToken = Settings.getLoginSessionInfo(this).getToken();
+        mMemberId = String.valueOf(MySettings.getLoginSessionInfo(this).getMember_id());
+        mToken = MySettings.getLoginSessionInfo(this).getToken();
         initRecyclerView();
         EventBus.getDefault().register(this);
     }

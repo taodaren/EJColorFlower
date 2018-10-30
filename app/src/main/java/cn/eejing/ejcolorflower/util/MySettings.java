@@ -11,7 +11,7 @@ import cn.eejing.ejcolorflower.model.session.AddrSession;
  * 配置
  */
 
-public class Settings {
+public class MySettings {
     private static SharedPreferences mSp;
 
     public static LoginSession getLoginSessionInfo(Context context) {

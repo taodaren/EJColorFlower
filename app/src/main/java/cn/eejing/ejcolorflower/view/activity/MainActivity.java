@@ -41,13 +41,14 @@ import cn.eejing.ejcolorflower.model.session.LoginSession;
 import cn.eejing.ejcolorflower.presenter.ISendCommand;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.presenter.Urls;
-import cn.eejing.ejcolorflower.util.Settings;
+import cn.eejing.ejcolorflower.util.MySettings;
 import cn.eejing.ejcolorflower.util.Util;
 import cn.eejing.ejcolorflower.view.fragment.TabCtrlFragment;
 import cn.eejing.ejcolorflower.view.fragment.TabMallFragment;
 import cn.eejing.ejcolorflower.view.fragment.TabMineFragment;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.EXIT_LOGIN;
+import static cn.eejing.ejcolorflower.app.AppConstant.FORCED_UPDATE;
 import static cn.eejing.ejcolorflower.app.AppConstant.QR_DEV_ID;
 import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_CHARACTERISTIC_WRITE;
 import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_SERVICE;
@@ -75,10 +76,13 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     @Override
     public void initView() {
         super.initView();
+        // 运行时权限
         setRxPermission();
+        // 强制版本更新
+        forcedVersionUpdate();
         AppInstance = this;
         addActivity(EXIT_LOGIN, this);
-        LoginSession session = Settings.getLoginSessionInfo(this);
+        LoginSession session = MySettings.getLoginSessionInfo(this);
         mMemberId = String.valueOf(session.getMember_id());
         mToken = session.getToken();
         mGson = new Gson();
@@ -598,6 +602,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        Log.i(TAG, "requestCode: " + requestCode);
         switch (requestCode) {
             case 1:
                 if (resultCode == RESULT_OK) {
@@ -608,6 +613,11 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                     // 获取 ID 对应 MAC
                     getDataWithQueryDevMac();
                 }
+                break;
+            case FORCED_UPDATE:
+                Log.d(TAG, "onActivityResult: FORCED_UPDATE1");
+                // 再次执行安装流程，包含权限判等
+                installProcess();
                 break;
             default:
                 break;

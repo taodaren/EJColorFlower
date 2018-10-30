@@ -22,7 +22,7 @@ import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.request.AddrListBean;
 import cn.eejing.ejcolorflower.model.request.ConfirmOrderBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
-import cn.eejing.ejcolorflower.util.Settings;
+import cn.eejing.ejcolorflower.util.MySettings;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 /**
@@ -67,8 +67,8 @@ public class MaOrderConfirmActivity extends BaseActivity implements View.OnClick
 
         mGson = new Gson();
         mGoodsId = getIntent().getIntExtra("goods_id", 0);
-        mMemberId = String.valueOf(Settings.getLoginSessionInfo(this).getMember_id());
-        mToken = Settings.getLoginSessionInfo(this).getToken();
+        mMemberId = String.valueOf(MySettings.getLoginSessionInfo(this).getMember_id());
+        mToken = MySettings.getLoginSessionInfo(this).getToken();
     }
 
     @Override

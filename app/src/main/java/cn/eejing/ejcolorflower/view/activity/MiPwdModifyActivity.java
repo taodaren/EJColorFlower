@@ -18,7 +18,7 @@ import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.request.PwdUpdateBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.Encryption;
-import cn.eejing.ejcolorflower.util.Settings;
+import cn.eejing.ejcolorflower.util.MySettings;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 /**
@@ -45,8 +45,8 @@ public class MiPwdModifyActivity extends BaseActivity {
         mGson = new Gson();
 
         mIv = Encryption.newIv();
-        mMemberId = String.valueOf(Settings.getLoginSessionInfo(this).getMember_id());
-        mToken = Settings.getLoginSessionInfo(this).getToken();
+        mMemberId = String.valueOf(MySettings.getLoginSessionInfo(this).getMember_id());
+        mToken = MySettings.getLoginSessionInfo(this).getToken();
     }
 
     @OnClick({R.id.img_back_pwd_modify, R.id.btn_modify_pwd})

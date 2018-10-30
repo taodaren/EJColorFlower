@@ -52,6 +52,9 @@ public class AppConstant {
     public static final int TYPE_WAIT_USED = 1;
     public static final int TYPE_END_USED = 2;
 
+    // 强制更新
+    public static final int FORCED_UPDATE = 180;
+
     // 蓝牙连接 / 断开连接
     public static final int HANDLE_BLE_CONN = 101;
     public static final int HANDLE_BLE_DISCONN = 102;

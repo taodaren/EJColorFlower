@@ -5,6 +5,11 @@ package cn.eejing.ejcolorflower.presenter;
  */
 
 public interface Urls {
+    String VERSION_UPDATE =
+            "http://www.eejing.cn/index.php/index/versionUpgrade/newVersionUpdate";    // 新版本更新
+    String DOWN_LOAD_APK =
+            "https://eejing.oss-cn-beijing.aliyuncs.com/eejing_download/eejing.apk";   // 下载APK地址
+
     String BASE_URL = "http://www.eejing.cn/index.php/index/api/";                     // 域名公共部分
 
     String REGISTER = BASE_URL + "register";                                           // 注册

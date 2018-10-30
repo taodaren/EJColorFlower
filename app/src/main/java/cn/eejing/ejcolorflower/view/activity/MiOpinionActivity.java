@@ -22,7 +22,7 @@ import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.model.request.FeedBackBean;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
-import cn.eejing.ejcolorflower.util.Settings;
+import cn.eejing.ejcolorflower.util.MySettings;
 
 /**
  * 意见反馈
@@ -88,7 +88,7 @@ public class MiOpinionActivity extends BaseActivity {
         OkGo.<String>post(Urls.FEED_BACK)
                 .tag(this)
                 .params("content", edContent.getText().toString())
-                .params("mobile", Settings.getLoginSessionInfo(this).getUsername())
+                .params("mobile", MySettings.getLoginSessionInfo(this).getUsername())
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {

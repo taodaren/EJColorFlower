@@ -26,7 +26,7 @@ import cn.eejing.ejcolorflower.model.event.DeviceEvent;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
 import cn.eejing.ejcolorflower.model.session.LoginSession;
 import cn.eejing.ejcolorflower.presenter.Urls;
-import cn.eejing.ejcolorflower.util.Settings;
+import cn.eejing.ejcolorflower.util.MySettings;
 import cn.eejing.ejcolorflower.view.activity.MainActivity;
 import cn.eejing.ejcolorflower.view.activity.SignInActivity;
 import cn.eejing.ejcolorflower.view.adapter.TabDeviceAdapter;
@@ -73,7 +73,7 @@ public class TabDeviceFragment extends BaseFragment {
         mGson = new Gson();
         mList = new ArrayList<>();
 //        mDeviceControl = MainActivity.getFireworksDevCtrl();
-        LoginSession session = Settings.getLoginSessionInfo(getActivity());
+        LoginSession session = MySettings.getLoginSessionInfo(getActivity());
         mMemberId = String.valueOf(session.getMember_id());
         mToken = session.getToken();
 

@@ -7,7 +7,7 @@ import com.allen.library.SuperTextView;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
-import cn.eejing.ejcolorflower.util.Settings;
+import cn.eejing.ejcolorflower.util.MySettings;
 
 /**
  * 个人信息
@@ -26,7 +26,7 @@ public class MiUserInfoActivity extends BaseActivity {
     public void initView() {
         setToolbar("个人信息", View.VISIBLE, null, View.GONE);
         // set cellphone number
-        stvPhoneNum.setRightString(Settings.getLoginSessionInfo(this).getUsername());
+        stvPhoneNum.setRightString(MySettings.getLoginSessionInfo(this).getUsername());
     }
 
 }

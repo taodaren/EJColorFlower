@@ -20,7 +20,7 @@ import cn.eejing.ejcolorflower.model.session.LoginSession;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.model.request.AddDeviceBean;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
-import cn.eejing.ejcolorflower.util.Settings;
+import cn.eejing.ejcolorflower.util.MySettings;
 
 /**
  * 添加设备
@@ -43,7 +43,7 @@ public class DeQrAddDeviceActivity extends BaseActivity implements View.OnClickL
     public void initView() {
         setToolbar("二维码扫描", View.VISIBLE, null, View.GONE);
 
-        LoginSession session = Settings.getLoginSessionInfo(this);
+        LoginSession session = MySettings.getLoginSessionInfo(this);
         mToken = session.getToken();
         mMemberId = getIntent().getStringExtra("member_id");
 

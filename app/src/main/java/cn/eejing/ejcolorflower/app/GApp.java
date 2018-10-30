@@ -15,6 +15,8 @@
  */
 package cn.eejing.ejcolorflower.app;
 
+import android.content.Context;
+
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.cache.CacheEntity;
 import com.lzy.okgo.cache.CacheMode;
@@ -42,6 +44,8 @@ import okhttp3.OkHttpClient;
 public class GApp extends LitePalApplication {
     private String flagQrCode;
     private String flagGifDemo;
+    private static Context mContext;                                // 上下文
+
 
     public String getFlagQrCode() {
         return flagQrCode;
@@ -62,6 +66,8 @@ public class GApp extends LitePalApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+        // 对全局属性赋值
+        mContext = getApplicationContext();
         // Simply add the handler, and that's it! No need to add any code
         // to every activity. Everything is contained in MyLifecycleHandler
         // with just a few lines of code. Now *that's* nice.
@@ -69,6 +75,13 @@ public class GApp extends LitePalApplication {
         initOkGo();
         // 初始化 LitePal 数据库
         LitePal.initialize(this);
+    }
+    public static Context getContext() {
+        return mContext;
+    }
+
+    public static void setContext(Context mContext) {
+        GApp.mContext = mContext;
     }
 
     private void initOkGo() {

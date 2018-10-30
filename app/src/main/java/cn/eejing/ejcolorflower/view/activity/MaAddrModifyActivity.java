@@ -25,7 +25,7 @@ import cn.eejing.ejcolorflower.model.event.AddrAddEvent;
 import cn.eejing.ejcolorflower.model.request.AddrAddBean;
 import cn.eejing.ejcolorflower.model.request.AddrListBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
-import cn.eejing.ejcolorflower.util.Settings;
+import cn.eejing.ejcolorflower.util.MySettings;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 /**
@@ -55,7 +55,7 @@ public class MaAddrModifyActivity extends BaseActivity {
         setToolbar("修改收货地址", View.VISIBLE, null, View.GONE);
 
         mGson = new Gson();
-        mToken = Settings.getLoginSessionInfo(this).getToken();
+        mToken = MySettings.getLoginSessionInfo(this).getToken();
 
         Intent intent = getIntent();
         if (intent != null) {

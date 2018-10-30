@@ -2,7 +2,6 @@ package cn.eejing.ejcolorflower.view.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -32,9 +31,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -52,7 +49,7 @@ import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.SelfDialog;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
-import cn.eejing.ejcolorflower.util.Settings;
+import cn.eejing.ejcolorflower.util.MySettings;
 import cn.eejing.ejcolorflower.util.ViewFindUtils;
 import cn.eejing.ejcolorflower.view.adapter.ViewPagerAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
@@ -125,8 +122,8 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
         mApp = (GApp) getApplication();
         setToolbar("设备配置", View.VISIBLE, null, View.GONE);
 
-        mMemberId = Settings.getLoginSessionInfo(this).getMember_id();
-        mToken = Settings.getLoginSessionInfo(this).getToken();
+        mMemberId = MySettings.getLoginSessionInfo(this).getMember_id();
+        mToken = MySettings.getLoginSessionInfo(this).getToken();
         mGson = new Gson();
 
         mDevId = getIntent().getLongExtra(QR_DEV_ID, 0);

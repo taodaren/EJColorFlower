@@ -58,7 +58,7 @@ import cn.eejing.ejcolorflower.model.request.DeviceGroupListBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.JetCommandTools;
 import cn.eejing.ejcolorflower.util.SelfDialog;
-import cn.eejing.ejcolorflower.util.Settings;
+import cn.eejing.ejcolorflower.util.MySettings;
 import cn.eejing.ejcolorflower.view.activity.CtConfigIntervalActivity;
 import cn.eejing.ejcolorflower.view.activity.CtConfigRideActivity;
 import cn.eejing.ejcolorflower.view.activity.CtConfigStreamActivity;
@@ -112,7 +112,7 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         this.mList = mList;
         this.mGson = new Gson();
         this.mMemberId = mMemberId;
-        this.mToken = Settings.getLoginSessionInfo(mContext).getToken();
+        this.mToken = MySettings.getLoginSessionInfo(mContext).getToken();
         this.mConnDevMap = new HashMap();
         this.mConnDevList = new ArrayList<>();
     }
