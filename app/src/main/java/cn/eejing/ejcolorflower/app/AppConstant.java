@@ -52,8 +52,12 @@ public class AppConstant {
     public static final int TYPE_WAIT_USED = 1;
     public static final int TYPE_END_USED = 2;
 
-    public static final String DEVICE_CONNECT_YES = "设备已连接";
-    public static final String DEVICE_CONNECT_NO = "设备已断开";
+    // 蓝牙连接 / 断开连接
+    public static final int HANDLE_BLE_CONN = 101;
+    public static final int HANDLE_BLE_DISCONN = 102;
+
+    public static final String DEVICE_CONNECT_YES = "已连接";
+    public static final String DEVICE_CONNECT_NO = "不可连接";
 
     public static final String TYPE_WAIT_SHIP = "待发货";
     public static final String TYPE_WAIT_RECEIPT = "待收货";

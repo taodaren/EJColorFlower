@@ -44,6 +44,10 @@ import cn.eejing.ejcolorflower.view.base.BaseActivity;
 import static cn.eejing.ejcolorflower.app.AppConstant.CLEAR_MATERIAL_MASTER;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
 import static cn.eejing.ejcolorflower.app.AppConstant.CTRL_DEV_NUM;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_NO;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_YES;
+import static cn.eejing.ejcolorflower.app.AppConstant.HANDLE_BLE_CONN;
+import static cn.eejing.ejcolorflower.app.AppConstant.HANDLE_BLE_DISCONN;
 import static cn.eejing.ejcolorflower.app.AppConstant.INIT_ZERO;
 
 /**
@@ -93,7 +97,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
     public void setToolbar(String title, int titleVisibility, String menu, int menuVisibility) {
         super.setToolbar(title, titleVisibility, menu, menuVisibility);
         imgBleToolbar.setVisibility(View.VISIBLE);
-        imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_desconn));
+        imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_conn));
         imgAddGroup.setVisibility(View.VISIBLE);
         imgAddGroup.setImageDrawable(getResources().getDrawable(R.drawable.ic_toolbar_add));
     }
@@ -243,16 +247,15 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
     /** 蓝牙连接状态 */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventDevConn(DevConnEvent event) {
-        Log.i(TAG, "onEventDevConn: ");
         // 接收硬件传过来的已连接设备信息添加到 HashSet
-        if (event.getDeviceConfig() != null) {
+        if (event.getStatus() != null) {
             Log.i(TAG, "dev cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
 
             switch (event.getStatus()) {
-                case "已连接":
+                case DEVICE_CONNECT_YES:
                     mHandler.sendEmptyMessage(HANDLE_BLE_CONN);
                     break;
-                case "不可连接":
+                case DEVICE_CONNECT_NO:
                     mHandler.sendEmptyMessage(HANDLE_BLE_DISCONN);
                     break;
             }
@@ -339,8 +342,6 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         mAdapter.notifyDataSetChanged();
     }
 
-    private static final int HANDLE_BLE_CONN = 1;       // 蓝牙连接
-    private static final int HANDLE_BLE_DISCONN = 2;    // 蓝牙断开连接
     private static final int HANDLE_MST_JET = 3;        // 主控 0.1s 一次
     private static final int HANDLE_ZERO_FIVE = 4;      // 齐喷 5 次
 
@@ -355,6 +356,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
                     break;
                 case HANDLE_BLE_DISCONN:
                     imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_desconn));
+                    showDialogByDisconnect(CtMasterModeActivity.this);
                     break;
                 case HANDLE_MST_JET:
                     // 主控输入控制

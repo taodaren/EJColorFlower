@@ -2,6 +2,7 @@ package cn.eejing.ejcolorflower.view.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -35,6 +37,7 @@ import java.util.List;
 import java.util.Set;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.GApp;
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
@@ -48,6 +51,7 @@ import cn.eejing.ejcolorflower.model.request.MaterialInfoBean;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.SelfDialog;
+import cn.eejing.ejcolorflower.util.SelfDialogBase;
 import cn.eejing.ejcolorflower.util.Settings;
 import cn.eejing.ejcolorflower.util.ViewFindUtils;
 import cn.eejing.ejcolorflower.view.adapter.ViewPagerAdapter;
@@ -58,6 +62,10 @@ import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.APP_QR_GET_MID;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_NO;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_YES;
+import static cn.eejing.ejcolorflower.app.AppConstant.HANDLE_BLE_CONN;
+import static cn.eejing.ejcolorflower.app.AppConstant.HANDLE_BLE_DISCONN;
 import static cn.eejing.ejcolorflower.app.AppConstant.QR_DEV_ID;
 import static cn.eejing.ejcolorflower.app.AppConstant.QR_DEV_MAC;
 import static cn.eejing.ejcolorflower.app.AppConstant.QR_MATERIAL_ID;
@@ -70,7 +78,7 @@ import static cn.eejing.ejcolorflower.app.AppConstant.TYPE_WAIT_USED;
  * 设备配置
  */
 
-public class CtDevConfigActivity extends BaseActivity implements View.OnClickListener, EasyPermissions.PermissionCallbacks {
+public class CtDevConfigActivity extends BaseActivity implements EasyPermissions.PermissionCallbacks {
     private static final String TAG = "CtDevConfigActivity";
     private static final String JL = "about_add_material";
 
@@ -88,7 +96,8 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
     private List<Fragment> mFragments;
     private ViewPager mVPager;
     private int mPageType;
-    private SelfDialog mDialog;
+    private SelfDialog mDialogDmx;
+    private SelfDialogBase mDialogBack;
     private Gson mGson;
     private long mMemberId;
     private String mToken;
@@ -104,7 +113,6 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
     private boolean isEnterMasterCtrl;
     private long mDevId;
     private String mDevMac;
-    private Set<Integer> mDmxSet;
 
     @Override
     protected int layoutViewId() {
@@ -121,7 +129,6 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
         mToken = Settings.getLoginSessionInfo(this).getToken();
         mGson = new Gson();
 
-        mDmxSet = new HashSet<>();
         mDevId = getIntent().getLongExtra(QR_DEV_ID, 0);
         mDevMac = getIntent().getStringExtra(QR_DEV_MAC);
         Log.i(TAG, "设备信息: " + mDevId + " " + mDevMac);
@@ -145,6 +152,10 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
         super.setToolbar(title, titleVisibility, menu, menuVisibility);
         imgBleToolbar.setVisibility(View.VISIBLE);
         imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_desconn));
+        // 设置返回按钮
+        ImageView imgBack = findViewById(R.id.img_back_toolbar);
+        imgBack.setVisibility(View.VISIBLE);
+        imgBack.setOnClickListener(v -> showDialogByBack());
     }
 
     @Override
@@ -153,18 +164,11 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
         requestCodeQRCodePermissions();
     }
 
-    @Override
-    public void initListener() {
-        btnAddMaterial.setOnClickListener(this);
-        btnEnterMaster.setOnClickListener(this);
-        dmxSet.setOnClickListener(this);
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
+    @OnClick({R.id.img_back_toolbar, R.id.layout_dmx_set, R.id.btn_add_material, R.id.btn_enter_master})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
             case R.id.layout_dmx_set:
-                showDialog();
+                showDialogByDmx();
                 break;
             case R.id.btn_add_material:
                 mApp.setFlagQrCode(APP_QR_GET_MID);
@@ -456,7 +460,7 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
                     public void timeout() {
                         Log.e(TAG, "timeout");
                         if (resendNum != 0) {
-                            cmdClearAddMaterialInfo_E(deviceMId,serverMId, resendNum - 1);
+                            cmdClearAddMaterialInfo_E(deviceMId, serverMId, resendNum - 1);
                         } else {
                             Toast.makeText(CtDevConfigActivity.this, "清除加料信息失败", Toast.LENGTH_SHORT).show();
                         }
@@ -508,7 +512,7 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
                         long timestamp = BleDeviceProtocol.parseGetTimestamp(pkg, pkg.length);
 
                         Log.i(JL, "开始加料...");
-                        cmdAddMaterial(timestamp, mDevId, addTime, materialId,3);
+                        cmdAddMaterial(timestamp, mDevId, addTime, materialId, 3);
                     }
 
                     @Override
@@ -677,21 +681,22 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
     }
 
     @SuppressLint("HandlerLeak")
-    private Handler mHandler = new Handler(){
+    private Handler mHandler = new Handler() {
         @SuppressLint("SetTextI18n")
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-                case 1:
+                case HANDLE_BLE_CONN:
                     imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_conn));
                     tvDmxShow.setText("DMX " + String.valueOf(mDMXAddress));
                     isEnterMasterCtrl = mDMXAddress == 0;
                     break;
-                case 2:
+                case HANDLE_BLE_DISCONN:
                     imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_desconn));
                     tvDmxShow.setText("DMX地址");
                     isEnterMasterCtrl = mDMXAddress == 0;
+                    showDialogByDisconnect(CtDevConfigActivity.this);
                     break;
             }
         }
@@ -701,58 +706,24 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventDevConn(DevConnEvent event) {
         // 接收硬件传过来的已连接设备信息添加到 HashSet
-        if (event.getDeviceConfig() != null) {
+        if (event.getStatus() != null) {
             Log.i(TAG, "dev cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
 
-            mDmxSet.add(event.getDeviceConfig().mDMXAddress);
-
             switch (event.getStatus()) {
-                case "已连接":
+                case DEVICE_CONNECT_YES:
                     mDMXAddress = event.getDeviceConfig().mDMXAddress;
                     mTemperature = event.getDeviceStatus().mTemperature;
                     mRestTime = event.getDeviceStatus().mRestTime;
-                    mHandler.sendEmptyMessage(1);
+                    mHandler.sendEmptyMessage(HANDLE_BLE_CONN);
                     break;
-                case "不可连接":
+                case DEVICE_CONNECT_NO:
                     mDMXAddress = -1;
                     mTemperature = -1;
                     mRestTime = -1;
-                    mHandler.sendEmptyMessage(2);
+                    mHandler.sendEmptyMessage(HANDLE_BLE_DISCONN);
                     break;
             }
         }
-    }
-
-    private void showDialog() {
-        mDialog = new SelfDialog(this);
-        mDialog.setTitle("修改设备 DMX 地址");
-        mDialog.setMessage("设置 DMX 地址和取值范围0~510");
-        mDialog.setYesOnclickListener("确定", () -> {
-            if (!(mDialog.getEditTextStr().equals(""))) {
-                try {
-                    final int niDmx = Integer.parseInt(mDialog.getEditTextStr());
-                    if (!(niDmx >= 0 && niDmx <= 510)) {
-                        // 如果输入的 DMX 不在 1~511 之间，提示用户
-                        Toast.makeText(CtDevConfigActivity.this, "您设置的 DMX 地址超出范围\n请重新设置", Toast.LENGTH_SHORT).show();
-                        mDialog.dismiss();
-                    } else {
-                        // 更新 DMX 地址
-                        updateDmx(niDmx);
-                        mDialog.dismiss();
-                    }
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
-                    // 还有不按规矩出牌的？有！
-                    Toast.makeText(CtDevConfigActivity.this, "请设置正确的 DMX 地址", Toast.LENGTH_SHORT).show();
-                    mDialog.dismiss();
-                }
-            } else {
-                Toast.makeText(CtDevConfigActivity.this, "未更新 DMX 地址", Toast.LENGTH_SHORT).show();
-                mDialog.dismiss();
-            }
-        });
-        mDialog.setNoOnclickListener("取消", () -> mDialog.dismiss());
-        mDialog.show();
     }
 
     private void updateDmx(int niDmx) {
@@ -763,7 +734,7 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
                 if (pkg.length > 8 && pkg[7] == 0) {
                     Log.i(TAG, "配置 DMX 回复成功");
                     MainActivity.getAppCtrl().getDeviceConfig(mDevMac);
-                    mDialog.dismiss();
+                    mDialogDmx.dismiss();
                 } else {
                     Log.i(TAG, "配置 DMX 回复失败");
                 }
@@ -779,11 +750,65 @@ public class CtDevConfigActivity extends BaseActivity implements View.OnClickLis
         Toast.makeText(this, info, Toast.LENGTH_LONG).show();
     }
 
+    /** 修改 DMX Dialog */
+    private void showDialogByDmx() {
+        mDialogDmx = new SelfDialog(this);
+        mDialogDmx.setTitle("修改设备 DMX 地址");
+        mDialogDmx.setMessage("设置 DMX 地址和取值范围0~510");
+        mDialogDmx.setYesOnclickListener("确定", () -> {
+            if (!(mDialogDmx.getEditTextStr().equals(""))) {
+                try {
+                    final int niDmx = Integer.parseInt(mDialogDmx.getEditTextStr());
+                    if (!(niDmx >= 0 && niDmx <= 510)) {
+                        // 如果输入的 DMX 不在 1~511 之间，提示用户
+                        Toast.makeText(CtDevConfigActivity.this, "您设置的 DMX 地址超出范围\n请重新设置", Toast.LENGTH_SHORT).show();
+                        mDialogDmx.dismiss();
+                    } else {
+                        // 更新 DMX 地址
+                        updateDmx(niDmx);
+                        mDialogDmx.dismiss();
+                    }
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                    // 还有不按规矩出牌的？有！
+                    Toast.makeText(CtDevConfigActivity.this, "请设置正确的 DMX 地址", Toast.LENGTH_SHORT).show();
+                    mDialogDmx.dismiss();
+                }
+            } else {
+                Toast.makeText(CtDevConfigActivity.this, "未更新 DMX 地址", Toast.LENGTH_SHORT).show();
+                mDialogDmx.dismiss();
+            }
+        });
+        mDialogDmx.setNoOnclickListener("取消", () -> mDialogDmx.dismiss());
+        mDialogDmx.show();
+    }
+
+    /** 返回 Dialog */
+    public void showDialogByBack() {
+        mDialogBack = new SelfDialogBase(this);
+        mDialogBack.setTitle("返回将断开设备，确定返回吗？");
+        mDialogBack.setYesOnclickListener("确定", () -> {
+            MainActivity.getAppCtrl().disconnectDevice(mDevMac);
+            finish();
+            mDialogBack.dismiss();
+        });
+        mDialogBack.setNoOnclickListener("取消", () -> mDialogBack.dismiss());
+        mDialogBack.show();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            showDialogByBack();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
-        MainActivity.getAppCtrl().disconnectDevice(mDevMac);
     }
 
     @Override

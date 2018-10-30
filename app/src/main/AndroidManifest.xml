@@ -48,6 +48,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.activity.MainActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.activity.BLEActivity"

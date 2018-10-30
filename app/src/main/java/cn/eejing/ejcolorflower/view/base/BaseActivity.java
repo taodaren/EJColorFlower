@@ -23,7 +23,10 @@ import java.util.Map;
 
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
+import cn.eejing.ejcolorflower.app.GApp;
+import cn.eejing.ejcolorflower.util.SelfDialogBase;
 import cn.eejing.ejcolorflower.util.Settings;
+import cn.eejing.ejcolorflower.view.activity.MainActivity;
 import cn.eejing.ejcolorflower.view.activity.SignInActivity;
 import io.reactivex.functions.Consumer;
 
@@ -167,6 +170,19 @@ public abstract class BaseActivity extends AppCompatActivity {
                         Toast.makeText(BaseActivity.this, "未授权权限，部分功能不能使用", Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    private SelfDialogBase mDialogFinish;
+
+    /** 设备断开 Dialog */
+    public void showDialogByDisconnect(Activity activity) {
+        mDialogFinish = new SelfDialogBase(activity);
+        mDialogFinish.setTitle("设备已断开，请检查设备连接");
+        mDialogFinish.setYesOnclickListener("确定", () -> {
+            mDialogFinish.dismiss();
+            startActivity(new Intent(activity, MainActivity.class));
+        });
+        mDialogFinish.show();
     }
 
 }

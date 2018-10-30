@@ -22,6 +22,11 @@ import cn.eejing.ejcolorflower.model.event.DevConnEvent;
 import cn.eejing.ejcolorflower.util.CircleProgress;
 import cn.eejing.ejcolorflower.view.base.BaseFragment;
 
+import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_NO;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_YES;
+import static cn.eejing.ejcolorflower.app.AppConstant.HANDLE_BLE_CONN;
+import static cn.eejing.ejcolorflower.app.AppConstant.HANDLE_BLE_DISCONN;
+
 /**
  * 设备配置温度显示
  */
@@ -55,15 +60,16 @@ public class ConfigTempFragment extends BaseFragment {
     @SuppressLint("SetTextI18n")
     private void setDevTemp(int temp) {
         if (temp == -1) {
+            mTvDevTemp.setText("设备断连");
             mTvDevTemp.setVisibility(View.GONE);
             setCircleInfo(0);
         } else {
-            if (mDevTemp < mHeating) {
-                mTvDevTemp.setText("预热中...");
-            } else {
+            if (temp > mHeating) {
                 mTvDevTemp.setText("预热完成");
+            } else {
+                mTvDevTemp.setText("预热中...");
             }
-            setCircleInfo(mDevTemp);
+            setCircleInfo(temp);
         }
     }
 
@@ -106,13 +112,13 @@ public class ConfigTempFragment extends BaseFragment {
         Log.d(TAG, "temp cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
 
         switch (event.getStatus()) {
-            case "已连接":
+            case DEVICE_CONNECT_YES:
                 mHeating = event.getDeviceConfig().mTemperatureThresholdLow;
                 mDevTemp = event.getDeviceStatus().mTemperature;
-                mHandler.sendEmptyMessage(1);
+                mHandler.sendEmptyMessage(HANDLE_BLE_CONN);
                 break;
-            case "不可连接":
-                mHandler.sendEmptyMessage(0);
+            case DEVICE_CONNECT_NO:
+                mHandler.sendEmptyMessage(HANDLE_BLE_DISCONN);
                 break;
         }
     }
@@ -123,10 +129,10 @@ public class ConfigTempFragment extends BaseFragment {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-                case 1:
+                case HANDLE_BLE_CONN:
                     setDevTemp(mDevTemp);
                     break;
-                case 0:
+                case HANDLE_BLE_DISCONN:
                     setDevTemp(-1);
                     break;
                 default:

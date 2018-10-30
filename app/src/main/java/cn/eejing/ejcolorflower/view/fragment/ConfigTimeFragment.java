@@ -17,12 +17,18 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Objects;
 
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.model.event.DevConnEvent;
 import cn.eejing.ejcolorflower.util.CircleProgress;
 import cn.eejing.ejcolorflower.view.base.BaseFragment;
+
+import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_NO;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_YES;
+import static cn.eejing.ejcolorflower.app.AppConstant.HANDLE_BLE_CONN;
+import static cn.eejing.ejcolorflower.app.AppConstant.HANDLE_BLE_DISCONN;
 
 /**
  * 设备配置剩余时间显示
@@ -35,7 +41,7 @@ public class ConfigTimeFragment extends BaseFragment {
     @BindView(R.id.ch_time_left)           Chronometer    chTimeLeft;
     @BindView(R.id.tv_switch_info)         TextView       mTvSwitchInfo;
 
-    private static int  mDevTime;
+    private static int mDevTime;
 
     public static ConfigTimeFragment newInstance(int time) {
         Log.i(TAG, "newInstance: " + time);
@@ -57,6 +63,7 @@ public class ConfigTimeFragment extends BaseFragment {
     private void setTimeLeft(int time) {
         if (time == -1) {
             chTimeLeft.setVisibility(View.GONE);
+            chTimeLeft.setText("--:--");
             setCircleInfo(0);
         } else {
             // 展示剩余时间
@@ -74,18 +81,15 @@ public class ConfigTimeFragment extends BaseFragment {
         mCircleProgress.setProgress(curProgress);
         chTimeLeft.setVisibility(View.VISIBLE);
         mTvSwitchInfo.setText("时间");
-        mCircleProgress.post(new Runnable() {
-            @Override
-            public void run() {
-                LinearGradient linearGradient = new LinearGradient(
-                        0, 0,
-                        mCircleProgress.getWidth(), mCircleProgress.getHeight(),
-                        ContextCompat.getColor(getContext(), R.color.colorTimeSmall),
-                        ContextCompat.getColor(getContext(), R.color.colorTimeMore),
-                        Shader.TileMode.MIRROR
-                );
-                mCircleProgress.setProgressShader(linearGradient);
-            }
+        mCircleProgress.post(() -> {
+            LinearGradient linearGradient = new LinearGradient(
+                    0, 0,
+                    mCircleProgress.getWidth(), mCircleProgress.getHeight(),
+                    ContextCompat.getColor(Objects.requireNonNull(getContext()), R.color.colorTimeSmall),
+                    ContextCompat.getColor(getContext(), R.color.colorTimeMore),
+                    Shader.TileMode.MIRROR
+            );
+            mCircleProgress.setProgressShader(linearGradient);
         });
     }
 
@@ -110,12 +114,12 @@ public class ConfigTimeFragment extends BaseFragment {
         Log.i(TAG, "time cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
 
         switch (event.getStatus()) {
-            case "已连接":
+            case DEVICE_CONNECT_YES:
                 mDevTime = event.getDeviceStatus().mRestTime;
-                mHandler.sendEmptyMessage(1);
+                mHandler.sendEmptyMessage(HANDLE_BLE_CONN);
                 break;
-            case "不可连接":
-                mHandler.sendEmptyMessage(0);
+            case DEVICE_CONNECT_NO:
+                mHandler.sendEmptyMessage(HANDLE_BLE_DISCONN);
                 break;
         }
     }
@@ -126,11 +130,11 @@ public class ConfigTimeFragment extends BaseFragment {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-                case 1:
+                case HANDLE_BLE_CONN:
                     Log.w(TAG, "TIME: " + mDevTime );
                     setTimeLeft(mDevTime);
                     break;
-                case 0:
+                case HANDLE_BLE_DISCONN:
                     setTimeLeft(-1);
                     break;
                 default:
