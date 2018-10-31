@@ -14,6 +14,7 @@ import cn.eejing.ejcolorflower.model.manager.MgrRideJet;
 import cn.eejing.ejcolorflower.model.manager.MgrStreamJet;
 import cn.eejing.ejcolorflower.model.manager.MgrTogetherJet;
 
+import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_DELAY;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_INTERVAL;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_RIDE;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_STREAM;
@@ -212,6 +213,9 @@ public class MasterGroupLite extends LitePalSupport implements Serializable {
                     mListMstCtrlMgr.add(setDataWithInterval(jetModes.get(i)));
                     break;
                 case CONFIG_TOGETHER:
+                    mListMstCtrlMgr.add(setDataWithTogether(jetModes.get(i)));
+                    break;
+                case CONFIG_DELAY:
                     mListMstCtrlMgr.add(setDataWithTogether(jetModes.get(i)));
                     break;
                 default:
