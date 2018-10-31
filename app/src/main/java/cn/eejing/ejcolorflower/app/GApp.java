@@ -44,8 +44,8 @@ import okhttp3.OkHttpClient;
 public class GApp extends LitePalApplication {
     private String flagQrCode;
     private String flagGifDemo;
-    private static Context mContext;                                // 上下文
-
+    private String flagAddrMgr;
+    private static Context mContext;
 
     public String getFlagQrCode() {
         return flagQrCode;
@@ -61,6 +61,14 @@ public class GApp extends LitePalApplication {
 
     public void setFlagGifDemo(String flagGifDemo) {
         this.flagGifDemo = flagGifDemo;
+    }
+
+    public String getFlagAddrMgr() {
+        return flagAddrMgr;
+    }
+
+    public void setFlagAddrMgr(String flagAddrMgr) {
+        this.flagAddrMgr = flagAddrMgr;
     }
 
     @Override

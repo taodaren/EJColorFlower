@@ -108,12 +108,14 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.activity.MaOrderConfirmActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.activity.MaOrderPayActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.activity.MaAddrSelectActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.activity.MaAddrManageActivity"
@@ -141,6 +143,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.activity.MiSetActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.activity.MiUserInfoActivity"

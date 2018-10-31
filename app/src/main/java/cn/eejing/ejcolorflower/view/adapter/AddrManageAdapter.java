@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -29,7 +30,6 @@ import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.request.AddrDefBean;
 import cn.eejing.ejcolorflower.model.request.AddrListBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
-import cn.eejing.ejcolorflower.util.SelfDialogBase;
 import cn.eejing.ejcolorflower.view.activity.MaAddrModifyActivity;
 
 public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -39,6 +39,12 @@ public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private String mMemberId, mToken;
     private Gson mGson;
     private int lastSelectedPosition;
+
+    private View.OnClickListener mOnClickListener;
+
+    public void setOnClickListener(View.OnClickListener onClickListener) {
+        this.mOnClickListener = onClickListener;
+    }
 
     public AddrManageAdapter(Context context, List<AddrListBean.DataBean> list, String memberId, String token) {
         this.mContext = context;
@@ -83,8 +89,7 @@ public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         @BindView(R.id.tv_address_list_phone)         TextView tvPhone;
         @BindView(R.id.tv_address_list_address)       TextView tvAddress;
         @BindView(R.id.rbt_address_list_def)          RadioButton rbttDef;
-
-        SelfDialogBase dialog;
+        @BindView(R.id.btn_address_list_del)          Button btnDel;
 
         AddressListHolder(View itemView) {
             super(itemView);
@@ -112,6 +117,9 @@ public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             tvName.setText(bean.getName());
             tvPhone.setText(bean.getMobile());
             tvAddress.setText(mContext.getResources().getString(R.string.text_shipping_address) + bean.getAddress_all());
+
+            btnDel.setTag(getAdapterPosition());
+            btnDel.setOnClickListener(mOnClickListener);
         }
 
         @OnClick({R.id.rbt_address_list_def})
@@ -128,29 +136,6 @@ public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             mContext.startActivity(new Intent(mContext, MaAddrModifyActivity.class).putExtras(bundle));
         }
 
-        @OnClick(R.id.btn_address_list_del)
-        void clickDelete() {
-            showDialog();
-        }
-
-        private void showDialog() {
-            dialog = new SelfDialogBase(mContext);
-            dialog.setTitle("是否确认删除收货地址");
-            dialog.setYesOnclickListener("确定", new SelfDialogBase.onYesOnclickListener() {
-                @Override
-                public void onYesClick() {
-                    getDataWithAddressDel(getAdapterPosition());
-                    dialog.dismiss();
-                }
-            });
-            dialog.setNoOnclickListener("取消", new SelfDialogBase.onNoOnclickListener() {
-                @Override
-                public void onNoClick() {
-                    dialog.dismiss();
-                }
-            });
-            dialog.show();
-        }
     }
 
     private void getDataWithAddressDef(final int position) {
@@ -176,37 +161,6 @@ public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                                              mList.get(lastSelectedPosition).setStatus(0);
                                              notifyDataSetChanged();
                                          }
-                                         break;
-                                     default:
-                                         break;
-                                 }
-                             }
-
-                             @Override
-                             public void onError(Response<String> response) {
-                                 super.onError(response);
-                             }
-                         }
-                );
-    }
-
-    private void getDataWithAddressDel(final int position) {
-        OkGo.<String>post(Urls.ADDRESS_DEL)
-                .tag(this)
-                .params("member_id", mMemberId)
-                .params("address_id", mList.get(position).getId())
-                .params("token", mToken)
-                .execute(new StringCallback() {
-                             @Override
-                             public void onSuccess(Response<String> response) {
-                                 String body = response.body();
-                                 Log.e(AppConstant.TAG, "address_del request succeeded--->" + body);
-
-                                 AddrDefBean bean = mGson.fromJson(body, AddrDefBean.class);
-                                 switch (bean.getCode()) {
-                                     case 1:
-                                         mList.remove(position);
-                                         notifyDataSetChanged();
                                          break;
                                      default:
                                          break;

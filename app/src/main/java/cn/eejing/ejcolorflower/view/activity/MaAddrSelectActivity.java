@@ -21,12 +21,15 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
+import cn.eejing.ejcolorflower.app.GApp;
 import cn.eejing.ejcolorflower.model.event.AddrAddEvent;
 import cn.eejing.ejcolorflower.model.request.AddrListBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.MySettings;
 import cn.eejing.ejcolorflower.view.adapter.AddrSelectAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
+
+import static cn.eejing.ejcolorflower.app.AppConstant.FROM_SELECT_TO_ADDR;
 
 /**
  * 选择收货地址
@@ -68,6 +71,8 @@ public class MaAddrSelectActivity extends BaseActivity {
 
     @OnClick(R.id.tv_menu_toolbar)
     public void onClickedMgr() {
+        GApp gApp = (GApp) getApplication();
+        gApp.setFlagAddrMgr(FROM_SELECT_TO_ADDR);
         jumpToActivity(MaAddrManageActivity.class);
     }
 

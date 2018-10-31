@@ -1,8 +1,10 @@
 package cn.eejing.ejcolorflower.view.activity;
 
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.google.gson.Gson;
@@ -22,12 +24,19 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
+import cn.eejing.ejcolorflower.app.GApp;
 import cn.eejing.ejcolorflower.model.event.AddrAddEvent;
+import cn.eejing.ejcolorflower.model.request.AddrDefBean;
 import cn.eejing.ejcolorflower.model.request.AddrListBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.MySettings;
+import cn.eejing.ejcolorflower.util.SelfDialogBase;
 import cn.eejing.ejcolorflower.view.adapter.AddrManageAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
+
+import static cn.eejing.ejcolorflower.app.AppConstant.FROM_ORDER_TO_ADDR;
+import static cn.eejing.ejcolorflower.app.AppConstant.FROM_SELECT_TO_ADDR;
+import static cn.eejing.ejcolorflower.app.AppConstant.FROM_SET_TO_ADDR;
 
 /**
  * 管理收货地址
@@ -61,6 +70,15 @@ public class MaAddrManageActivity extends BaseActivity {
     }
 
     @Override
+    public void setToolbar(String title, int titleVisibility, String menu, int menuVisibility) {
+        super.setToolbar(title, titleVisibility, menu, menuVisibility);
+        // 设置返回按钮
+        ImageView imgTitleBack = findViewById(R.id.img_back_toolbar);
+        imgTitleBack.setVisibility(View.VISIBLE);
+        imgTitleBack.setOnClickListener(v -> onExit());
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
@@ -76,6 +94,47 @@ public class MaAddrManageActivity extends BaseActivity {
         jumpToActivity(MaAddrAddActivity.class);
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            onExit();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private void onExit() {
+        GApp gApp = (GApp) getApplication();
+        switch (gApp.getFlagAddrMgr()) {
+            case FROM_SET_TO_ADDR:
+                jumpToActivity(MiSetActivity.class);
+                finish();
+                break;
+            case FROM_SELECT_TO_ADDR:
+                if (mList.size() == 0) {
+                    EventBus.getDefault().post(new AddrAddEvent("收货地址为空"));
+                    jumpToActivity(MaOrderConfirmActivity.class);
+                    finish();
+                } else {
+                    EventBus.getDefault().post(new AddrAddEvent("收货地址不为空"));
+                    jumpToActivity(MaAddrSelectActivity.class);
+                    finish();
+                }
+                break;
+            case FROM_ORDER_TO_ADDR:
+                jumpToActivity(MaOrderConfirmActivity.class);
+                if (mList.size() == 0) {
+                    EventBus.getDefault().post(new AddrAddEvent("收货地址为空"));
+                    finish();
+                } else {
+                    EventBus.getDefault().post(new AddrAddEvent("收货地址不为空"));
+                    finish();
+                }
+                break;
+        }
+        gApp.setFlagAddrMgr(null);
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(AddrAddEvent event) {
         // 地址添加成功返回刷新列表
@@ -87,6 +146,11 @@ public class MaAddrManageActivity extends BaseActivity {
         rvAddress.setLinearLayout();
         // 绑定适配器
         mAdapter = new AddrManageAdapter(this, mList, mMemberId, mToken);
+        // 监听删除点击事件
+        mAdapter.setOnClickListener(v -> {
+            int position = (int) v.getTag();
+            showDialogByDel(position);
+        });
         rvAddress.setAdapter(mAdapter);
 
         // 不需要上拉刷新
@@ -132,6 +196,8 @@ public class MaAddrManageActivity extends BaseActivity {
                                          // 该会员暂无地址
                                          nullAddress.setVisibility(View.VISIBLE);
                                          rvAddress.setVisibility(View.GONE);
+                                         // 刷新结束
+                                         rvAddress.setPullLoadMoreCompleted();
                                      default:
                                          break;
                                  }
@@ -143,6 +209,59 @@ public class MaAddrManageActivity extends BaseActivity {
                              }
                          }
                 );
+    }
+
+    private void getDataWithAddressDel(final int position) {
+        OkGo.<String>post(Urls.ADDRESS_DEL)
+                .tag(this)
+                .params("member_id", mMemberId)
+                .params("address_id", mList.get(position).getId())
+                .params("token", mToken)
+                .execute(new StringCallback() {
+                             @Override
+                             public void onSuccess(Response<String> response) {
+                                 String body = response.body();
+                                 Log.e(AppConstant.TAG, "address_del request succeeded--->" + body);
+
+                                 AddrDefBean bean = mGson.fromJson(body, AddrDefBean.class);
+                                 switch (bean.getCode()) {
+                                     case 1:
+                                         mList.remove(position);
+                                         mAdapter.notifyDataSetChanged();
+                                         getDataWithAddressList();
+                                         break;
+                                     default:
+                                         break;
+                                 }
+                             }
+
+                             @Override
+                             public void onError(Response<String> response) {
+                                 super.onError(response);
+                             }
+                         }
+                );
+    }
+
+    private SelfDialogBase mDialogDel;
+
+    private void showDialogByDel(int position) {
+        mDialogDel = new SelfDialogBase(this);
+        mDialogDel.setTitle("是否确认删除收货地址");
+        mDialogDel.setYesOnclickListener("确定", new SelfDialogBase.onYesOnclickListener() {
+            @Override
+            public void onYesClick() {
+                getDataWithAddressDel(position);
+                mDialogDel.dismiss();
+            }
+        });
+        mDialogDel.setNoOnclickListener("取消", new SelfDialogBase.onNoOnclickListener() {
+            @Override
+            public void onNoClick() {
+                mDialogDel.dismiss();
+            }
+        });
+        mDialogDel.show();
     }
 
 }

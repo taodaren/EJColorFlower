@@ -122,7 +122,7 @@ public class MaAddrAddActivity extends BaseActivity {
                                          Toast.makeText(MaAddrAddActivity.this, "手机号不能为空", Toast.LENGTH_SHORT).show();
                                          break;
                                      case 6:
-                                         Toast.makeText(MaAddrAddActivity.this, "详细地址不能为空", Toast.LENGTH_SHORT).show();
+                                         Toast.makeText(MaAddrAddActivity.this, "手机号码格式不正确", Toast.LENGTH_SHORT).show();
                                          break;
                                      case 0:
                                          Toast.makeText(MaAddrAddActivity.this, "地址添加失败", Toast.LENGTH_SHORT).show();

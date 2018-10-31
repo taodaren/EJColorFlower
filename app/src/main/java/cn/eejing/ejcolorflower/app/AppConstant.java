@@ -19,6 +19,10 @@ public class AppConstant {
     public static final String APP_QR_GET_MID = "二维码扫描获取料包 ID";
     public static final String APP_QR_GET_DID = "二维码扫描获取设备 ID";
 
+    public static final String FROM_SET_TO_ADDR = "来自于设置";
+    public static final String FROM_SELECT_TO_ADDR = "来自于选择收货地址";
+    public static final String FROM_ORDER_TO_ADDR = "来自于确认订单";
+
     public static final String QR_DEV_ID = "qr_dev_id";
     public static final String QR_DEV_MAC = "qr_dev_mac";
     public static final String QR_MATERIAL_ID = "qr_material_id";
@@ -40,9 +44,10 @@ public class AppConstant {
     public static final int BLE_RETURN_SUCCESS = 0;
     public static final int BLE_RETURN_FAILURE = 1;
 
+    public static final int REQUEST_CODE_FORCED_UPDATE = 180;               // 强制更新
     public static final int REQUEST_CODE_QRCODE_PERMISSIONS = 1;            // 请求代码 QRCode 权限
     public static final int REQUEST_CODE_SCANNING_CONN_DEV = 10;            // 扫描连接设备
-    public static final int REQUEST_CODE_FORCED_UPDATE = 180;               // 强制更新
+    public static final int REQUEST_CODE_ADDR_SELECT = 20;                  // 地址选择
 
     public static final int TYPE_TEMP = 1;
     public static final int TYPE_DMX = 2;
