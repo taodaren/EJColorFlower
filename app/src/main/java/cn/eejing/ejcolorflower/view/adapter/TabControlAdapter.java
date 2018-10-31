@@ -813,8 +813,8 @@ public class TabControlAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventDevConn(DeviceConnectEvent event) {
         mConnStatus = event.getInfo();
-        mConnDmx = event.getConfig().mDMXAddress;
-        mConnDevID = event.getConfig().mID;
+        mConnDmx = event.getConfig().getDMXAddress();
+        mConnDevID = event.getConfig().getID();
 
         switch (mConnStatus) {
             case DEVICE_CONNECT_YES:

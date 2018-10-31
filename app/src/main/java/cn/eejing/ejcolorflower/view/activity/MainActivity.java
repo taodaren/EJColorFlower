@@ -48,8 +48,9 @@ import cn.eejing.ejcolorflower.view.fragment.TabMallFragment;
 import cn.eejing.ejcolorflower.view.fragment.TabMineFragment;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.EXIT_LOGIN;
-import static cn.eejing.ejcolorflower.app.AppConstant.FORCED_UPDATE;
+import static cn.eejing.ejcolorflower.app.AppConstant.REQUEST_CODE_FORCED_UPDATE;
 import static cn.eejing.ejcolorflower.app.AppConstant.QR_DEV_ID;
+import static cn.eejing.ejcolorflower.app.AppConstant.REQUEST_CODE_SCANNING_CONN_DEV;
 import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_CHARACTERISTIC_WRITE;
 import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_SERVICE;
 
@@ -322,25 +323,48 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                             if (bSendEn && cmdCnt == 0) {
                                 // 0.5 秒的时间内没有命令；可以发送一次获取状态的命令
                                 DeviceConfig mConfig = device.getConfig();
-                                long id = (mConfig == null) ? 0 : mConfig.mID;
-                                // 等待获取状态完成
-                                nCurDealSend = new PackageNeedAck(device.getAddress(), BleDeviceProtocol.pkgGetStatus(id),
-                                        new OnReceivePackage() {
-                                            @Override
-                                            public void ack(@NonNull byte[] pkg) {
-                                                nCurDealSend = null;
-                                            }
-
-                                            @Override
-                                            public void timeout() {
-                                                flagAddTimeOut++;
-                                                if (flagAddTimeOut > 3) {
-                                                    // 超出距离断开连接
-                                                    EventBus.getDefault().post(new DevConnEvent(getDevMac(), "不可连接"));
-                                                    flagAddTimeOut = 0;
+                                if (mConfig == null) {
+                                    //getDeviceConfig(device.getAddress());
+                                    long id = 0;
+                                    Log.i(TAG, "获取一次配置");
+                                    nCurDealSend = new PackageNeedAck(device.getAddress(), BleDeviceProtocol.pkgGetConfig(id),
+                                            new OnReceivePackage() {
+                                                @Override
+                                                public void ack(@NonNull byte[] pkg) {
+                                                    nCurDealSend = null;
                                                 }
-                                            }
-                                        });
+
+                                                @Override
+                                                public void timeout() {
+                                                    flagAddTimeOut++;
+                                                    if (flagAddTimeOut > 3) {
+                                                        // 超出距离断开连接
+                                                        EventBus.getDefault().post(new DevConnEvent(getDevMac(), "不可连接"));
+                                                        flagAddTimeOut = 0;
+                                                    }
+                                                }
+                                            });
+                                } else {
+                                    long id = (mConfig == null) ? 0 : mConfig.getID();
+                                    // 等待获取状态完成
+                                    nCurDealSend = new PackageNeedAck(device.getAddress(), BleDeviceProtocol.pkgGetStatus(id),
+                                            new OnReceivePackage() {
+                                                @Override
+                                                public void ack(@NonNull byte[] pkg) {
+                                                    nCurDealSend = null;
+                                                }
+
+                                                @Override
+                                                public void timeout() {
+                                                    flagAddTimeOut++;
+                                                    if (flagAddTimeOut > 3) {
+                                                        // 超出距离断开连接
+                                                        EventBus.getDefault().post(new DevConnEvent(getDevMac(), "不可连接"));
+                                                        flagAddTimeOut = 0;
+                                                    }
+                                                }
+                                            });
+                                }
                             }
                         }
                     }
@@ -386,7 +410,8 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         protected void onReceivePkg(@NonNull DeviceConfig config) {
             device.setConfig(config);
             nCurDealSend = null;
-            Log.i(TAG, "获取配置成功DMX=" + config.mDMXAddress);
+            flagAddTimeOut = 0;
+            Log.i(TAG, "获取配置成功DMX=" + config.getDMXAddress());
             EventBus.getDefault().post(new DevConnEvent(device.getId(), device.getAddress(), "已连接", device.getState(), device.getConfig()));
         }
 
@@ -411,7 +436,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         long id = 0;
         if (device != null) {
             DeviceConfig mConfig = device.getConfig();
-            id = (mConfig == null) ? 0 : mConfig.mID;
+            id = (mConfig == null) ? 0 : mConfig.getID();
         }
         ProtocolWithDevice p = mProtocolMap.get(mac);
         if (p != null) {
@@ -425,7 +450,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         long id = 0;
         if (device != null) {
             DeviceConfig mConfig = device.getConfig();
-            id = (mConfig == null) ? 0 : mConfig.mID;
+            id = (mConfig == null) ? 0 : mConfig.getID();
         }
         ProtocolWithDevice p = mProtocolMap.get(mac);
         if (p != null) {
@@ -592,7 +617,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         super.onActivityResult(requestCode, resultCode, data);
         Log.i(TAG, "requestCode: " + requestCode);
         switch (requestCode) {
-            case 1:
+            case REQUEST_CODE_SCANNING_CONN_DEV:
                 if (resultCode == RESULT_OK) {
                     long devId = data.getLongExtra(QR_DEV_ID, 0);
                     mStrDevId = String.valueOf(devId);
@@ -601,7 +626,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                     getDataWithQueryDevMac();
                 }
                 break;
-            case FORCED_UPDATE:
+            case REQUEST_CODE_FORCED_UPDATE:
                 // 再次执行安装流程，包含权限判等
                 installProcess();
                 break;

@@ -44,7 +44,7 @@ import cn.eejing.ejcolorflower.view.activity.MainActivity;
 import cn.eejing.ejcolorflower.view.activity.SignInActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.EXIT_LOGIN;
-import static cn.eejing.ejcolorflower.app.AppConstant.FORCED_UPDATE;
+import static cn.eejing.ejcolorflower.app.AppConstant.REQUEST_CODE_FORCED_UPDATE;
 import static cn.eejing.ejcolorflower.presenter.Urls.DOWN_LOAD_APK;
 
 /**
@@ -288,7 +288,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         // 注意这个是 8.0 新 API
         Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, packageURI);
         // 在 MainActivity 进行回调
-        startActivityForResult(intent, FORCED_UPDATE);
+        startActivityForResult(intent, REQUEST_CODE_FORCED_UPDATE);
     }
 
 }

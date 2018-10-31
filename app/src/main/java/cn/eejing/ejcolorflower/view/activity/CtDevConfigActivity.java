@@ -38,7 +38,9 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.GApp;
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.device.Device;
+import cn.eejing.ejcolorflower.device.DeviceConfig;
 import cn.eejing.ejcolorflower.device.DeviceMaterialStatus;
+import cn.eejing.ejcolorflower.device.DeviceStatus;
 import cn.eejing.ejcolorflower.model.event.DevConnEvent;
 import cn.eejing.ejcolorflower.model.request.AddMaterialBean;
 import cn.eejing.ejcolorflower.model.request.CancelMaterialStatusBean;
@@ -703,9 +705,20 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
 
             switch (event.getStatus()) {
                 case DEVICE_CONNECT_YES:
-                    mDMXAddress = event.getDeviceConfig().mDMXAddress;
-                    mTemperature = event.getDeviceStatus().mTemperature;
-                    mRestTime = event.getDeviceStatus().mRestTime;
+                    DeviceStatus state = event.getDeviceStatus();
+                    DeviceConfig config = event.getDeviceConfig();
+                    if (config != null) {
+                        mDMXAddress = config.getDMXAddress();
+                    } else {
+                        mDMXAddress = 88;
+                    }
+                    if (state != null) {
+                        mTemperature = state.getTemperature();
+                        mRestTime = state.getRestTime();
+                    } else {
+                        mTemperature = 0;
+                        mRestTime = 0;
+                    }
                     mHandler.sendEmptyMessage(HANDLE_BLE_CONN);
                     break;
                 case DEVICE_CONNECT_NO:

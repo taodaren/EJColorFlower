@@ -70,7 +70,7 @@ public class Device {
     }
 
     public long getId() {
-        return (config == null) ? id : config.mID;
+        return (config == null) ? id : config.getID();
     }
 
     public void setId(long id) {

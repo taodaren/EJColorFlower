@@ -175,10 +175,10 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         mState = event.getState();
         mConfig = event.getConfig();
 
-        mTemp = event.getState().mTemperature;
-        mDMX = event.getConfig().mDMXAddress;
-        mTime = event.getState().mRestTime;
-        mThresholdHigh = event.getConfig().mTemperatureThresholdHigh;
+        mTemp = event.getState().getTemperature();
+        mDMX = event.getConfig().getDMXAddress();
+        mTime = event.getState().getRestTime();
+        mThresholdHigh = event.getConfig().getTemperatureThresholdHigh();
 
         Log.i("JLTHTYC", mConnStatus
                 + "\nConn Mac--->" + mConnDevMac
@@ -386,10 +386,10 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 // 携带设备参数跳转到设备详情界面
                 Intent intent = new Intent(mContext, DeDeviceDetailsActivity.class);
                 intent.putExtra("device_id", deviceId);
-                intent.putExtra("device_temp", state.mTemperature);
-                intent.putExtra("device_dmx", config.mDMXAddress);
-                intent.putExtra("device_time", state.mRestTime);
-                intent.putExtra("device_threshold", config.mTemperatureThresholdHigh);
+                intent.putExtra("device_temp", state.getTemperature());
+                intent.putExtra("device_dmx", config.getDMXAddress());
+                intent.putExtra("device_time", state.getRestTime());
+                intent.putExtra("device_threshold", config.getTemperatureThresholdHigh());
                 intent.putExtra("page", type);
                 intent.putExtra("member_id", mMemberId);
                 intent.putExtra("token", mToken);
@@ -412,7 +412,7 @@ public class TabDeviceAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
 
         @OnClick({R.id.img_footer_add, R.id.home_null_device})
-        public void onClickAddDev(View view) {
+        void onClickAddDev(View view) {
             switch (view.getId()) {
                 case R.id.img_footer_add:
                 case R.id.home_null_device:

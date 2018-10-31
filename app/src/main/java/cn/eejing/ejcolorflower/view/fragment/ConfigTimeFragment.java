@@ -115,7 +115,7 @@ public class ConfigTimeFragment extends BaseFragment {
 
         switch (event.getStatus()) {
             case DEVICE_CONNECT_YES:
-                mDevTime = event.getDeviceStatus().mRestTime;
+                mDevTime = event.getDeviceStatus().getRestTime();
                 mHandler.sendEmptyMessage(HANDLE_BLE_CONN);
                 break;
             case DEVICE_CONNECT_NO:

@@ -40,8 +40,9 @@ public class AppConstant {
     public static final int BLE_RETURN_SUCCESS = 0;
     public static final int BLE_RETURN_FAILURE = 1;
 
-    // 请求代码 QRCode 权限
-    public static final int REQUEST_CODE_QRCODE_PERMISSIONS = 1;
+    public static final int REQUEST_CODE_QRCODE_PERMISSIONS = 1;            // 请求代码 QRCode 权限
+    public static final int REQUEST_CODE_SCANNING_CONN_DEV = 10;            // 扫描连接设备
+    public static final int REQUEST_CODE_FORCED_UPDATE = 180;               // 强制更新
 
     public static final int TYPE_TEMP = 1;
     public static final int TYPE_DMX = 2;
@@ -51,9 +52,6 @@ public class AppConstant {
     public static final int TYPE_NO_USED = 0;
     public static final int TYPE_WAIT_USED = 1;
     public static final int TYPE_END_USED = 2;
-
-    // 强制更新
-    public static final int FORCED_UPDATE = 180;
 
     // 蓝牙连接 / 断开连接
     public static final int HANDLE_BLE_CONN = 101;

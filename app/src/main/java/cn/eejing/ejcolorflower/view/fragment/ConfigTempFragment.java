@@ -113,8 +113,8 @@ public class ConfigTempFragment extends BaseFragment {
 
         switch (event.getStatus()) {
             case DEVICE_CONNECT_YES:
-                mHeating = event.getDeviceConfig().mTemperatureThresholdLow;
-                mDevTemp = event.getDeviceStatus().mTemperature;
+                mHeating = event.getDeviceConfig().getTemperatureThresholdLow();
+                mDevTemp = event.getDeviceStatus().getTemperature();
                 mHandler.sendEmptyMessage(HANDLE_BLE_CONN);
                 break;
             case DEVICE_CONNECT_NO:

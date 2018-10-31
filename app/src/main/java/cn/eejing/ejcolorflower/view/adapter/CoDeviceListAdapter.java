@@ -104,7 +104,7 @@ public class CoDeviceListAdapter extends RecyclerView.Adapter<CoDeviceListAdapte
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventDevConn(DeviceConnectEvent event) {
         mConnStatus = event.getInfo();
-        mConnDevID = event.getConfig().mID;
+        mConnDevID = event.getConfig().getID();
 
         Log.i("JLTHYC", mConnStatus
                 + "\nConn mConnDevID--->" + mConnDevID

@@ -486,16 +486,16 @@ public class BleDeviceProtocol {
         BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {
             reader.skip(HEADER_LEN);
-            ds.mTemperature = reader.readSignedShortLSB();
-            ds.mSupplyVoltage = (float) reader.readUnsignedChar() / 10;
-            ds.mMotorSpeed[0] = reader.readUnsignedChar();
-            ds.mMotorSpeed[1] = reader.readUnsignedChar();
-            ds.mMotorSpeed[2] = reader.readUnsignedChar();
-            ds.mMotorSpeed[3] = reader.readUnsignedChar();
-            ds.mPitch = reader.readUnsignedChar();
-            ds.mUltrasonicDistance = reader.readUnsignedChar();
-            ds.mInfraredDistance = reader.readUnsignedChar();
-            ds.mRestTime = reader.readUnsignedShortLSB();
+            ds.setTemperature(reader.readSignedShortLSB());
+            ds.setSupplyVoltage((float) reader.readUnsignedChar() / 10);
+            ds.setMotorSpeed1(reader.readUnsignedChar());
+            ds.setMotorSpeed2(reader.readUnsignedChar());
+            ds.setMotorSpeed3(reader.readUnsignedChar());
+            ds.setMotorSpeed4(reader.readUnsignedChar());
+            ds.setPitch(reader.readUnsignedChar());
+            ds.setUltrasonicDistance(reader.readUnsignedChar());
+            ds.setInfraredDistance(reader.readUnsignedChar());
+            ds.setRestTime(reader.readUnsignedShortLSB());
             return ds;
         } catch (IOException e) {
             return null;
@@ -508,15 +508,15 @@ public class BleDeviceProtocol {
         BinaryReader reader = new BinaryReader(new ByteArrayInputStream(pkg, 0, pkgLen));
         try {
             reader.skip(HEADER_LEN);
-            config.mID = reader.readUnsignedIntLSB();
-            config.mMotorDefaultSpeed[0] = reader.readUnsignedChar();
-            config.mMotorDefaultSpeed[1] = reader.readUnsignedChar();
-            config.mMotorDefaultSpeed[2] = reader.readUnsignedChar();
-            config.mMotorDefaultSpeed[3] = reader.readUnsignedChar();
-            config.mTemperatureThresholdLow = reader.readSignedShortLSB();
-            config.mTemperatureThresholdHigh = reader.readSignedShortLSB();
-            config.mDMXAddress = reader.readUnsignedShortLSB();
-            config.mGualiaoTime = reader.readUnsignedChar();
+            config.setID(reader.readUnsignedIntLSB());
+            config.setFeedDefVelocity(reader.readUnsignedChar());
+            config.setScrapeDefVelocity(reader.readUnsignedChar());
+            config.setWindDefVelocity(reader.readUnsignedChar());
+            config.setBackupDefVelocity(reader.readUnsignedChar());
+            config.setTemperatureThresholdLow(reader.readSignedShortLSB());
+            config.setTemperatureThresholdHigh(reader.readSignedShortLSB());
+            config.setDMXAddress(reader.readUnsignedShortLSB());
+            config.setGualiaoTime(reader.readUnsignedChar());
             return config;
         } catch (IOException e) {
             return null;

@@ -27,6 +27,7 @@ import static cn.eejing.ejcolorflower.app.AppConstant.APP_QR_GET_DID;
 import static cn.eejing.ejcolorflower.app.AppConstant.QR_DEV_ID;
 import static cn.eejing.ejcolorflower.app.AppConstant.QR_DEV_MAC;
 import static cn.eejing.ejcolorflower.app.AppConstant.REQUEST_CODE_QRCODE_PERMISSIONS;
+import static cn.eejing.ejcolorflower.app.AppConstant.REQUEST_CODE_SCANNING_CONN_DEV;
 
 /**
  * 控制模块
@@ -76,7 +77,7 @@ public class TabCtrlFragment extends BaseFragment implements EasyPermissions.Per
     public void onClickedConnDev() {
         mApp.setFlagQrCode(APP_QR_GET_DID);
 
-        Objects.requireNonNull(getActivity()).startActivityForResult(new Intent(getContext(), CtQrScanActivity.class), 1);
+        Objects.requireNonNull(getActivity()).startActivityForResult(new Intent(getContext(), CtQrScanActivity.class), REQUEST_CODE_SCANNING_CONN_DEV);
     }
 
     private int mFlagConnStatus, mFlagStopContext;
