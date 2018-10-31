@@ -298,10 +298,10 @@ public class CtConfigRideActivity extends BaseActivity implements View.OnClickLi
         rbtnRightToLeft.setBackground(getDrawable(rl));
         rbtnCenterToBorder.setBackground(getDrawable(cb));
 
-        rbtnLeftToRight.setTextColor(getColor(lrColor));
-        rbtnBorderToCenter.setTextColor(getColor(bcColor));
-        rbtnRightToLeft.setTextColor(getColor(rlColor));
-        rbtnCenterToBorder.setTextColor(getColor(cbColor));
+        rbtnLeftToRight.setTextColor(getResources().getColor(lrColor));
+        rbtnBorderToCenter.setTextColor(getResources().getColor(bcColor));
+        rbtnRightToLeft.setTextColor(getResources().getColor(rlColor));
+        rbtnCenterToBorder.setTextColor(getResources().getColor(cbColor));
 
         tvJetTime.setText(countTime());
     }
