@@ -18,14 +18,15 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="164dp"
         android:background="@color/colorWhite"
+        android:orientation="vertical"
         android:padding="4dp">
 
         <EditText
             android:id="@+id/edit_opinion_content"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="130dp"
             android:background="@null"
             android:gravity="top"
             android:hint="@string/opinion_content_hint"
@@ -35,14 +36,22 @@
             android:textCursorDrawable="@null"
             android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/tv_num_length"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@id/edit_opinion_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:padding="4dp" />
+            android:layout_below="@id/edit_opinion_content">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/tv_num_length"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp" />
+        </LinearLayout>
     </RelativeLayout>
 
     <com.allen.library.SuperButton
@@ -50,8 +59,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="36dp"
-        android:layout_marginRight="36dp"
         android:layout_marginTop="64dp"
+        android:layout_marginRight="36dp"
         android:text="@string/btn_submit"
         android:textColor="@color/white"
         stv:sCornersRadius="50dp"

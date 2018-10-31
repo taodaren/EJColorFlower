@@ -44,33 +44,13 @@ public class TabMineFragment extends BaseFragment {
 
     @Override
     public void initListener() {
-        stvMineOrder.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
-            @Override
-            public void onClickListener(SuperTextView superTextView) {
-                ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(MiOrderActivity.class);
-            }
-        });
+        stvMineOrder.setOnSuperTextViewClickListener(superTextView -> ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(MiOrderActivity.class));
 
-        stvMineOpinion.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
-            @Override
-            public void onClickListener(SuperTextView superTextView) {
-                ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(MiOpinionActivity.class);
-            }
-        });
+        stvMineOpinion.setOnSuperTextViewClickListener(superTextView -> ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(MiOpinionActivity.class));
 
-        stvMineAbout.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
-            @Override
-            public void onClickListener(SuperTextView superTextView) {
-                ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(MiAboutActivity.class);
-            }
-        });
+        stvMineAbout.setOnSuperTextViewClickListener(superTextView -> ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(MiAboutActivity.class));
 
-        stvMineSet.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
-            @Override
-            public void onClickListener(SuperTextView superTextView) {
-                ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(MiSetActivity.class);
-            }
-        });
+        stvMineSet.setOnSuperTextViewClickListener(superTextView -> ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(MiSetActivity.class));
     }
 
     @OnClick(R.id.btn_mine_upgrade)
