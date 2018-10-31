@@ -1,7 +1,6 @@
 package cn.eejing.ejcolorflower.view.fragment;
 
 import android.view.View;
-import android.widget.Toast;
 
 import com.allen.library.SuperTextView;
 
