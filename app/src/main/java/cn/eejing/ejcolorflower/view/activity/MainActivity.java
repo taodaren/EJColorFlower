@@ -253,6 +253,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         boolean bSendEn = true;              // 用于判断线程是否需要结束
         PackageNeedAck nCurDealSend = null;  // 用于引用当前正在发送和等待回复的命令
         final Object lock = new Object();
+        int flagAddTimeOut = 0;
 
         /* 添加一个管理每个蓝牙设备数据发送的队列
            每个设备连接到手机后，手机开启一个线程，用于管理当前设备的数据发送，接收，超时，重发 */
@@ -309,8 +310,8 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                             synchronized (lock) {
                                 //线程等待有新的发送任务
                                 try {
-                                    // 等待 2 秒
-                                    lock.wait(2000);
+                                    // 等待 0.5 秒
+                                    lock.wait(500);
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
@@ -319,7 +320,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                                 cmdCnt = mCmdAckList.size();
                             }
                             if (bSendEn && cmdCnt == 0) {
-                                // 2 秒的时间内没有命令；可以发送一次获取状态的命令
+                                // 0.5 秒的时间内没有命令；可以发送一次获取状态的命令
                                 DeviceConfig mConfig = device.getConfig();
                                 long id = (mConfig == null) ? 0 : mConfig.mID;
                                 // 等待获取状态完成
@@ -332,7 +333,12 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
 
                                             @Override
                                             public void timeout() {
-
+                                                flagAddTimeOut++;
+                                                if (flagAddTimeOut > 3) {
+                                                    // 超出距离断开连接
+                                                    EventBus.getDefault().post(new DevConnEvent(getDevMac(), "不可连接"));
+                                                    flagAddTimeOut = 0;
+                                                }
                                             }
                                         });
                             }
@@ -371,7 +377,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         protected void onReceivePkg(@NonNull DeviceStatus state) {
             device.setState(state);
             nCurDealSend = null;
-            Log.i(TAG, "获取状态成功");
+            flagAddTimeOut = 0;
             // 接收到 状态返回 需要发送一个通知
             EventBus.getDefault().post(new DevConnEvent(device.getId(), device.getAddress(), "已连接", device.getState(), device.getConfig()));
         }
@@ -392,19 +398,16 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
 
         @Override
         protected void onReceivePkg(@NonNull final byte[] pkg, int pkg_len) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    //doMatch(device.getAddress(), pkg);
-                    if (nCurDealSend == null) {
-                        Log.i(TAG, "没有发送数据包回复处理，但是接收到回复数据");
-                    } else if (BleDeviceProtocol.isMatch(nCurDealSend.cmd_pkg, pkg)) {
-                        nCurDealSend.callback.ack(pkg);
-                    } else {
-                        Log.i(TAG, "回复数据和命令不匹配 " + Util.hex(nCurDealSend.cmd_pkg, 4) + " 接收 " + Util.hex(pkg, 4));
-                    }
-                    nCurDealSend = null;
+            runOnUiThread(() -> {
+                //doMatch(device.getAddress(), pkg);
+                if (nCurDealSend == null) {
+                    Log.i(TAG, "没有发送数据包回复处理，但是接收到回复数据");
+                } else if (BleDeviceProtocol.isMatch(nCurDealSend.cmd_pkg, pkg)) {
+                    nCurDealSend.callback.ack(pkg);
+                } else {
+                    Log.i(TAG, "回复数据和命令不匹配 " + Util.hex(nCurDealSend.cmd_pkg, 4) + " 接收 " + Util.hex(pkg, 4));
                 }
+                nCurDealSend = null;
             });
         }
     }
