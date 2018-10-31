@@ -766,7 +766,11 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                     final int niDmx = Integer.parseInt(mDialogDmx.getEditTextStr());
                     if (!(niDmx >= 0 && niDmx <= 510)) {
                         // 如果输入的 DMX 不在 1~511 之间，提示用户
-                        Toast.makeText(CtDevConfigActivity.this, "您设置的 DMX 地址超出范围\n请重新设置", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CtDevConfigActivity.this, "DMX超出范围，请重新设置", Toast.LENGTH_SHORT).show();
+                        mDialogDmx.dismiss();
+                    } else if (niDmx % 2 != 0) {
+                        // 若输入奇数，提示用户
+                        Toast.makeText(mApp, "DMX只能为偶数，请重新设置", Toast.LENGTH_SHORT).show();
                         mDialogDmx.dismiss();
                     } else {
                         // 更新 DMX 地址
