@@ -388,12 +388,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
             nCurDealSend = null;
             Log.i(TAG, "获取配置成功DMX=" + config.mDMXAddress);
             EventBus.getDefault().post(new DevConnEvent(device.getId(), device.getAddress(), "已连接", device.getState(), device.getConfig()));
-//            runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-////                    mDevListAdapter.notifyDataSetChanged();
-//                }
-//            });
         }
 
         @Override
@@ -574,16 +568,13 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     private static class PackageNeedAck {
         final byte[] cmd_pkg;
         final String mac;
-//        public long send_time;
         final OnReceivePackage callback;
         int redoCntWhenTimeOut = 1;
-//        ProtocolWithDevice deviceProtocol=null;
 
         PackageNeedAck(String mac, byte[] cmd_pkg, OnReceivePackage callback) {
             this.mac = mac;
             this.cmd_pkg = cmd_pkg;
             this.callback = callback;
-//            this.send_time = System.currentTimeMillis();
         }
 
         PackageNeedAck(String mac, byte[] cmd_pkg, OnReceivePackage callback, int redoCnt) {
@@ -591,13 +582,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
             this.cmd_pkg = cmd_pkg;
             this.callback = callback;
             this.redoCntWhenTimeOut = redoCnt;
-//            this.send_time = System.currentTimeMillis();
         }
-
-//        boolean isTimeout() {
-//            //return (System.currentTimeMillis() - send_time) > ACK_TIMEOUT;
-//            return false;
-//        }
     }
 
     private String mStrDevId;
@@ -611,14 +596,12 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                 if (resultCode == RESULT_OK) {
                     long devId = data.getLongExtra(QR_DEV_ID, 0);
                     mStrDevId = String.valueOf(devId);
-                    Log.d(TAG, "onActivityResult dev id: " + devId);
 
                     // 获取 ID 对应 MAC
                     getDataWithQueryDevMac();
                 }
                 break;
             case FORCED_UPDATE:
-                Log.d(TAG, "onActivityResult: FORCED_UPDATE1");
                 // 再次执行安装流程，包含权限判等
                 installProcess();
                 break;
@@ -642,7 +625,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                         QueryDevMacBean bean = mGson.fromJson(body, QueryDevMacBean.class);
                         if (bean.getCode() == 1) {
                             mMacById = bean.getData().getMac();
-                            Log.d(TAG, "QueryDevMac mMacById: " + mMacById);
 
                             // 连接设备
                             connDevice(mMacById, Long.parseLong(mStrDevId));

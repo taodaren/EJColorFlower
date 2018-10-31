@@ -194,7 +194,8 @@ public class SignInActivity extends BaseActivity {
     }
 
     public void onInputError() {
-        Toast.makeText(getBaseContext(), "手机号码或密码不正确", Toast.LENGTH_LONG).show();
+        Toast.makeText(getBaseContext(), "手机号码或密码不正确，请检查信息", Toast.LENGTH_LONG).show();
+        layoutHide.setVisibility(View.VISIBLE);
         btnLogin.setEnabled(true);
     }
 

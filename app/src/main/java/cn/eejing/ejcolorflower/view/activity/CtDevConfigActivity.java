@@ -3,7 +3,6 @@ package cn.eejing.ejcolorflower.view.activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
@@ -47,9 +46,9 @@ import cn.eejing.ejcolorflower.model.request.ChangeMaterialStatusBean;
 import cn.eejing.ejcolorflower.model.request.MaterialInfoBean;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.MySettings;
 import cn.eejing.ejcolorflower.util.SelfDialog;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
-import cn.eejing.ejcolorflower.util.MySettings;
 import cn.eejing.ejcolorflower.util.ViewFindUtils;
 import cn.eejing.ejcolorflower.view.adapter.ViewPagerAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
@@ -279,18 +278,14 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                                             AlertDialog.Builder builder = new AlertDialog.Builder(CtDevConfigActivity.this);
                                             builder.setTitle("料包已被本设备绑定")
                                                     .setMessage("继续添加或取消绑定返回")
-                                                    .setPositiveButton("继续添加", new DialogInterface.OnClickListener() {
-                                                        public void onClick(DialogInterface dialog, int id) {
-                                                            // 获取时间戳
-                                                            Log.i(JL, "开始获取时间戳...");
-                                                            cmdGetTimestamps(materialId, addTime, 3);
-                                                        }
+                                                    .setPositiveButton("继续添加", (dialog, id) -> {
+                                                        // 获取时间戳
+                                                        Log.i(JL, "开始获取时间戳...");
+                                                        cmdGetTimestamps(materialId, addTime, 3);
                                                     })
-                                                    .setNegativeButton("取消绑定", new DialogInterface.OnClickListener() {
-                                                        public void onClick(DialogInterface dialog, int id) {
-                                                            // 标记为未使用
-                                                            byServerNoUseStatus(materialId);
-                                                        }
+                                                    .setNegativeButton("取消绑定", (dialog, id) -> {
+                                                        // 标记为未使用
+                                                        byServerNoUseStatus(materialId);
                                                     }).show();
                                         } else {
                                             // 如果是其它设备，提示已被 ** 设备绑定不可使用
@@ -550,7 +545,7 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
 
                     @Override
                     public void timeout() {
-                        Log.e(TAG, "timeout");
+                        Log.w(TAG, "cmdAddMaterial timeout");
                         if (resendNum != 0) {
                             cmdAddMaterial(timestamp, deviceId, addTime, materialId, resendNum - 1);
                         } else {
