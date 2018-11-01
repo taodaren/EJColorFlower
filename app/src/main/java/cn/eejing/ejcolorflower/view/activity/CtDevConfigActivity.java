@@ -36,11 +36,11 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.BaseApplication;
-import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
-import cn.eejing.ejcolorflower.device.Device;
-import cn.eejing.ejcolorflower.device.DeviceConfig;
-import cn.eejing.ejcolorflower.device.DeviceMaterialStatus;
-import cn.eejing.ejcolorflower.device.DeviceStatus;
+import cn.eejing.ejcolorflower.util.BleDevProtocol;
+import cn.eejing.ejcolorflower.model.device.Device;
+import cn.eejing.ejcolorflower.model.device.DeviceConfig;
+import cn.eejing.ejcolorflower.model.device.DeviceMaterialStatus;
+import cn.eejing.ejcolorflower.model.device.DeviceStatus;
 import cn.eejing.ejcolorflower.model.event.DevConnEvent;
 import cn.eejing.ejcolorflower.model.request.AddMaterialBean;
 import cn.eejing.ejcolorflower.model.request.CancelMaterialStatusBean;
@@ -203,11 +203,11 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
     private void cmdGetAddMaterialStatus(final long qrMid, final int resendNum) {
         MainActivity.getAppCtrl().sendCommand(
                 MainActivity.getAppCtrl().getDevice(mDevMac),
-                BleDeviceProtocol.pkgGetAddMaterialStatus(mDevId),
+                BleDevProtocol.pkgGetAddMaterialStatus(mDevId),
                 new OnReceivePackage() {
                     @Override
                     public void ack(@NonNull byte[] pkg) {
-                        DeviceMaterialStatus addMaterialStatus = BleDeviceProtocol.parseAddMaterialStatus(pkg, pkg.length);
+                        DeviceMaterialStatus addMaterialStatus = BleDevProtocol.parseAddMaterialStatus(pkg, pkg.length);
                         long devMid = addMaterialStatus.getMaterialId();
                         Log.i(JL, "加料状态 " + addMaterialStatus.getExist());
                         Log.i(JL, "devMid " + devMid);
@@ -430,11 +430,11 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
 
         MainActivity.getAppCtrl().sendCommand(
                 MainActivity.getAppCtrl().getDevice(mDevMac),
-                BleDeviceProtocol.pkgClearAddMaterialInfo(mDevId, mMemberId, deviceMId),
+                BleDevProtocol.pkgClearAddMaterialInfo(mDevId, mMemberId, deviceMId),
                 new OnReceivePackage() {
                     @Override
                     public void ack(@NonNull byte[] pkg) {
-                        int info = BleDeviceProtocol.parseClearAddMaterialInfo(pkg, pkg.length);
+                        int info = BleDevProtocol.parseClearAddMaterialInfo(pkg, pkg.length);
                         Log.e(JL, "清除加料信息返回值: " + info + "  " + pkg.length);
                         switch (info) {
                             case 0:
@@ -499,11 +499,11 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
     private void cmdGetTimestamps(final long materialId, final int addTime, final int resendNum) {
         MainActivity.getAppCtrl().sendCommand(
                 MainActivity.getAppCtrl().getDevice(mDevMac),
-                BleDeviceProtocol.pkgGetTimestamp(mDevId),
+                BleDevProtocol.pkgGetTimestamp(mDevId),
                 new OnReceivePackage() {
                     @Override
                     public void ack(@NonNull byte[] pkg) {
-                        long timestamp = BleDeviceProtocol.parseGetTimestamp(pkg, pkg.length);
+                        long timestamp = BleDevProtocol.parseGetTimestamp(pkg, pkg.length);
 
                         Log.i(JL, "开始加料...");
                         cmdAddMaterial(timestamp, mDevId, addTime, materialId, 3);
@@ -525,11 +525,11 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
     private void cmdAddMaterial(final long timestamp, final long deviceId, final int addTime, final long materialId, final int resendNum) {
         MainActivity.getAppCtrl().sendCommand(
                 MainActivity.getAppCtrl().getDevice(mDevMac),
-                BleDeviceProtocol.pkgAddMaterial(deviceId, addTime, timestamp, mMemberId, materialId),
+                BleDevProtocol.pkgAddMaterial(deviceId, addTime, timestamp, mMemberId, materialId),
                 new OnReceivePackage() {
                     @Override
                     public void ack(@NonNull byte[] pkg) {
-                        final int material = BleDeviceProtocol.parseAddMaterial(pkg, pkg.length);
+                        final int material = BleDevProtocol.parseAddMaterial(pkg, pkg.length);
                         Log.i(JL, "加料结果: " + material);
                         switch (material) {
                             case 0:
@@ -598,11 +598,11 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
 
         MainActivity.getAppCtrl().sendCommand(
                 MainActivity.getAppCtrl().getDevice(mDevMac),
-                BleDeviceProtocol.pkgClearAddMaterialInfo(mDevId, mMemberId, materialId),
+                BleDevProtocol.pkgClearAddMaterialInfo(mDevId, mMemberId, materialId),
                 new OnReceivePackage() {
                     @Override
                     public void ack(@NonNull byte[] pkg) {
-                        int info = BleDeviceProtocol.parseClearAddMaterialInfo(pkg, pkg.length);
+                        int info = BleDevProtocol.parseClearAddMaterialInfo(pkg, pkg.length);
                         Log.w(JL, "清除加料信息返回值: " + info);
                         switch (info) {
                             case 0:
@@ -733,7 +733,7 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
 
     private void updateDmx(int niDmx) {
         Device device = MainActivity.getAppCtrl().getDevice(mDevMac);
-        MainActivity.getAppCtrl().sendCommand(device, BleDeviceProtocol.pkgSetDmxAddress(mDevId, niDmx), new OnReceivePackage() {
+        MainActivity.getAppCtrl().sendCommand(device, BleDevProtocol.pkgSetDmxAddress(mDevId, niDmx), new OnReceivePackage() {
             @Override
             public void ack(@NonNull byte[] pkg) {
                 if (pkg.length > 8 && pkg[7] == 0) {

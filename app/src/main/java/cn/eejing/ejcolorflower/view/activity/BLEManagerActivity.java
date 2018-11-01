@@ -38,8 +38,6 @@ import com.yanzhenjie.permission.Rationale;
 import com.yanzhenjie.permission.RequestExecutor;
 import com.yanzhenjie.permission.SettingService;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -49,8 +47,7 @@ import java.util.UUID;
 
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.MyLifecycleHandler;
-import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
-import cn.eejing.ejcolorflower.model.event.DevConnEvent;
+import cn.eejing.ejcolorflower.util.BleDevProtocol;
 import cn.eejing.ejcolorflower.util.Util;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
@@ -748,7 +745,7 @@ public class BLEManagerActivity extends BaseActivity {
             return false;
         }
         if (encrypt) {
-            data = BleDeviceProtocol.wrappedPackage(data);
+            data = BleDevProtocol.wrappedPackage(data);
         }
         DeviceManager mgr = mDevMgrSet.get(mac);
         if (mgr != null && mgr.isConnected && mgr.gatt != null) {

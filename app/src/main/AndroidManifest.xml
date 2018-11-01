@@ -52,9 +52,6 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".view.activity.BLEActivity"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".view.activity.CtQrScanActivity"
             android:screenOrientation="portrait" />
         <activity
@@ -72,22 +69,6 @@
         <activity
             android:name=".view.activity.CtDemoDescriptionActivity"
             android:screenOrientation="landscape" />
-        <activity
-            android:name=".view.activity.DeQrAddDeviceActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".view.activity.DeDeviceDetailsActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".view.activity.DeQrAddMaterialActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".view.activity.DeMasterModeActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name=".view.activity.CoDeviceActivity"
-            android:screenOrientation="portrait" />
         <activity
             android:name=".view.activity.CtConfigStreamActivity"
             android:screenOrientation="portrait" />
@@ -118,7 +99,7 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".view.activity.MaAddrManageActivity"
+            android:name=".view.activity.MaAddrMgrActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.activity.MaAddrAddActivity"

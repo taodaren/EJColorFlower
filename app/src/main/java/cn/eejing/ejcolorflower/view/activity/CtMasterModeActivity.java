@@ -27,8 +27,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
-import cn.eejing.ejcolorflower.device.Device;
+import cn.eejing.ejcolorflower.util.BleDevProtocol;
+import cn.eejing.ejcolorflower.model.device.Device;
 import cn.eejing.ejcolorflower.model.event.DevConnEvent;
 import cn.eejing.ejcolorflower.model.lite.JetModeConfigLite;
 import cn.eejing.ejcolorflower.model.lite.MasterGroupLite;
@@ -520,7 +520,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         }
 
         MainActivity.getAppCtrl().sendCommand(mDevice,
-                BleDeviceProtocol.pkgEnterRealTimeCtrlMode(mDeviceId, mJetOutRealDmxMin, mJetOutRealDevCnt , dataOut));
+                BleDevProtocol.pkgEnterRealTimeCtrlMode(mDeviceId, mJetOutRealDmxMin, mJetOutRealDevCnt , dataOut));
         Log.i(JET, "timerCallingMethod2: " + dataOut[0] + " " + dataOut[1] + " " + dataOut[2]);
         Log.i(JET, "timerCallingMethod: " + mDeviceId + " " + mJetOutRealDmxMin + " " + mJetOutRealDevCnt
                 + " " + isAllFinish + " jet = " + isStarJet);
@@ -553,7 +553,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         mgrStop.updateWithDataOut(dataOut);
 
         MainActivity.getAppCtrl().sendCommand(mDevice,
-                BleDeviceProtocol.pkgEnterRealTimeCtrlMode(mDeviceId, mJetOutRealDmxMin, mJetOutRealDevCnt, dataOut));
+                BleDevProtocol.pkgEnterRealTimeCtrlMode(mDeviceId, mJetOutRealDmxMin, mJetOutRealDevCnt, dataOut));
     }
 
     /** 发送清料命令 */
@@ -564,7 +564,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
             byHighs[i] = (byte) high;
         }
         Device device = MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac());
-        byte[] pkgClearMaterial = BleDeviceProtocol.pkgClearMaterial(mDeviceId, CLEAR_MATERIAL_MASTER, mJetOutRealDmxMin, mJetOutRealDevCnt, byHighs);
+        byte[] pkgClearMaterial = BleDevProtocol.pkgClearMaterial(mDeviceId, CLEAR_MATERIAL_MASTER, mJetOutRealDmxMin, mJetOutRealDevCnt, byHighs);
         MainActivity.getAppCtrl().sendCommand(device, pkgClearMaterial, new OnReceivePackage() {
             @Override
             public void ack(@NonNull byte[] pkg) {

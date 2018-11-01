@@ -1,4 +1,4 @@
-package cn.eejing.ejcolorflower.device;
+package cn.eejing.ejcolorflower.util;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,16 +9,16 @@ import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 
-import cn.eejing.ejcolorflower.util.BinaryReader;
-import cn.eejing.ejcolorflower.util.CRC16;
-import cn.eejing.ejcolorflower.util.Util;
+import cn.eejing.ejcolorflower.model.device.DeviceConfig;
+import cn.eejing.ejcolorflower.model.device.DeviceMaterialStatus;
+import cn.eejing.ejcolorflower.model.device.DeviceStatus;
 
 /**
  * 蓝牙设备协议处理
  */
 
-public class BleDeviceProtocol {
-    private final static String TAG = "BleDeviceProtocol";
+public class BleDevProtocol {
+    private final static String TAG = "BleDevProtocol";
     private final static int MAX_PKG_LEN = 0x80;
     private final static int CMD_GET_STATUS = 1;                                // 获取内部状态
     private final static int CMD_GET_CONFIG = 2;                                // 获取配置

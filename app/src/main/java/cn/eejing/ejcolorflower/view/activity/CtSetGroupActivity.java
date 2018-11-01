@@ -18,7 +18,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
+import cn.eejing.ejcolorflower.util.BleDevProtocol;
 import cn.eejing.ejcolorflower.model.lite.JetModeConfigLite;
 import cn.eejing.ejcolorflower.model.lite.MasterGroupLite;
 import cn.eejing.ejcolorflower.model.manager.MgrOutputJet;
@@ -334,7 +334,7 @@ public class CtSetGroupActivity extends BaseActivity {
         int startDmx = (sbStartDmx.getProgress() + 1) * 2;
         MainActivity.getAppCtrl().sendCommand(
                 MainActivity.getAppCtrl().getDevice(mDevMac),
-                BleDeviceProtocol.pkgClearMaterial(mDevId, CLEAR_MATERIAL_MASTER,
+                BleDevProtocol.pkgClearMaterial(mDevId, CLEAR_MATERIAL_MASTER,
                         startDmx, sbDevNum.getProgress(), byHighs),
                 new OnReceivePackage() {
                     @Override

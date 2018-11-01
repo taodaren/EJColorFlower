@@ -53,7 +53,7 @@ public class MiSetActivity extends BaseActivity {
         stvManageAddress.setOnSuperTextViewClickListener(superTextView -> {
             BaseApplication baseApplication = (BaseApplication) getApplication();
             baseApplication.setFlagAddrMgr(FROM_SET_TO_ADDR);
-            jumpToActivity(MaAddrManageActivity.class);
+            jumpToActivity(MaAddrMgrActivity.class);
         });
         btnExitLogin.setOnClickListener(new View.OnClickListener() {
             @Override

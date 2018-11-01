@@ -119,7 +119,7 @@ public class MaOrderConfirmActivity extends BaseActivity {
                 if (mBean.getAddress().getName() == null) {
                     BaseApplication baseApplication = (BaseApplication) getApplication();
                     baseApplication.setFlagAddrMgr(FROM_ORDER_TO_ADDR);
-                    jumpToActivity(MaAddrManageActivity.class);
+                    jumpToActivity(MaAddrMgrActivity.class);
                 } else {
                     startActivityForResult(new Intent(this, MaAddrSelectActivity.class), REQUEST_CODE_ADDR_SELECT);
                 }

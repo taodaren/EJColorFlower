@@ -1,7 +1,7 @@
 package cn.eejing.ejcolorflower.model.event;
 
-import cn.eejing.ejcolorflower.device.DeviceConfig;
-import cn.eejing.ejcolorflower.device.DeviceStatus;
+import cn.eejing.ejcolorflower.model.device.DeviceConfig;
+import cn.eejing.ejcolorflower.model.device.DeviceStatus;
 
 public class DevConnEvent {
     private long id;

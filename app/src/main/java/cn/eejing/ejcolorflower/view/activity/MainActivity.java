@@ -30,10 +30,10 @@ import java.util.Map;
 
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
-import cn.eejing.ejcolorflower.device.Device;
-import cn.eejing.ejcolorflower.device.DeviceConfig;
-import cn.eejing.ejcolorflower.device.DeviceStatus;
+import cn.eejing.ejcolorflower.util.BleDevProtocol;
+import cn.eejing.ejcolorflower.model.device.Device;
+import cn.eejing.ejcolorflower.model.device.DeviceConfig;
+import cn.eejing.ejcolorflower.model.device.DeviceStatus;
 import cn.eejing.ejcolorflower.model.event.DevConnEvent;
 import cn.eejing.ejcolorflower.model.request.DeviceListBean;
 import cn.eejing.ejcolorflower.model.request.QueryDevMacBean;
@@ -247,9 +247,9 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     private List<DeviceListBean.DataBean.ListBean> mServerDevList;// 服务器绑定设备列表
     private List<String> mServerMacList;
     private final List<Device> mDevList = new LinkedList<>();
-    private final Map<String, ProtocolWithDevice> mProtocolMap = new ArrayMap<>();
+    private final Map<String, ProtocolWithDev> mProtocolMap = new ArrayMap<>();
 
-    private class ProtocolWithDevice extends BleDeviceProtocol {
+    private class ProtocolWithDev extends BleDevProtocol {
         final Device device;
         boolean bSendEn = true;              // 用于判断线程是否需要结束
         PackageNeedAck nCurDealSend = null;  // 用于引用当前正在发送和等待回复的命令
@@ -328,7 +328,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                                     //getDeviceConfig(device.getAddress());
                                     long id = 0;
                                     Log.i(TAG, "获取一次配置");
-                                    nCurDealSend = new PackageNeedAck(device.getAddress(), BleDeviceProtocol.pkgGetConfig(id),
+                                    nCurDealSend = new PackageNeedAck(device.getAddress(), BleDevProtocol.pkgGetConfig(id),
                                             new OnReceivePackage() {
                                                 @Override
                                                 public void ack(@NonNull byte[] pkg) {
@@ -348,7 +348,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                                 } else {
                                     long id = (mConfig == null) ? 0 : mConfig.getID();
                                     // 等待获取状态完成
-                                    nCurDealSend = new PackageNeedAck(device.getAddress(), BleDeviceProtocol.pkgGetStatus(id),
+                                    nCurDealSend = new PackageNeedAck(device.getAddress(), BleDevProtocol.pkgGetStatus(id),
                                             new OnReceivePackage() {
                                                 @Override
                                                 public void ack(@NonNull byte[] pkg) {
@@ -376,7 +376,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         // 有一个列队用于缓冲需要发送的数据
         private final LinkedList<PackageNeedAck> mCmdAckList = new LinkedList<>();
 
-        ProtocolWithDevice(@NonNull Device device) {
+        ProtocolWithDev(@NonNull Device device) {
             this.device = device;
             // 创建一个用于管理数据发送和应答的线程
             sendThread.start();
@@ -422,7 +422,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                 //doMatch(device.getAddress(), pkg);
                 if (nCurDealSend == null) {
                     Log.i(TAG, "没有发送数据包回复处理，但是接收到回复数据");
-                } else if (BleDeviceProtocol.isMatch(nCurDealSend.cmd_pkg, pkg)) {
+                } else if (BleDevProtocol.isMatch(nCurDealSend.cmd_pkg, pkg)) {
                     nCurDealSend.callback.ack(pkg);
                 } else {
                     Log.i(TAG, "回复数据和命令不匹配 " + Util.hex(nCurDealSend.cmd_pkg, 4) + " 接收 " + Util.hex(pkg, 4));
@@ -439,9 +439,9 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
             DeviceConfig mConfig = device.getConfig();
             id = (mConfig == null) ? 0 : mConfig.getID();
         }
-        ProtocolWithDevice p = mProtocolMap.get(mac);
+        ProtocolWithDev p = mProtocolMap.get(mac);
         if (p != null) {
-            p.addSendCmd(new PackageNeedAck(mac, BleDeviceProtocol.pkgGetConfig(id), null));
+            p.addSendCmd(new PackageNeedAck(mac, BleDevProtocol.pkgGetConfig(id), null));
             Log.i(TAG, "获取一次配置");
         }
     }
@@ -453,9 +453,9 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
             DeviceConfig mConfig = device.getConfig();
             id = (mConfig == null) ? 0 : mConfig.getID();
         }
-        ProtocolWithDevice p = mProtocolMap.get(mac);
+        ProtocolWithDev p = mProtocolMap.get(mac);
         if (p != null) {
-            p.addSendCmd(new PackageNeedAck(mac, BleDeviceProtocol.pkgGetStatus(id), null));
+            p.addSendCmd(new PackageNeedAck(mac, BleDevProtocol.pkgGetStatus(id), null));
             Log.i(TAG, "获取一次状态");
         }
     }
@@ -478,7 +478,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
             dev.setId(id);
             mDevList.add(dev);
             addDeviceByMac(mac);
-            mProtocolMap.put(mac, new ProtocolWithDevice(dev));
+            mProtocolMap.put(mac, new ProtocolWithDev(dev));
         }
     }
 
@@ -489,7 +489,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
             dev.getId();
             mDevList.remove(dev);
             removeDeviceByMac(mac);
-            ProtocolWithDevice p = mProtocolMap.get(mac);
+            ProtocolWithDev p = mProtocolMap.get(mac);
             p.stopSendThread();
             mProtocolMap.remove(mac);
         }
@@ -567,7 +567,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     @Override
     void onReceive(String mac, byte[] data) {
         super.onReceive(mac, data);
-        BleDeviceProtocol p = mProtocolMap.get(mac);
+        BleDevProtocol p = mProtocolMap.get(mac);
         if (p != null) {
             p.bleReceive(data);
         }
@@ -576,7 +576,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     @Override
     public void sendCommand(@NonNull Device device, @NonNull byte[] pkg) {
         String mac = device.getAddress();
-        ProtocolWithDevice p = mProtocolMap.get(mac);
+        ProtocolWithDev p = mProtocolMap.get(mac);
         if (p != null) {
             p.addSendCmd(new PackageNeedAck(device.getAddress(), pkg, null));
         }
@@ -585,7 +585,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     @Override
     public void sendCommand(@NonNull Device device, @NonNull byte[] pkg, OnReceivePackage callback) {
         String mac = device.getAddress();
-        ProtocolWithDevice p = mProtocolMap.get(mac);
+        ProtocolWithDev p = mProtocolMap.get(mac);
         if (p != null) {
             p.addSendCmd(new PackageNeedAck(device.getAddress(), pkg, callback));
         }

@@ -42,7 +42,7 @@ import static cn.eejing.ejcolorflower.app.AppConstant.FROM_SET_TO_ADDR;
  * 管理收货地址
  */
 
-public class MaAddrManageActivity extends BaseActivity {
+public class MaAddrMgrActivity extends BaseActivity {
 
     @BindView(R.id.btn_shipping_address)        Button btnAddAddress;
     @BindView(R.id.rv_shipping_address)         PullLoadMoreRecyclerView rvAddress;

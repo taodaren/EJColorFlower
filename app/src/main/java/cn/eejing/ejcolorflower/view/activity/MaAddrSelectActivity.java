@@ -73,7 +73,7 @@ public class MaAddrSelectActivity extends BaseActivity {
     public void onClickedMgr() {
         BaseApplication baseApplication = (BaseApplication) getApplication();
         baseApplication.setFlagAddrMgr(FROM_SELECT_TO_ADDR);
-        jumpToActivity(MaAddrManageActivity.class);
+        jumpToActivity(MaAddrMgrActivity.class);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

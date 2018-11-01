@@ -2,7 +2,7 @@ package cn.eejing.ejcolorflower.presenter;
 
 import android.support.annotation.NonNull;
 
-import cn.eejing.ejcolorflower.device.Device;
+import cn.eejing.ejcolorflower.model.device.Device;
 
 /**
  * 发送命令接口

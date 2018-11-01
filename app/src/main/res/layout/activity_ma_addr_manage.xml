@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.activity.MaAddrManageActivity">
+    tools:context=".view.activity.MaAddrMgrActivity">
 
     <include
         android:id="@+id/toolbar_address_manage"

@@ -1,4 +1,4 @@
-package cn.eejing.ejcolorflower.device;
+package cn.eejing.ejcolorflower.model.device;
 
 import android.support.annotation.NonNull;
 
