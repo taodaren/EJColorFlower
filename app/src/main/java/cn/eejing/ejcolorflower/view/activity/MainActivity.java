@@ -30,7 +30,6 @@ import java.util.Map;
 
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.util.BleDevProtocol;
 import cn.eejing.ejcolorflower.model.device.Device;
 import cn.eejing.ejcolorflower.model.device.DeviceConfig;
 import cn.eejing.ejcolorflower.model.device.DeviceStatus;
@@ -41,15 +40,19 @@ import cn.eejing.ejcolorflower.model.session.LoginSession;
 import cn.eejing.ejcolorflower.presenter.ISendCommand;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.BleDevProtocol;
 import cn.eejing.ejcolorflower.util.MySettings;
 import cn.eejing.ejcolorflower.util.Util;
 import cn.eejing.ejcolorflower.view.fragment.TabCtrlFragment;
 import cn.eejing.ejcolorflower.view.fragment.TabMallFragment;
 import cn.eejing.ejcolorflower.view.fragment.TabMineFragment;
 
+import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_CAN;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_NO;
+import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_YES;
 import static cn.eejing.ejcolorflower.app.AppConstant.EXIT_LOGIN;
-import static cn.eejing.ejcolorflower.app.AppConstant.REQUEST_CODE_FORCED_UPDATE;
 import static cn.eejing.ejcolorflower.app.AppConstant.QR_DEV_ID;
+import static cn.eejing.ejcolorflower.app.AppConstant.REQUEST_CODE_FORCED_UPDATE;
 import static cn.eejing.ejcolorflower.app.AppConstant.REQUEST_CODE_SCANNING_CONN_DEV;
 import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_CHARACTERISTIC_WRITE;
 import static cn.eejing.ejcolorflower.app.AppConstant.UUID_GATT_SERVICE;
@@ -126,7 +129,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                                 break;
                             case 1:
                                 mServerDevList = bean.getData().getList();
-                                for (int i = 0; i< mServerDevList.size(); i++) {
+                                for (int i = 0; i < mServerDevList.size(); i++) {
                                     mServerMacList.add(mServerDevList.get(i).getMac());
                                 }
                                 setAllowConnDevListMAC(mServerMacList);
@@ -147,7 +150,9 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
 //        super.onSaveInstanceState(outState);
     }
 
-    /** 设置底部导航 */
+    /**
+     * 设置底部导航
+     */
     private void initBtnNavBar() {
         BottomNavigationBar navBar = findViewById(R.id.bottom_navigation_bar);
         navBar
@@ -169,7 +174,9 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         navBar.setTabSelectedListener(this);
     }
 
-    /** 将 Fragment 加入 fragments 里面 */
+    /**
+     * 将 Fragment 加入 fragments 里面
+     */
     private ArrayList<Fragment> getFragments() {
         ArrayList<Fragment> list = new ArrayList<>();
         list.add(TabCtrlFragment.newInstance());
@@ -178,23 +185,29 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         return list;
     }
 
-    /** 设置默认 fragment */
+    /**
+     * 设置默认 fragment
+     */
     private void setDefFragment() {
         Fragment defFragment = mFragments.get(0);
         if (!defFragment.isAdded()) {
-            addFragment(R.id.main_content, defFragment);
+            addFragment(defFragment);
             mCurrentFragment = defFragment;
         }
     }
 
-    /** 添加 Fragment 到 Activity 的布局 */
-    protected void addFragment(int containerViewId, Fragment fragment) {
+    /**
+     * 添加 Fragment 到 Activity 的布局
+     */
+    protected void addFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.add(containerViewId, fragment);
+        fragmentTransaction.add(R.id.main_content, fragment);
         fragmentTransaction.commit();
     }
 
-    /** 切换 fragment */
+    /**
+     * 切换 fragment
+     */
     @SuppressLint("CommitTransaction")
     private void replaceFragment(Fragment fragment) {
         // 添加或者显示 fragment
@@ -211,18 +224,24 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         mCurrentFragment = fragment;
     }
 
-    /** Tab 被选中 */
+    /**
+     * Tab 被选中
+     */
     @Override
     public void onTabSelected(int position) {
         replaceFragment(mFragments.get(position));
     }
 
-    /** Tab 被取消选中 */
+    /**
+     * Tab 被取消选中
+     */
     @Override
     public void onTabUnselected(int position) {
     }
 
-    /** Tab 被重新选中 */
+    /**
+     * Tab 被重新选中
+     */
     @Override
     public void onTabReselected(int position) {
     }
@@ -281,7 +300,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                             } else {
                                 // 等待回复过程 当 curDeal 被置为 null 时，表示回复成功
                                 long send_time = System.currentTimeMillis();
-                                while (bSendEn && (curDeal != null) && (System.currentTimeMillis() - send_time < 300)) {
+                                while (bSendEn && System.currentTimeMillis() - send_time < 300) {
                                     synchronized (lock) {
                                         try {
                                             lock.wait(50); //等待2秒
@@ -340,13 +359,15 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                                                     flagAddTimeOut++;
                                                     if (flagAddTimeOut > 3) {
                                                         // 超出距离断开连接
-                                                        EventBus.getDefault().post(new DevConnEvent(getDevMac(), "不可连接"));
+                                                        Log.e(TAG, "timeout1: ");
+                                                        EventBus.getDefault().post(new DevConnEvent(getDevMac(), DEVICE_CONNECT_NO));
                                                         flagAddTimeOut = 0;
+                                                        bSendEn = false;
                                                     }
                                                 }
                                             });
                                 } else {
-                                    long id = (mConfig == null) ? 0 : mConfig.getID();
+                                    long id = mConfig.getID();
                                     // 等待获取状态完成
                                     nCurDealSend = new PackageNeedAck(device.getAddress(), BleDevProtocol.pkgGetStatus(id),
                                             new OnReceivePackage() {
@@ -360,8 +381,10 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                                                     flagAddTimeOut++;
                                                     if (flagAddTimeOut > 3) {
                                                         // 超出距离断开连接
-                                                        EventBus.getDefault().post(new DevConnEvent(getDevMac(), "不可连接"));
+                                                        Log.e(TAG, "timeout2: ");
+                                                        EventBus.getDefault().post(new DevConnEvent(getDevMac(), DEVICE_CONNECT_NO));
                                                         flagAddTimeOut = 0;
+                                                        bSendEn = false;
                                                     }
                                                 }
                                             });
@@ -403,8 +426,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
             device.setState(state);
             nCurDealSend = null;
             flagAddTimeOut = 0;
-            // 接收到 状态返回 需要发送一个通知
-            EventBus.getDefault().post(new DevConnEvent(device.getId(), device.getAddress(), "已连接", device.getState(), device.getConfig()));
+            EventBus.getDefault().post(new DevConnEvent(device.getId(), device.getAddress(), DEVICE_CONNECT_YES, device.getState(), device.getConfig()));
         }
 
         @Override
@@ -412,14 +434,12 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
             device.setConfig(config);
             nCurDealSend = null;
             flagAddTimeOut = 0;
-            Log.i(TAG, "获取配置成功DMX=" + config.getDMXAddress());
-            EventBus.getDefault().post(new DevConnEvent(device.getId(), device.getAddress(), "已连接", device.getState(), device.getConfig()));
+            EventBus.getDefault().post(new DevConnEvent(device.getId(), device.getAddress(), DEVICE_CONNECT_YES, device.getState(), device.getConfig()));
         }
 
         @Override
         protected void onReceivePkg(@NonNull final byte[] pkg, int pkg_len) {
             runOnUiThread(() -> {
-                //doMatch(device.getAddress(), pkg);
                 if (nCurDealSend == null) {
                     Log.i(TAG, "没有发送数据包回复处理，但是接收到回复数据");
                 } else if (BleDevProtocol.isMatch(nCurDealSend.cmd_pkg, pkg)) {
@@ -469,11 +489,11 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         return null;
     }
 
-    /** 连接设备 */
+    /**
+     * 连接设备
+     */
     public void connDevice(final String mac, long id) {
-        Log.i(TAG, "connDevice " + mac + " " + id);
         if (!mProtocolMap.containsKey(mac)) {
-            Log.i(TAG, "connDevice: 123");
             Device dev = new Device(mac);
             dev.setId(id);
             mDevList.add(dev);
@@ -482,7 +502,9 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         }
     }
 
-    /** 断开连接设备 */
+    /**
+     * 断开连接设备
+     */
     public void disconnectDevice(final String mac) {
         if (mProtocolMap.containsKey(mac)) {
             Device dev = new Device(mac);
@@ -513,12 +535,14 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         Log.d(TAG, "allow: " + mServerMacList.contains(mac));
         // 是否与服务器 MAC 地址匹配
         if (mServerMacList.contains(mac)) {
-            // 如果服务器设备列表的 Mac 与扫描到的蓝牙 Mac 一致，此设备可连接
-            EventBus.getDefault().post(new DevConnEvent(mac,"可连接"));
+            // 如果服务器设备列表的 Mac 与扫描到的蓝牙 Mac 一致，此设备【可连接】
+            EventBus.getDefault().post(new DevConnEvent(mac, DEVICE_CONNECT_CAN));
         }
     }
 
-    /** 设备就绪 */
+    /**
+     * 设备就绪
+     */
     @Override
     void onDeviceReady(final String mac) {
         Log.i(TAG, "onDeviceReady " + mac);
@@ -546,12 +570,12 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         Device device = getDevice(mac);
         if (device != null) {
             device.setConnected(true);
-        } else {
-            Log.i(TAG, "onDeviceConnect no device");
         }
     }
 
-    /** 设备断开 */
+    /**
+     * 设备断开
+     */
     @Override
     void onDeviceDisconnect(String mac) {
         unregisterPeriod(mac + "-status");
@@ -559,8 +583,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         Device device = getDevice(mac);
         if (device != null) {
             device.setConnected(false);
-//            mDevListAdapter.notifyDataSetChanged();
-            EventBus.getDefault().post(new DevConnEvent(mac,"不可连接"));
+            EventBus.getDefault().post(new DevConnEvent(mac, DEVICE_CONNECT_NO));
         }
     }
 

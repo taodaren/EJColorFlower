@@ -53,7 +53,9 @@ public class AppConstant {
     // 蓝牙连接 / 断开连接
     public static final int HANDLE_BLE_CONN = 101;
     public static final int HANDLE_BLE_DISCONN = 102;
+    public static final int HANDLE_BLE_OUT_OF_RANGE = 103;
 
+    public static final String DEVICE_CONNECT_CAN = "可连接";
     public static final String DEVICE_CONNECT_YES = "已连接";
     public static final String DEVICE_CONNECT_NO = "不可连接";
     public static final String DEVICE_OUT_OF_RANGE = "超出连接范围";

@@ -36,11 +36,8 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.BaseApplication;
-import cn.eejing.ejcolorflower.util.BleDevProtocol;
 import cn.eejing.ejcolorflower.model.device.Device;
-import cn.eejing.ejcolorflower.model.device.DeviceConfig;
 import cn.eejing.ejcolorflower.model.device.DeviceMaterialStatus;
-import cn.eejing.ejcolorflower.model.device.DeviceStatus;
 import cn.eejing.ejcolorflower.model.event.DevConnEvent;
 import cn.eejing.ejcolorflower.model.request.AddMaterialBean;
 import cn.eejing.ejcolorflower.model.request.CancelMaterialStatusBean;
@@ -48,6 +45,7 @@ import cn.eejing.ejcolorflower.model.request.ChangeMaterialStatusBean;
 import cn.eejing.ejcolorflower.model.request.MaterialInfoBean;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.BleDevProtocol;
 import cn.eejing.ejcolorflower.util.MySettings;
 import cn.eejing.ejcolorflower.util.SelfDialog;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
@@ -705,20 +703,9 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
 
             switch (event.getStatus()) {
                 case DEVICE_CONNECT_YES:
-                    DeviceStatus state = event.getDeviceStatus();
-                    DeviceConfig config = event.getDeviceConfig();
-                    if (config != null) {
-                        mDMXAddress = config.getDMXAddress();
-                    } else {
-                        mDMXAddress = 88;
-                    }
-                    if (state != null) {
-                        mTemperature = state.getTemperature();
-                        mRestTime = state.getRestTime();
-                    } else {
-                        mTemperature = 0;
-                        mRestTime = 0;
-                    }
+                    mDMXAddress = event.getDeviceConfig().getDMXAddress();
+                    mTemperature = event.getDeviceStatus().getTemperature();
+                    mRestTime = event.getDeviceStatus().getRestTime();
                     mHandler.sendEmptyMessage(HANDLE_BLE_CONN);
                     break;
                 case DEVICE_CONNECT_NO:
