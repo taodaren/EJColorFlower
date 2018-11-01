@@ -24,7 +24,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Objects;
 
-import cn.eejing.ejcolorflower.app.GApp;
+import cn.eejing.ejcolorflower.app.BaseApplication;
 
 public class AppUtils {
     private final static String SD_FOLDER = Environment.getExternalStorageDirectory() + "/VersionChecker/";
@@ -49,7 +49,7 @@ public class AppUtils {
                 try {
                     File file = downloadFile(downURL, appName, dialog);
                     sleep(1000);
-                    installApk(file, GApp.getContext());
+                    installApk(file, BaseApplication.getContext());
                     dialog.dismiss();
                 } catch (Exception e) {
                     dialog.dismiss();

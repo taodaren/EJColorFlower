@@ -22,7 +22,7 @@ import java.util.List;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.app.GApp;
+import cn.eejing.ejcolorflower.app.BaseApplication;
 import cn.eejing.ejcolorflower.model.lite.JetModeConfigLite;
 import cn.eejing.ejcolorflower.model.manager.MgrOutputJet;
 import cn.eejing.ejcolorflower.util.DecimalInputTextWatcher;
@@ -56,7 +56,7 @@ public class CtConfigStreamActivity extends BaseActivity implements View.OnClick
     @BindView(R.id.tv_stream_jet_time)           TextView       tvJetTime;
     @BindView(R.id.ll_jet_time_stream)           LinearLayout   llJetTime;
 
-    private GApp mApp;
+    private BaseApplication mApp;
     private long mJetIdMillis;
     private int mDevNum;
     // 喷射效果及配置集合
@@ -102,7 +102,7 @@ public class CtConfigStreamActivity extends BaseActivity implements View.OnClick
     @Override
     public void initView() {
         setToolbar(CONFIG_STREAM, View.VISIBLE, null, View.GONE);
-        mApp = (GApp) getApplication();
+        mApp = (BaseApplication) getApplication();
         mDevNum = getIntent().getIntExtra("device_num", 0);
         mJetIdMillis = getIntent().getLongExtra("jet_id_millis", 0);
         initConfig();

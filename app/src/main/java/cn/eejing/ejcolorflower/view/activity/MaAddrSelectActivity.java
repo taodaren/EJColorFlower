@@ -21,7 +21,7 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.app.GApp;
+import cn.eejing.ejcolorflower.app.BaseApplication;
 import cn.eejing.ejcolorflower.model.event.AddrAddEvent;
 import cn.eejing.ejcolorflower.model.request.AddrListBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
@@ -71,8 +71,8 @@ public class MaAddrSelectActivity extends BaseActivity {
 
     @OnClick(R.id.tv_menu_toolbar)
     public void onClickedMgr() {
-        GApp gApp = (GApp) getApplication();
-        gApp.setFlagAddrMgr(FROM_SELECT_TO_ADDR);
+        BaseApplication baseApplication = (BaseApplication) getApplication();
+        baseApplication.setFlagAddrMgr(FROM_SELECT_TO_ADDR);
         jumpToActivity(MaAddrManageActivity.class);
     }
 

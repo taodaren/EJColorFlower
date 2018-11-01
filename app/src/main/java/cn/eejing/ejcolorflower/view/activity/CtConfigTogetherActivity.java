@@ -15,13 +15,12 @@ import java.util.List;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.app.GApp;
+import cn.eejing.ejcolorflower.app.BaseApplication;
 import cn.eejing.ejcolorflower.model.lite.JetModeConfigLite;
 import cn.eejing.ejcolorflower.util.DecimalInputTextWatcher;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
-import static cn.eejing.ejcolorflower.app.AppConstant.DEFAULT_HIGH;
 
 /**
  * 齐喷配置
@@ -36,7 +35,7 @@ public class CtConfigTogetherActivity extends BaseActivity implements View.OnCli
     @BindView(R.id.tv_together_jet_time)        TextView tvJetTime;
     @BindView(R.id.ll_jet_time_together)        LinearLayout llJetTime;
 
-    private GApp mApp;
+    private BaseApplication mApp;
     private long mJetIdMillis;
     // 喷射效果及配置集合
     private List<JetModeConfigLite> mListJetModeCfg;
@@ -76,7 +75,7 @@ public class CtConfigTogetherActivity extends BaseActivity implements View.OnCli
     @Override
     public void initView() {
         setToolbar(CONFIG_TOGETHER, View.VISIBLE, null, View.GONE);
-        mApp = (GApp) getApplication();
+        mApp = (BaseApplication) getApplication();
         mJetIdMillis = getIntent().getLongExtra("jet_id_millis", 0);
         initConfig();
 

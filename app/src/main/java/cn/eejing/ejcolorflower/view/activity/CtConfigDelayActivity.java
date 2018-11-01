@@ -14,7 +14,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.app.GApp;
+import cn.eejing.ejcolorflower.app.BaseApplication;
 import cn.eejing.ejcolorflower.model.lite.JetModeConfigLite;
 import cn.eejing.ejcolorflower.util.DecimalInputTextWatcher;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
@@ -29,7 +29,7 @@ public class CtConfigDelayActivity extends BaseActivity implements View.OnClickL
     @BindView(R.id.tv_delay_time)           TextView     tvJetTime;
     @BindView(R.id.btn_verify_delay)        Button       btnVerify;
 
-    private GApp mApp;
+    private BaseApplication mApp;
     private long mJetIdMillis;
     // 喷射效果及配置集合
     private List<JetModeConfigLite> mListJetModeCfg;
@@ -68,7 +68,7 @@ public class CtConfigDelayActivity extends BaseActivity implements View.OnClickL
     @Override
     public void initView() {
         setToolbar(CONFIG_DELAY, View.VISIBLE, null, View.GONE);
-        mApp = (GApp) getApplication();
+        mApp = (BaseApplication) getApplication();
         mJetIdMillis = getIntent().getLongExtra("jet_id_millis", 0);
         initConfig();
 

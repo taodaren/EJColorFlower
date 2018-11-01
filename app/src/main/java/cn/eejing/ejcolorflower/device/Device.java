@@ -4,13 +4,13 @@ import android.support.annotation.NonNull;
 
 @SuppressWarnings("unused")
 public class Device {
-    DeviceConfig config = null;
-    DeviceStatus state = null;
-    DeviceMaterialStatus materialStatus = null;
+    private DeviceConfig config;
+    private DeviceStatus state;
+    private DeviceMaterialStatus materialStatus;
 
     private final String address;
-    private long id = 0; // from server
-    private boolean connected = false;
+    private long id; // from server
+    private boolean connected;
 
     public Device(@NonNull String address) {
         this.address = address;
@@ -20,23 +20,8 @@ public class Device {
         return address;
     }
 
-
     public DeviceConfig getConfig() {
         return config;
-    }
-
-    /**
-     * 清空设备配置
-     */
-    public void clearConfig() {
-        this.config = null;
-    }
-
-    /**
-     * 清空设备状态
-     */
-    public void clearState() {
-        this.state = null;
     }
 
     public DeviceStatus getState() {
@@ -46,7 +31,6 @@ public class Device {
     public DeviceMaterialStatus getMaterialStatus() {
         return materialStatus;
     }
-
 
     public void setConfig(DeviceConfig config) {
         this.config = config;
@@ -59,7 +43,6 @@ public class Device {
     public void setMaterialStatus(DeviceMaterialStatus mMaterialStatus) {
         this.materialStatus = mMaterialStatus;
     }
-
 
     public boolean isConnected() {
         return connected;
@@ -75,6 +58,16 @@ public class Device {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    /** 清空设备配置 */
+    public void clearConfig() {
+        this.config = null;
+    }
+
+    /** 清空设备状态 */
+    public void clearState() {
+        this.state = null;
     }
 
 }

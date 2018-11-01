@@ -24,7 +24,7 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.app.GApp;
+import cn.eejing.ejcolorflower.app.BaseApplication;
 import cn.eejing.ejcolorflower.model.event.AddrAddEvent;
 import cn.eejing.ejcolorflower.model.request.AddrDefBean;
 import cn.eejing.ejcolorflower.model.request.AddrListBean;
@@ -104,8 +104,8 @@ public class MaAddrManageActivity extends BaseActivity {
     }
 
     private void onExit() {
-        GApp gApp = (GApp) getApplication();
-        switch (gApp.getFlagAddrMgr()) {
+        BaseApplication baseApplication = (BaseApplication) getApplication();
+        switch (baseApplication.getFlagAddrMgr()) {
             case FROM_SET_TO_ADDR:
                 jumpToActivity(MiSetActivity.class);
                 finish();
@@ -132,7 +132,7 @@ public class MaAddrManageActivity extends BaseActivity {
                 }
                 break;
         }
-        gApp.setFlagAddrMgr(null);
+        baseApplication.setFlagAddrMgr(null);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

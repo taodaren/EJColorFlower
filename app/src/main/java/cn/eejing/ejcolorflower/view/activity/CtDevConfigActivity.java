@@ -35,7 +35,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.app.GApp;
+import cn.eejing.ejcolorflower.app.BaseApplication;
 import cn.eejing.ejcolorflower.device.BleDeviceProtocol;
 import cn.eejing.ejcolorflower.device.Device;
 import cn.eejing.ejcolorflower.device.DeviceConfig;
@@ -90,7 +90,7 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
     private SegmentTabLayout mTabLayout;
     private View mDecorView;
 
-    private GApp mApp;
+    private BaseApplication mApp;
     private List<Fragment> mFragments;
     private ViewPager mVPager;
     private int mPageType;
@@ -120,7 +120,7 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
     @Override
     public void initView() {
         EventBus.getDefault().register(this);
-        mApp = (GApp) getApplication();
+        mApp = (BaseApplication) getApplication();
         setToolbar("设备配置", View.VISIBLE, null, View.GONE);
 
         mMemberId = MySettings.getLoginSessionInfo(this).getMember_id();

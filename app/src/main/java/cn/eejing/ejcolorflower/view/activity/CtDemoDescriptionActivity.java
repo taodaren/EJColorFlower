@@ -7,7 +7,7 @@ import com.bumptech.glide.Glide;
 
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.app.GApp;
+import cn.eejing.ejcolorflower.app.BaseApplication;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_INTERVAL;
@@ -31,8 +31,8 @@ public class CtDemoDescriptionActivity extends BaseActivity {
     @Override
     public void initView() {
         super.initView();
-        GApp gApp = (GApp) getApplication();
-        switch (gApp.getFlagGifDemo()) {
+        BaseApplication baseApplication = (BaseApplication) getApplication();
+        switch (baseApplication.getFlagGifDemo()) {
             case CONFIG_STREAM:
                 showDemoGif("流水灯演示", R.drawable.ic_gif_stream);
                 break;

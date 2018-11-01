@@ -4,17 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.activity.DeQrAddMaterialActivity">
+    tools:context=".view.activity.CtQrScanActivity">
 
     <include
-        android:id="@+id/toolbar_qr_add_material_code"
+        android:id="@+id/toolbar_qr_code"
         layout="@layout/layout_toolbar" />
 
     <cn.bingoogolapple.qrcode.zxing.ZXingView
-        android:id="@+id/zxingview_add_material"
+        android:id="@+id/zxingview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/toolbar_qr_add_material_code"
+        android:layout_below="@id/toolbar_qr_code"
         app:qrcv_animTime="1000"
         app:qrcv_borderColor="@android:color/white"
         app:qrcv_borderSize="1dp"
@@ -41,7 +41,7 @@
         app:qrcv_topOffset="90dp" />
 
     <TextView
-        android:id="@+id/tv_light_switch_add_material"
+        android:id="@+id/tv_light_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

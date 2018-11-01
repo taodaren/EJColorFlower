@@ -15,7 +15,7 @@ import java.util.Objects;
 
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.app.GApp;
+import cn.eejing.ejcolorflower.app.BaseApplication;
 import cn.eejing.ejcolorflower.model.event.DevConnEvent;
 import cn.eejing.ejcolorflower.view.activity.CtDevConfigActivity;
 import cn.eejing.ejcolorflower.view.activity.CtQrScanActivity;
@@ -36,7 +36,7 @@ import static cn.eejing.ejcolorflower.app.AppConstant.REQUEST_CODE_SCANNING_CONN
 public class TabCtrlFragment extends BaseFragment implements EasyPermissions.PermissionCallbacks {
     private static final String TAG = "TabCtrlFragment";
 
-    private GApp mApp;
+    private BaseApplication mApp;
 
     public static TabCtrlFragment newInstance() {
         return new TabCtrlFragment();
@@ -55,7 +55,7 @@ public class TabCtrlFragment extends BaseFragment implements EasyPermissions.Per
     @Override
     public void initView(View rootView) {
         EventBus.getDefault().register(this);
-        mApp = (GApp) getContext().getApplicationContext();
+        mApp = (BaseApplication) getContext().getApplicationContext();
     }
 
     @Override

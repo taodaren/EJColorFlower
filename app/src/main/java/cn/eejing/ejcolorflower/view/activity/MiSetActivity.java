@@ -7,7 +7,7 @@ import com.allen.library.SuperTextView;
 
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.app.GApp;
+import cn.eejing.ejcolorflower.app.BaseApplication;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
@@ -51,8 +51,8 @@ public class MiSetActivity extends BaseActivity {
             }
         });
         stvManageAddress.setOnSuperTextViewClickListener(superTextView -> {
-            GApp gApp = (GApp) getApplication();
-            gApp.setFlagAddrMgr(FROM_SET_TO_ADDR);
+            BaseApplication baseApplication = (BaseApplication) getApplication();
+            baseApplication.setFlagAddrMgr(FROM_SET_TO_ADDR);
             jumpToActivity(MaAddrManageActivity.class);
         });
         btnExitLogin.setOnClickListener(new View.OnClickListener() {

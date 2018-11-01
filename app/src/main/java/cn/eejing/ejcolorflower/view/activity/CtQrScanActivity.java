@@ -10,7 +10,7 @@ import butterknife.BindView;
 import cn.bingoogolapple.qrcode.core.QRCodeView;
 import cn.bingoogolapple.qrcode.zxing.ZXingView;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.app.GApp;
+import cn.eejing.ejcolorflower.app.BaseApplication;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.APP_QR_GET_DID;
@@ -25,17 +25,17 @@ public class CtQrScanActivity extends BaseActivity implements View.OnClickListen
     @BindView(R.id.tv_light_switch)        TextView  tvLightSwitch;
 
     private int mFlag;
-    private GApp mApp;
+    private BaseApplication mApp;
 
     @Override
     protected int layoutViewId() {
-        return R.layout.activity_de_qr_add_device;
+        return R.layout.activity_ct_qr_scan;
     }
 
     @Override
     public void initView() {
         setToolbar("二维码扫描", View.VISIBLE, null, View.GONE);
-        mApp = (GApp) getApplication();
+        mApp = (BaseApplication) getApplication();
 
         // 设置扫描二维码的代理
         mQRCodeView.setDelegate(this);

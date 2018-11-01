@@ -23,7 +23,7 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.app.GApp;
+import cn.eejing.ejcolorflower.app.BaseApplication;
 import cn.eejing.ejcolorflower.model.event.AddrAddEvent;
 import cn.eejing.ejcolorflower.model.request.AddrListBean;
 import cn.eejing.ejcolorflower.model.request.ConfirmOrderBean;
@@ -117,8 +117,8 @@ public class MaOrderConfirmActivity extends BaseActivity {
                 break;
             case R.id.ll_confirm_order_address:
                 if (mBean.getAddress().getName() == null) {
-                    GApp gApp = (GApp) getApplication();
-                    gApp.setFlagAddrMgr(FROM_ORDER_TO_ADDR);
+                    BaseApplication baseApplication = (BaseApplication) getApplication();
+                    baseApplication.setFlagAddrMgr(FROM_ORDER_TO_ADDR);
                     jumpToActivity(MaAddrManageActivity.class);
                 } else {
                     startActivityForResult(new Intent(this, MaAddrSelectActivity.class), REQUEST_CODE_ADDR_SELECT);

@@ -10,10 +10,6 @@ import java.util.UUID;
 
 public class AppConstant {
     public static final String TAG = "taodaren";
-    public static final String TAG_HARDWARE_DEV = "硬件设备";
-    public static final String TAG_BLE_COMMAND = "蓝牙命令";
-    public static final String EMPTY = "";
-
     public static final String APP_ID = "wx6a32217e1e3ae4f4";
 
     public static final String APP_QR_GET_MID = "二维码扫描获取料包 ID";
@@ -44,14 +40,10 @@ public class AppConstant {
     public static final int BLE_RETURN_SUCCESS = 0;
     public static final int BLE_RETURN_FAILURE = 1;
 
-    public static final int REQUEST_CODE_FORCED_UPDATE = 180;               // 强制更新
-    public static final int REQUEST_CODE_QRCODE_PERMISSIONS = 1;            // 请求代码 QRCode 权限
-    public static final int REQUEST_CODE_SCANNING_CONN_DEV = 10;            // 扫描连接设备
-    public static final int REQUEST_CODE_ADDR_SELECT = 20;                  // 地址选择
-
-    public static final int TYPE_TEMP = 1;
-    public static final int TYPE_DMX = 2;
-    public static final int TYPE_TIME = 3;
+    public static final int REQUEST_CODE_FORCED_UPDATE = 180;           // 强制更新
+    public static final int REQUEST_CODE_QRCODE_PERMISSIONS = 1;        // 请求代码 QRCode 权限
+    public static final int REQUEST_CODE_SCANNING_CONN_DEV = 10;        // 扫描连接设备
+    public static final int REQUEST_CODE_ADDR_SELECT = 20;              // 地址选择
 
     // 加料使用状态
     public static final int TYPE_NO_USED = 0;
@@ -64,6 +56,7 @@ public class AppConstant {
 
     public static final String DEVICE_CONNECT_YES = "已连接";
     public static final String DEVICE_CONNECT_NO = "不可连接";
+    public static final String DEVICE_OUT_OF_RANGE = "超出连接范围";
 
     public static final String TYPE_WAIT_SHIP = "待发货";
     public static final String TYPE_WAIT_RECEIPT = "待收货";
@@ -87,8 +80,6 @@ public class AppConstant {
     public static final String CONFIG_INTERVAL = "间隔高低";
     public static final String CONFIG_TOGETHER = "齐喷";
     public static final String CONFIG_DELAY = "延迟喷射";
-    public static final String CONFIG_NO_EFFECT = "无效果";
-    public static final String CONFIG_DEF = "默认";
 
     // 配置设备喷射方向
     public static final String LEFT_TO_RIGHT = "1";
@@ -108,11 +99,5 @@ public class AppConstant {
     public static final String DEFAULT_JET_ROUND = "2";
     public static final String DEFAULT_HIGH = "100";
     public static final String DEFAULT_HIGH_DELAY = "0";
-
-    public static final String DEFAULT_INTERVAL_GAP = "2";
-    public static final String DEFAULT_INTERVAL_DURATION = "5";
-    public static final String DEFAULT_INTERVAL_FREQUENCY = "3";
-    public static final String DEFAULT_TOGETHER_DURATION = "10";
-    public static final String DEFAULT_TOGETHER_HIGH = "100";
 
 }
