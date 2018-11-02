@@ -106,8 +106,8 @@ public class GoodsDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             bgaBanner.setAdapter((BGABanner.Adapter<ImageView, String>) (banner, itemView, model, position) -> Glide.with(mContext)
                     .load(model)
                     .apply(new RequestOptions()
-                            .placeholder(R.drawable.banner_default)
-                            .error(R.drawable.banner_default)
+                            .placeholder(R.drawable.shape_add_effect)
+                            .error(R.drawable.shape_add_effect)
                             .dontAnimate()
                             .centerCrop())
                     .into(itemView));
