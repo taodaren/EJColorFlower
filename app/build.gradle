@@ -12,7 +12,10 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            // 是否需要混淆，默认 false 不混淆，true 混淆
+            minifyEnabled true
+            // 混淆需要用到的一个工具: proguard，对应的一个文件是：proguard-android.txt（这个文件在 android-sdk \tools\proguard 目录下）
+            // proguard 是一个压缩、优化和混淆 Java 字节码文件的免费工具
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
