@@ -10,9 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.ArrayMap;
-import android.util.Log;
 import android.view.KeyEvent;
-import android.widget.Toast;
 
 import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
@@ -41,7 +39,9 @@ import cn.eejing.ejcolorflower.presenter.ISendCommand;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.BleDevProtocol;
+import cn.eejing.ejcolorflower.util.LogUtil;
 import cn.eejing.ejcolorflower.util.MySettings;
+import cn.eejing.ejcolorflower.util.ToastUtil;
 import cn.eejing.ejcolorflower.util.Util;
 import cn.eejing.ejcolorflower.view.fragment.TabCtrlFragment;
 import cn.eejing.ejcolorflower.view.fragment.TabMallFragment;
@@ -116,14 +116,14 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.e(AppConstant.TAG, "设备列表请求成功！" + body);
+                        LogUtil.e(AppConstant.TAG, "设备列表请求成功！" + body);
 
                         DeviceListBean bean = mGson.fromJson(body, DeviceListBean.class);
                         DeviceListBean.DataBean.ListBean deviceBean = mGson.fromJson(body, DeviceListBean.DataBean.ListBean.class);
                         switch (bean.getCode()) {
                             case 101:
                             case 102:
-                                Toast.makeText(MainActivity.this, R.string.toast_login_fail, Toast.LENGTH_SHORT).show();
+                                ToastUtil.showShort(R.string.toast_login_fail);
                                 startActivity(new Intent(MainActivity.this, SignInActivity.class));
                                 finish();
                                 break;
@@ -133,8 +133,8 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                                     mServerMacList.add(mServerDevList.get(i).getMac());
                                 }
                                 setAllowConnDevListMAC(mServerMacList);
-                                Log.i(TAG, "设备列表 size：" + mServerDevList.size());
-                                Log.i(TAG, "服务器 MAC size：" + mServerMacList.size());
+                                LogUtil.i(TAG, "设备列表 size：" + mServerDevList.size());
+                                LogUtil.i(TAG, "服务器 MAC size：" + mServerMacList.size());
                                 break;
                             default:
                         }
@@ -252,7 +252,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
             if ((System.currentTimeMillis() - exitTime) > 2000) {
-                Toast.makeText(getApplicationContext(), "再按一次退出程序", Toast.LENGTH_SHORT).show();
+                ToastUtil.showShort("再按一次退出程序");
                 exitTime = System.currentTimeMillis();
             } else {
                 finish();
@@ -346,7 +346,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                                 if (mConfig == null) {
                                     //getDeviceConfig(device.getAddress());
                                     long id = 0;
-                                    Log.i(TAG, "获取一次配置");
+                                    LogUtil.i(TAG, "获取一次配置");
                                     nCurDealSend = new PackageNeedAck(device.getAddress(), BleDevProtocol.pkgGetConfig(id),
                                             new OnReceivePackage() {
                                                 @Override
@@ -359,7 +359,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                                                     flagAddTimeOut++;
                                                     if (flagAddTimeOut > 3) {
                                                         // 超出距离断开连接
-                                                        Log.e(TAG, "timeout1: ");
+                                                        LogUtil.e(TAG, "timeout1: ");
                                                         EventBus.getDefault().post(new DevConnEvent(getDevMac(), DEVICE_CONNECT_NO));
                                                         flagAddTimeOut = 0;
                                                         bSendEn = false;
@@ -381,7 +381,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                                                     flagAddTimeOut++;
                                                     if (flagAddTimeOut > 3) {
                                                         // 超出距离断开连接
-                                                        Log.e(TAG, "timeout2: ");
+                                                        LogUtil.e(TAG, "timeout2: ");
                                                         EventBus.getDefault().post(new DevConnEvent(getDevMac(), DEVICE_CONNECT_NO));
                                                         flagAddTimeOut = 0;
                                                         bSendEn = false;
@@ -441,11 +441,11 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         protected void onReceivePkg(@NonNull final byte[] pkg, int pkg_len) {
             runOnUiThread(() -> {
                 if (nCurDealSend == null) {
-                    Log.i(TAG, "没有发送数据包回复处理，但是接收到回复数据");
+                    LogUtil.i(TAG, "没有发送数据包回复处理，但是接收到回复数据");
                 } else if (BleDevProtocol.isMatch(nCurDealSend.cmd_pkg, pkg)) {
                     nCurDealSend.callback.ack(pkg);
                 } else {
-                    Log.i(TAG, "回复数据和命令不匹配 " + Util.hex(nCurDealSend.cmd_pkg, 4) + " 接收 " + Util.hex(pkg, 4));
+                    LogUtil.i(TAG, "回复数据和命令不匹配 " + Util.hex(nCurDealSend.cmd_pkg, 4) + " 接收 " + Util.hex(pkg, 4));
                 }
                 nCurDealSend = null;
             });
@@ -462,7 +462,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         ProtocolWithDev p = mProtocolMap.get(mac);
         if (p != null) {
             p.addSendCmd(new PackageNeedAck(mac, BleDevProtocol.pkgGetConfig(id), null));
-            Log.i(TAG, "获取一次配置");
+            LogUtil.i(TAG, "获取一次配置");
         }
     }
 
@@ -476,7 +476,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         ProtocolWithDev p = mProtocolMap.get(mac);
         if (p != null) {
             p.addSendCmd(new PackageNeedAck(mac, BleDevProtocol.pkgGetStatus(id), null));
-            Log.i(TAG, "获取一次状态");
+            LogUtil.i(TAG, "获取一次状态");
         }
     }
 
@@ -528,11 +528,11 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
             return;
         }
 
-        Log.d(TAG, "dev mac: " + mac);
+        LogUtil.d(TAG, "dev mac: " + mac);
         for (int i = 0; i < mServerDevList.size(); i++) {
-            Log.d(TAG, "allow mac: " + mServerMacList);
+            LogUtil.d(TAG, "allow mac: " + mServerMacList);
         }
-        Log.d(TAG, "allow: " + mServerMacList.contains(mac));
+        LogUtil.d(TAG, "allow: " + mServerMacList.contains(mac));
         // 是否与服务器 MAC 地址匹配
         if (mServerMacList.contains(mac)) {
             // 如果服务器设备列表的 Mac 与扫描到的蓝牙 Mac 一致，此设备【可连接】
@@ -545,7 +545,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
      */
     @Override
     void onDeviceReady(final String mac) {
-        Log.i(TAG, "onDeviceReady " + mac);
+        LogUtil.i(TAG, "onDeviceReady " + mac);
         if (setSendDefaultChannel(mac, UUID_GATT_CHARACTERISTIC_WRITE)) {
             Device device = getDevice(mac);
 
@@ -564,7 +564,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
 
     @Override
     void onDeviceConnect(String mac) {
-        Log.i(TAG, "onDeviceConnect " + mac);
+        LogUtil.i(TAG, "onDeviceConnect " + mac);
         registerRefreshStatus(mac);
 
         Device device = getDevice(mac);
@@ -639,7 +639,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.i(TAG, "requestCode: " + requestCode);
+        LogUtil.i(TAG, "requestCode: " + requestCode);
         switch (requestCode) {
             case REQUEST_CODE_SCANNING_CONN_DEV:
                 if (resultCode == RESULT_OK) {
@@ -669,7 +669,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.e(TAG, "查询设备 Mac 地址请求成功！" + body);
+                        LogUtil.e(TAG, "查询设备 Mac 地址请求成功！" + body);
 
                         QueryDevMacBean bean = mGson.fromJson(body, QueryDevMacBean.class);
                         if (bean.getCode() == 1) {

@@ -3,7 +3,6 @@ package cn.eejing.ejcolorflower.view.adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,10 +15,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.model.lite.JetModeConfigLite;
+import cn.eejing.ejcolorflower.util.LogUtil;
 
+import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_DELAY;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_INTERVAL;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_RIDE;
-import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_DELAY;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_STREAM;
 import static cn.eejing.ejcolorflower.app.AppConstant.CONFIG_TOGETHER;
 
@@ -85,7 +85,7 @@ public class CtMasterSetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
 
         public void setData(int position) {
-                Log.i("CtSetGroupActivity", "setData: " + mListJetModeCfg.get(position).getJetType());
+                LogUtil.i("CtSetGroupActivity", "setData: " + mListJetModeCfg.get(position).getJetType());
                 switch (mListJetModeCfg.get(position).getJetType()) {
                     case CONFIG_STREAM:
                         imgJetMode.setImageResource(R.drawable.ic_jet_mode_stream);

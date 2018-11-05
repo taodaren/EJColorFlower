@@ -1,6 +1,6 @@
 package cn.eejing.ejcolorflower.model.manager;
 
-import android.util.Log;
+import cn.eejing.ejcolorflower.util.LogUtil;
 
 /**
  * 跑马灯管理
@@ -17,7 +17,7 @@ public class MgrRideJet extends MgrOutputJet {
 
     @Override
     public boolean updateWithDataOut(byte[] dataOut) {
-        Log.i(JET, "updateWithDataOut: 老子进入跑马灯了");
+        LogUtil.i(JET, "updateWithDataOut: 老子进入跑马灯了");
 
         mCurrentTime++;
         // 一次运行时间
@@ -25,36 +25,36 @@ public class MgrRideJet extends MgrOutputJet {
         switch (mDirection) {
             case 1:
                 // 从左到右
-                Log.i(JET, "进入从左到右");
+                LogUtil.i(JET, "进入从左到右");
                 outputTime = leftToRight(dataOut);
-                Log.i(JET, "从左到右 outputTime: " + outputTime);
+                LogUtil.i(JET, "从左到右 outputTime: " + outputTime);
                 break;
             case 3:
                 // 从右到左
-                Log.i(JET, "进入从右到左");
+                LogUtil.i(JET, "进入从右到左");
                 outputTime = rightToLeft(dataOut);
-                Log.i(JET, "从右到左 outputTime: " + outputTime);
+                LogUtil.i(JET, "从右到左 outputTime: " + outputTime);
                 break;
             case 2:
                 // 从两端到中间
-                Log.i(JET, "进入从两端到中间");
+                LogUtil.i(JET, "进入从两端到中间");
                 outputTime = endsToMiddle(dataOut);
-                Log.i(JET, "从两端到中间 outputTime: " + outputTime);
+                LogUtil.i(JET, "从两端到中间 outputTime: " + outputTime);
                 break;
             case 4:
                 // 从中间到两端
-                Log.i(JET, "进入从中间到两端");
+                LogUtil.i(JET, "进入从中间到两端");
                 outputTime = middleToEnds(dataOut);
-                Log.i(JET, "从中间到两端 outputTime: " + outputTime);
+                LogUtil.i(JET, "从中间到两端 outputTime: " + outputTime);
                 break;
             default:
                 break;
         }
 
-        Log.i(JET, "update over mCurrentTime: " + mCurrentTime);
-        Log.i(JET, "update over outputTime: " + outputTime);
-        Log.i(JET, "update over mLoopId: " + mLoopId);
-        Log.i(JET, "update over mLoop: " + mLoop);
+        LogUtil.i(JET, "update over mCurrentTime: " + mCurrentTime);
+        LogUtil.i(JET, "update over outputTime: " + outputTime);
+        LogUtil.i(JET, "update over mLoopId: " + mLoopId);
+        LogUtil.i(JET, "update over mLoop: " + mLoop);
         // 等最后一次循环完毕
         return mCurrentTime > outputTime && mLoopId >= mLoop;
     }

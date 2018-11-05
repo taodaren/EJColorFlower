@@ -5,14 +5,12 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
 
@@ -27,7 +25,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.util.BleDevProtocol;
 import cn.eejing.ejcolorflower.model.device.Device;
 import cn.eejing.ejcolorflower.model.event.DevConnEvent;
 import cn.eejing.ejcolorflower.model.lite.JetModeConfigLite;
@@ -35,9 +32,12 @@ import cn.eejing.ejcolorflower.model.lite.MasterGroupLite;
 import cn.eejing.ejcolorflower.model.manager.MgrTogetherJet;
 import cn.eejing.ejcolorflower.presenter.IShowListener;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
+import cn.eejing.ejcolorflower.util.BleDevProtocol;
 import cn.eejing.ejcolorflower.util.FabScrollListener;
+import cn.eejing.ejcolorflower.util.LogUtil;
 import cn.eejing.ejcolorflower.util.SelfDialog;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
+import cn.eejing.ejcolorflower.util.ToastUtil;
 import cn.eejing.ejcolorflower.view.adapter.MasterListAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
@@ -241,7 +241,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         // 添加分组监听
         imgAddGroup.setOnClickListener(v -> showDialogCrt());
         // 蓝牙连接监听
-        imgBleToolbar.setOnClickListener(v -> Toast.makeText(CtMasterModeActivity.this, "ble", Toast.LENGTH_SHORT).show());
+        imgBleToolbar.setOnClickListener(v -> ToastUtil.showShort("ble"));
     }
 
     /** 蓝牙连接状态 */
@@ -249,7 +249,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
     public void onEventDevConn(DevConnEvent event) {
         // 接收硬件传过来的已连接设备信息添加到 HashSet
         if (event.getStatus() != null) {
-            Log.i(TAG, "dev cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
+            LogUtil.i(TAG, "dev cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
 
             switch (event.getStatus()) {
                 case DEVICE_CONNECT_YES:
@@ -297,10 +297,10 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         mDialogCrt.setYesOnclickListener("确定", () -> {
             if (mDialogCrt.getEditTextStr().length() > 6) {
                 // 如果输入的 DMX 不在 1~511 之间，提示用户
-                Toast.makeText(CtMasterModeActivity.this, "分组名称不能大于 6 个字\n请重新设置", Toast.LENGTH_SHORT).show();
+                ToastUtil.showShort("分组名称不能大于 6 个字\\n请重新设置");
                 mDialogCrt.dismiss();
             } else if (checkGroupName(mDialogCrt.getEditTextStr()) > 0) {
-                Toast.makeText(CtMasterModeActivity.this, "分组名已使用\n请重新设置", Toast.LENGTH_SHORT).show();
+                ToastUtil.showShort("分组名已使用\n请重新设置");
             } else {
                 // 创建主控分组
                 saveGroupLite(mDialogCrt.getEditTextStr());
@@ -377,7 +377,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
                     }
                     break;
             }
-//            Toast.makeText(CtMasterModeActivity.this, "任务执行完毕", Toast.LENGTH_SHORT).show();
+//            ToastUtil.showShort("任务执行完毕");
 //            showStartDialog();
         }
     };
@@ -387,7 +387,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         switch (view.getId()) {
             case R.id.btn_master_start:
                 clickStartStop();
-//                Toast.makeText(this, "开始执行任务", Toast.LENGTH_SHORT).show();
+//                ToastUtil.showShort("开始执行任务");
 //                hideStartDialog();
 //                mHandler.sendEmptyMessageDelayed(1, 3000);
                 break;
@@ -412,13 +412,13 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
                 if (mListMstGroup.get(i).getIsSelectedGroup() == 1) {
                     bSelect = true;
                     if (mListMstGroup.get(i).getDevNum() == 0) {
-                        Toast.makeText(this, "设备数量不能为 0，请您重新设置", Toast.LENGTH_SHORT).show();
+                        ToastUtil.showShort("设备数量不能为 0，请您重新设置");
                         bNeedStart = false;
                     } else if (mListMstGroup.get(i).getStartDmx() == 0) {
-                        Toast.makeText(this, "起始DMX不能为 0，请您重新设置", Toast.LENGTH_SHORT).show();
+                        ToastUtil.showShort("起始DMX不能为 0，请您重新设置");
                         bNeedStart = false;
                     } else if (mListMstGroup.get(i).getJetModes().size() == 0) {
-                        Toast.makeText(this, "有选中组未设置效果，请重新设置", Toast.LENGTH_SHORT).show();
+                        ToastUtil.showShort("有选中组未设置效果，请重新设置");
                         bNeedStart = false;
                     }
                 }
@@ -426,7 +426,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
             if (bNeedStart && bSelect) {
                 starJet();
             } else if (!bSelect) {
-                Toast.makeText(this, "起始DMX不能为 0，请您重新设置", Toast.LENGTH_SHORT).show();
+                ToastUtil.showShort("起始DMX不能为 0，请您重新设置");
             }
         }
     }
@@ -478,7 +478,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         // 如果是停止喷射状态，点击变为开始状态，暂停可点击
         isStarJet = true;
         btnMasterStart.setText("停止");
-        Log.i(JET, "jet=true: " + " jet= " + isStarJet );
+        LogUtil.i(JET, "jet=true: " + " jet= " + isStarJet );
 
         // 启动计时器 0.1s
         mHandler.sendEmptyMessage(HANDLE_MST_JET);
@@ -488,14 +488,14 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         // 如果是开始喷射状态，点击变为停止状态，暂停不可点击
         isStarJet = false;
         btnMasterStart.setText("开始");
-        Log.i(JET, "jet=false: " + " jet= " + isStarJet );
+        LogUtil.i(JET, "jet=false: " + " jet= " + isStarJet );
         // 齐喷五次
         mHandler.sendEmptyMessage(HANDLE_ZERO_FIVE);
     }
 
     /** 定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息） */
     private void timerCallingMethod() {
-        Log.i(JET, "timerCallingMethod isStarJet = " + isStarJet );
+        LogUtil.i(JET, "timerCallingMethod isStarJet = " + isStarJet );
         byte[] dataOut = new byte[CTRL_DEV_NUM];
         // 调用方法判断全部组是否完成喷射
         boolean isAllFinish = true;
@@ -505,9 +505,9 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
 
         for (int i = 0; i < mListJetting.size(); i++) {
             byte[] dataOutOne = mListJetting.get(i).updateWithDataOut();
-            Log.i(JET, "timerCallingMethod: " + i + " devcnt = " + mListJetting.get(i).getCurJettiingDevCnt() + " " + mJetOutDataBeginId[i]);
+            LogUtil.i(JET, "timerCallingMethod: " + i + " devcnt = " + mListJetting.get(i).getCurJettiingDevCnt() + " " + mJetOutDataBeginId[i]);
             if (dataOutOne != null) {
-                Log.i(JET, "timerCallingMethod: " +dataOutOne[0]+" "+dataOutOne[1]+" "+dataOutOne[2]);
+                LogUtil.i(JET, "timerCallingMethod: " +dataOutOne[0]+" "+dataOutOne[1]+" "+dataOutOne[2]);
                 isAllFinish = false;
                 if (mListJetting.get(i).getIsSelectedMaster() == 1) {
                     // 包含主控
@@ -521,11 +521,11 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
 
         MainActivity.getAppCtrl().sendCommand(mDevice,
                 BleDevProtocol.pkgEnterRealTimeCtrlMode(mDeviceId, mJetOutRealDmxMin, mJetOutRealDevCnt , dataOut));
-        Log.i(JET, "timerCallingMethod2: " + dataOut[0] + " " + dataOut[1] + " " + dataOut[2]);
-        Log.i(JET, "timerCallingMethod: " + mDeviceId + " " + mJetOutRealDmxMin + " " + mJetOutRealDevCnt
+        LogUtil.i(JET, "timerCallingMethod2: " + dataOut[0] + " " + dataOut[1] + " " + dataOut[2]);
+        LogUtil.i(JET, "timerCallingMethod: " + mDeviceId + " " + mJetOutRealDmxMin + " " + mJetOutRealDevCnt
                 + " " + isAllFinish + " jet = " + isStarJet);
         if (isAllFinish) {
-            Log.i(JET, "终于喷完了！！！");
+            LogUtil.i(JET, "终于喷完了！！！");
 
             // 按钮状态初始化
             btnMasterStart.setText("开始");

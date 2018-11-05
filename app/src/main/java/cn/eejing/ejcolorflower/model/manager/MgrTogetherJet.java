@@ -1,6 +1,6 @@
 package cn.eejing.ejcolorflower.model.manager;
 
-import android.util.Log;
+import cn.eejing.ejcolorflower.util.LogUtil;
 
 /**
  * 齐喷管理
@@ -14,7 +14,7 @@ public class MgrTogetherJet extends MgrOutputJet {
 
     @Override
     public boolean updateWithDataOut(byte[] dataOut) {
-        Log.i(JET, "updateWithDataOut: 老子进入齐喷了");
+        LogUtil.i(JET, "updateWithDataOut: 老子进入齐喷了");
 
         mCurrentTime++;
         long outputTime = mDuration;
@@ -26,8 +26,8 @@ public class MgrTogetherJet extends MgrOutputJet {
             }
         }
 
-        Log.i(JET, "update over mCurrentTime: " + mCurrentTime);
-        Log.i(JET, "update over outputTime: " + outputTime);
+        LogUtil.i(JET, "update over mCurrentTime: " + mCurrentTime);
+        LogUtil.i(JET, "update over outputTime: " + outputTime);
         return mCurrentTime > outputTime;
     }
 

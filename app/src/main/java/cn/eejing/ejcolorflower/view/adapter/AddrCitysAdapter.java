@@ -18,7 +18,6 @@ import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.model.request.AddrCitysBean;
 import cn.eejing.ejcolorflower.view.activity.MaAddrAreasActivity;
-import cn.eejing.ejcolorflower.view.activity.MaAddrCitysActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.ADDRESS_CITYS;
 import static cn.eejing.ejcolorflower.app.AppConstant.ADDRESS_ID_CITYS;

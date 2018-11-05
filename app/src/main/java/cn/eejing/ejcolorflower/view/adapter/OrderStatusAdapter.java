@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,11 +26,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.model.request.OrderPagerBean;
 import cn.eejing.ejcolorflower.model.request.OrderStatusBean;
-import cn.eejing.ejcolorflower.view.activity.MiOrderDetailsActivity;
+import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.LogUtil;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
+import cn.eejing.ejcolorflower.view.activity.MiOrderDetailsActivity;
 
 public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context mContext;
@@ -124,23 +124,15 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     break;
             }
 
-            outItem.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mContext.startActivity(new Intent(mContext, MiOrderDetailsActivity.class)
-                            .putExtra("order_id", bean.getOrder_id())
-                            .putExtra("type",mType));
-                }
-            });
+            outItem.setOnClickListener(v -> mContext.startActivity(new Intent(mContext, MiOrderDetailsActivity.class)
+                    .putExtra("order_id", bean.getOrder_id())
+                    .putExtra("type",mType)));
 
-            btnEdit.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (mType.equals(AppConstant.TYPE_WAIT_RECEIPT)) {
-                        collectGoods(bean.getOrder_id());
-                    } else if (mType.equals(AppConstant.TYPE_COMPLETE_GOODS)) {
-                        delCompleted(bean.getOrder_id());
-                    }
+            btnEdit.setOnClickListener(view -> {
+                if (mType.equals(AppConstant.TYPE_WAIT_RECEIPT)) {
+                    collectGoods(bean.getOrder_id());
+                } else if (mType.equals(AppConstant.TYPE_COMPLETE_GOODS)) {
+                    delCompleted(bean.getOrder_id());
                 }
             });
 
@@ -150,38 +142,22 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private void collectGoods(final int orderId) {
         mDialog = new SelfDialogBase(mContext);
         mDialog.setTitle("您是否已收到该订单商品？");
-        mDialog.setYesOnclickListener("已收货", new SelfDialogBase.onYesOnclickListener() {
-            @Override
-            public void onYesClick() {
-                getDataWithCollectGoods(orderId);
-                mDialog.dismiss();
-            }
+        mDialog.setYesOnclickListener("已收货", () -> {
+            getDataWithCollectGoods(orderId);
+            mDialog.dismiss();
         });
-        mDialog.setNoOnclickListener("未收货", new SelfDialogBase.onNoOnclickListener() {
-            @Override
-            public void onNoClick() {
-                mDialog.dismiss();
-            }
-        });
+        mDialog.setNoOnclickListener("未收货", () -> mDialog.dismiss());
         mDialog.show();
     }
 
     private void delCompleted(final int orderId) {
         mDialog = new SelfDialogBase(mContext);
         mDialog.setTitle("确认删除此订单？");
-        mDialog.setYesOnclickListener("删除", new SelfDialogBase.onYesOnclickListener() {
-            @Override
-            public void onYesClick() {
-                getDataWithDelCompleted(orderId);
-                mDialog.dismiss();
-            }
+        mDialog.setYesOnclickListener("删除", () -> {
+            getDataWithDelCompleted(orderId);
+            mDialog.dismiss();
         });
-        mDialog.setNoOnclickListener("取消", new SelfDialogBase.onNoOnclickListener() {
-            @Override
-            public void onNoClick() {
-                mDialog.dismiss();
-            }
-        });
+        mDialog.setNoOnclickListener("取消", () -> mDialog.dismiss());
         mDialog.show();
     }
 
@@ -195,7 +171,7 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.e(AppConstant.TAG, "collect_goods request succeeded --->" + body);
+                        LogUtil.e(AppConstant.TAG, "collect_goods request succeeded --->" + body);
 
                         OrderStatusBean bean = mGson.fromJson(body, OrderStatusBean.class);
                         switch (bean.getCode()) {
@@ -226,7 +202,7 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.e(AppConstant.TAG, "del_completed request succeeded --->" + body);
+                        LogUtil.e(AppConstant.TAG, "del_completed request succeeded --->" + body);
 
                         OrderStatusBean bean = mGson.fromJson(body, OrderStatusBean.class);
                         switch (bean.getCode()) {

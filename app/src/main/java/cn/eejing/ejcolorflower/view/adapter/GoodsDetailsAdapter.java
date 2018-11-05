@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +25,7 @@ import cn.bingoogolapple.bgabanner.BGABanner;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.request.GoodsDetailsBean;
+import cn.eejing.ejcolorflower.util.LogUtil;
 
 public class GoodsDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_BANNER = 0;
@@ -54,7 +54,7 @@ public class GoodsDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             case TYPE_WEB_VIEW:
                 return new WebViewHolder(mInflater.inflate(R.layout.type_goods_web, parent, false));
             default:
-                Log.e(AppConstant.TAG, "onCreateViewHolder: is null");
+                LogUtil.e(AppConstant.TAG, "onCreateViewHolder: is null");
                 return null;
         }
     }

@@ -5,8 +5,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.tencent.mm.opensdk.constants.ConstantsAPI;
 import com.tencent.mm.opensdk.modelbase.BaseReq;
@@ -16,6 +14,8 @@ import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 
 import cn.eejing.ejcolorflower.R;
+import cn.eejing.ejcolorflower.util.LogUtil;
+import cn.eejing.ejcolorflower.util.ToastUtil;
 import cn.eejing.ejcolorflower.view.activity.MainActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.APP_ID;
@@ -48,11 +48,11 @@ public class WXPayEntryActivity extends Activity implements IWXAPIEventHandler {
     @SuppressLint("LongLogTag")
     @Override
     public void onResp(BaseResp resp) {
-        Log.d(TAG, "onPayFinish, errCode = " + resp.errCode);
+        LogUtil.d(TAG, "onPayFinish, errCode = " + resp.errCode);
 
         // 支付成功
         if (resp.getType() == ConstantsAPI.COMMAND_PAY_BY_WX) {
-            Toast.makeText(this, "微信支付成功", Toast.LENGTH_SHORT).show();
+            ToastUtil.showShort("微信支付成功");
             finish();
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(R.string.app_tip);

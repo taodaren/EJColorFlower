@@ -2,7 +2,6 @@ package cn.eejing.ejcolorflower.view.activity;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -20,6 +19,7 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.request.GoodsDetailsBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.LogUtil;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
 import cn.eejing.ejcolorflower.view.adapter.GoodsDetailsAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
@@ -108,22 +108,14 @@ public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClick
     private void showDialog() {
         mDialog = new SelfDialogBase(this);
         mDialog.setTitle(mPhone);
-        mDialog.setYesOnclickListener("呼叫", new SelfDialogBase.onYesOnclickListener() {
-            @Override
-            public void onYesClick() {
-                // 拨打客服电话
-                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + mPhone));
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                mDialog.dismiss();
-            }
+        mDialog.setYesOnclickListener("呼叫", () -> {
+            // 拨打客服电话
+            Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + mPhone));
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            mDialog.dismiss();
         });
-        mDialog.setNoOnclickListener("取消", new SelfDialogBase.onNoOnclickListener() {
-            @Override
-            public void onNoClick() {
-                mDialog.dismiss();
-            }
-        });
+        mDialog.setNoOnclickListener("取消", () -> mDialog.dismiss());
         mDialog.show();
     }
 
@@ -135,7 +127,7 @@ public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClick
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 Log.e(AppConstant.TAG, "goods_details request succeeded--->" + body);
+                                 LogUtil.e(AppConstant.TAG, "goods_details request succeeded--->" + body);
 
                                  GoodsDetailsBean bean = mGson.fromJson(body, GoodsDetailsBean.class);
                                  mPhone = bean.getData().getPhone();

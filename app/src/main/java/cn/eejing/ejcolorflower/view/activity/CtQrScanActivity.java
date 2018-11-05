@@ -2,7 +2,6 @@ package cn.eejing.ejcolorflower.view.activity;
 
 import android.content.Intent;
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -11,6 +10,7 @@ import cn.bingoogolapple.qrcode.core.QRCodeView;
 import cn.bingoogolapple.qrcode.zxing.ZXingView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.BaseApplication;
+import cn.eejing.ejcolorflower.util.LogUtil;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.APP_QR_GET_DID;
@@ -88,8 +88,8 @@ public class CtQrScanActivity extends BaseActivity implements View.OnClickListen
 
     private void scanResults(String result) {
         // 处理扫描结果
-        Log.i(TAG, "scanResults: " + result);
-        Log.i(TAG, "length: " + result.length());
+        LogUtil.i(TAG, "scanResults: " + result);
+        LogUtil.i(TAG, "length: " + result.length());
 
         switch (mApp.getFlagQrCode()) {
             case APP_QR_GET_DID:
@@ -108,7 +108,7 @@ public class CtQrScanActivity extends BaseActivity implements View.OnClickListen
         vibrate();
         // 延迟 1.5s 后开始识别
         mQRCodeView.startSpot();
-        Log.i(TAG, "id: " + Long.parseLong(result));
+        LogUtil.i(TAG, "id: " + Long.parseLong(result));
         setResult(RESULT_OK, new Intent().putExtra(flag, Long.parseLong(result)));
         mApp.setFlagQrCode(null);
         finish();
@@ -150,6 +150,6 @@ public class CtQrScanActivity extends BaseActivity implements View.OnClickListen
 
     @Override
     public void onScanQRCodeOpenCameraError() {
-        Log.e(TAG, "打开相机出错");
+        LogUtil.e(TAG, "打开相机出错");
     }
 }

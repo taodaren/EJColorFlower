@@ -2,7 +2,6 @@ package cn.eejing.ejcolorflower.view.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
@@ -18,11 +17,12 @@ import java.util.List;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.model.request.OrderPagerBean;
+import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.LogUtil;
+import cn.eejing.ejcolorflower.util.MySettings;
 import cn.eejing.ejcolorflower.view.adapter.OrderStatusAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseFragment;
-import cn.eejing.ejcolorflower.util.MySettings;
 
 /**
  * 订单状态
@@ -134,7 +134,7 @@ public class PageOrderStatusFragment extends BaseFragment {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.e(AppConstant.TAG, "wait_goods request succeeded --->" + body);
+                        LogUtil.d(AppConstant.TAG, "wait_goods request succeeded --->" + body);
 
                         OrderPagerBean bean = mGson.fromJson(body, OrderPagerBean.class);
                         switch (bean.getCode()) {
@@ -166,7 +166,7 @@ public class PageOrderStatusFragment extends BaseFragment {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.e(AppConstant.TAG, "already_goods request succeeded --->" + body);
+                        LogUtil.e(AppConstant.TAG, "already_goods request succeeded --->" + body);
 
                         OrderPagerBean bean = mGson.fromJson(body, OrderPagerBean.class);
                         switch (bean.getCode()) {
@@ -198,7 +198,7 @@ public class PageOrderStatusFragment extends BaseFragment {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.e(AppConstant.TAG, "completed request succeeded --->" + body);
+                        LogUtil.e(AppConstant.TAG, "completed request succeeded --->" + body);
 
                         OrderPagerBean bean = mGson.fromJson(body, OrderPagerBean.class);
                         switch (bean.getCode()) {

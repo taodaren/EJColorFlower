@@ -3,7 +3,6 @@ package cn.eejing.ejcolorflower.view.fragment;
 import android.Manifest;
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.View;
 
 import org.greenrobot.eventbus.EventBus;
@@ -17,6 +16,7 @@ import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.BaseApplication;
 import cn.eejing.ejcolorflower.model.event.DevConnEvent;
+import cn.eejing.ejcolorflower.util.LogUtil;
 import cn.eejing.ejcolorflower.view.activity.CtDevConfigActivity;
 import cn.eejing.ejcolorflower.view.activity.CtQrScanActivity;
 import cn.eejing.ejcolorflower.view.base.BaseFragment;
@@ -87,7 +87,7 @@ public class TabCtrlFragment extends BaseFragment implements EasyPermissions.Per
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventDevConn(DevConnEvent event) {
         mStatus = event.getStatus();
-        Log.i(TAG, "ctrl model: " + event.getMac() + " | " + event.getId() + " | " + mStatus);
+        LogUtil.i(TAG, "ctrl model: " + event.getMac() + " | " + event.getId() + " | " + mStatus);
         if (mStatus.equals("已连接")) {
             if (mFlagConnStatus == 0 && mFlagStopContext != 2) {
                 // 如果连接状态为已连接，并且回到 TabCtrlFragment，跳转到设备配置界面
@@ -106,7 +106,7 @@ public class TabCtrlFragment extends BaseFragment implements EasyPermissions.Per
     @Override
     public void onStop() {
         super.onStop();
-        Log.w(TAG, "onStop: ");
+        LogUtil.w(TAG, "onStop: ");
 
         if (mStatus != null && mStatus.equals("不可连接")) {
             // 正常断开

@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.litepal.LitePal;
 
@@ -18,12 +17,13 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.ejcolorflower.R;
-import cn.eejing.ejcolorflower.util.BleDevProtocol;
 import cn.eejing.ejcolorflower.model.lite.JetModeConfigLite;
 import cn.eejing.ejcolorflower.model.lite.MasterGroupLite;
 import cn.eejing.ejcolorflower.model.manager.MgrOutputJet;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
+import cn.eejing.ejcolorflower.util.BleDevProtocol;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
+import cn.eejing.ejcolorflower.util.ToastUtil;
 import cn.eejing.ejcolorflower.view.adapter.CtMasterSetAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
@@ -202,7 +202,7 @@ public class CtSetGroupActivity extends BaseActivity {
         // 监听单击事件
         mAdapter.setClickListener(v -> {
             if (tvDevNum.getText().equals("0")) {
-                Toast.makeText(CtSetGroupActivity.this, "设备数量不能为0", Toast.LENGTH_SHORT).show();
+                ToastUtil.showShort("设备数量不能为0");
             } else {
                 int position = (int) v.getTag();
                 long jetIdMillis = mListJetModeCfg.get(position).getJetIdMillis();
@@ -315,9 +315,9 @@ public class CtSetGroupActivity extends BaseActivity {
     /** 点击清料 */
     private void clearMaterialMaster() {
         if (sbDevNum.getProgress() == 0) {
-            Toast.makeText(this, "设备数量不能为 0", Toast.LENGTH_SHORT).show();
+            ToastUtil.showShort("设备数量不能为 0");
         } else if (sbStartDmx.getProgress() == 0) {
-            Toast.makeText(this, "起始DMX不能为 0", Toast.LENGTH_SHORT).show();
+            ToastUtil.showShort("起始DMX不能为 0");
         } else {
             cmdClearMaterial();
         }

@@ -1,9 +1,7 @@
 package cn.eejing.ejcolorflower.view.activity;
 
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.allen.library.SuperButton;
 import com.google.gson.Gson;
@@ -18,7 +16,9 @@ import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.request.PwdUpdateBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.Encryption;
+import cn.eejing.ejcolorflower.util.LogUtil;
 import cn.eejing.ejcolorflower.util.MySettings;
+import cn.eejing.ejcolorflower.util.ToastUtil;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 /**
@@ -81,31 +81,31 @@ public class MiPwdModifyActivity extends BaseActivity {
                         @Override
                         public void onSuccess(Response<String> response) {
                             String body = response.body();
-                            Log.e(AppConstant.TAG, "pwd_update request succeeded--->" + body);
+                            LogUtil.e(AppConstant.TAG, "pwd_update request succeeded--->" + body);
 
                             PwdUpdateBean bean = mGson.fromJson(body, PwdUpdateBean.class);
                             switch (bean.getCode()) {
                                 case 0:
-                                    Toast.makeText(getBaseContext(), "修改密码失败", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showShort("修改密码失败");
                                     break;
                                 case 1:
                                     logout(MiPwdModifyActivity.this);
-                                    Toast.makeText(getBaseContext(), "重置密码成功", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showShort("重置密码成功");
                                     break;
                                 case 3:
-                                    Toast.makeText(getBaseContext(), "旧密码不能为空", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showShort("旧密码不能为空");
                                     break;
                                 case 4:
-                                    Toast.makeText(getBaseContext(), "旧密码错误,请重新输入", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showShort("旧密码错误,请重新输入");
                                     break;
                                 case 5:
-                                    Toast.makeText(getBaseContext(), "新密码不能为空", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showShort("新密码不能为空");
                                     break;
                                 case 6:
-                                    Toast.makeText(getBaseContext(), "确认密码不能为空", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showShort("确认密码不能为空");
                                     break;
                                 case 7:
-                                    Toast.makeText(getBaseContext(), "两次密码不一致", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showShort("两次密码不一致");
                                     break;
                                 default:
                                     break;

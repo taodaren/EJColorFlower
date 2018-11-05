@@ -1,8 +1,6 @@
 package cn.eejing.ejcolorflower.view.activity;
 
-import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
@@ -18,6 +16,8 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.request.AddrProvincesBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.LogUtil;
+import cn.eejing.ejcolorflower.util.ToastUtil;
 import cn.eejing.ejcolorflower.view.adapter.AddrProvincessAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
@@ -88,7 +88,7 @@ public class MaAddrProvincesActivity extends BaseActivity {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 Log.e(AppConstant.TAG, "provinces request succeeded--->" + body);
+                                 LogUtil.e(AppConstant.TAG, "provinces request succeeded--->" + body);
 
                                  Gson gson = new Gson();
                                  AddrProvincesBean bean = gson.fromJson(body, AddrProvincesBean.class);
@@ -101,7 +101,7 @@ public class MaAddrProvincesActivity extends BaseActivity {
                                          rvCitys.setPullLoadMoreCompleted();
                                          break;
                                      default:
-                                         Toast.makeText(MaAddrProvincesActivity.this, "" + bean.getCode(), Toast.LENGTH_SHORT).show();
+                                         ToastUtil.showShort("" + bean.getCode());
                                          break;
                                  }
                              }

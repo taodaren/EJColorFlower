@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +29,7 @@ import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.request.AddrDefBean;
 import cn.eejing.ejcolorflower.model.request.AddrListBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.LogUtil;
 import cn.eejing.ejcolorflower.view.activity.MaAddrModifyActivity;
 
 public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -148,7 +148,7 @@ public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 Log.e(AppConstant.TAG, "address_def request succeeded--->" + body);
+                                 LogUtil.e(AppConstant.TAG, "address_def request succeeded--->" + body);
 
                                  AddrDefBean bean = mGson.fromJson(body, AddrDefBean.class);
                                  switch (bean.getCode()) {

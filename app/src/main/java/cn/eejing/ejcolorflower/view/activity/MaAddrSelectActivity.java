@@ -1,6 +1,5 @@
 package cn.eejing.ejcolorflower.view.activity;
 
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
@@ -25,6 +24,7 @@ import cn.eejing.ejcolorflower.app.BaseApplication;
 import cn.eejing.ejcolorflower.model.event.AddrAddEvent;
 import cn.eejing.ejcolorflower.model.request.AddrListBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.LogUtil;
 import cn.eejing.ejcolorflower.util.MySettings;
 import cn.eejing.ejcolorflower.view.adapter.AddrSelectAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
@@ -117,7 +117,7 @@ public class MaAddrSelectActivity extends BaseActivity {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 Log.e(AppConstant.TAG, "address_list request succeeded--->" + body);
+                                 LogUtil.e(AppConstant.TAG, "address_list request succeeded--->" + body);
 
                                  AddrListBean bean = mGson.fromJson(body, AddrListBean.class);
                                  switch (bean.getCode()) {

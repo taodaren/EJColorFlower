@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +18,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.model.lite.MasterGroupLite;
+import cn.eejing.ejcolorflower.util.LogUtil;
 
 /**
  * 主控界面-分組列表适配器
@@ -32,7 +32,7 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private List<MasterGroupLite> mListMasterGroup;
 
     public MasterListAdapter(Context context, List<MasterGroupLite> list) {
-        Log.i(TAG, "MasterListAdapter size: " + list.size());
+        LogUtil.i(TAG, "MasterListAdapter size: " + list.size());
         this.mContext = context;
         this.mListMasterGroup = list;
         this.mLayoutInflater = LayoutInflater.from(mContext);
@@ -115,7 +115,7 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             tvGroupName.setText(bean.getGroupName());
             tvDevNum.setText("设备数量 " + bean.getDevNum());
             tvStartDmx.setText("起始 DMX " + bean.getStartDmx());
-            Log.i(TAG, "setData: " + bean.getJetModes());
+            LogUtil.i(TAG, "setData: " + bean.getJetModes());
             if (bean.getJetModes() == null || bean.getJetModes().size() == 0) {
                 tvJetMode.setText("无效果");
             } else {

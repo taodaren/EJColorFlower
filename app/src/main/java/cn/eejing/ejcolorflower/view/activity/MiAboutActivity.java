@@ -1,7 +1,6 @@
 package cn.eejing.ejcolorflower.view.activity;
 
 import android.os.Build;
-import android.util.Log;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -14,8 +13,9 @@ import com.lzy.okgo.model.Response;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.model.request.AboutLinkBean;
+import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.LogUtil;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 /**
@@ -49,7 +49,7 @@ public class MiAboutActivity extends BaseActivity {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.e(AppConstant.TAG, "about_link request succeeded --->" + body);
+                        LogUtil.e(AppConstant.TAG, "about_link request succeeded --->" + body);
 
                         Gson gson = new Gson();
                         AboutLinkBean bean = gson.fromJson(body, AboutLinkBean.class);

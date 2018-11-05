@@ -1,6 +1,5 @@
 package cn.eejing.ejcolorflower.view.activity;
 
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -29,6 +28,7 @@ import cn.eejing.ejcolorflower.model.event.AddrAddEvent;
 import cn.eejing.ejcolorflower.model.request.AddrDefBean;
 import cn.eejing.ejcolorflower.model.request.AddrListBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.LogUtil;
 import cn.eejing.ejcolorflower.util.MySettings;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
 import cn.eejing.ejcolorflower.view.adapter.AddrManageAdapter;
@@ -179,7 +179,7 @@ public class MaAddrMgrActivity extends BaseActivity {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 Log.e(AppConstant.TAG, "address_list request succeeded--->" + body);
+                                 LogUtil.e(AppConstant.TAG, "address_list request succeeded--->" + body);
 
                                  AddrListBean bean = mGson.fromJson(body, AddrListBean.class);
                                  switch (bean.getCode()) {
@@ -221,7 +221,7 @@ public class MaAddrMgrActivity extends BaseActivity {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 Log.e(AppConstant.TAG, "address_del request succeeded--->" + body);
+                                 LogUtil.e(AppConstant.TAG, "address_del request succeeded--->" + body);
 
                                  AddrDefBean bean = mGson.fromJson(body, AddrDefBean.class);
                                  switch (bean.getCode()) {
@@ -248,19 +248,11 @@ public class MaAddrMgrActivity extends BaseActivity {
     private void showDialogByDel(int position) {
         mDialogDel = new SelfDialogBase(this);
         mDialogDel.setTitle("是否确认删除收货地址");
-        mDialogDel.setYesOnclickListener("确定", new SelfDialogBase.onYesOnclickListener() {
-            @Override
-            public void onYesClick() {
-                getDataWithAddressDel(position);
-                mDialogDel.dismiss();
-            }
+        mDialogDel.setYesOnclickListener("确定", () -> {
+            getDataWithAddressDel(position);
+            mDialogDel.dismiss();
         });
-        mDialogDel.setNoOnclickListener("取消", new SelfDialogBase.onNoOnclickListener() {
-            @Override
-            public void onNoClick() {
-                mDialogDel.dismiss();
-            }
-        });
+        mDialogDel.setNoOnclickListener("取消", () -> mDialogDel.dismiss());
         mDialogDel.show();
     }
 

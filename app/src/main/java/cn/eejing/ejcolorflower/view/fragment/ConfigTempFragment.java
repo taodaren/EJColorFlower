@@ -20,6 +20,7 @@ import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.model.event.DevConnEvent;
 import cn.eejing.ejcolorflower.util.CircleProgress;
+import cn.eejing.ejcolorflower.util.LogUtil;
 import cn.eejing.ejcolorflower.view.base.BaseFragment;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_NO;
@@ -109,7 +110,7 @@ public class ConfigTempFragment extends BaseFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventDevConn(DevConnEvent event) {
         // 接收硬件传过来的已连接设备信息添加到 HashSet
-        Log.d(TAG, "temp cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
+        LogUtil.d(TAG, "temp cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
 
         switch (event.getStatus()) {
             case DEVICE_CONNECT_YES:

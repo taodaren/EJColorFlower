@@ -17,7 +17,6 @@ import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
@@ -27,15 +26,12 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.ArrayMap;
-import android.util.Log;
 import android.util.Pair;
-import android.widget.Toast;
 
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
 import com.yanzhenjie.permission.Rationale;
-import com.yanzhenjie.permission.RequestExecutor;
 import com.yanzhenjie.permission.SettingService;
 
 import java.util.ArrayList;
@@ -48,6 +44,8 @@ import java.util.UUID;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.MyLifecycleHandler;
 import cn.eejing.ejcolorflower.util.BleDevProtocol;
+import cn.eejing.ejcolorflower.util.LogUtil;
+import cn.eejing.ejcolorflower.util.ToastUtil;
 import cn.eejing.ejcolorflower.util.Util;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
@@ -177,7 +175,7 @@ public class BLEManagerActivity extends BaseActivity {
             new MyLifecycleHandler.OnForegroundStateChangeListener() {
                 @Override
                 public void onStateChanged(boolean foreground) {
-                    Log.i(TAG, "OnForegroundStateChangeListener " + foreground);
+                    LogUtil.i(TAG, "OnForegroundStateChangeListener " + foreground);
                     if (foreground) {
                         for (Pair<Runnable, Integer> s : mPeriodRunMap.values()) {
                             mHandler.postDelayed(s.first, s.second);
@@ -201,13 +199,13 @@ public class BLEManagerActivity extends BaseActivity {
             mHandler.removeCallbacks(s.first);
         }
         */
-        Log.i(TAG, "onPause");
+        LogUtil.i(TAG, "onPause");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i(TAG, "onResume");
+        LogUtil.i(TAG, "onResume");
         /*
         for(Pair<Runnable, Integer> s : mPeriodRunMap.values()){
             mHandler.postDelayed(s.first, s.second);
@@ -241,7 +239,7 @@ public class BLEManagerActivity extends BaseActivity {
         }
         for (DeviceManager mgr : mDevMgrSet.values()) {
             if (mgr.isConnected && mgr.characteristicList == null && !mgr.isDiscovering) {
-                Log.i(TAG, "discovering services " + mgr.mac);
+                LogUtil.i(TAG, "discovering services " + mgr.mac);
                 mgr.isDiscovering = mgr.gatt.discoverServices();
                 return;
             }
@@ -273,34 +271,21 @@ public class BLEManagerActivity extends BaseActivity {
 
     /** 用户拒绝 */
     private void userDenied() {
-        Toast.makeText(this, "无法使用蓝牙功能", Toast.LENGTH_SHORT).show();
+        ToastUtil.showShort("无法使用蓝牙功能");
     }
 
     // 给用户一个说法
-    private final Rationale mDefRationale = new Rationale() {
-        @Override
-        public void showRationale(Context context, List<String> permissions, final RequestExecutor executor) {
-            List<String> permissionNames = Permission.transformText(context, permissions);
-            String message = context.getString(R.string.message_permission_rationale, TextUtils.join("\n", permissionNames));
+    private final Rationale mDefRationale = (context, permissions, executor) -> {
+        List<String> permissionNames = Permission.transformText(context, permissions);
+        String message = context.getString(R.string.message_permission_rationale, TextUtils.join("\n", permissionNames));
 
-            new AlertDialog.Builder(context)
-                    .setCancelable(false)
-                    .setTitle(R.string.tip)
-                    .setMessage(message)
-                    .setPositiveButton(R.string.resume, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            executor.execute();
-                        }
-                    })
-                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            executor.cancel();
-                        }
-                    })
-                    .show();
-        }
+        new AlertDialog.Builder(context)
+                .setCancelable(false)
+                .setTitle(R.string.tip)
+                .setMessage(message)
+                .setPositiveButton(R.string.resume, (dialog, which) -> executor.execute())
+                .setNegativeButton(R.string.cancel, (dialog, which) -> executor.cancel())
+                .show();
     };
 
     /** 蓝牙启用 */
@@ -309,21 +294,13 @@ public class BLEManagerActivity extends BaseActivity {
             AndPermission.with(this)
                     .permission(Manifest.permission.ACCESS_COARSE_LOCATION)
                     .rationale(mDefRationale)
-                    .onDenied(new Action() {
-                        @Override
-                        public void onAction(List<String> permissions) {
-                            if (AndPermission.hasAlwaysDeniedPermission(BLEManagerActivity.this, permissions)) {
-                                // 如果用户一直否认许可，提示用户自行设置
-                                showSetting(permissions);
-                            }
+                    .onDenied(permissions -> {
+                        if (AndPermission.hasAlwaysDeniedPermission(BLEManagerActivity.this, permissions)) {
+                            // 如果用户一直否认许可，提示用户自行设置
+                            showSetting(permissions);
                         }
                     })
-                    .onGranted(new Action() {
-                        @Override
-                        public void onAction(List<String> permissions) {
-                            startLeScanNoBug();
-                        }
-                    })
+                    .onGranted(permissions -> startLeScanNoBug())
                     .start();
         } else {
             startLeScanNoBug();
@@ -340,34 +317,19 @@ public class BLEManagerActivity extends BaseActivity {
                 .setCancelable(false)
                 .setTitle(R.string.tip)
                 .setMessage(message)
-                .setPositiveButton(R.string.set, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        settingService.execute();
-                    }
-                })
-                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        settingService.cancel();
-                    }
-                })
+                .setPositiveButton(R.string.set, (dialog, which) -> settingService.execute())
+                .setNegativeButton(R.string.no, (dialog, which) -> settingService.cancel())
                 .show();
     }
 
     /** 如果在 bleEnabled 中直接调用 startLeScan， 将出现 android.os.DeadObjectException */
     private void startLeScanNoBug() {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                startLeScan();
-            }
-        });
+        mHandler.post(() -> startLeScan());
     }
 
     @SuppressWarnings("SameParameterValue")
     void addScanFilter(ParcelUuid uuid) {
-        Log.i(TAG, "addScanFilter: ");
+        LogUtil.i(TAG, "addScanFilter: ");
         ScanFilter filter = new ScanFilter.Builder()
                 .setServiceUuid(uuid)
                 .build();
@@ -378,7 +340,7 @@ public class BLEManagerActivity extends BaseActivity {
     }
 
     private void startLeScan() {
-        Log.v(TAG, "startLeScan");
+        LogUtil.v(TAG, "startLeScan");
         mBleLeScanner = (mBleAdapter == null) ? null : mBleAdapter.getBluetoothLeScanner();
         if (mBleLeScanner != null) {
             mIsScanning = true;
@@ -427,7 +389,7 @@ public class BLEManagerActivity extends BaseActivity {
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
             String mac = result.getDevice().getAddress();
-            Log.i(TAG, "onScanResult " + callbackType + " " + mac + " | " + result.getDevice().getName());
+            LogUtil.i(TAG, "onScanResult " + callbackType + " " + mac + " | " + result.getDevice().getName());
             if (callbackType == ScanSettings.CALLBACK_TYPE_ALL_MATCHES) {
                 // 如果回调类型全部匹配
                 if (!mDevMgrSet.containsKey(mac)) {
@@ -440,10 +402,10 @@ public class BLEManagerActivity extends BaseActivity {
         @Override// 批量扫描结果
         public void onBatchScanResults(List<ScanResult> results) {
             super.onBatchScanResults(results);
-            Log.i(TAG, "onBatchScanResults " + results.size());
+            LogUtil.i(TAG, "onBatchScanResults " + results.size());
             for (ScanResult result : results) {
                 String mac = result.getDevice().getAddress();
-                Log.i(TAG, "onScanResult " + " " + mac + " | " + result.getDevice().getName());
+                LogUtil.i(TAG, "onScanResult " + " " + mac + " | " + result.getDevice().getName());
                 if (!mDevMgrSet.containsKey(mac)) {
                     ScanRecord record = result.getScanRecord();
                     onFoundDevice(result.getDevice(), (record == null) ? null : record.getServiceUuids());
@@ -454,24 +416,24 @@ public class BLEManagerActivity extends BaseActivity {
         @Override
         public void onScanFailed(int errorCode) {
             super.onScanFailed(errorCode);
-            Log.i(TAG, "onScanFailed " + errorCode);
+            LogUtil.i(TAG, "onScanFailed " + errorCode);
         }
     };
 
     void onFoundDevice(BluetoothDevice bleDevice, @Nullable List<ParcelUuid> serviceUuids) {
         String name = bleDevice.getName();
         String mac = bleDevice.getAddress();
-        Log.i(TAG, "onFoundDevice " + mac + " | " + name);
+        LogUtil.i(TAG, "onFoundDevice " + mac + " | " + name);
 
         if (serviceUuids != null) {
             for (ParcelUuid uuid : serviceUuids) {
-                Log.i(TAG, "serviceUuid " + uuid.toString());
+                LogUtil.i(TAG, "serviceUuid " + uuid.toString());
             }
         }
     }
 
     private void addDeviceByObject(BluetoothDevice bleDevice) {
-        Log.d(TAG, "addDeviceByObject:");
+        LogUtil.d(TAG, "addDeviceByObject:");
         final DeviceManager mgr;
         String mac = bleDevice.getAddress();
         if (!mDevMgrSet.containsKey(mac)) {
@@ -481,7 +443,7 @@ public class BLEManagerActivity extends BaseActivity {
             mgr = mDevMgrSet.get(mac);
         }
 
-        Log.w(TAG, "addDeviceByObject mDevMgrSet size " + mDevMgrSet.size());
+        LogUtil.w(TAG, "addDeviceByObject mDevMgrSet size " + mDevMgrSet.size());
         if (mgr.gatt == null && !mIsShutdown) {
             mgr.gatt = mgr.bleDevice.connectGatt(this, true, mBleGattCallback);
         }
@@ -489,7 +451,7 @@ public class BLEManagerActivity extends BaseActivity {
 
     void addDeviceByMac(String mac) {
         mac = mac.toUpperCase();
-        Log.i(TAG, "Add dev by " + mac);
+        LogUtil.i(TAG, "Add dev by " + mac);
         if (BluetoothAdapter.checkBluetoothAddress(mac)) {
             addDeviceByObject(mBleAdapter.getRemoteDevice(mac));
         } else {
@@ -517,7 +479,7 @@ public class BLEManagerActivity extends BaseActivity {
 
     void removeDeviceByMac(String mac) {
         //mac = mac.toUpperCase();
-        Log.i(TAG, "Add dev by " + mac);
+        LogUtil.i(TAG, "Add dev by " + mac);
         removeDeviceByObject(mac);
 //        if (BluetoothAdapter.checkBluetoothAddress(mac)) {
 //            removeDeviceByObject(mBleAdapter.getRemoteDevice(mac));
@@ -568,11 +530,11 @@ public class BLEManagerActivity extends BaseActivity {
         boolean run() {
             switch (operation) {
                 case OP_CHARACTERISTIC_WRITE:
-                    Log.i(TAG, "write characteristic : " + characteristic.getUuid() + " : " + Util.hex(data, data.length));
+                    LogUtil.i(TAG, "write characteristic : " + characteristic.getUuid() + " : " + Util.hex(data, data.length));
                     characteristic.setValue(data);
                     return gatt.writeCharacteristic(characteristic);
                 case GattOperation.OP_DESCRIPTOR_WRITE:
-                    Log.i(TAG, "write descriptor " + descriptor.getUuid());
+                    LogUtil.i(TAG, "write descriptor " + descriptor.getUuid());
                     descriptor.setValue(data);
                     return gatt.writeDescriptor(descriptor);
             }
@@ -632,25 +594,15 @@ public class BLEManagerActivity extends BaseActivity {
             final DeviceManager mgr = getMatchedDevMgr(gatt);
             if (mgr != null) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    Log.i(TAG, "connected " + mgr.mac);
+                    LogUtil.i(TAG, "connected " + mgr.mac);
                     mgr.isConnected = true;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            onDeviceConnect(mgr.mac);
-                        }
-                    });
+                    runOnUiThread(() -> onDeviceConnect(mgr.mac));
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                    Log.i(TAG, "disconnected " + mgr.mac);
+                    LogUtil.i(TAG, "disconnected " + mgr.mac);
                     mgr.isConnected = false;
                     mgr.isDiscovering = false;
                     mgr.characteristicList = null;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            onDeviceDisconnect(mgr.mac);
-                        }
-                    });
+                    runOnUiThread(() -> onDeviceDisconnect(mgr.mac));
                 }
             }
         }
@@ -662,7 +614,7 @@ public class BLEManagerActivity extends BaseActivity {
             if (mgr != null) {
                 mgr.isDiscovering = false;
                 if (status == BluetoothGatt.GATT_SUCCESS) {
-                    Log.i(TAG, "onServicesDiscovered success for " + mgr.mac);
+                    LogUtil.i(TAG, "onServicesDiscovered success for " + mgr.mac);
                     mgr.characteristicList = new LinkedList<>();
                     for (BluetoothGattService service : gatt.getServices()) {
                         mgr.characteristicList.addAll(service.getCharacteristics());
@@ -678,12 +630,7 @@ public class BLEManagerActivity extends BaseActivity {
                             }
                         }
                     }
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            onDeviceReady(mgr.mac);
-                        }
-                    });
+                    runOnUiThread(() -> onDeviceReady(mgr.mac));
                 }
             }
         }
@@ -715,13 +662,13 @@ public class BLEManagerActivity extends BaseActivity {
         @Override
         public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             super.onDescriptorWrite(gatt, descriptor, status);
-            Log.i(TAG, "onDescriptorWrite");
+            LogUtil.i(TAG, "onDescriptorWrite");
             removeCurrentGattOperation(gatt);
         }
     };
 
     void onReceive(String mac, byte[] data) {
-        Log.i(TAG, "recv from " + mac + " : " + Util.hex(data, data.length));
+        LogUtil.i(TAG, "recv from " + mac + " : " + Util.hex(data, data.length));
     }
 
     void onDeviceReady(String mac) {
@@ -740,7 +687,7 @@ public class BLEManagerActivity extends BaseActivity {
     }
 
     boolean send(String mac, byte[] data, boolean encrypt) {
-        Log.i(TAG, "send: " + Util.hex(data, data.length));
+        LogUtil.i(TAG, "send: " + Util.hex(data, data.length));
         if (mIsShutdown) {
             return false;
         }

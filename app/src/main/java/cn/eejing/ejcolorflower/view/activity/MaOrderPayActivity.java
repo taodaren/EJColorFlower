@@ -3,12 +3,10 @@ package cn.eejing.ejcolorflower.view.activity;
 import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.alipay.sdk.app.PayTask;
 import com.allen.library.SuperButton;
@@ -29,7 +27,9 @@ import cn.eejing.ejcolorflower.model.request.CallBackConfirmBean;
 import cn.eejing.ejcolorflower.model.request.PayAliBean;
 import cn.eejing.ejcolorflower.model.request.PayWeiBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.LogUtil;
 import cn.eejing.ejcolorflower.util.PayResult;
+import cn.eejing.ejcolorflower.util.ToastUtil;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.APP_ID;
@@ -136,17 +136,17 @@ public class MaOrderPayActivity extends BaseActivity implements View.OnClickList
         switch (resultStatus) {
             case "9000":
                 // 判断 resultStatus 为“9000”则代表支付成功，具体状态码代表含义可参考接口文档
-                Toast.makeText(MaOrderPayActivity.this, "支付宝支付成功", Toast.LENGTH_SHORT).show();
+                ToastUtil.showShort("支付宝支付成功");
                 jumpToActivity(MainActivity.class);
                 break;
             case "8000":
                 // 支付确认中（小概率事件）
                 // 判断 resultStatus 为非"9000"则代表可能支付失败
-                Toast.makeText(MaOrderPayActivity.this, "支付结果确认中", Toast.LENGTH_SHORT).show();
+                ToastUtil.showShort("支付结果确认中");
                 break;
             default:
                 // 其他值就可以判断为支付失败，包括用户主动取消支付，或者系统返回的错误
-                Toast.makeText(MaOrderPayActivity.this, "支付失败", Toast.LENGTH_SHORT).show();
+                ToastUtil.showShort("支付失败");
                 break;
         }
     }
@@ -198,7 +198,7 @@ public class MaOrderPayActivity extends BaseActivity implements View.OnClickList
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 Log.e(AppConstant.TAG, "pay ali request succeeded--->" + body);
+                                 LogUtil.e(AppConstant.TAG, "pay ali request succeeded--->" + body);
 
                                  PayAliBean bean = mGson.fromJson(body, PayAliBean.class);
                                  mBeanAli = bean.getData();
@@ -232,7 +232,7 @@ public class MaOrderPayActivity extends BaseActivity implements View.OnClickList
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 Log.e(AppConstant.TAG, "pay wei request succeeded--->" + body);
+                                 LogUtil.e(AppConstant.TAG, "pay wei request succeeded--->" + body);
 
                                  PayWeiBean bean = mGson.fromJson(body, PayWeiBean.class);
                                  mBeanWei = bean.getData();
@@ -261,7 +261,7 @@ public class MaOrderPayActivity extends BaseActivity implements View.OnClickList
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 Log.e(AppConstant.TAG, "call_back_confirm request succeeded--->" + body);
+                                 LogUtil.e(AppConstant.TAG, "call_back_confirm request succeeded--->" + body);
 
                                  CallBackConfirmBean bean = mGson.fromJson(body, CallBackConfirmBean.class);
                                  switch (bean.getCode()) {

@@ -3,12 +3,10 @@ package cn.eejing.ejcolorflower.view.activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.allen.library.SuperButton;
 import com.google.gson.Gson;
@@ -24,7 +22,9 @@ import cn.eejing.ejcolorflower.model.request.LoginBean;
 import cn.eejing.ejcolorflower.model.session.LoginSession;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.Encryption;
+import cn.eejing.ejcolorflower.util.LogUtil;
 import cn.eejing.ejcolorflower.util.MySettings;
+import cn.eejing.ejcolorflower.util.ToastUtil;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 /**
@@ -144,7 +144,7 @@ public class SignInActivity extends BaseActivity {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.e(AppConstant.TAG, "login request succeeded--->" + body);
+                        LogUtil.e(AppConstant.TAG, "login request succeeded--->" + body);
 
                         Gson gson = new Gson();
                         LoginBean bean = gson.fromJson(body, LoginBean.class);
@@ -188,13 +188,13 @@ public class SignInActivity extends BaseActivity {
     }
 
     public void onLoginFailed() {
-        Toast.makeText(getBaseContext(), "登录失败", Toast.LENGTH_LONG).show();
+        ToastUtil.showLong("登录失败");
         btnLogin.setEnabled(true);
         layoutHide.setVisibility(View.VISIBLE);
     }
 
     public void onInputError() {
-        Toast.makeText(getBaseContext(), "手机号码或密码不正确，请检查信息", Toast.LENGTH_LONG).show();
+        ToastUtil.showShort("手机号码或密码不正确，请检查信息");
         layoutHide.setVisibility(View.VISIBLE);
         btnLogin.setEnabled(true);
     }

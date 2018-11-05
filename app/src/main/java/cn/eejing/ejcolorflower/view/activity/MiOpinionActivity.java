@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -19,10 +18,11 @@ import com.lzy.okgo.model.Response;
 import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
-import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.model.request.FeedBackBean;
-import cn.eejing.ejcolorflower.view.base.BaseActivity;
+import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.LogUtil;
 import cn.eejing.ejcolorflower.util.MySettings;
+import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 /**
  * 意见反馈
@@ -93,7 +93,7 @@ public class MiOpinionActivity extends BaseActivity {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.e(AppConstant.TAG, "feed_back request succeeded --->" + body);
+                        LogUtil.e(AppConstant.TAG, "feed_back request succeeded --->" + body);
 
                         Gson gson = new Gson();
                         FeedBackBean bean = gson.fromJson(body, FeedBackBean.class);

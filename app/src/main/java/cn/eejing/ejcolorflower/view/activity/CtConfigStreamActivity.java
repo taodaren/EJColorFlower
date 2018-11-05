@@ -13,7 +13,6 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.litepal.LitePal;
 
@@ -26,6 +25,7 @@ import cn.eejing.ejcolorflower.app.BaseApplication;
 import cn.eejing.ejcolorflower.model.lite.JetModeConfigLite;
 import cn.eejing.ejcolorflower.model.manager.MgrOutputJet;
 import cn.eejing.ejcolorflower.util.DecimalInputTextWatcher;
+import cn.eejing.ejcolorflower.util.ToastUtil;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.BORDER_TO_CENTER;
@@ -191,7 +191,7 @@ public class CtConfigStreamActivity extends BaseActivity implements View.OnClick
         switch (view.getId()) {
             case R.id.btn_config_verify:
                 if (Integer.parseInt(etFrequency.getText().toString()) == 0) {
-                    Toast.makeText(this, "喷射次数不能为 0，请重新设置！", Toast.LENGTH_SHORT).show();
+                    ToastUtil.showShort("喷射次数不能为 0，请重新设置！");
                 } else {
                     updateLiteData();
                     finish();

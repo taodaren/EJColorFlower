@@ -23,6 +23,7 @@ import butterknife.BindView;
 import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.model.event.DevConnEvent;
 import cn.eejing.ejcolorflower.util.CircleProgress;
+import cn.eejing.ejcolorflower.util.LogUtil;
 import cn.eejing.ejcolorflower.view.base.BaseFragment;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.DEVICE_CONNECT_NO;
@@ -44,7 +45,7 @@ public class ConfigTimeFragment extends BaseFragment {
     private static int mDevTime;
 
     public static ConfigTimeFragment newInstance(int time) {
-        Log.i(TAG, "newInstance: " + time);
+        LogUtil.i(TAG, "newInstance: " + time);
         ConfigTimeFragment fragment = new ConfigTimeFragment();
         mDevTime = time;
         return fragment;
@@ -111,7 +112,7 @@ public class ConfigTimeFragment extends BaseFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventDevConn(DevConnEvent event) {
         // 接收硬件传过来的已连接设备信息添加到 HashSet
-        Log.i(TAG, "time cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
+        LogUtil.i(TAG, "time cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
 
         switch (event.getStatus()) {
             case DEVICE_CONNECT_YES:
@@ -131,7 +132,6 @@ public class ConfigTimeFragment extends BaseFragment {
             super.handleMessage(msg);
             switch (msg.what) {
                 case HANDLE_BLE_CONN:
-                    Log.w(TAG, "TIME: " + mDevTime );
                     setTimeLeft(mDevTime);
                     break;
                 case HANDLE_BLE_DISCONN:

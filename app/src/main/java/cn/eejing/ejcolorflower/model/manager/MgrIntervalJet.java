@@ -1,6 +1,6 @@
 package cn.eejing.ejcolorflower.model.manager;
 
-import android.util.Log;
+import cn.eejing.ejcolorflower.util.LogUtil;
 
 /**
  * 间隔高低管理
@@ -14,7 +14,7 @@ public class MgrIntervalJet extends MgrOutputJet {
 
     @Override
     public boolean updateWithDataOut(byte[] dataOut) {
-        Log.i(JET, "updateWithDataOut: 老子进入间隔高低了");
+        LogUtil.i(JET, "updateWithDataOut: 老子进入间隔高低了");
 
         mCurrentTime++;
         long outputTime = mDuration;
@@ -35,10 +35,10 @@ public class MgrIntervalJet extends MgrOutputJet {
             mCurrentTime = 0;
         }
 
-        Log.i(JET, "update over mCurrentTime: " + mCurrentTime);
-        Log.i(JET, "update over outputTime: " + outputTime);
-        Log.i(JET, "update over mLoopId: " + mLoopId);
-        Log.i(JET, "update over mLoop: " + mLoop);
+        LogUtil.i(JET, "update over mCurrentTime: " + mCurrentTime);
+        LogUtil.i(JET, "update over outputTime: " + outputTime);
+        LogUtil.i(JET, "update over mLoopId: " + mLoopId);
+        LogUtil.i(JET, "update over mLoop: " + mLoop);
         // 等最后一次循环完毕
         return mCurrentTime > outputTime && mLoopId >= mLoop;
     }

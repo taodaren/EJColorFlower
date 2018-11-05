@@ -2,11 +2,9 @@ package cn.eejing.ejcolorflower.view.activity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.allen.library.SuperButton;
 import com.google.gson.Gson;
@@ -22,6 +20,8 @@ import cn.eejing.ejcolorflower.model.request.RegisterBean;
 import cn.eejing.ejcolorflower.model.request.SendMsgBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.Encryption;
+import cn.eejing.ejcolorflower.util.LogUtil;
+import cn.eejing.ejcolorflower.util.ToastUtil;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 /**
@@ -81,33 +81,33 @@ public class SignUpActivity extends BaseActivity {
                         @Override
                         public void onSuccess(Response<String> response) {
                             String body = response.body();
-                            Log.e(AppConstant.TAG, "register request succeeded--->" + body);
+                            LogUtil.e(AppConstant.TAG, "register request succeeded--->" + body);
 
                             mGson = new Gson();
                             RegisterBean bean = mGson.fromJson(body, RegisterBean.class);
 
                             switch (bean.getCode()) {
                                 case 1:
-                                    Toast.makeText(getBaseContext(), "账号注册成功", Toast.LENGTH_LONG).show();
+                                    ToastUtil.showShort("账号注册成功");
                                     onSignupSuccess();
                                     dialog.dismiss();
                                     break;
                                 case 9:
-                                    Toast.makeText(getBaseContext(), "该手机号已注册", Toast.LENGTH_LONG).show();
+                                    ToastUtil.showShort("该手机号已注册");
                                     btnRegister.setEnabled(true);
                                     dialog.dismiss();
                                     break;
                                 case 5:
-                                    Toast.makeText(getBaseContext(), "手机号格式不正确", Toast.LENGTH_LONG).show();
+                                    ToastUtil.showShort("手机号格式不正确");
                                     btnRegister.setEnabled(true);
                                     dialog.dismiss();
                                     break;
                                 case 8:
-                                    Toast.makeText(getBaseContext(), "两次输入密码不一致", Toast.LENGTH_LONG).show();
+                                    ToastUtil.showShort("两次输入密码不一致");
                                     btnRegister.setEnabled(true);
                                     dialog.dismiss();
                                 case 6:
-                                    Toast.makeText(getBaseContext(), "验证码不正确", Toast.LENGTH_LONG).show();
+                                    ToastUtil.showShort("验证码不正确");
                                     btnRegister.setEnabled(true);
                                     dialog.dismiss();
                                     break;
@@ -136,22 +136,22 @@ public class SignUpActivity extends BaseActivity {
                         @Override
                         public void onSuccess(Response<String> response) {
                             String body = response.body();
-                            Log.e(AppConstant.TAG, "send msg request succeeded--->" + body);
+                            LogUtil.e(AppConstant.TAG, "send msg request succeeded--->" + body);
 
                             mGson = new Gson();
                             SendMsgBean bean = mGson.fromJson(body, SendMsgBean.class);
                             switch (bean.getCode()) {
                                 case 1:
-                                    Toast.makeText(getBaseContext(), "验证码发送成功", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showShort("验证码发送成功");
                                     break;
                                 case 2:
-                                    Toast.makeText(getBaseContext(), "手机号码不能为空", Toast.LENGTH_LONG).show();
+                                    ToastUtil.showShort("手机号码不能为空");
                                     break;
                                 case 3:
-                                    Toast.makeText(getBaseContext(), "当天只能发送 5 条信息", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showShort("当天只能发送 5 条信息");
                                     break;
                                 case 4:
-                                    Toast.makeText(getBaseContext(), "请 5 分钟后再发送", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showShort("请 5 分钟后再发送");
                                     break;
                             }
                         }
@@ -188,7 +188,7 @@ public class SignUpActivity extends BaseActivity {
     }
 
     public void onSignupFailed() {
-        Toast.makeText(getBaseContext(), "注册失败", Toast.LENGTH_LONG).show();
+        ToastUtil.showLong("注册失败");
         btnRegister.setEnabled(true);
     }
 

@@ -38,47 +38,24 @@ public class MiSetActivity extends BaseActivity {
 
     @Override
     public void initListener() {
-        stvUserInfo.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
-            @Override
-            public void onClickListener(SuperTextView superTextView) {
-                jumpToActivity(MiUserInfoActivity.class);
-            }
-        });
-        stvModifyPwd.setOnSuperTextViewClickListener(new SuperTextView.OnSuperTextViewClickListener() {
-            @Override
-            public void onClickListener(SuperTextView superTextView) {
-                jumpToActivity(MiPwdModifyActivity.class);
-            }
-        });
+        stvUserInfo.setOnSuperTextViewClickListener(superTextView -> jumpToActivity(MiUserInfoActivity.class));
+        stvModifyPwd.setOnSuperTextViewClickListener(superTextView -> jumpToActivity(MiPwdModifyActivity.class));
         stvManageAddress.setOnSuperTextViewClickListener(superTextView -> {
             BaseApplication baseApplication = (BaseApplication) getApplication();
             baseApplication.setFlagAddrMgr(FROM_SET_TO_ADDR);
             jumpToActivity(MaAddrMgrActivity.class);
         });
-        btnExitLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signOut();
-            }
-        });
+        btnExitLogin.setOnClickListener(v -> signOut());
     }
 
     private void signOut() {
         mDialog = new SelfDialogBase(this);
         mDialog.setTitle("您确认要退出登陆？");
-        mDialog.setYesOnclickListener("确认", new SelfDialogBase.onYesOnclickListener() {
-            @Override
-            public void onYesClick() {
-                logout(MiSetActivity.this);
-                mDialog.dismiss();
-            }
+        mDialog.setYesOnclickListener("确认", () -> {
+            logout(MiSetActivity.this);
+            mDialog.dismiss();
         });
-        mDialog.setNoOnclickListener("取消", new SelfDialogBase.onNoOnclickListener() {
-            @Override
-            public void onNoClick() {
-                mDialog.dismiss();
-            }
-        });
+        mDialog.setNoOnclickListener("取消", () -> mDialog.dismiss());
         mDialog.show();
     }
 

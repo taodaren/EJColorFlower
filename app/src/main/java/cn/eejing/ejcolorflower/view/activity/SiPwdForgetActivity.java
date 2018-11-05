@@ -1,11 +1,9 @@
 package cn.eejing.ejcolorflower.view.activity;
 
 import android.content.Intent;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.allen.library.SuperButton;
 import com.google.gson.Gson;
@@ -21,6 +19,8 @@ import cn.eejing.ejcolorflower.model.request.PwdFindBean;
 import cn.eejing.ejcolorflower.model.request.SendMsgBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.Encryption;
+import cn.eejing.ejcolorflower.util.LogUtil;
+import cn.eejing.ejcolorflower.util.ToastUtil;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 /**
@@ -79,22 +79,22 @@ public class SiPwdForgetActivity extends BaseActivity {
                         @Override
                         public void onSuccess(Response<String> response) {
                             String body = response.body();
-                            Log.e(AppConstant.TAG, "send msg request succeeded--->" + body);
+                            LogUtil.e(AppConstant.TAG, "send msg request succeeded--->" + body);
 
                             mGson = new Gson();
                             SendMsgBean bean = mGson.fromJson(body, SendMsgBean.class);
                             switch (bean.getCode()) {
                                 case 1:
-                                    Toast.makeText(getBaseContext(), "验证码发送成功", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showShort("验证码发送成功");
                                     break;
                                 case 2:
-                                    Toast.makeText(getBaseContext(), "手机号码不能为空", Toast.LENGTH_LONG).show();
+                                    ToastUtil.showShort("手机号码不能为空");
                                     break;
                                 case 3:
-                                    Toast.makeText(getBaseContext(), "当天只能发送 5 条信息", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showShort("当天只能发送 5 条信息");
                                     break;
                                 case 4:
-                                    Toast.makeText(getBaseContext(), "请 5 分钟后再发送", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showShort("请 5 分钟后再发送");
                                     break;
                             }
                         }
@@ -120,42 +120,42 @@ public class SiPwdForgetActivity extends BaseActivity {
                         @Override
                         public void onSuccess(Response<String> response) {
                             String body = response.body();
-                            Log.e(AppConstant.TAG, "password find request succeeded--->" + body);
+                            LogUtil.e(AppConstant.TAG, "password find request succeeded--->" + body);
 
                             mGson = new Gson();
                             PwdFindBean bean = mGson.fromJson(body, PwdFindBean.class);
 
                             switch (bean.getCode()) {
                                 case 0:
-                                    Toast.makeText(getBaseContext(), "重置密码失败", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showShort("重置密码失败");
                                     break;
                                 case 1:
-                                    Toast.makeText(getBaseContext(), "重置密码成功", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showShort("重置密码成功");
                                     setResult(RESULT_OK, new Intent()
                                             .putExtra("forget_phone", etForgetPhone.getText().toString())
                                     );
                                     finish();
                                     break;
                                 case 2:
-                                    Toast.makeText(getBaseContext(), "手机号码不能为空", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showShort("手机号码不能为空");
                                     break;
                                 case 3:
-                                    Toast.makeText(getBaseContext(), "密码不能为空", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showShort("密码不能为空");
                                     break;
                                 case 4:
-                                    Toast.makeText(getBaseContext(), "验证码不能为空", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showShort("验证码不能为空");
                                     break;
                                 case 5:
-                                    Toast.makeText(getBaseContext(), "手机号码格式不正确", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showShort("手机号码格式不正确");
                                     break;
                                 case 6:
-                                    Toast.makeText(getBaseContext(), "验证码不正确", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showShort("验证码不正确");
                                     break;
                                 case 7:
-                                    Toast.makeText(getBaseContext(), "确认密码不能为空", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showShort("确认密码不能为空");
                                     break;
                                 case 8:
-                                    Toast.makeText(getBaseContext(), "两次输入密码不一致", Toast.LENGTH_SHORT).show();
+                                    ToastUtil.showShort("两次输入密码不一致");
                                     break;
                                 default:
                                     break;

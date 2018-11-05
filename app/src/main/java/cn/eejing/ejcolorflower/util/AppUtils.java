@@ -12,7 +12,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -101,14 +100,14 @@ public class AppUtils {
             is.close();
             return file;
         } else {
-            Log.e(TAG, "异常");
+            LogUtil.e(TAG, "异常");
             throw new IOException("未发现有SD卡");
         }
     }
 
     /** 安装 Apk */
     private static void installApk(File apk, Context context) {
-        Log.d(TAG, "开始安装");
+        LogUtil.d(TAG, "开始安装");
 
         Intent intent = new Intent(Intent.ACTION_VIEW);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
@@ -151,7 +150,7 @@ public class AppUtils {
         try {
             info = manager.getPackageInfo(context.getPackageName(), 0);
         } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "获取应用程序版本失败，原因：" + e.getMessage());
+            LogUtil.e(TAG, "获取应用程序版本失败，原因：" + e.getMessage());
             return 0.0;
         }
 

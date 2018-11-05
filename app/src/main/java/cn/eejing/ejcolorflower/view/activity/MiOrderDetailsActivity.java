@@ -1,11 +1,9 @@
 package cn.eejing.ejcolorflower.view.activity;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
@@ -18,6 +16,8 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.request.OrderDetailsBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.LogUtil;
+import cn.eejing.ejcolorflower.util.ToastUtil;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 /**
@@ -67,7 +67,7 @@ public class MiOrderDetailsActivity extends BaseActivity {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.e(AppConstant.TAG, "order_details request succeeded --->" + body);
+                        LogUtil.e(AppConstant.TAG, "order_details request succeeded --->" + body);
 
                         OrderDetailsBean bean = mGson.fromJson(body, OrderDetailsBean.class);
                         switch (bean.getCode()) {
@@ -75,7 +75,7 @@ public class MiOrderDetailsActivity extends BaseActivity {
                                 setData(bean.getData());
                                 break;
                             case 0:
-                                Toast.makeText(MiOrderDetailsActivity.this, "对不起，获取订单详情失败！", Toast.LENGTH_SHORT).show();
+                                ToastUtil.showShort("对不起，获取订单详情失败！");
                                 break;
                             default:
                                 break;

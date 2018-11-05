@@ -2,11 +2,9 @@ package cn.eejing.ejcolorflower.view.activity;
 
 import android.content.Intent;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
@@ -25,7 +23,9 @@ import cn.eejing.ejcolorflower.model.event.AddrAddEvent;
 import cn.eejing.ejcolorflower.model.request.AddrAddBean;
 import cn.eejing.ejcolorflower.model.request.AddrListBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.LogUtil;
 import cn.eejing.ejcolorflower.util.MySettings;
+import cn.eejing.ejcolorflower.util.ToastUtil;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 /**
@@ -83,14 +83,14 @@ public class MaAddrModifyActivity extends BaseActivity {
     public void clickSave() {
         // 非空判断
         if (TextUtils.isEmpty(etPhone.getText().toString().trim())) {
-            Toast.makeText(this, "请输入手机号", Toast.LENGTH_SHORT).show();
+            ToastUtil.showShort("请输入手机号");
         } else if (TextUtils.isEmpty(etConsignee.getText().toString().trim())) {
-            Toast.makeText(this, "请输入收货人姓名", Toast.LENGTH_SHORT).show();
+            ToastUtil.showShort("请输入收货人姓名");
         } else if (tvAddress.getText().toString().equals("请选择")
                 || TextUtils.isEmpty(tvAddress.getText().toString().trim())) {
-            Toast.makeText(this, "请您选择所在地区", Toast.LENGTH_SHORT).show();
+            ToastUtil.showShort("请您选择所在地区");
         } else if (TextUtils.isEmpty(etAddress.getText().toString().trim())) {
-            Toast.makeText(this, "请您填写详细地址", Toast.LENGTH_SHORT).show();
+            ToastUtil.showShort("请您填写详细地址");
         } else {
             mAddress = tvAddress.getText().toString().trim() + " " + etAddress.getText().toString().trim();
             getDataWithAddrUpdate();
@@ -115,29 +115,29 @@ public class MaAddrModifyActivity extends BaseActivity {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 Log.e(AppConstant.TAG, "address_update request succeeded--->" + body);
+                                 LogUtil.e(AppConstant.TAG, "address_update request succeeded--->" + body);
 
                                  AddrAddBean bean = mGson.fromJson(body, AddrAddBean.class);
                                  switch (bean.getCode()) {
                                      case 1:
-                                         Toast.makeText(MaAddrModifyActivity.this, "地址更改成功", Toast.LENGTH_SHORT).show();
+                                         ToastUtil.showShort("地址更改成功");
                                          EventBus.getDefault().post(new AddrAddEvent("add_ok"));
                                          finish();
                                          break;
                                      case 4:
-                                         Toast.makeText(MaAddrModifyActivity.this, "收货人不能为空", Toast.LENGTH_SHORT).show();
+                                         ToastUtil.showShort("收货人不能为空");
                                          break;
                                      case 5:
-                                         Toast.makeText(MaAddrModifyActivity.this, "手机号不能为空", Toast.LENGTH_SHORT).show();
+                                         ToastUtil.showShort("手机号不能为空");
                                          break;
                                      case 6:
-                                         Toast.makeText(MaAddrModifyActivity.this, "详细地址不能为空", Toast.LENGTH_SHORT).show();
+                                         ToastUtil.showShort("详细地址不能为空");
                                          break;
                                      case 7:
-                                         Toast.makeText(MaAddrModifyActivity.this, "地址不存在", Toast.LENGTH_SHORT).show();
+                                         ToastUtil.showShort("地址不存在");
                                          break;
                                      case 0:
-                                         Toast.makeText(MaAddrModifyActivity.this, "地址更改失败", Toast.LENGTH_SHORT).show();
+                                         ToastUtil.showShort("地址更改失败");
                                          break;
                                      default:
                                          break;

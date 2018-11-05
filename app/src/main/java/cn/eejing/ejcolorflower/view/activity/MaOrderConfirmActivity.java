@@ -2,12 +2,10 @@ package cn.eejing.ejcolorflower.view.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
@@ -28,7 +26,9 @@ import cn.eejing.ejcolorflower.model.event.AddrAddEvent;
 import cn.eejing.ejcolorflower.model.request.AddrListBean;
 import cn.eejing.ejcolorflower.model.request.ConfirmOrderBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.LogUtil;
 import cn.eejing.ejcolorflower.util.MySettings;
+import cn.eejing.ejcolorflower.util.ToastUtil;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
 import static cn.eejing.ejcolorflower.app.AppConstant.FROM_ORDER_TO_ADDR;
@@ -102,7 +102,7 @@ public class MaOrderConfirmActivity extends BaseActivity {
                     intent.putExtra("money", mTotalMoney);
                     jumpToActivity(intent);
                 } else {
-                    Toast.makeText(this, getString(R.string.text_add_addr), Toast.LENGTH_SHORT).show();
+                    ToastUtil.showShort(getString(R.string.text_add_addr));
                 }
                 break;
             case R.id.btn_confirm_order_add:
@@ -172,7 +172,7 @@ public class MaOrderConfirmActivity extends BaseActivity {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 Log.e(AppConstant.TAG, "confirm_order request succeeded--->" + body);
+                                 LogUtil.e(AppConstant.TAG, "confirm_order request succeeded--->" + body);
 
                                  ConfirmOrderBean bean = mGson.fromJson(body, ConfirmOrderBean.class);
                                  mBean = bean.getData();

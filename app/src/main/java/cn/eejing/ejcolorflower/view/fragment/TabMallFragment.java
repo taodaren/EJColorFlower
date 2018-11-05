@@ -1,6 +1,5 @@
 package cn.eejing.ejcolorflower.view.fragment;
 
-import android.util.Log;
 import android.view.View;
 
 import com.google.gson.Gson;
@@ -17,6 +16,7 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.request.GoodsListBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.LogUtil;
 import cn.eejing.ejcolorflower.view.adapter.TabMallAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseFragment;
 
@@ -68,7 +68,7 @@ public class TabMallFragment extends BaseFragment {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.e(AppConstant.TAG, "Network request succeeded --->" + body);
+                        LogUtil.e(AppConstant.TAG, "Network request succeeded --->" + body);
                         GoodsListBean bean = mGson.fromJson(body, GoodsListBean.class);
                         mList = bean.getData();
                         // 刷新数据

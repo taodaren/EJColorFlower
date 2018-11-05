@@ -16,7 +16,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.flyco.tablayout.SegmentTabLayout;
 import com.flyco.tablayout.listener.OnTabSelectListener;
@@ -46,9 +45,11 @@ import cn.eejing.ejcolorflower.model.request.MaterialInfoBean;
 import cn.eejing.ejcolorflower.presenter.OnReceivePackage;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.BleDevProtocol;
+import cn.eejing.ejcolorflower.util.LogUtil;
 import cn.eejing.ejcolorflower.util.MySettings;
 import cn.eejing.ejcolorflower.util.SelfDialog;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
+import cn.eejing.ejcolorflower.util.ToastUtil;
 import cn.eejing.ejcolorflower.util.ViewFindUtils;
 import cn.eejing.ejcolorflower.view.adapter.ViewPagerAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
@@ -174,7 +175,7 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                 if (isEnterMasterCtrl) {
                     jumpToActivity(new Intent(this, CtMasterModeActivity.class).putExtra("device_id", mDevId).putExtra("member_id", mMemberId));
                 } else {
-                    Toast.makeText(this, "DMX 为 0 方可进入主控模式", Toast.LENGTH_SHORT).show();
+                    ToastUtil.showShort("DMX 为 0 方可进入主控模式");
                 }
                 break;
         }
@@ -206,6 +207,7 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                     @Override
                     public void ack(@NonNull byte[] pkg) {
                         DeviceMaterialStatus addMaterialStatus = BleDevProtocol.parseAddMaterialStatus(pkg, pkg.length);
+                        assert addMaterialStatus != null;
                         long devMid = addMaterialStatus.getMaterialId();
                         Log.i(JL, "加料状态 " + addMaterialStatus.getExist());
                         Log.i(JL, "devMid " + devMid);
@@ -230,7 +232,7 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                         if (resendNum != 0) {
                             cmdGetAddMaterialStatus(qrMid, resendNum - 1);
                         } else {
-                            Toast.makeText(CtDevConfigActivity.this, "加料失败，请重新加料", Toast.LENGTH_SHORT).show();
+                            ToastUtil.showShort("加料失败，请重新加料");
                         }
                     }
                 }
@@ -252,7 +254,7 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                         switch (bean.getCode()) {
                             case 0:
                                 Log.i(JL, "获取信息失败_D ！");
-                                information(getString(R.string.toast_get_info_failed));
+                                ToastUtil.showShort(getString(R.string.toast_get_info_failed));
                                 break;
                             case 1:
                                 Log.i(JL, "获取信息成功_D ！");
@@ -289,12 +291,12 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                                                     }).show();
                                         } else {
                                             // 如果是其它设备，提示已被 ** 设备绑定不可使用
-                                            information("料包已被 " + useDevice + " 绑定，不可使用！");
+                                            ToastUtil.showShort("料包已被 " + useDevice + " 绑定，不可使用！");
                                         }
                                         break;
                                     case TYPE_END_USED:
-                                        Log.w(JL, "已使用状态_D");
-                                        information(getString(R.string.toast_already_used));
+                                        LogUtil.w(JL, "已使用状态_D");
+                                        ToastUtil.showShort(getString(R.string.toast_already_used));
                                         break;
                                     default:
                                         break;
@@ -318,18 +320,18 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.d(TAG, "标记为未使用状态请求成功: " + body);
+                        LogUtil.d(TAG, "标记为未使用状态请求成功: " + body);
 
                         CancelMaterialStatusBean bean = mGson.fromJson(body, CancelMaterialStatusBean.class);
                         switch (bean.getCode()) {
                             case 0:
-                                information(getString(R.string.toast_cancel_bind_failed));
+                                ToastUtil.showShort(getString(R.string.toast_cancel_bind_failed));
                                 break;
                             case 1:
-                                information(getString(R.string.toast_cancel_bind_success));
+                                ToastUtil.showShort(getString(R.string.toast_cancel_bind_success));
                                 break;
                             case 6:
-                                information(getString(R.string.toast_no_right_operation_pkg));
+                                ToastUtil.showShort(getString(R.string.toast_no_right_operation_pkg));
                                 break;
                             default:
                                 break;
@@ -339,42 +341,42 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
     }
 
     private void byServerMaterialInfo_E(final long deviceMID) {
-        Log.i(JL, "byServerMaterialInfo_E: " + mDevId + " " + deviceMID + " " + mMemberId);
+        LogUtil.i(JL, "byServerMaterialInfo_E: " + mDevId + " " + deviceMID + " " + mMemberId);
         OkGo.<String>post(Urls.MATERIAL_INFO)
                 .params("material_id", deviceMID)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.d(TAG, "获取料包信息请求成功: " + body);
+                        LogUtil.d(TAG, "获取料包信息请求成功: " + body);
 
                         MaterialInfoBean bean = mGson.fromJson(body, MaterialInfoBean.class);
 
                         switch (bean.getCode()) {
                             case 0:
-                                Log.i(JL, "获取信息失败_E ！");
-                                information(getString(R.string.toast_get_info_failed));
+                                LogUtil.i(JL, "获取信息失败_E ！");
+                                ToastUtil.showShort(getString(R.string.toast_get_info_failed));
                                 break;
                             case 1:
-                                Log.i(JL, "获取信息成功_E ！");
-                                Log.d(JL, "【服务器】物料使用状态_E：" + bean.getData().getUse_status());
+                                LogUtil.i(JL, "获取信息成功_E ！");
+                                LogUtil.d(JL, "【服务器】物料使用状态_E：" + bean.getData().getUse_status());
 
                                 long serverMId = Long.parseLong(bean.getData().getMaterial_num());
-                                Log.i(JL, "料包ID（from device）: " + deviceMID);
-                                Log.i(JL, "料包ID（from server）: " + serverMId);
+                                LogUtil.i(JL, "料包ID（from device）: " + deviceMID);
+                                LogUtil.i(JL, "料包ID（from server）: " + serverMId);
                                 switch (bean.getData().getUse_status()) {
                                     // 判断当前服务端状态
                                     case TYPE_NO_USED:
-                                        Log.e(JL, "未使用状态_E");
-                                        Log.e(JL, "不应该存在该状态，若出现，检查代码逻辑或设备");
+                                        LogUtil.e(JL, "未使用状态_E");
+                                        LogUtil.e(JL, "不应该存在该状态，若出现，检查代码逻辑或设备");
                                         break;
                                     case TYPE_WAIT_USED:
-                                        Log.w(JL, "待使用状态_E");
+                                        LogUtil.w(JL, "待使用状态_E");
                                         // 料包标记为已使用状态（服务器）
                                         byServerEndUseStatus_E(deviceMID, serverMId);
                                         break;
                                     case TYPE_END_USED:
-                                        Log.w(JL, "已使用状态_E");
+                                        LogUtil.w(JL, "已使用状态_E");
                                         // 清除加料信息（设备端）
                                         cmdClearAddMaterialInfo_E(deviceMID, serverMId, 3);
                                         break;
@@ -399,22 +401,22 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.d(TAG, "标记为已使用状态请求成功: " + body);
+                        LogUtil.d(TAG, "标记为已使用状态请求成功: " + body);
 
                         ChangeMaterialStatusBean bean = mGson.fromJson(body, ChangeMaterialStatusBean.class);
                         switch (bean.getCode()) {
                             case 1:
                                 // 状态修改成功
-                                Log.i(JL, "状态已修改为已使用！");
+                                LogUtil.i(JL, "状态已修改为已使用！");
                                 // 清除加料信息
                                 cmdClearAddMaterialInfo_E(deviceMId, serverMId, 3);
                                 break;
                             case 0:
-                                Log.e(JL, "状态修改失败");
-                                information(getString(R.string.toast_add_material_failed));
+                                LogUtil.e(JL, "状态修改失败");
+                                ToastUtil.showShort(getString(R.string.toast_add_material_failed));
                                 break;
                             case 5:
-                                information(getString(R.string.toast_no_right_operation));
+                                ToastUtil.showShort(getString(R.string.toast_no_right_operation));
                                 break;
                             default:
                                 break;
@@ -424,7 +426,7 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
     }
 
     private void cmdClearAddMaterialInfo_E(final long deviceMId, final long serverMId, final int resendNum) {
-        Log.i(JL, "清除加料信息参数: " + "mDevId--" + mDevId + " mMemberId--" + mMemberId + " deviceMId--" + deviceMId + " serverMId--" + serverMId);
+        LogUtil.i(JL, "清除加料信息参数: " + "mDevId--" + mDevId + " mMemberId--" + mMemberId + " deviceMId--" + deviceMId + " serverMId--" + serverMId);
 
         MainActivity.getAppCtrl().sendCommand(
                 MainActivity.getAppCtrl().getDevice(mDevMac),
@@ -433,15 +435,15 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                     @Override
                     public void ack(@NonNull byte[] pkg) {
                         int info = BleDevProtocol.parseClearAddMaterialInfo(pkg, pkg.length);
-                        Log.e(JL, "清除加料信息返回值: " + info + "  " + pkg.length);
+                        LogUtil.e(JL, "清除加料信息返回值: " + info + "  " + pkg.length);
                         switch (info) {
                             case 0:
-                                Log.i(JL, "已清理加料信息");
+                                LogUtil.i(JL, "已清理加料信息");
                                 // 获取此次料包信息
                                 byServerMaterialInfo_D(serverMId);
                                 break;
                             case 1:
-                                Log.e(JL, "清除加料出错！！！");
+                                LogUtil.e(JL, "清除加料出错！！！");
                                 break;
                             default:
                                 break;
@@ -450,11 +452,11 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
 
                     @Override
                     public void timeout() {
-                        Log.e(TAG, "timeout");
+                        LogUtil.e(TAG, "timeout");
                         if (resendNum != 0) {
                             cmdClearAddMaterialInfo_E(deviceMId, serverMId, resendNum - 1);
                         } else {
-                            Toast.makeText(CtDevConfigActivity.this, "清除加料信息失败", Toast.LENGTH_SHORT).show();
+                            ToastUtil.showShort("清除加料信息失败");
                         }
                     }
                 }
@@ -471,21 +473,21 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.d(TAG, "标记为待使用状态请求成功: " + body);
+                        LogUtil.d(TAG, "标记为待使用状态请求成功: " + body);
 
                         AddMaterialBean bean = mGson.fromJson(body, AddMaterialBean.class);
 
                         switch (bean.getCode()) {
                             case 0:
-                                information(getString(R.string.toast_add_material_failed));
+                                ToastUtil.showShort(getString(R.string.toast_add_material_failed));
                                 break;
                             case 1:
                                 // 料包已绑定,并已进入即将使用(锁定)状态
-                                Log.i(JL, "开始获取时间戳...");
+                                LogUtil.i(JL, "开始获取时间戳...");
                                 cmdGetTimestamps(materialId, addTime, 3);
                                 break;
                             case 5:
-                                information(getString(R.string.toast_no_right_operation));
+                                ToastUtil.showShort(getString(R.string.toast_no_right_operation));
                                 break;
                             default:
                                 break;
@@ -503,17 +505,17 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                     public void ack(@NonNull byte[] pkg) {
                         long timestamp = BleDevProtocol.parseGetTimestamp(pkg, pkg.length);
 
-                        Log.i(JL, "开始加料...");
+                        LogUtil.i(JL, "开始加料...");
                         cmdAddMaterial(timestamp, mDevId, addTime, materialId, 3);
                     }
 
                     @Override
                     public void timeout() {
-                        Log.e(TAG, "timeout");
+                        LogUtil.e(TAG, "timeout");
                         if (resendNum != 0) {
                             cmdGetTimestamps(materialId, addTime, resendNum - 1);
                         } else {
-                            Toast.makeText(CtDevConfigActivity.this, "获取时间戳失败", Toast.LENGTH_SHORT).show();
+                            ToastUtil.showShort("获取时间戳失败");
                         }
                     }
                 }
@@ -528,7 +530,7 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                     @Override
                     public void ack(@NonNull byte[] pkg) {
                         final int material = BleDevProtocol.parseAddMaterial(pkg, pkg.length);
-                        Log.i(JL, "加料结果: " + material);
+                        LogUtil.i(JL, "加料结果: " + material);
                         switch (material) {
                             case 0:
                                 // 加料成功，服务端标记为已使用
@@ -536,7 +538,7 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                                 break;
                             case 1:
                                 // 加料失败
-                                information(getString(R.string.toast_add_material_failed));
+                                ToastUtil.showShort(getString(R.string.toast_add_material_failed));
                                 break;
                             default:
                                 break;
@@ -545,11 +547,11 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
 
                     @Override
                     public void timeout() {
-                        Log.w(TAG, "cmdAddMaterial timeout");
+                        LogUtil.w(TAG, "cmdAddMaterial timeout");
                         if (resendNum != 0) {
                             cmdAddMaterial(timestamp, deviceId, addTime, materialId, resendNum - 1);
                         } else {
-                            Toast.makeText(CtDevConfigActivity.this, "加料失败", Toast.LENGTH_SHORT).show();
+                            ToastUtil.showShort("加料失败");
                         }
                     }
                 }
@@ -566,23 +568,23 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.d(TAG, "标记为已使用状态请求成功: " + body);
+                        LogUtil.d(TAG, "标记为已使用状态请求成功: " + body);
 
                         ChangeMaterialStatusBean bean = mGson.fromJson(body, ChangeMaterialStatusBean.class);
                         switch (bean.getCode()) {
                             case 1:
                                 // 状态修改成功
-                                Log.i(JL, "状态已修改为已使用！");
-                                information(getString(R.string.toast_add_material_success));
+                                LogUtil.i(JL, "状态已修改为已使用！");
+                                ToastUtil.showShort(getString(R.string.toast_add_material_success));
                                 // 清除加料信息
                                 cmdClearAddMaterialInfo_D(materialId, 3);
                                 break;
                             case 0:
-                                Log.e(JL, "状态修改失败");
-                                information(getString(R.string.toast_add_material_failed));
+                                LogUtil.e(JL, "状态修改失败");
+                                ToastUtil.showShort(getString(R.string.toast_add_material_failed));
                                 break;
                             case 5:
-                                information(getString(R.string.toast_no_right_operation));
+                                ToastUtil.showShort(getString(R.string.toast_no_right_operation));
                                 break;
                             default:
                                 break;
@@ -592,7 +594,7 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
     }
 
     private void cmdClearAddMaterialInfo_D(final long materialId, final int resendNum) {
-        Log.i(JL, "清除加料信息参数: " + "mDevId--" + mDevId + " mMemberId--" + mMemberId + " materialId--" + materialId);
+        LogUtil.i(JL, "清除加料信息参数: " + "mDevId--" + mDevId + " mMemberId--" + mMemberId + " materialId--" + materialId);
 
         MainActivity.getAppCtrl().sendCommand(
                 MainActivity.getAppCtrl().getDevice(mDevMac),
@@ -601,13 +603,13 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                     @Override
                     public void ack(@NonNull byte[] pkg) {
                         int info = BleDevProtocol.parseClearAddMaterialInfo(pkg, pkg.length);
-                        Log.w(JL, "清除加料信息返回值: " + info);
+                        LogUtil.w(JL, "清除加料信息返回值: " + info);
                         switch (info) {
                             case 0:
-                                Log.i(JL, "已清理加料信息");
+                                LogUtil.i(JL, "已清理加料信息");
                                 break;
                             case 1:
-                                Log.e(JL, "清除加料出错！！！");
+                                LogUtil.e(JL, "清除加料出错！！！");
                                 break;
                             default:
                                 break;
@@ -616,11 +618,11 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
 
                     @Override
                     public void timeout() {
-                        Log.e(JL, "清除加料信息超时！");
+                        LogUtil.e(JL, "清除加料信息超时！");
                         if (resendNum != 0) {
                             cmdClearAddMaterialInfo_D(materialId, resendNum - 1);
                         } else {
-                            Toast.makeText(CtDevConfigActivity.this, "清除加料信息失败", Toast.LENGTH_SHORT).show();
+                            ToastUtil.showShort("清除加料信息失败");
                         }
                     }
                 }
@@ -699,7 +701,7 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
     public void onEventDevConn(DevConnEvent event) {
         // 接收硬件传过来的已连接设备信息添加到 HashSet
         if (event.getStatus() != null) {
-            Log.i(TAG, "dev cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
+            LogUtil.i(TAG, "dev cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
 
             switch (event.getStatus()) {
                 case DEVICE_CONNECT_YES:
@@ -724,11 +726,11 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
             @Override
             public void ack(@NonNull byte[] pkg) {
                 if (pkg.length > 8 && pkg[7] == 0) {
-                    Log.i(TAG, "配置 DMX 回复成功");
+                    LogUtil.i(TAG, "配置 DMX 回复成功");
                     MainActivity.getAppCtrl().getDeviceConfig(mDevMac);
                     mDialogDmx.dismiss();
                 } else {
-                    Log.i(TAG, "配置 DMX 回复失败");
+                    LogUtil.i(TAG, "配置 DMX 回复失败");
                 }
             }
 
@@ -736,10 +738,6 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
             public void timeout() {
             }
         });
-    }
-
-    private void information(String info) {
-        Toast.makeText(this, info, Toast.LENGTH_LONG).show();
     }
 
     /** 修改 DMX Dialog */
@@ -753,11 +751,11 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                     final int niDmx = Integer.parseInt(mDialogDmx.getEditTextStr());
                     if (!(niDmx >= 0 && niDmx <= 510)) {
                         // 如果输入的 DMX 不在 1~511 之间，提示用户
-                        Toast.makeText(CtDevConfigActivity.this, "DMX超出范围，请重新设置", Toast.LENGTH_SHORT).show();
+                        ToastUtil.showShort("DMX超出范围，请重新设置");
                         mDialogDmx.dismiss();
                     } else if (niDmx % 2 != 0) {
                         // 若输入奇数，提示用户
-                        Toast.makeText(mApp, "DMX只能为偶数，请重新设置", Toast.LENGTH_SHORT).show();
+                        ToastUtil.showShort("DMX只能为偶数，请重新设置");
                         mDialogDmx.dismiss();
                     } else {
                         // 更新 DMX 地址
@@ -767,11 +765,11 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
                     // 还有不按规矩出牌的？有！
-                    Toast.makeText(CtDevConfigActivity.this, "请设置正确的 DMX 地址", Toast.LENGTH_SHORT).show();
+                    ToastUtil.showShort("请设置正确的 DMX 地址");
                     mDialogDmx.dismiss();
                 }
             } else {
-                Toast.makeText(CtDevConfigActivity.this, "未更新 DMX 地址", Toast.LENGTH_SHORT).show();
+                ToastUtil.showShort("未更新 DMX 地址");
                 mDialogDmx.dismiss();
             }
         });

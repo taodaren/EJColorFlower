@@ -1,6 +1,5 @@
 package cn.eejing.ejcolorflower.view.activity;
 
-import android.util.Log;
 import android.view.View;
 
 import com.google.gson.Gson;
@@ -17,6 +16,7 @@ import cn.eejing.ejcolorflower.R;
 import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.request.AddrAreasBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
+import cn.eejing.ejcolorflower.util.LogUtil;
 import cn.eejing.ejcolorflower.view.adapter.AddrAreasAdapter;
 import cn.eejing.ejcolorflower.view.base.BaseActivity;
 
@@ -88,7 +88,7 @@ public class MaAddrAreasActivity extends BaseActivity {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 Log.e(AppConstant.TAG, "areas request succeeded--->" + body);
+                                 LogUtil.e(AppConstant.TAG, "areas request succeeded--->" + body);
 
                                  Gson gson = new Gson();
                                  AddrAreasBean bean = gson.fromJson(body, AddrAreasBean.class);

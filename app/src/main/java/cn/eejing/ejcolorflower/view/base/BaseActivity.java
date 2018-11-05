@@ -16,11 +16,9 @@ import android.support.annotation.RequiresApi;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.jaeger.library.StatusBarUtil;
@@ -38,8 +36,10 @@ import cn.eejing.ejcolorflower.app.AppConstant;
 import cn.eejing.ejcolorflower.model.request.VersionUpdateBean;
 import cn.eejing.ejcolorflower.presenter.Urls;
 import cn.eejing.ejcolorflower.util.AppUtils;
+import cn.eejing.ejcolorflower.util.LogUtil;
 import cn.eejing.ejcolorflower.util.MySettings;
 import cn.eejing.ejcolorflower.util.SelfDialogBase;
+import cn.eejing.ejcolorflower.util.ToastUtil;
 import cn.eejing.ejcolorflower.view.activity.MainActivity;
 import cn.eejing.ejcolorflower.view.activity.SignInActivity;
 
@@ -57,6 +57,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        LogUtil.setLevel(LogUtil.getNOTHING());
         // 子类不再需要设置布局 ID，也不再需要使用 ButterKnife.BindView()
         setContentView(layoutViewId());
         ButterKnife.bind(this);
@@ -153,7 +154,6 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     public void finishAllActivity() {
         for (Map.Entry<String, Activity> entry : activityMap.entrySet()) {
-            Log.i("TYC", "Key = " + entry.getKey() + ", Value = " + entry.getValue());
             finish();
         }
         activityMap.clear();
@@ -180,7 +180,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .subscribe(granted -> {
                     if (!granted) {
                         // 只要有一个权限被拒绝，就会执行
-                        Toast.makeText(BaseActivity.this, "未授权权限，部分功能不能使用", Toast.LENGTH_SHORT).show();
+                        ToastUtil.showShort("未授权权限，部分功能不能使用");
                     }
                 });
     }
@@ -219,7 +219,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.d(AppConstant.TAG, "新版本更新请求成功！" + body);
+                        LogUtil.d(AppConstant.TAG, "新版本更新请求成功: " + body);
 
                         Gson gson = new Gson();
                         VersionUpdateBean bean = gson.fromJson(body, VersionUpdateBean.class);
