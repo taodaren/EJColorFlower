@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <cn.eejing.ejcolorflower.util.CircleProgress
+    <cn.eejing.colorflower.util.CircleProgress
         android:id="@+id/circle_progress"
         android:layout_width="180dp"
         android:layout_height="180dp"

@@ -29,8 +29,8 @@
         </list>
     -->
     <list>
-        <mapping class="cn.eejing.ejcolorflower.model.lite.MasterGroupLite" />
-        <mapping class="cn.eejing.ejcolorflower.model.lite.JetModeConfigLite" />
+        <mapping class="cn.eejing.colorflower.model.lite.MasterGroupLite" />
+        <mapping class="cn.eejing.colorflower.model.lite.JetModeConfigLite" />
     </list>
 
     <!--
