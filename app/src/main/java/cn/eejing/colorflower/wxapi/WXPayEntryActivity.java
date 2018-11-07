@@ -52,13 +52,20 @@ public class WXPayEntryActivity extends Activity implements IWXAPIEventHandler {
 
         // 支付成功
         if (resp.getType() == ConstantsAPI.COMMAND_PAY_BY_WX) {
-            ToastUtil.showShort("微信支付成功");
-            finish();
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.app_tip);
-            builder.setMessage(getString(R.string.pay_result_callback_msg, String.valueOf(resp.errCode)));
-            builder.show();
-            startActivity(new Intent(this, MainActivity.class));
+            switch (resp.errCode) {
+                case 0:
+                    finish();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle(R.string.app_tip);
+                    builder.setMessage(getString(R.string.pay_result_callback_msg, String.valueOf(resp.errCode)));
+                    builder.show();
+                    startActivity(new Intent(this, MainActivity.class));
+                    ToastUtil.showShort("微信支付成功");
+                    break;
+                case -2:
+                    ToastUtil.showShort("支付取消");
+                    break;
+            }
         }
     }
 

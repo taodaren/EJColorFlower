@@ -57,7 +57,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LogUtil.setLevel(LogUtil.getNOTHING());
+        LogUtil.setLevel(LogUtil.getmLevel());
         // 子类不再需要设置布局 ID，也不再需要使用 ButterKnife.BindView()
         setContentView(layoutViewId());
         ButterKnife.bind(this);

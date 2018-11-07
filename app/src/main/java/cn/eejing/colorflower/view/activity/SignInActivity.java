@@ -3,6 +3,7 @@ package cn.eejing.colorflower.view.activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -106,9 +107,10 @@ public class SignInActivity extends BaseActivity {
         }
     }
 
+    private static final String TAG = "SignInActivity";
     private void login() {
         if (!validate()) {
-            onLoginFailed();
+            onLoginFailed("验证登陆失败");
             return;
         }
 
@@ -151,7 +153,7 @@ public class SignInActivity extends BaseActivity {
 
                         switch (bean.getCode()) {
                             case 0:
-                                onLoginFailed();
+                                onLoginFailed("登陆失败");
                                 dialog.dismiss();
                                 break;
                             case 1:
@@ -176,7 +178,7 @@ public class SignInActivity extends BaseActivity {
 
                     @Override
                     public void onError(Response<String> response) {
-                        onLoginFailed();
+                        onLoginFailed("出现异常，登陆失败");
                         dialog.dismiss();
                     }
                 });
@@ -187,8 +189,8 @@ public class SignInActivity extends BaseActivity {
         finish();
     }
 
-    public void onLoginFailed() {
-        ToastUtil.showLong("登录失败");
+    public void onLoginFailed(String info) {
+        ToastUtil.showLong(info);
         btnLogin.setEnabled(true);
         layoutHide.setVisibility(View.VISIBLE);
     }

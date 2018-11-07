@@ -20,166 +20,195 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
-#指定代码的压缩级别
+#############################################
+#
+# 对于一些基本指令的添加
+#
+#############################################
+# 代码混淆压缩比，在0~7之间，默认为5，一般不做修改
 -optimizationpasses 5
 
-#包明不混合大小写
+# 混合时不使用大小写混合，混合后的类名为小写
 -dontusemixedcaseclassnames
 
-#不去忽略非公共的库类
+# 指定不去忽略非公共库的类
 -dontskipnonpubliclibraryclasses
 
-#优化  不优化输入的类文件
--dontoptimize
-
-#预校验
--dontpreverify
-
-#混淆时是否记录日志
+# 这句话能够使我们的项目混淆后产生映射文件
+# 包含有类名->混淆后类名的映射关系
 -verbose
 
-#混淆时所采用的算法
--optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
+# 指定不去忽略非公共库的类成员
+-dontskipnonpubliclibraryclassmembers
 
-#保护注解
--keepattributes *Annotation*
+# 不做预校验，preverify 是 proguard 的四个步骤之一，Android 不需要 preverify，去掉这一步能够加快混淆速度。
+-dontpreverify
 
-#保持哪些类不被混淆
--keep public class * extends android.app.Fragment
+# 保留 Annotation 不混淆
+-keepattributes *Annotation*,InnerClasses
+
+# 避免混淆泛型
+-keepattributes Signature
+
+# 抛出异常时保留代码行号
+-keepattributes SourceFile,LineNumberTable
+
+# 指定混淆是采用的算法，后面的参数是一个过滤器
+# 这个过滤器是谷歌推荐的算法，一般不做更改
+-optimizations !code/simplification/cast,!field/*,!class/merging/*
+
+#############################################
+#
+# Android 开发中一些需要保留的公共部分
+#
+#############################################
+
+# 保留我们使用的四大组件，自定义的 Application 等等这些类不被混淆
+# 因为这些子类都有可能被外部调用
 -keep public class * extends android.app.Activity
--keep public class * extends android.app.Application
+-keep public class * extends android.app.Appliction
 -keep public class * extends android.app.Service
 -keep public class * extends android.content.BroadcastReceiver
 -keep public class * extends android.content.ContentProvider
 -keep public class * extends android.app.backup.BackupAgentHelper
 -keep public class * extends android.preference.Preference
+-keep public class * extends android.view.View
 -keep public class com.android.vending.licensing.ILicensingService
-#如果有引用v4包可以添加下面这行
--keep public class * extends android.support.v4.app.Fragment
+-keep public class * extends android.view.View
 
-#忽略警告
--ignorewarning
+-keep class cn.eejing.colorflower.model.request.** { *; }
 
-##记录生成的日志数据,gradle build时在本项目根目录输出##
+# 保留 support 下的所有类及其内部类
+-keep class android.support.** {*;}
 
-#apk 包内所有 class 的内部结构
--dump class_files.txt
-#未混淆的类和成员
--printseeds seeds.txt
-#列出从 apk 中删除的代码
--printusage unused.txt
-#混淆前后的映射
--printmapping mapping.txt
+# 保留继承的
+-keep public class * extends android.support.v4.**
+-keep public class * extends android.support.v7.**
+-keep public class * extends android.support.annotation.**
 
-########记录生成的日志数据，gradle build时 在本项目根目录输出-end######
+# 保留 R 下面的资源
+-keep class **.R$* {*;}
 
-#####混淆保护自己项目的部分代码以及引用的第三方jar包library#######
-
-#-libraryjars libs/umeng-analytics-v5.2.4.jar
-
-#三星应用市场需要添加:sdk-v1.0.0.jar,look-v1.0.1.jar
-#-libraryjars libs/sdk-v1.0.0.jar
-#-libraryjars libs/look-v1.0.1.jar
-
-
-#如果不想混淆 keep 掉
--keep class com.lippi.recorder.iirfilterdesigner.** {*; }
-#友盟
--keep class com.umeng.**{*;}
-#项目特殊处理代码
-
-#忽略警告
--dontwarn com.lippi.recorder.utils**
-#保留一个完整的包
--keep class com.lippi.recorder.utils.** {
-         *;
-}
-
--keep class  com.lippi.recorder.utils.AudioRecorder{*;}
-
-#如果引用了v4或者v7包
--dontwarn android.support.**
-
-####混淆保护自己项目的部分代码以及引用的第三方jar包library-end####
-
--keep public class * extends android.view.View {
-         public <init>(android.content.Context);
-         public <init>(android.content.Context, android.util.AttributeSet);
-         public <init>(android.content.Context, android.util.AttributeSet, int);
-         public void set*(...);
-}
-
-#保持 native 方法不被混淆
+# 保留本地 native 方法不被混淆
 -keepclasseswithmembernames class * {
-         native <methods>;
+    native <methods>;
 }
 
-#保持自定义控件类不被混淆
--keepclasseswithmembers class * {
-         public <init>(android.content.Context, android.util.AttributeSet);
+# 保留在 Activity 中的方法参数是 view 的方法，
+# 这样以来我们在 layout 中写的 onClick 就不会被影响
+-keepclassmembers class * extends android.app.Activity{
+    public void *(android.view.View);
 }
 
-#保持自定义控件类不被混淆
--keepclassmembers class * extends android.app.Activity {
-        public void *(android.view.View);
+# 保留枚举类不被混淆
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
 }
 
-#保持 Parcelable 不被混淆
+# 保留我们自定义控件（继承自View）不被混淆
+-keep public class * extends android.view.View{
+    *** get*();
+    void set*(***);
+    public <init>(android.content.Context);
+    public <init>(android.content.Context, android.util.AttributeSet);
+    public <init>(android.content.Context, android.util.AttributeSet, int);
+}
+
+# 保留 Parcelable 序列化类不被混淆
 -keep class * implements android.os.Parcelable {
-       public static final android.os.Parcelable$Creator *;
+    public static final android.os.Parcelable$Creator *;
 }
 
-#保持 Serializable 不被混淆
--keepnames class * implements java.io.Serializable
-
-#保持 Serializable 不被混淆并且enum 类也不被混淆
+# 保留 Serializable 序列化的类不被混淆
 -keepclassmembers class * implements java.io.Serializable {
-         static final long serialVersionUID;
-         private static final java.io.ObjectStreamField[] serialPersistentFields;
-         !static !transient <fields>;
-         !private <fields>;
-         !private <methods>;
-         private void writeObject(java.io.ObjectOutputStream);
-         private void readObject(java.io.ObjectInputStream);
-         java.lang.Object writeReplace();
-         java.lang.Object readResolve();
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    !static !transient <fields>;
+    !private <fields>;
+    !private <methods>;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
 }
 
-
-#保持枚举 enum 类不被混淆 如果混淆报错，建议直接使用上面的 -keepclassmembers class * implements java.io.Serializable即可
-#-keepclassmembers enum * {
-#  public static **[] values();
-#  public static ** valueOf(java.lang.String);
-#}
-
+# 对于带有回调函数的 onXXEvent、**On*Listener 的，不能被混淆
 -keepclassmembers class * {
-         public void *ButtonClicked(android.view.View);
+    void *(**On*Event);
+    void *(**On*Listener);
 }
 
-
-#不混淆资源类
--keepclassmembers class **.R$* {
-         public static <fields>;
+# webView 处理，项目中没有使用到 webView 忽略即可
+-keepclassmembers class fqcn.of.javascript.interface.for.webview {
+    public *;
+}
+-keepclassmembers class * extends android.webkit.webViewClient {
+    public void *(android.webkit.WebView, java.lang.String, android.graphics.Bitmap);
+    public boolean *(android.webkit.WebView, java.lang.String);
+}
+-keepclassmembers class * extends android.webkit.webViewClient {
+    public void *(android.webkit.webView, jav.lang.String);
 }
 
-#避免混淆泛型 如果混淆报错建议关掉
-#–keepattributes Signature
+# 需要保留的第三方
 
-#移除log 测试了下没有用还是建议自己定义一个开关控制是否输出日志
-#-assumenosideeffects class android.util.Log {
-#    public static boolean isLoggable(java.lang.String, int);
-#    public static int v(...);
-#    public static int i(...);
-#    public static int w(...);
-#    public static int d(...);
-#    public static int e(...);
-#}
+# ButterKnife
+-keep public class * implements butterknife.Unbinder {
+    public <init>(**, android.view.View);
+}
+-keep class butterknife.*
+-keepclasseswithmembernames class * {
+    @butterknife.* <methods>;
+}
+-keepclasseswithmembernames class * {
+    @butterknife.* <fields>;
+}
 
-#如果用用到Gson解析包的，直接添加下面这几行就能成功混淆，不然会报错。
-#gson
-#-libraryjars libs/gson-2.2.2.jar
--keepattributes Signature
-# Gson specific classes
--keep class sun.misc.Unsafe { *; }
-# Application classes that will be serialized/deserialized over Gson
--keep class com.google.gson.examples.android.model.** { *; }
+# okhttp
+-dontwarn okhttp3.**
+-keep class okhttp3.**{*;}
+
+# okio
+-dontwarn okio.**
+-keep class okio.**{*;}
+
+# Glide
+-keep public class * implements com.bumptech.glide.module.GlideModule
+-keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
+  **[] $VALUES;
+  public *;
+}
+
+# 微信支付
+-keep class com.tencent.mm.opensdk.** { *;}
+-keep class com.tencent.wxop.** { *;}
+-keep class com.tencent.mm.sdk.** { *;}
+#-libraryjars libs/libammsdk.jar
+-keep class com.tencent.** { *;}
+
+# 支付宝钱包
+-dontwarn com.alipay.**
+-dontwarn HttpUtils.HttpFetcher
+-dontwarn com.ta.utdid2.**
+-dontwarn com.ut.device.**
+-keep class com.alipay.android.app.IAlixPay{*;}
+-keep class com.alipay.android.app.IAlixPay$Stub{*;}
+-keep class com.alipay.android.app.IRemoteServiceCallback{*;}
+-keep class com.alipay.android.app.IRemoteServiceCallback$Stub{*;}
+-keep class com.alipay.sdk.app.PayTask{ public *;}
+-keep class com.alipay.sdk.app.AuthTask{ public *;}
+-keep class com.alipay.mobilesecuritysdk.*
+-keep class com.ut.*
+
+# EventBus
+-keepattributes *Annotation*
+-keepclassmembers class ** {
+    @org.greenrobot.eventbus.Subscribe <methods>;
+}
+-keep enum org.greenrobot.eventbus.ThreadMode { *;}
+
+# LitePal
+-keep class org.litepal.** { *;}
+-keep class * extends org.litepal.crud.DataSupport { *;}
+-keep class * extends org.litepal.crud.LitePalSupport { *;}
