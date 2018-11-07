@@ -11,6 +11,8 @@ public class MgrIntervalJet extends MgrOutputJet {
 
     private int mDuration;       // 持续时间
     private int mGapBig;         // 大间隔时间
+    private int mHighMax;        // 最高高度
+    private int mHighMin;        // 最低高度
 
     @Override
     public boolean updateWithDataOut(byte[] dataOut) {
@@ -21,9 +23,9 @@ public class MgrIntervalJet extends MgrOutputJet {
         for (int i = 0; i < mDevCount; i++) {
             if (mCurrentTime <= outputTime) {
                 if (mLoopId % 2 == 0) {
-                    dataOut[i] = (byte) ((i % 2 == 0) ? 100 : 60);
+                    dataOut[i] = (byte) ((i % 2 == 0) ? mHighMax : mHighMin);
                 } else {
-                    dataOut[i] = (byte) ((i % 2 == 0) ? 60 : 100);
+                    dataOut[i] = (byte) ((i % 2 == 0) ? mHighMin : mHighMax);
                 }
             } else {
                 dataOut[i] = 0;
@@ -57,5 +59,21 @@ public class MgrIntervalJet extends MgrOutputJet {
 
     public int getGapBig() {
         return mGapBig;
+    }
+
+    public int getmHighMax() {
+        return mHighMax;
+    }
+
+    public void setmHighMax(int mHighMax) {
+        this.mHighMax = mHighMax;
+    }
+
+    public int getmHighMin() {
+        return mHighMin;
+    }
+
+    public void setmHighMin(int mHighMin) {
+        this.mHighMin = mHighMin;
     }
 }

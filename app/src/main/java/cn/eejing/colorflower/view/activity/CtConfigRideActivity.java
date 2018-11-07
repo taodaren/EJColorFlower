@@ -53,6 +53,7 @@ public class CtConfigRideActivity extends BaseActivity implements View.OnClickLi
     @BindView(R.id.et_stream_duration)           EditText       etDuration;
     @BindView(R.id.et_stream_gap_big)            EditText       etGapBig;
     @BindView(R.id.et_stream_frequency)          EditText       etFrequency;
+    @BindView(R.id.et_stream_high)               EditText       etHigh;
     @BindView(R.id.tv_stream_jet_time)           TextView       tvJetTime;
     @BindView(R.id.ll_jet_time_stream)           LinearLayout   llJetTime;
 
@@ -78,7 +79,8 @@ public class CtConfigRideActivity extends BaseActivity implements View.OnClickLi
             if (etGap.getText().toString().trim().isEmpty()
                     || etDuration.getText().toString().trim().isEmpty()
                     || etGapBig.getText().toString().trim().isEmpty()
-                    || etFrequency.getText().toString().trim().isEmpty()) {
+                    || etFrequency.getText().toString().trim().isEmpty()
+                    || etHigh.getText().toString().trim().isEmpty()) {
                 // EditText 有空情况
                 btnVerify.setEnabled(Boolean.FALSE);
                 btnVerify.setBackground(getDrawable(R.drawable.ic_btn_no_click));
@@ -116,6 +118,7 @@ public class CtConfigRideActivity extends BaseActivity implements View.OnClickLi
         etGap.setText(mListJetModeCfg.get(0).getGap());
         etDuration.setText(mListJetModeCfg.get(0).getDuration());
         etGapBig.setText(mListJetModeCfg.get(0).getBigGap());
+        etHigh.setText(mListJetModeCfg.get(0).getHigh());
         // 展示给用户看需要 +1
         etFrequency.setText(String.valueOf(Integer.parseInt(mListJetModeCfg.get(0).getJetRound()) + 1));
 
@@ -184,6 +187,7 @@ public class CtConfigRideActivity extends BaseActivity implements View.OnClickLi
         etDuration.addTextChangedListener(textWatcher);
         etGapBig.addTextChangedListener(textWatcher);
         etFrequency.addTextChangedListener(textWatcher);
+        etHigh.addTextChangedListener(textWatcher);
     }
 
     @Override
@@ -220,7 +224,7 @@ public class CtConfigRideActivity extends BaseActivity implements View.OnClickLi
         mListJetModeCfg.get(0).setBigGap(etGapBig.getText().toString());
         // 用户输入 1 代表喷射一轮不循环
         mListJetModeCfg.get(0).setJetRound(String.valueOf(loop - 1));
-        mListJetModeCfg.get(0).setHigh(DEFAULT_HIGH);
+        mListJetModeCfg.get(0).setHigh(etHigh.getText().toString());
         mListJetModeCfg.get(0).updateAll("jetIdMillis=?", String.valueOf(mJetIdMillis));
     }
 

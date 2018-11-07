@@ -58,7 +58,9 @@
     <string name="error_cannot_empty">不能为空</string>
     <string name="duration">时长</string>
     <string name="delay">延时</string>
-    <string name="height">高度</string>
+    <string name="height">喷射高度</string>
+    <string name="height_max">最高高度</string>
+    <string name="height_min">最低高度</string>
 
     <string name="create_group">新建组</string>
     <string name="my_order">我的订单</string>

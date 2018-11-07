@@ -36,6 +36,8 @@ public class CtConfigIntervalActivity extends BaseActivity implements View.OnCli
     @BindView(R.id.et_interval_gap)              EditText etGap;
     @BindView(R.id.et_interval_duration)         EditText etDuration;
     @BindView(R.id.et_interval_frequency)        EditText etFrequency;
+    @BindView(R.id.et_interval_high_max)         EditText etHighMax;
+    @BindView(R.id.et_interval_high_min)         EditText etHighMin;
     @BindView(R.id.tv_interval_jet_time)         TextView tvJetTime;
     @BindView(R.id.ll_jet_time_interval)         LinearLayout llJetTime;
 
@@ -57,7 +59,9 @@ public class CtConfigIntervalActivity extends BaseActivity implements View.OnCli
         public void afterTextChanged(Editable editable) {
             if (etGap.getText().toString().trim().isEmpty()
                     || etDuration.getText().toString().trim().isEmpty()
-                    || etFrequency.getText().toString().trim().isEmpty()) {
+                    || etFrequency.getText().toString().trim().isEmpty()
+                    || etHighMax.getText().toString().trim().isEmpty()
+                    || etHighMin.getText().toString().trim().isEmpty()) {
                 // EditText 有空情况
                 btnVerify.setEnabled(Boolean.FALSE);
                 btnVerify.setBackground(getDrawable(R.drawable.ic_btn_no_click));
@@ -91,6 +95,8 @@ public class CtConfigIntervalActivity extends BaseActivity implements View.OnCli
         mListJetModeCfg = LitePal.where("jetIdMillis = ?", String.valueOf(mJetIdMillis)).find(JetModeConfigLite.class);
         etGap.setText(mListJetModeCfg.get(0).getGap());
         etDuration.setText(mListJetModeCfg.get(0).getDuration());
+        etHighMax.setText(mListJetModeCfg.get(0).getHighMax());
+        etHighMin.setText(mListJetModeCfg.get(0).getHighMin());
         // 展示给用户看需要 +1
         etFrequency.setText(String.valueOf(Integer.parseInt(mListJetModeCfg.get(0).getJetRound()) + 1));
     }
@@ -106,6 +112,8 @@ public class CtConfigIntervalActivity extends BaseActivity implements View.OnCli
         etGap.addTextChangedListener(textWatcher);
         etDuration.addTextChangedListener(textWatcher);
         etFrequency.addTextChangedListener(textWatcher);
+        etHighMax.addTextChangedListener(textWatcher);
+        etHighMin.addTextChangedListener(textWatcher);
     }
 
     @Override
@@ -140,7 +148,8 @@ public class CtConfigIntervalActivity extends BaseActivity implements View.OnCli
         mListJetModeCfg.get(0).setDuration(etDuration.getText().toString());
         // 用户输入 1 代表喷射一轮不循环
         mListJetModeCfg.get(0).setJetRound(String.valueOf(frequency - 1));
-        mListJetModeCfg.get(0).setHigh(DEFAULT_HIGH);
+        mListJetModeCfg.get(0).setHighMax(etHighMax.getText().toString());
+        mListJetModeCfg.get(0).setHighMin(etHighMin.getText().toString());
         mListJetModeCfg.get(0).updateAll("jetIdMillis=?", String.valueOf(mJetIdMillis));
     }
 

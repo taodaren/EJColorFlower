@@ -231,7 +231,7 @@ public class MasterGroupLite extends LitePalSupport implements Serializable {
         mgrStream.setDevCount(devNum + ((isSelectedMaster == 1) ? 1 : 0));
         mgrStream.setCurrentTime(CURRENT_TIME);
         mgrStream.setLoopId(LOOP_ID);
-        mgrStream.setHigh((byte) Integer.parseInt(DEFAULT_HIGH));
+        mgrStream.setHigh((byte) Integer.parseInt(lite.getHigh()));
         mgrStream.setDirection(Integer.parseInt(lite.getDirection()));
         mgrStream.setGap((int) (Float.parseFloat(lite.getGap()) * 10));
         mgrStream.setDuration((int) (Float.parseFloat(lite.getDuration()) * 10));
@@ -247,7 +247,7 @@ public class MasterGroupLite extends LitePalSupport implements Serializable {
         mgrRide.setDevCount(devNum + ((isSelectedMaster == 1) ? 1 : 0));
         mgrRide.setCurrentTime(CURRENT_TIME);
         mgrRide.setLoopId(LOOP_ID);
-        mgrRide.setHigh((byte) Integer.parseInt(DEFAULT_HIGH));
+        mgrRide.setHigh((byte) Integer.parseInt(lite.getHigh()));
         mgrRide.setDirection(Integer.parseInt(lite.getDirection()));
         mgrRide.setGap((int) (Float.parseFloat(lite.getGap()) * 10));
         mgrRide.setDuration((int) (Float.parseFloat(lite.getDuration()) * 10));
@@ -266,6 +266,8 @@ public class MasterGroupLite extends LitePalSupport implements Serializable {
         mgrInterval.setGapBig((int) (Float.parseFloat(lite.getGap()) * 10));
         mgrInterval.setDuration((int) (Float.parseFloat(lite.getDuration()) * 10));
         mgrInterval.setLoop(Integer.parseInt(lite.getJetRound()));
+        mgrInterval.setmHighMax(Integer.parseInt(lite.getHighMax()));
+        mgrInterval.setmHighMin(Integer.parseInt(lite.getHighMin()));
         return mgrInterval;
     }
 

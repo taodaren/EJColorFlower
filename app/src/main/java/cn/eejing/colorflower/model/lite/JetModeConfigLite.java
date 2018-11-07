@@ -15,7 +15,9 @@ public class JetModeConfigLite extends LitePalSupport {
     private String duration;        // 持续时间
     private String bigGap;          // 大间隔时间
     private String jetRound;        // 喷射次数
-    private String high;            // 高度
+    private String high;            // 默认高度
+    private String highMax;         // 最大高度
+    private String highMin;         // 最小高度
 
     public JetModeConfigLite() {
     }
@@ -90,5 +92,21 @@ public class JetModeConfigLite extends LitePalSupport {
 
     public void setHigh(String high) {
         this.high = high;
+    }
+
+    public String getHighMax() {
+        return highMax;
+    }
+
+    public void setHighMax(String highMax) {
+        this.highMax = highMax;
+    }
+
+    public String getHighMin() {
+        return highMin;
+    }
+
+    public void setHighMin(String highMin) {
+        this.highMin = highMin;
     }
 }
