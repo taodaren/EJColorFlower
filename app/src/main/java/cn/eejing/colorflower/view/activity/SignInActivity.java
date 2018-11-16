@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.allen.library.SuperButton;
@@ -41,7 +42,7 @@ public class SignInActivity extends BaseActivity {
     @BindView(R.id.tv_login_register)        TextView tvRegister;
     @BindView(R.id.tv_login_forget)          TextView tvForgetPwd;
     @BindView(R.id.btn_login)                SuperButton btnLogin;
-    @BindView(R.id.layout_hide)              LinearLayout layoutHide;
+    @BindView(R.id.layout_hide)              RelativeLayout layoutHide;
 
     @Override
     protected int layoutViewId() {
