@@ -638,14 +638,15 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     private String mMacById;
 
     private void getDataWithQueryDevMac() {
-        OkGo.<String>post(Urls.QUERY_DEV_MAC)
+        OkGo.<String>post(Urls.GET_DEVICE_MAC)
                 .tag(this)
-                .params("id", mStrDevId)
+                .params("token", mToken)
+                .params("device_id", mStrDevId)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        LogUtil.e(TAG, "查询设备 Mac 地址请求成功！" + body);
+                        LogUtil.d(TAG, "设备 ID 获取 MAC 地址 请求成功: " + body);
 
                         QueryDevMacBean bean = mGson.fromJson(body, QueryDevMacBean.class);
                         if (bean.getCode() == 1) {
