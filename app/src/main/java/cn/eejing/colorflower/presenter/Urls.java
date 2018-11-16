@@ -5,25 +5,23 @@ package cn.eejing.colorflower.presenter;
  */
 
 public interface Urls {
-    String VERSION_UPDATE =
-            "http://www.eejing.cn/index.php/index/versionUpgrade/newVersionUpdate";    // 新版本更新
     String DOWN_LOAD_APK =
             "https://eejing.oss-cn-beijing.aliyuncs.com/eejing_download/eejing.apk";   // 下载APK地址
 
     String BASE_URL = "http://www.eejing.cn/index.php/index/api/";                     // 域名公共部分
     String BASE_URL_V2 = "http://v2.eejing.cn/api/v2.0/";                              // 2.0版本
 
-    String SEND_MSG = BASE_URL_V2 + "sendMsg";                                            // 发送短信
-    String REGISTER = BASE_URL_V2 + "register";                                           // 普通用户注册
-    String CHANGE_PWD = BASE_URL_V2 + "changePassword";                                   // 修改密码
-    String LOGIN = BASE_URL_V2 + "login";                                                 // 用户登录
-    String PWD_FIND = BASE_URL + "pwdFind";                                            // 密码找回
+    String NEW_VERSION_UPDATE = BASE_URL_V2 + "newVersionUpdate";                         // 版本更新
+    String SEND_MSG           = BASE_URL_V2 + "sendMsg";                                  // 发送短信
+    String REGISTER           = BASE_URL_V2 + "register";                                 // 普通用户注册
+    String CHANGE_PWD         = BASE_URL_V2 + "changePassword";                           // 修改密码
+    String LOGIN              = BASE_URL_V2 + "login";                                    // 用户登录
+    String GET_DEVICE_MAC     = BASE_URL_V2 + "getDeviceMac";                             // 设备ID获取MAC地址
 
-    String QUERY_DEV_MAC = BASE_URL + "queryDeviceMac";                                // 查询设备 Mac 地址
     String DEVICE_LIST = BASE_URL + "device_list";                                     // 获取用户设备列表
     String ADD_DEVICE = BASE_URL + "add_device";                                       // 用户添加设备
     String RM_DEVICE = BASE_URL + "rm_device";                                         // 用户删除设备
-    String MATERIAL_INFO = BASE_URL + "materialInfo";                                  // 扫码获取料包信息
+    String GET_MATERIAL_INFO = BASE_URL_V2 + "getMaterialInfo";                           // 扫码获取料包信息
     String WAIT_USE_STATUS = BASE_URL + "addMaterial";                                 // 加料——标记为待使用状态
     String END_USE_STATUS = BASE_URL + "changeMaterialStatus";                         // 加料——标记为已使用状态
     String NO_USE_STATUS = BASE_URL + "cancel_Mstatus";                                // 加料——标记为未使用状态

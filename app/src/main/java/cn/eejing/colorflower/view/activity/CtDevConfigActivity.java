@@ -79,11 +79,11 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
     private static final String TAG = "CtDevConfigActivity";
     private static final String JL = "about_add_material";
 
-    @BindView(R.id.img_ble_toolbar)         ImageView imgBleToolbar;
-    @BindView(R.id.btn_add_material)        Button btnAddMaterial;
-    @BindView(R.id.btn_enter_master)        Button btnEnterMaster;
+    @BindView(R.id.img_ble_toolbar)         ImageView    imgBleToolbar;
     @BindView(R.id.layout_dmx_set)          LinearLayout dmxSet;
-    @BindView(R.id.tv_dmx_show)             TextView tvDmxShow;
+    @BindView(R.id.tv_dmx_show)             TextView     tvDmxShow;
+    @BindView(R.id.btn_add_material)        Button       btnAddMaterial;
+    @BindView(R.id.btn_enter_master)        Button       btnEnterMaster;
 
     private String[] mTitles = {"温度", "时间"};
     private SegmentTabLayout mTabLayout;
@@ -240,13 +240,14 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
     }
 
     private void byServerMaterialInfo_D(final long materialId) {
-        OkGo.<String>post(Urls.MATERIAL_INFO)
+        OkGo.<String>post(Urls.GET_MATERIAL_INFO)
                 .params("material_id", materialId)
+                .params("token", mToken)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        Log.d(TAG, "获取料包信息请求成功: " + body);
+                        Log.d(TAG, "获取料包信息 请求成功: " + body);
 
                         MaterialInfoBean bean = mGson.fromJson(body, MaterialInfoBean.class);
                         final int addTime = Integer.parseInt(bean.getData().getDuration());
@@ -342,7 +343,7 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
 
     private void byServerMaterialInfo_E(final long deviceMID) {
         LogUtil.i(JL, "byServerMaterialInfo_E: " + mDevId + " " + deviceMID + " " + mMemberId);
-        OkGo.<String>post(Urls.MATERIAL_INFO)
+        OkGo.<String>post(Urls.GET_MATERIAL_INFO)
                 .params("material_id", deviceMID)
                 .execute(new StringCallback() {
                     @Override
