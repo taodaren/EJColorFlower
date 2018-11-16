@@ -15,20 +15,21 @@ import com.lzy.okgo.model.Response;
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
-import cn.eejing.colorflower.app.AppConstant;
-import cn.eejing.colorflower.model.request.RegisterBean;
-import cn.eejing.colorflower.model.request.SendMsgBean;
+import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.Encryption;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.base.BaseActivity;
 
+import static cn.eejing.colorflower.app.AppConstant.SEND_MSG_FLAG_REGISTER;
+
 /**
  * 注册
  */
 
 public class SignUpActivity extends BaseActivity {
+    private static final String TAG = "SignUpActivity";
 
     @BindView(R.id.et_register_phone)              EditText mPhone;
     @BindView(R.id.et_register_set_pwd)            EditText mSetPwd;
@@ -60,7 +61,7 @@ public class SignUpActivity extends BaseActivity {
                 getDateWithSendMsg();
                 break;
             case R.id.btn_register_register:
-                signup();
+                signUp();
                 break;
         }
     }
@@ -68,54 +69,43 @@ public class SignUpActivity extends BaseActivity {
     private void getDateWithRegister(final ProgressDialog dialog) {
         try {
             String encryptSetPwd = Encryption.encrypt(mSetPwd.getText().toString(), mIv);
-            String encryptConfirmPwd = Encryption.encrypt(mConfirmPwd.getText().toString(), mIv);
 
             OkGo.<String>post(Urls.REGISTER)
                     .tag(this)
                     .params("mobile", mPhone.getText().toString())
-                    .params("password", encryptSetPwd)
-                    .params("re_password", encryptConfirmPwd)
                     .params("code", mVerifyCode.getText().toString())
+                    .params("password", encryptSetPwd)
                     .params("iv", mIv)
                     .execute(new StringCallback() {
                         @Override
                         public void onSuccess(Response<String> response) {
                             String body = response.body();
-                            LogUtil.e(AppConstant.TAG, "register request succeeded--->" + body);
+                            LogUtil.d(TAG, "普通用户注册 请求成功: " + body);
 
                             mGson = new Gson();
-                            RegisterBean bean = mGson.fromJson(body, RegisterBean.class);
+                            CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
 
                             switch (bean.getCode()) {
                                 case 1:
                                     ToastUtil.showShort("账号注册成功");
-                                    onSignupSuccess();
-                                    dialog.dismiss();
+                                    setResult(RESULT_OK, new Intent()
+                                            .putExtra("register_phone", mPhone.getText().toString())
+                                            .putExtra("register_pwd", mSetPwd.getText().toString())
+                                    );
+                                    finish();
                                     break;
-                                case 9:
-                                    ToastUtil.showShort("该手机号已注册");
-                                    btnRegister.setEnabled(true);
-                                    dialog.dismiss();
+                                case 2:
+                                    ToastUtil.showShort("手机号码已被注册或格式错误");
+                                    break;
+                                case 4:
+                                    ToastUtil.showShort("输入的验证码有误");
                                     break;
                                 case 5:
-                                    ToastUtil.showShort("手机号格式不正确");
-                                    btnRegister.setEnabled(true);
-                                    dialog.dismiss();
-                                    break;
-                                case 8:
-                                    ToastUtil.showShort("两次输入密码不一致");
-                                    btnRegister.setEnabled(true);
-                                    dialog.dismiss();
-                                case 6:
-                                    ToastUtil.showShort("验证码不正确");
-                                    btnRegister.setEnabled(true);
-                                    dialog.dismiss();
-                                    break;
-                                default:
-                                    onSignupFailed();
-                                    dialog.dismiss();
+                                    ToastUtil.showShort("验证码已过期,请重新获取");
                                     break;
                             }
+                            btnRegister.setEnabled(true);
+                            dialog.dismiss();
 
                         }
                     });
@@ -132,14 +122,15 @@ public class SignUpActivity extends BaseActivity {
                     .tag(this)
                     .params("mobile", encryptPhone)
                     .params("iv", mIv)
+                    .params("flag", SEND_MSG_FLAG_REGISTER)
                     .execute(new StringCallback() {
                         @Override
                         public void onSuccess(Response<String> response) {
                             String body = response.body();
-                            LogUtil.e(AppConstant.TAG, "send msg request succeeded--->" + body);
+                            LogUtil.d(TAG, "发送短信 请求成功: " + body);
 
                             mGson = new Gson();
-                            SendMsgBean bean = mGson.fromJson(body, SendMsgBean.class);
+                            CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
                             switch (bean.getCode()) {
                                 case 1:
                                     ToastUtil.showShort("验证码发送成功");
@@ -161,9 +152,11 @@ public class SignUpActivity extends BaseActivity {
         }
     }
 
-    public void signup() {
-        if (!validate()) {
-            onSignupFailed();
+    public void signUp() {
+        String info = validate();
+        if (!info.equals("验证通过")) {
+            ToastUtil.showLong(info);
+            btnRegister.setEnabled(true);
             return;
         }
 
@@ -178,41 +171,41 @@ public class SignUpActivity extends BaseActivity {
         getDateWithRegister(dialog);
     }
 
-    public void onSignupSuccess() {
-        btnRegister.setEnabled(true);
-        setResult(RESULT_OK, new Intent()
-                .putExtra("register_phone", mPhone.getText().toString())
-                .putExtra("register_pwd", mSetPwd.getText().toString())
-        );
-        finish();
-    }
-
-    public void onSignupFailed() {
-        ToastUtil.showLong("注册失败");
-        btnRegister.setEnabled(true);
-    }
-
-    public boolean validate() {
-        boolean valid = true;
-
+    public String validate() {
         String mobile = mPhone.getText().toString();
         String pwd = mSetPwd.getText().toString();
+        String confirmPwd = mConfirmPwd.getText().toString();
+        String code = mVerifyCode.getText().toString();
 
-        if (mobile.isEmpty() || mobile.length() < 3) {
-            mPhone.setError("至少3个字符");
-            valid = false;
-        } else {
-            mPhone.setError(null);
+        if (mobile.isEmpty()) {
+            return "手机号码不能为空";
         }
 
-        if (pwd.isEmpty() || pwd.length() < 4 || pwd.length() > 18) {
-            mPhone.setError("4至18个字母数字字符");
-            valid = false;
-        } else {
-            mSetPwd.setError(null);
+        if (pwd.isEmpty()) {
+            return "设置密码不能为空";
         }
 
-        return valid;
+        if (confirmPwd.isEmpty()) {
+            return "确认密码不能为空";
+        }
+
+        if (code.isEmpty()) {
+            return "验证码不能为空";
+        }
+
+        if (pwd.length() < 4 || pwd.length() > 18) {
+            return "4至18个字母数字字符";
+        }
+
+        if (confirmPwd.length() < 4 || confirmPwd.length() > 18) {
+            return "4至18个字母数字字符";
+        }
+
+        if (Integer.parseInt(mSetPwd.getText().toString()) != Integer.parseInt(mConfirmPwd.getText().toString())) {
+            return "设置密码与确认密码不一致";
+        }
+
+        return "验证通过";
     }
 
 }

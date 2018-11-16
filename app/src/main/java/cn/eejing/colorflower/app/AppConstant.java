@@ -12,6 +12,11 @@ public class AppConstant {
     public static final String TAG = "taodaren";
     public static final String APP_ID = "wx6a32217e1e3ae4f4";
 
+    // 发送短信flag
+    public static final int SEND_MSG_FLAG_REGISTER = 0;    // 注册
+    public static final int SEND_MSG_FLAG_FORGET   = 1;    // 忘记密码
+    public static final int SEND_MSG_FLAG_PAY      = 2;    // 设置支付密码
+
     public static final String APP_QR_GET_MID = "二维码扫描获取料包 ID";
     public static final String APP_QR_GET_DID = "二维码扫描获取设备 ID";
 

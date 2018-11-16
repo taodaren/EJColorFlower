@@ -11,11 +11,13 @@ public interface Urls {
             "https://eejing.oss-cn-beijing.aliyuncs.com/eejing_download/eejing.apk";   // 下载APK地址
 
     String BASE_URL = "http://www.eejing.cn/index.php/index/api/";                     // 域名公共部分
+    String BASE_URL_V2 = "http://v2.eejing.cn/api/v2.0/";                              // 2.0版本
 
-    String REGISTER = BASE_URL + "register";                                           // 注册
+    String SEND_MSG = BASE_URL_V2 + "sendMsg";                                            // 发送短信
+    String REGISTER = BASE_URL_V2 + "register";                                           // 注册
+    String CHANGE_PWD = BASE_URL_V2 + "changePassword";                                   // 修改密码
     String LOGIN = BASE_URL + "login";                                                 // 登录
     String PWD_FIND = BASE_URL + "pwdFind";                                            // 密码找回
-    String SEND_MSG = BASE_URL + "sendMsg";                                            // 发送短信
 
     String QUERY_DEV_MAC = BASE_URL + "queryDeviceMac";                                // 查询设备 Mac 地址
     String DEVICE_LIST = BASE_URL + "device_list";                                     // 获取用户设备列表

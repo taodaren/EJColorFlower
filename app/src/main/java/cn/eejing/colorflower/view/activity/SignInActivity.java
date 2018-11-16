@@ -33,6 +33,7 @@ import cn.eejing.colorflower.view.base.BaseActivity;
  */
 
 public class SignInActivity extends BaseActivity {
+    private static final String TAG = "SignInActivity";
     private static final int REQUEST_SIGNUP = 1;
     private static final int REQUEST_FORGET = 2;
 
@@ -59,18 +60,13 @@ public class SignInActivity extends BaseActivity {
         if (password != null) {
             etPwd.setText(password);
         }
-        if (phone != null && password != null) {
-            // 如果存在手机号和密码，隐藏操作相关布局，延迟 1s 自动登陆
-            layoutHide.setVisibility(View.INVISIBLE);
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    login();
-                }
-            }, 1000);
-        } else {
-            layoutHide.setVisibility(View.VISIBLE);
-        }
+//        if (phone != null && password != null) {
+//            // 如果存在手机号和密码，隐藏操作相关布局，延迟 1s 自动登陆
+//            layoutHide.setVisibility(View.INVISIBLE);
+//            new Handler().postDelayed(this::login, 1000);
+//        } else {
+//            layoutHide.setVisibility(View.VISIBLE);
+//        }
     }
 
     @Override
@@ -81,7 +77,7 @@ public class SignInActivity extends BaseActivity {
                     // 默认情况下，我们只需完成活动并自动登录它们
                     etPhone.setText(data.getStringExtra("register_phone"));
                     etPwd.setText(data.getStringExtra("register_pwd"));
-                    login();
+//                    login();
                     break;
                 case REQUEST_FORGET:
                     etPhone.setText(data.getStringExtra("forget_phone"));
@@ -107,7 +103,6 @@ public class SignInActivity extends BaseActivity {
         }
     }
 
-    private static final String TAG = "SignInActivity";
     private void login() {
         if (!validate()) {
             onLoginFailed("验证登陆失败");
