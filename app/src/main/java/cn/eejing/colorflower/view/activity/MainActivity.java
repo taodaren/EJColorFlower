@@ -98,7 +98,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         mServerDevList = new ArrayList<>();
         mServerMacList = new ArrayList<>();
 
-        getDataWithDeviceList();
+//        getDataWithDeviceList();
         scanRefresh();
     }
 
@@ -150,9 +150,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
 //        super.onSaveInstanceState(outState);
     }
 
-    /**
-     * 设置底部导航
-     */
+    /** 设置底部导航 */
     private void initBtnNavBar() {
         BottomNavigationBar navBar = findViewById(R.id.bottom_navigation_bar);
         navBar
@@ -174,9 +172,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         navBar.setTabSelectedListener(this);
     }
 
-    /**
-     * 将 Fragment 加入 fragments 里面
-     */
+    /** 将 Fragment 加入 fragments 里面 */
     private ArrayList<Fragment> getFragments() {
         ArrayList<Fragment> list = new ArrayList<>();
         list.add(TabCtrlFragment.newInstance());
@@ -185,9 +181,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         return list;
     }
 
-    /**
-     * 设置默认 fragment
-     */
+    /** 设置默认 fragment */
     private void setDefFragment() {
         Fragment defFragment = mFragments.get(0);
         if (!defFragment.isAdded()) {
@@ -196,18 +190,14 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         }
     }
 
-    /**
-     * 添加 Fragment 到 Activity 的布局
-     */
+    /** 添加 Fragment 到 Activity 的布局 */
     protected void addFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(R.id.main_content, fragment);
         fragmentTransaction.commit();
     }
 
-    /**
-     * 切换 fragment
-     */
+    /** 切换 fragment */
     @SuppressLint("CommitTransaction")
     private void replaceFragment(Fragment fragment) {
         // 添加或者显示 fragment
@@ -224,24 +214,18 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         mCurrentFragment = fragment;
     }
 
-    /**
-     * Tab 被选中
-     */
+    /** Tab 被选中 */
     @Override
     public void onTabSelected(int position) {
         replaceFragment(mFragments.get(position));
     }
 
-    /**
-     * Tab 被取消选中
-     */
+    /** Tab 被取消选中 */
     @Override
     public void onTabUnselected(int position) {
     }
 
-    /**
-     * Tab 被重新选中
-     */
+    /** Tab 被重新选中 */
     @Override
     public void onTabReselected(int position) {
     }
@@ -489,9 +473,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         return null;
     }
 
-    /**
-     * 连接设备
-     */
+    /** 连接设备 */
     public void connDevice(final String mac, long id) {
         if (!mProtocolMap.containsKey(mac)) {
             Device dev = new Device(mac);
@@ -502,9 +484,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         }
     }
 
-    /**
-     * 断开连接设备
-     */
+    /** 断开连接设备 */
     public void disconnectDevice(final String mac) {
         if (mProtocolMap.containsKey(mac)) {
             Device dev = new Device(mac);
@@ -540,9 +520,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         }
     }
 
-    /**
-     * 设备就绪
-     */
+    /** 设备就绪 */
     @Override
     void onDeviceReady(final String mac) {
         LogUtil.i(TAG, "onDeviceReady " + mac);
@@ -573,9 +551,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         }
     }
 
-    /**
-     * 设备断开
-     */
+    /** 设备断开 */
     @Override
     void onDeviceDisconnect(String mac) {
         unregisterPeriod(mac + "-status");

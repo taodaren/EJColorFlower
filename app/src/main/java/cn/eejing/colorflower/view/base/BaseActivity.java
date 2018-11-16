@@ -32,7 +32,6 @@ import java.util.Map;
 
 import butterknife.ButterKnife;
 import cn.eejing.colorflower.R;
-import cn.eejing.colorflower.app.AppConstant;
 import cn.eejing.colorflower.model.request.VersionUpdateBean;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.AppUtils;
@@ -52,6 +51,7 @@ import static cn.eejing.colorflower.presenter.Urls.DOWN_LOAD_APK;
  */
 
 public abstract class BaseActivity extends AppCompatActivity {
+    private static final String TAG = "BaseActivity";
     private static Map<String, Activity> activityMap = new HashMap<>();
 
     @Override
@@ -209,9 +209,9 @@ public abstract class BaseActivity extends AppCompatActivity {
         return versionName;
     }
 
-    /** 强制版本更新 */
+    /** 版本更新 */
     public void forcedVersionUpdate() {
-        OkGo.<String>post(Urls.VERSION_UPDATE)
+        OkGo.<String>post(Urls.NEW_VERSION_UPDATE)
                 .tag(this)
                 .params("app_id", 2)// 2代表安卓客户端
                 .params("version_code", getVersionName(this))
@@ -219,7 +219,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        LogUtil.d(AppConstant.TAG, "新版本更新请求成功: " + body);
+                        LogUtil.d(TAG, "版本更新 请求成功: " + body);
 
                         Gson gson = new Gson();
                         VersionUpdateBean bean = gson.fromJson(body, VersionUpdateBean.class);
