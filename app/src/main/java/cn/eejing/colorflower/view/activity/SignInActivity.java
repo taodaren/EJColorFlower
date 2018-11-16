@@ -3,10 +3,9 @@ package cn.eejing.colorflower.view.activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.allen.library.SuperButton;
@@ -18,7 +17,6 @@ import com.lzy.okgo.model.Response;
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
-import cn.eejing.colorflower.app.AppConstant;
 import cn.eejing.colorflower.model.request.LoginBean;
 import cn.eejing.colorflower.model.session.LoginSession;
 import cn.eejing.colorflower.presenter.Urls;
@@ -34,15 +32,15 @@ import cn.eejing.colorflower.view.base.BaseActivity;
 
 public class SignInActivity extends BaseActivity {
     private static final String TAG = "SignInActivity";
-    private static final int REQUEST_SIGNUP = 1;
-    private static final int REQUEST_FORGET = 2;
+    private static final int REQUEST_SIGN_UP    = 1;
+    private static final int REQUEST_FORGET_PWD = 2;
 
-    @BindView(R.id.et_login_phone)           EditText etPhone;
-    @BindView(R.id.et_login_pwd)             EditText etPwd;
-    @BindView(R.id.tv_login_register)        TextView tvRegister;
-    @BindView(R.id.tv_login_forget)          TextView tvForgetPwd;
-    @BindView(R.id.btn_login)                SuperButton btnLogin;
-    @BindView(R.id.layout_hide)              LinearLayout layoutHide;
+    @BindView(R.id.et_login_phone)           EditText       etPhone;
+    @BindView(R.id.et_login_pwd)             EditText       etPwd;
+    @BindView(R.id.tv_login_register)        TextView       tvRegister;
+    @BindView(R.id.tv_login_forget)          TextView       tvForgetPwd;
+    @BindView(R.id.btn_login)                SuperButton    btnLogin;
+    @BindView(R.id.layout_hide)              RelativeLayout layoutHide;
 
     @Override
     protected int layoutViewId() {
@@ -60,26 +58,26 @@ public class SignInActivity extends BaseActivity {
         if (password != null) {
             etPwd.setText(password);
         }
-//        if (phone != null && password != null) {
-//            // 如果存在手机号和密码，隐藏操作相关布局，延迟 1s 自动登陆
-//            layoutHide.setVisibility(View.INVISIBLE);
-//            new Handler().postDelayed(this::login, 1000);
-//        } else {
-//            layoutHide.setVisibility(View.VISIBLE);
-//        }
+        if (phone != null && password != null) {
+            // 如果存在手机号和密码，隐藏操作相关布局，延迟 1s 自动登陆
+            layoutHide.setVisibility(View.INVISIBLE);
+            new Handler().postDelayed(this::login, 1000);
+        } else {
+            layoutHide.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
-                case REQUEST_SIGNUP:
+                case REQUEST_SIGN_UP:
                     // 默认情况下，我们只需完成活动并自动登录它们
                     etPhone.setText(data.getStringExtra("register_phone"));
                     etPwd.setText(data.getStringExtra("register_pwd"));
-//                    login();
+                    login();
                     break;
-                case REQUEST_FORGET:
+                case REQUEST_FORGET_PWD:
                     etPhone.setText(data.getStringExtra("forget_phone"));
                     break;
             }
@@ -93,19 +91,20 @@ public class SignInActivity extends BaseActivity {
                 login();
                 break;
             case R.id.tv_login_register:
-                startActivityForResult(new Intent(SignInActivity.this, SignUpActivity.class), REQUEST_SIGNUP);
+                startActivityForResult(new Intent(SignInActivity.this, SignUpActivity.class), REQUEST_SIGN_UP);
                 break;
             case R.id.tv_login_forget:
                 startActivityForResult(new Intent(SignInActivity.this, SiPwdForgetActivity.class)
-                        .putExtra("mobile", etPhone.getText().toString()), REQUEST_FORGET
+                        .putExtra("mobile", etPhone.getText().toString()), REQUEST_FORGET_PWD
                 );
                 break;
         }
     }
 
     private void login() {
-        if (!validate()) {
-            onLoginFailed("验证登陆失败");
+        String info = validate();
+        if (!info.equals("验证通过")) {
+            onLoginFailed(info);
             return;
         }
 
@@ -141,16 +140,12 @@ public class SignInActivity extends BaseActivity {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        LogUtil.e(AppConstant.TAG, "login request succeeded--->" + body);
+                        LogUtil.d(TAG, "用户登录 请求成功: " + body);
 
                         Gson gson = new Gson();
                         LoginBean bean = gson.fromJson(body, LoginBean.class);
 
                         switch (bean.getCode()) {
-                            case 0:
-                                onLoginFailed("登陆失败");
-                                dialog.dismiss();
-                                break;
                             case 1:
                                 MySettings.storeSessionInfo(SignInActivity.this, new LoginSession(
                                         etPhone.getText().toString(),
@@ -160,15 +155,12 @@ public class SignInActivity extends BaseActivity {
                                 ));
                                 jumpToActivity(MainActivity.class);
                                 onLoginSuccess();
-                                dialog.dismiss();
-                                break;
-                            case 4:
-                                // 如果帐号或密码输入错误（返回码为4）重新输入
-                                onInputError();
-                                dialog.dismiss();
                                 break;
                             default:
+                                onLoginFailed(bean.getMessage());
+                                break;
                         }
+                        dialog.dismiss();
                     }
 
                     @Override
@@ -190,33 +182,27 @@ public class SignInActivity extends BaseActivity {
         layoutHide.setVisibility(View.VISIBLE);
     }
 
-    public void onInputError() {
-        ToastUtil.showShort("手机号码或密码不正确，请检查信息");
-        layoutHide.setVisibility(View.VISIBLE);
-        btnLogin.setEnabled(true);
-    }
-
-    public boolean validate() {
-        boolean valid = true;
-
+    public String validate() {
         String phone = etPhone.getText().toString();
         String password = etPwd.getText().toString();
 
-        if (phone.isEmpty() || phone.length() != 11) {
-            etPhone.setError("请输入一个有效的手机号码");
-            valid = false;
-        } else {
-            etPhone.setError(null);
+        if (phone.isEmpty()) {
+            return "手机号码不能为空";
         }
 
-        if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
-            etPwd.setError("4至10个字母数字字符");
-            valid = false;
-        } else {
-            etPwd.setError(null);
+        if (password.isEmpty()) {
+            return "登陆密码不能为空";
         }
 
-        return valid;
+        if (phone.length() != 11) {
+            return "请输入一个有效的手机号码";
+        }
+
+        if (password.length() < 6 || password.length() > 20) {
+            return "请设置6至20个字母数字字符";
+        }
+
+        return "验证通过";
     }
 
 }

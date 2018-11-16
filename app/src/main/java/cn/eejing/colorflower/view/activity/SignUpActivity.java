@@ -31,11 +31,11 @@ import static cn.eejing.colorflower.app.AppConstant.SEND_MSG_FLAG_REGISTER;
 public class SignUpActivity extends BaseActivity {
     private static final String TAG = "SignUpActivity";
 
-    @BindView(R.id.et_register_phone)              EditText mPhone;
-    @BindView(R.id.et_register_set_pwd)            EditText mSetPwd;
-    @BindView(R.id.et_register_confirm_pwd)        EditText mConfirmPwd;
-    @BindView(R.id.et_register_verify_code)        EditText mVerifyCode;
-    @BindView(R.id.btn_register_get_code)          Button btnGetCode;
+    @BindView(R.id.et_register_phone)              EditText    mPhone;
+    @BindView(R.id.et_register_set_pwd)            EditText    mSetPwd;
+    @BindView(R.id.et_register_confirm_pwd)        EditText    mConfirmPwd;
+    @BindView(R.id.et_register_verify_code)        EditText    mVerifyCode;
+    @BindView(R.id.btn_register_get_code)          Button      btnGetCode;
     @BindView(R.id.btn_register_register)          SuperButton btnRegister;
 
     private Gson mGson;
@@ -63,92 +63,6 @@ public class SignUpActivity extends BaseActivity {
             case R.id.btn_register_register:
                 signUp();
                 break;
-        }
-    }
-
-    private void getDateWithRegister(final ProgressDialog dialog) {
-        try {
-            String encryptSetPwd = Encryption.encrypt(mSetPwd.getText().toString(), mIv);
-
-            OkGo.<String>post(Urls.REGISTER)
-                    .tag(this)
-                    .params("mobile", mPhone.getText().toString())
-                    .params("code", mVerifyCode.getText().toString())
-                    .params("password", encryptSetPwd)
-                    .params("iv", mIv)
-                    .execute(new StringCallback() {
-                        @Override
-                        public void onSuccess(Response<String> response) {
-                            String body = response.body();
-                            LogUtil.d(TAG, "普通用户注册 请求成功: " + body);
-
-                            mGson = new Gson();
-                            CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
-
-                            switch (bean.getCode()) {
-                                case 1:
-                                    ToastUtil.showShort("账号注册成功");
-                                    setResult(RESULT_OK, new Intent()
-                                            .putExtra("register_phone", mPhone.getText().toString())
-                                            .putExtra("register_pwd", mSetPwd.getText().toString())
-                                    );
-                                    finish();
-                                    break;
-                                case 2:
-                                    ToastUtil.showShort("手机号码已被注册或格式错误");
-                                    break;
-                                case 4:
-                                    ToastUtil.showShort("输入的验证码有误");
-                                    break;
-                                case 5:
-                                    ToastUtil.showShort("验证码已过期,请重新获取");
-                                    break;
-                            }
-                            btnRegister.setEnabled(true);
-                            dialog.dismiss();
-
-                        }
-                    });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void getDateWithSendMsg() {
-        try {
-            String encryptPhone = Encryption.encrypt(mPhone.getText().toString(), mIv);
-
-            OkGo.<String>post(Urls.SEND_MSG)
-                    .tag(this)
-                    .params("mobile", encryptPhone)
-                    .params("iv", mIv)
-                    .params("flag", SEND_MSG_FLAG_REGISTER)
-                    .execute(new StringCallback() {
-                        @Override
-                        public void onSuccess(Response<String> response) {
-                            String body = response.body();
-                            LogUtil.d(TAG, "发送短信 请求成功: " + body);
-
-                            mGson = new Gson();
-                            CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
-                            switch (bean.getCode()) {
-                                case 1:
-                                    ToastUtil.showShort("验证码发送成功");
-                                    break;
-                                case 2:
-                                    ToastUtil.showShort("手机号码不能为空");
-                                    break;
-                                case 3:
-                                    ToastUtil.showShort("当天只能发送 5 条信息");
-                                    break;
-                                case 4:
-                                    ToastUtil.showShort("请 5 分钟后再发送");
-                                    break;
-                            }
-                        }
-                    });
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -193,12 +107,12 @@ public class SignUpActivity extends BaseActivity {
             return "验证码不能为空";
         }
 
-        if (pwd.length() < 4 || pwd.length() > 18) {
-            return "4至18个字母数字字符";
+        if (pwd.length() < 6 || pwd.length() > 18) {
+            return "请设置6至18个字母数字字符";
         }
 
-        if (confirmPwd.length() < 4 || confirmPwd.length() > 18) {
-            return "4至18个字母数字字符";
+        if (confirmPwd.length() < 6 || confirmPwd.length() > 18) {
+            return "请设置6至18个字母数字字符";
         }
 
         if (Integer.parseInt(mSetPwd.getText().toString()) != Integer.parseInt(mConfirmPwd.getText().toString())) {
@@ -206,6 +120,80 @@ public class SignUpActivity extends BaseActivity {
         }
 
         return "验证通过";
+    }
+
+    private void getDateWithSendMsg() {
+        try {
+            String encryptPhone = Encryption.encrypt(mPhone.getText().toString(), mIv);
+
+            OkGo.<String>post(Urls.SEND_MSG)
+                    .tag(this)
+                    .params("mobile", encryptPhone)
+                    .params("iv", mIv)
+                    .params("flag", SEND_MSG_FLAG_REGISTER)
+                    .execute(new StringCallback() {
+                        @Override
+                        public void onSuccess(Response<String> response) {
+                            String body = response.body();
+                            LogUtil.d(TAG, "发送短信 请求成功: " + body);
+
+                            mGson = new Gson();
+                            CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
+                            switch (bean.getCode()) {
+                                case 1:
+                                    ToastUtil.showShort("验证码发送成功");
+                                    break;
+                                default:
+                                    ToastUtil.showShort(bean.getMessage());
+                                    break;
+                            }
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void getDateWithRegister(final ProgressDialog dialog) {
+        try {
+            String encryptSetPwd = Encryption.encrypt(mSetPwd.getText().toString(), mIv);
+
+            OkGo.<String>post(Urls.REGISTER)
+                    .tag(this)
+                    .params("mobile", mPhone.getText().toString())
+                    .params("code", mVerifyCode.getText().toString())
+                    .params("password", encryptSetPwd)
+                    .params("iv", mIv)
+                    .execute(new StringCallback() {
+                        @Override
+                        public void onSuccess(Response<String> response) {
+                            String body = response.body();
+                            LogUtil.d(TAG, "普通用户注册 请求成功: " + body);
+
+                            mGson = new Gson();
+                            CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
+
+                            switch (bean.getCode()) {
+                                case 1:
+                                    ToastUtil.showShort("账号注册成功");
+                                    setResult(RESULT_OK, new Intent()
+                                            .putExtra("register_phone", mPhone.getText().toString())
+                                            .putExtra("register_pwd", mSetPwd.getText().toString())
+                                    );
+                                    finish();
+                                    break;
+                                default:
+                                    ToastUtil.showShort(bean.getMessage());
+                                    break;
+                            }
+                            btnRegister.setEnabled(true);
+                            dialog.dismiss();
+
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

@@ -16,7 +16,6 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.model.request.CodeMsgBean;
-import cn.eejing.colorflower.model.request.PwdFindBean;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.Encryption;
 import cn.eejing.colorflower.util.LogUtil;
@@ -32,11 +31,11 @@ import static cn.eejing.colorflower.app.AppConstant.SEND_MSG_FLAG_FORGET;
 public class SiPwdForgetActivity extends BaseActivity {
     private static final String TAG = "SiPwdForgetActivity";
 
-    @BindView(R.id.et_forget_phone)              EditText etPhone;
-    @BindView(R.id.et_forget_set_pwd)            EditText etSetPwd;
-    @BindView(R.id.et_forget_confirm_pwd)        EditText etForgetConfirmPwd;
-    @BindView(R.id.et_forget_verify_code)        EditText etForgetVerifyCode;
-    @BindView(R.id.btn_forget_get_code)          Button btnForgetGetCode;
+    @BindView(R.id.et_forget_phone)              EditText    etPhone;
+    @BindView(R.id.et_forget_set_pwd)            EditText    etSetPwd;
+    @BindView(R.id.et_forget_confirm_pwd)        EditText    etConfirmPwd;
+    @BindView(R.id.et_forget_verify_code)        EditText    etVerifyCode;
+    @BindView(R.id.btn_forget_get_code)          Button      btnForgetGetCode;
     @BindView(R.id.btn_reset_pwd)                SuperButton btnResetPwd;
 
     private Gson mGson;
@@ -92,8 +91,8 @@ public class SiPwdForgetActivity extends BaseActivity {
     public String validate() {
         String mobile = etPhone.getText().toString();
         String pwd = etSetPwd.getText().toString();
-        String confirmPwd = etForgetConfirmPwd.getText().toString();
-        String code = etForgetVerifyCode.getText().toString();
+        String confirmPwd = etConfirmPwd.getText().toString();
+        String code = etVerifyCode.getText().toString();
 
         if (mobile.isEmpty()) {
             return "手机号码不能为空";
@@ -111,20 +110,21 @@ public class SiPwdForgetActivity extends BaseActivity {
             return "验证码不能为空";
         }
 
-        if (pwd.length() < 4 || pwd.length() > 18) {
-            return "4至18个字母数字字符";
+        if (pwd.length() < 6 || pwd.length() > 18) {
+            return "请设置6至18个字母数字字符";
         }
 
-        if (confirmPwd.length() < 4 || confirmPwd.length() > 18) {
-            return "4至18个字母数字字符";
+        if (confirmPwd.length() < 6 || confirmPwd.length() > 18) {
+            return "请设置6至18个字母数字字符";
         }
 
-        if (Integer.parseInt(etSetPwd.getText().toString()) != Integer.parseInt(etForgetConfirmPwd.getText().toString())) {
+        if (Integer.parseInt(etSetPwd.getText().toString()) != Integer.parseInt(etConfirmPwd.getText().toString())) {
             return "设置密码与确认密码不一致";
         }
 
         return "验证通过";
     }
+
     private void getDateWithSendMsg() {
         try {
             String encryptPhone = Encryption.encrypt(etPhone.getText().toString(), mIv);
@@ -146,14 +146,8 @@ public class SiPwdForgetActivity extends BaseActivity {
                                 case 1:
                                     ToastUtil.showShort("验证码发送成功");
                                     break;
-                                case 2:
-                                    ToastUtil.showShort("手机号码不能为空");
-                                    break;
-                                case 3:
-                                    ToastUtil.showShort("当天只能发送 5 条信息");
-                                    break;
-                                case 4:
-                                    ToastUtil.showShort("请 5 分钟后再发送");
+                                default:
+                                    ToastUtil.showShort(bean.getMessage());
                                     break;
                             }
                         }
@@ -166,7 +160,7 @@ public class SiPwdForgetActivity extends BaseActivity {
     private void getDataWithPwdFind(ProgressDialog dialog) {
         try {
             String encryptPwd = Encryption.encrypt(etSetPwd.getText().toString(), mIv);
-            String code = etForgetVerifyCode.getText().toString();
+            String code = etVerifyCode.getText().toString();
 
             OkGo.<String>post(Urls.CHANGE_PWD)
                     .tag(this)
@@ -181,12 +175,9 @@ public class SiPwdForgetActivity extends BaseActivity {
                             LogUtil.d(TAG, "修改密码 请求成功: " + body);
 
                             mGson = new Gson();
-                            PwdFindBean bean = mGson.fromJson(body, PwdFindBean.class);
+                            CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
 
                             switch (bean.getCode()) {
-                                case 0:
-                                    ToastUtil.showShort("重置密码失败");
-                                    break;
                                 case 1:
                                     ToastUtil.showShort("重置密码成功");
                                     setResult(RESULT_OK, new Intent()
@@ -194,7 +185,12 @@ public class SiPwdForgetActivity extends BaseActivity {
                                     );
                                     finish();
                                     break;
+                                default:
+                                    ToastUtil.showShort(bean.getMessage());
+                                    break;
                             }
+                            btnResetPwd.setEnabled(true);
+                            dialog.dismiss();
                         }
                     });
         } catch (Exception e) {

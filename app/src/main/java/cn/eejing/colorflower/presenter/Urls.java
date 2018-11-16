@@ -14,9 +14,9 @@ public interface Urls {
     String BASE_URL_V2 = "http://v2.eejing.cn/api/v2.0/";                              // 2.0版本
 
     String SEND_MSG = BASE_URL_V2 + "sendMsg";                                            // 发送短信
-    String REGISTER = BASE_URL_V2 + "register";                                           // 注册
+    String REGISTER = BASE_URL_V2 + "register";                                           // 普通用户注册
     String CHANGE_PWD = BASE_URL_V2 + "changePassword";                                   // 修改密码
-    String LOGIN = BASE_URL + "login";                                                 // 登录
+    String LOGIN = BASE_URL_V2 + "login";                                                 // 用户登录
     String PWD_FIND = BASE_URL + "pwdFind";                                            // 密码找回
 
     String QUERY_DEV_MAC = BASE_URL + "queryDeviceMac";                                // 查询设备 Mac 地址
