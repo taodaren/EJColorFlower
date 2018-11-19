@@ -51,9 +51,9 @@ public class AppConstant {
     public static final int REQUEST_CODE_ADDR_SELECT = 20;              // 地址选择
 
     // 加料使用状态
-    public static final int TYPE_NO_USED = 0;
-    public static final int TYPE_WAIT_USED = 1;
-    public static final int TYPE_END_USED = 2;
+    public static final String TYPE_NO_USED   = "0";
+    public static final String TYPE_WAIT_USED = "1";
+    public static final String TYPE_END_USED  = "2";
 
     // 蓝牙连接 / 断开连接
     public static final int HANDLE_BLE_CONN = 101;

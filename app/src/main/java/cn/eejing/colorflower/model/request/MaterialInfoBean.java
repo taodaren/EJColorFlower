@@ -4,8 +4,8 @@ public class MaterialInfoBean {
 
     /**
      * code : 1
-     * message : 获取信息成功
-     * data : {"material_num":"18032090864712","type":"eee","level":"优","color":"白","duration":"16","use_device":"","use_status":0,"use_member":0,"update_time":1527649042,"qr_code":"/www/web/default/public/uploads/qrcode/18032090864712.png"}
+     * message : 数据获取成功
+     * data : {"id":181030570684796,"type":"返点","level":"返点","color":"返点","duration":"240","status":"0"}
      */
 
     private int code;
@@ -38,35 +38,27 @@ public class MaterialInfoBean {
 
     public static class DataBean {
         /**
-         * material_num : 18032090864712
-         * type : eee
-         * level : 优
-         * color : 白
-         * duration : 16
-         * use_device :
-         * use_status : 0
-         * use_member : 0
-         * update_time : 1527649042
-         * qr_code : /www/web/default/public/uploads/qrcode/18032090864712.png
+         * id : 181030570684796
+         * type : 返点
+         * level : 返点
+         * color : 返点
+         * duration : 240
+         * status : 0
          */
 
-        private String material_num;
+        private long id;
         private String type;
         private String level;
         private String color;
         private String duration;
-        private String use_device;
-        private int use_status;
-        private int use_member;
-        private int update_time;
-        private String qr_code;
+        private String status;
 
-        public String getMaterial_num() {
-            return material_num;
+        public long getId() {
+            return id;
         }
 
-        public void setMaterial_num(String material_num) {
-            this.material_num = material_num;
+        public void setId(long id) {
+            this.id = id;
         }
 
         public String getType() {
@@ -101,44 +93,12 @@ public class MaterialInfoBean {
             this.duration = duration;
         }
 
-        public String getUse_device() {
-            return use_device;
+        public String getStatus() {
+            return status;
         }
 
-        public void setUse_device(String use_device) {
-            this.use_device = use_device;
-        }
-
-        public int getUse_status() {
-            return use_status;
-        }
-
-        public void setUse_status(int use_status) {
-            this.use_status = use_status;
-        }
-
-        public int getUse_member() {
-            return use_member;
-        }
-
-        public void setUse_member(int use_member) {
-            this.use_member = use_member;
-        }
-
-        public int getUpdate_time() {
-            return update_time;
-        }
-
-        public void setUpdate_time(int update_time) {
-            this.update_time = update_time;
-        }
-
-        public String getQr_code() {
-            return qr_code;
-        }
-
-        public void setQr_code(String qr_code) {
-            this.qr_code = qr_code;
+        public void setStatus(String status) {
+            this.status = status;
         }
     }
 }
