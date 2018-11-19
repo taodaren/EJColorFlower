@@ -23,14 +23,7 @@ public interface Urls {
     String WAIT_USE_STATUS = BASE_URL_V2 + "modifyWaitingForUseStatus";                   // 修改为待使用状态
     String END_USE_STATUS = BASE_URL_V2 + "modifyUseCompletedStatus";                     // 修改为已使用状态
 
-    String ADD_GROUP = BASE_URL + "add_group";                                         // 用户新建设备组
-    String GET_DEVICE_GROUP_LIST = BASE_URL + "getDeviceGroupList";                    // 获取设备用户组
-    String GO_EDIT_DEVICE_TO_GROUP = BASE_URL + "goEditDeviceToGroup";                 // 修改设备组内设备——获取设备页面
-    String ADD_DEVICE_TO_GROUP = BASE_URL + "addDeviceToGroup";                        // 添加设备到用户组
-    String RM_GROUP = BASE_URL + "rm_group";                                           // 删除用户组
-    String RENAME_GROUP = BASE_URL + "renameGroup";                                    // 设备组重命名
-
-    String GOODS_LIST = BASE_URL + "goodsList";                                        // 商品列表
+    String GET_GOODS_LIST = BASE_URL_V2 + "getGoodsList";                                 // 商品列表
     String GOODS_DETAILS = BASE_URL + "goodsDetails";                                  // 商品详情
     String CONFIRM_ORDER = BASE_URL + "confirmOrder";                                  // 确认订单
     String ADDRESS_LIST = BASE_URL + "addressList";                                    // 用户地址列表

@@ -6,7 +6,7 @@
     <color name="windowBackground">#f9f9f9</color>
 
     <color name="colorTransparent">#00000000</color>
-    <color name="colorTransparent50">#80000000</color>
+    <color name="colorTransparent50">#50000000</color>
     <color name="colorTransparent50White">#80FFFFFF</color>
     <color name="colorTransparent30Red">#4Dca0d0d</color>
 

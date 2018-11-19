@@ -671,4 +671,8 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         return mMemberId;
     }
 
+    public String getToken() {
+        return mToken;
+    }
+
 }
