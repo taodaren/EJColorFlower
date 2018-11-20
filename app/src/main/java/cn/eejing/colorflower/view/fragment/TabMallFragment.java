@@ -94,13 +94,13 @@ public class TabMallFragment extends BaseFragment {
             if (mList.get(position).getStore_count().equals("0")) {
                 ToastUtil.showShort("商家正在补货中...");
             } else {
-            int goodsId = mList.get(position).getId();
-            String name = mList.get(position).getGoods_name();
+                int goodsId = mList.get(position).getId();
+                String name = mList.get(position).getGoods_name();
 
-            Intent intent = new Intent(getContext(), MaGoodsDetailsActivity.class);
-            intent.putExtra("goods_id", goodsId);
-            intent.putExtra("name", name);
-            ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(intent);
+                Intent intent = new Intent(getContext(), MaGoodsDetailsActivity.class);
+                intent.putExtra("goods_id", goodsId);
+                intent.putExtra("name", name);
+                ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(intent);
             }
         });
         rvTabMall.setAdapter(mAdapter);

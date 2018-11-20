@@ -2,6 +2,7 @@ package cn.eejing.colorflower.view.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Paint;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -26,6 +27,10 @@ import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.app.AppConstant;
 import cn.eejing.colorflower.model.request.GoodsDetailsBean;
 import cn.eejing.colorflower.util.LogUtil;
+
+/**
+ * 商品详情适配器
+ */
 
 public class GoodsDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_BANNER = 0;
@@ -91,7 +96,7 @@ public class GoodsDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     }
 
     class BannerViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.banner_goods_dtl)        BGABanner bgaBanner;
+        @BindView(R.id.banner_goods_dtl)        BGABanner banner;
 
         BannerViewHolder(View itemView) {
             super(itemView);
@@ -101,31 +106,30 @@ public class GoodsDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         public void setData(GoodsDetailsBean.DataBean bean) {
             /* 设置是否开启自动轮播，需要在 setDataConn 方法之前调用，并且调了该方法后必须再调用一次 setDataConn 方法
                例如根据图片当图片数量大于 1 时开启自动轮播，等于 1 时不开启自动轮播 */
-            bgaBanner.setAutoPlayAble(bean.getImage().size() > 1);
+            banner.setAutoPlayAble(bean.getOriginal_img().size() > 1);
 
-            bgaBanner.setAdapter((BGABanner.Adapter<ImageView, String>) (banner, itemView, model, position) -> Glide.with(mContext)
+            banner.setAdapter((BGABanner.Adapter<ImageView, String>) (banner, itemView, model, position) -> Glide.with(mContext)
                     .load(model)
                     .apply(new RequestOptions()
                             .placeholder(R.drawable.shape_add_effect)
                             .error(R.drawable.shape_add_effect)
                             .dontAnimate()
-                            .centerCrop())
+                            .centerInside())
+//                            .centerCrop())
                     .into(itemView));
-            bgaBanner.setData(bean.getImage(), null);
+            banner.setData(bean.getOriginal_img(), null);
 
 //            // 监听 banner 点击事件
-//            bgaBanner.setDelegate((banner, itemView, model, position) -> Toast.makeText(banner.getContext(), "click " + position, Toast.LENGTH_SHORT).show());
+//            banner.setDelegate((banner, itemView, model, position) -> Toast.makeText(banner.getContext(), "click " + position, Toast.LENGTH_SHORT).show());
         }
 
     }
 
-    class LayoutViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        @BindView(R.id.tv_name)                  TextView tvName;
-        @BindView(R.id.tv_money)                 TextView tvMoney;
-        @BindView(R.id.tv_stock)                 TextView tvStock;
-        @BindView(R.id.tv_basics_postage)        TextView tvBasicsPostage;
-        @BindView(R.id.tv_postage)               TextView tvPostage;
-        @BindView(R.id.tv_sold)                  TextView tvSold;
+    class LayoutViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.tv_name)             TextView tvName;
+        @BindView(R.id.tv_money)            TextView tvMoney;
+        @BindView(R.id.tv_money_old)        TextView tvMoneyOld;
+        @BindView(R.id.tv_sold)             TextView tvSold;
 
         LayoutViewHolder(View itemView) {
             super(itemView);
@@ -134,25 +138,16 @@ public class GoodsDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         @SuppressLint("SetTextI18n")
         public void setData(GoodsDetailsBean.DataBean bean) {
-            tvName.setText(bean.getName());
-            tvMoney.setText(mContext.getResources().getString(R.string.rmb) + bean.getMoney());
-            tvBasicsPostage.setText(mContext.getResources().getString(R.string.basic_postage) + bean.getBasics_postage() + mContext.getResources().getString(R.string.yuan));
-            tvPostage.setText(mContext.getResources().getString(R.string.postage_before) + bean.getPostage() + mContext.getResources().getString(R.string.postage_after));
-            tvSold.setText(mContext.getResources().getString(R.string.sold) + bean.getSold());
-            if (bean.getStock() == 1) {
-                tvStock.setText(mContext.getResources().getString(R.string.stock_have));
-            } else if (bean.getStock() == 0) {
-                tvStock.setText(mContext.getResources().getString(R.string.stock_no));
-            }
-        }
-
-        @Override
-        public void onClick(View view) {
-
+            tvName.setText(bean.getGoods_name());
+            tvMoney.setText(mContext.getResources().getString(R.string.rmb) + bean.getSale_price());
+            tvMoneyOld.setText(mContext.getResources().getString(R.string.rmb) + bean.getPrice());
+            tvSold.setText(mContext.getResources().getString(R.string.sold) + bean.getSales_sum());
+            // 添加删除线
+            tvMoneyOld.getPaint().setFlags(Paint.STRIKE_THRU_TEXT_FLAG);
         }
     }
 
-    class WebViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class WebViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.web_goods_dtl)        WebView webGoodsDtl;
 
         WebViewHolder(View itemView) {
@@ -162,7 +157,7 @@ public class GoodsDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         @SuppressLint("SetJavaScriptEnabled")
         public void setData(GoodsDetailsBean.DataBean bean) {
-            webGoodsDtl.loadUrl(bean.getUrl());
+            webGoodsDtl.loadUrl(bean.getH5_detail());
 
             WebSettings webSettings = webGoodsDtl.getSettings();
             // 5.0 以上开启混合模式加载
@@ -191,11 +186,6 @@ public class GoodsDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             webSettings.setSavePassword(false);
             // 自动加载图片
             webSettings.setLoadsImagesAutomatically(true);
-        }
-
-        @Override
-        public void onClick(View view) {
-
         }
     }
 

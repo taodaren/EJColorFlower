@@ -2,12 +2,16 @@ package cn.eejing.colorflower.model.request;
 
 import java.util.List;
 
+/**
+ * 商品详情实体类
+ */
+
 public class GoodsDetailsBean {
 
     /**
      * code : 1
-     * message : 操作成功!
-     * data : {"name":"炫彩烟花机","money":0.01,"sold":"101","image":["http://60.205.226.109/uploads/goods/20180521/2ee6635624f23464e6f61ca86172da96.jpg","http://60.205.226.109/uploads/goods/20180521/19653ef1b5fd81886b105abee9d55187.jpg"],"stock":1,"postage":3299,"basics_postage":0,"url":"http://60.205.226.109/index/api/goods_details/id/1","phone":"123456789"}
+     * message : 数据获取成功
+     * data : {"goods_sn":"YJV2Beta001","goods_name":"DMX屏蔽线","store_count":"10000000","price":"20.00","goods_remark":"DMX屏蔽线，用于彩花机设备之间的连接，保证设备多台分组同时控制。","original_img":["http://v2.eejing.cn/uploads/images/4396cbac91ad0110f955b12b28ffb4cc.jpg"],"sales_sum":"0","weight":"0","sale_price":"10.00","h5_detail":"http://v2.eejing.cn/api/v2.0/goodsDetailH5/12","server_tel":"15010986301"}
      */
 
     private int code;
@@ -40,97 +44,117 @@ public class GoodsDetailsBean {
 
     public static class DataBean {
         /**
-         * name : 炫彩烟花机
-         * money : 0.01
-         * sold : 101
-         * image : ["http://60.205.226.109/uploads/goods/20180521/2ee6635624f23464e6f61ca86172da96.jpg","http://60.205.226.109/uploads/goods/20180521/19653ef1b5fd81886b105abee9d55187.jpg"]
-         * stock : 1
-         * postage : 3299
-         * basics_postage : 0
-         * url : http://60.205.226.109/index/api/goods_details/id/1
-         * phone : 123456789
+         * goods_sn : YJV2Beta001
+         * goods_name : DMX屏蔽线
+         * store_count : 10000000
+         * price : 20.00
+         * goods_remark : DMX屏蔽线，用于彩花机设备之间的连接，保证设备多台分组同时控制。
+         * original_img : ["http://v2.eejing.cn/uploads/images/4396cbac91ad0110f955b12b28ffb4cc.jpg"]
+         * sales_sum : 0
+         * weight : 0
+         * sale_price : 10.00
+         * h5_detail : http://v2.eejing.cn/api/v2.0/goodsDetailH5/12
+         * server_tel : 15010986301
          */
 
-        private String name;
-        private double money;
-        private String sold;
-        private int stock;
-        private int postage;
-        private int basics_postage;
-        private String url;
-        private String phone;
-        private List<String> image;
+        private String goods_sn;
+        private String goods_name;
+        private String store_count;
+        private String price;
+        private String goods_remark;
+        private String sales_sum;
+        private String weight;
+        private String sale_price;
+        private String h5_detail;
+        private String server_tel;
+        private List<String> original_img;
 
-        public String getName() {
-            return name;
+        public String getGoods_sn() {
+            return goods_sn;
         }
 
-        public void setName(String name) {
-            this.name = name;
+        public void setGoods_sn(String goods_sn) {
+            this.goods_sn = goods_sn;
         }
 
-        public double getMoney() {
-            return money;
+        public String getGoods_name() {
+            return goods_name;
         }
 
-        public void setMoney(double money) {
-            this.money = money;
+        public void setGoods_name(String goods_name) {
+            this.goods_name = goods_name;
         }
 
-        public String getSold() {
-            return sold;
+        public String getStore_count() {
+            return store_count;
         }
 
-        public void setSold(String sold) {
-            this.sold = sold;
+        public void setStore_count(String store_count) {
+            this.store_count = store_count;
         }
 
-        public int getStock() {
-            return stock;
+        public String getPrice() {
+            return price;
         }
 
-        public void setStock(int stock) {
-            this.stock = stock;
+        public void setPrice(String price) {
+            this.price = price;
         }
 
-        public int getPostage() {
-            return postage;
+        public String getGoods_remark() {
+            return goods_remark;
         }
 
-        public void setPostage(int postage) {
-            this.postage = postage;
+        public void setGoods_remark(String goods_remark) {
+            this.goods_remark = goods_remark;
         }
 
-        public int getBasics_postage() {
-            return basics_postage;
+        public String getSales_sum() {
+            return sales_sum;
         }
 
-        public void setBasics_postage(int basics_postage) {
-            this.basics_postage = basics_postage;
+        public void setSales_sum(String sales_sum) {
+            this.sales_sum = sales_sum;
         }
 
-        public String getUrl() {
-            return url;
+        public String getWeight() {
+            return weight;
         }
 
-        public void setUrl(String url) {
-            this.url = url;
+        public void setWeight(String weight) {
+            this.weight = weight;
         }
 
-        public String getPhone() {
-            return phone;
+        public String getSale_price() {
+            return sale_price;
         }
 
-        public void setPhone(String phone) {
-            this.phone = phone;
+        public void setSale_price(String sale_price) {
+            this.sale_price = sale_price;
         }
 
-        public List<String> getImage() {
-            return image;
+        public String getH5_detail() {
+            return h5_detail;
         }
 
-        public void setImage(List<String> image) {
-            this.image = image;
+        public void setH5_detail(String h5_detail) {
+            this.h5_detail = h5_detail;
+        }
+
+        public String getServer_tel() {
+            return server_tel;
+        }
+
+        public void setServer_tel(String server_tel) {
+            this.server_tel = server_tel;
+        }
+
+        public List<String> getOriginal_img() {
+            return original_img;
+        }
+
+        public void setOriginal_img(List<String> original_img) {
+            this.original_img = original_img;
         }
     }
 }

@@ -24,7 +24,7 @@ public interface Urls {
     String END_USE_STATUS = BASE_URL_V2 + "modifyUseCompletedStatus";                     // 修改为已使用状态
 
     String GET_GOODS_LIST = BASE_URL_V2 + "getGoodsList";                                 // 商品列表
-    String GOODS_DETAILS = BASE_URL + "goodsDetails";                                  // 商品详情
+    String GOODS_DETAIL = BASE_URL_V2 + "goodsDetail";                                    // 商品详情
     String CONFIRM_ORDER = BASE_URL + "confirmOrder";                                  // 确认订单
     String ADDRESS_LIST = BASE_URL + "addressList";                                    // 用户地址列表
     String ADDRESS_ADD = BASE_URL + "addressAdd";                                      // 用户地址填加

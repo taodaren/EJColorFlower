@@ -3,7 +3,6 @@ package cn.eejing.colorflower.view.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.view.View;
-import android.widget.Button;
 
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
@@ -15,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 import cn.eejing.colorflower.R;
-import cn.eejing.colorflower.app.AppConstant;
 import cn.eejing.colorflower.model.request.GoodsDetailsBean;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
@@ -28,11 +27,10 @@ import cn.eejing.colorflower.view.base.BaseActivity;
  * 商品详情
  */
 
-public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClickListener {
+public class MaGoodsDetailsActivity extends BaseActivity {
+    private static final String TAG = "MaGoodsDetailsActivity";
 
     @BindView(R.id.rv_goods_details)        PullLoadMoreRecyclerView rvGoodsDetails;
-    @BindView(R.id.btn_customer_service)    Button btnCustomerService;
-    @BindView(R.id.btn_buy_now)             Button btnBuyNow;
 
     private Gson mGson;
     private List<GoodsDetailsBean.DataBean> mList;
@@ -50,8 +48,6 @@ public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClick
         mGoodsId = getIntent().getIntExtra("goods_id", 0);
         mGson = new Gson();
         mList = new ArrayList<>();
-
-        setToolbar(getIntent().getStringExtra("name"), View.VISIBLE, null, View.GONE);
     }
 
     @Override
@@ -59,15 +55,12 @@ public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClick
         getDataWithGoodsDetails();
     }
 
-    @Override
-    public void initListener() {
-        btnCustomerService.setOnClickListener(this);
-        btnBuyNow.setOnClickListener(this);
-    }
-
-    @Override
-    public void onClick(View view) {
+    @OnClick({R.id.rimg_del_return, R.id.btn_customer_service, R.id.btn_buy_now})
+    public void onViewClicked(View view) {
         switch (view.getId()) {
+            case R.id.rimg_del_return:
+                finish();
+                break;
             case R.id.btn_customer_service:
                 showDialog();
                 break;
@@ -75,8 +68,6 @@ public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClick
                 Intent intent = new Intent(this, MaOrderConfirmActivity.class);
                 intent.putExtra("goods_id", mGoodsId);
                 jumpToActivity(intent);
-                break;
-            default:
                 break;
         }
     }
@@ -120,17 +111,18 @@ public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClick
     }
 
     private void getDataWithGoodsDetails() {
-        OkGo.<String>post(Urls.GOODS_DETAILS)
+        OkGo.<String>post(Urls.GOODS_DETAIL)
                 .tag(this)
+                .params("token", MainActivity.getAppCtrl().getToken())
                 .params("goods_id", mGoodsId)
                 .execute(new StringCallback() {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 LogUtil.e(AppConstant.TAG, "goods_details request succeeded--->" + body);
+                                 LogUtil.d(TAG, "商品详情 请求成功: " + body);
 
                                  GoodsDetailsBean bean = mGson.fromJson(body, GoodsDetailsBean.class);
-                                 mPhone = bean.getData().getPhone();
+                                 mPhone = bean.getData().getServer_tel();
                                  mList.add(bean.getData());
                                  initRecyclerView();
                                  // 刷新结束
@@ -144,5 +136,4 @@ public class MaGoodsDetailsActivity extends BaseActivity implements View.OnClick
                          }
                 );
     }
-
 }

@@ -1,19 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorWhite"
     tools:context=".view.activity.MaGoodsDetailsActivity">
-
-    <include
-        android:id="@+id/toolbar_ma_dtl"
-        layout="@layout/layout_toolbar" />
 
     <com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView
         android:id="@+id/rv_goods_details"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/toolbar_ma_dtl" />
+        android:layout_height="wrap_content" />
+
+    <com.makeramen.roundedimageview.RoundedImageView
+        android:id="@+id/rimg_del_return"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_margin="20dp"
+        android:background="@color/colorTransparent50"
+        android:padding="6dp"
+        android:src="@drawable/ic_del_return"
+        app:riv_mutate_background="true"
+        app:riv_oval="true" />
 
     <LinearLayout
         android:id="@+id/ll_goods_details"

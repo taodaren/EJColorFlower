@@ -82,9 +82,9 @@
     <string name="reset_psd_hint">请输入新密码</string>
     <string name="add_device">添加设备</string>
     <string name="add_jet_effect">添加喷射效果</string>
-    <string name="rmb">￥ </string>
+    <string name="rmb">￥</string>
     <string name="yuan">元</string>
-    <string name="sold">已售</string>
+    <string name="sold">已售:</string>
     <string name="stock_have">有货</string>
     <string name="stock_no">无货</string>
     <string name="one">1</string>
