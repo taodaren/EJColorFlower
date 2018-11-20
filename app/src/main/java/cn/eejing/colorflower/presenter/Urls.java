@@ -25,7 +25,7 @@ public interface Urls {
 
     String GET_GOODS_LIST = BASE_URL_V2 + "getGoodsList";                                 // 商品列表
     String GOODS_DETAIL = BASE_URL_V2 + "goodsDetail";                                    // 商品详情
-    String CONFIRM_ORDER = BASE_URL + "confirmOrder";                                  // 确认订单
+    String CONFIRM_ORDER = BASE_URL_V2 + "confirmOrder";                                  // 确认订单页面展示
     String ADDRESS_LIST = BASE_URL + "addressList";                                    // 用户地址列表
     String ADDRESS_ADD = BASE_URL + "addressAdd";                                      // 用户地址填加
     String PROVINCES = BASE_URL + "provinces";                                         // 省接口

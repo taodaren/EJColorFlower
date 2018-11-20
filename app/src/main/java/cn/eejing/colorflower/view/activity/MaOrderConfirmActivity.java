@@ -20,7 +20,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
-import cn.eejing.colorflower.app.AppConstant;
 import cn.eejing.colorflower.app.BaseApplication;
 import cn.eejing.colorflower.model.event.AddrAddEvent;
 import cn.eejing.colorflower.model.request.AddrListBean;
@@ -39,6 +38,7 @@ import static cn.eejing.colorflower.app.AppConstant.REQUEST_CODE_ADDR_SELECT;
  */
 
 public class MaOrderConfirmActivity extends BaseActivity {
+    private static final String TAG = "MaOrderConfirmActivity";
 
     @BindView(R.id.tv_confirm_order_consignee)             TextView     tvConsignee;
     @BindView(R.id.tv_confirm_order_phone)                 TextView     tvPhone;
@@ -50,8 +50,6 @@ public class MaOrderConfirmActivity extends BaseActivity {
     @BindView(R.id.tv_confirm_order_money)                 TextView     tvMoney;
     @BindView(R.id.tv_confirm_order_num)                   TextView     tvNum;
     @BindView(R.id.tv_confirm_order_num_buy)               TextView     tvNumBuy;
-    @BindView(R.id.tv_confirm_order_postage_full)          TextView     tvPostageFull;
-    @BindView(R.id.tv_confirm_order_postage_basics)        TextView     tvPostageBasics;
     @BindView(R.id.tv_confirm_order_total_money)           TextView     tvTotalMoney;
 
     private ConfirmOrderBean.DataBean mBean;
@@ -116,7 +114,7 @@ public class MaOrderConfirmActivity extends BaseActivity {
                 }
                 break;
             case R.id.ll_confirm_order_address:
-                if (mBean.getAddress().getName() == null) {
+                if (mBean.getAddress().getConsignee() == null) {
                     BaseApplication baseApplication = (BaseApplication) getApplication();
                     baseApplication.setFlagAddrMgr(FROM_ORDER_TO_ADDR);
                     jumpToActivity(MaAddrMgrActivity.class);
@@ -155,10 +153,7 @@ public class MaOrderConfirmActivity extends BaseActivity {
         tvNumBuy.setText("" + number);
 
         // 设置合计金额
-        mTotalMoney = number * mBean.getGoods().getMoney();
-        if (mTotalMoney < mBean.getGoods().getPostage()) {
-            mTotalMoney = mTotalMoney + mBean.getGoods().getBasics_postage();
-        }
+        mTotalMoney = number * Double.parseDouble(mBean.getGoods().getSale_price());
         tvTotalMoney.setText(getString(R.string.rmb) + mTotalMoney);
     }
 
@@ -166,13 +161,12 @@ public class MaOrderConfirmActivity extends BaseActivity {
         OkGo.<String>post(Urls.CONFIRM_ORDER)
                 .tag(this)
                 .params("goods_id", mGoodsId)
-                .params("member_id", mMemberId)
                 .params("token", mToken)
                 .execute(new StringCallback() {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 LogUtil.e(AppConstant.TAG, "confirm_order request succeeded--->" + body);
+                                 LogUtil.d(TAG, "确认订单页面展示 请求成功: " + body);
 
                                  ConfirmOrderBean bean = mGson.fromJson(body, ConfirmOrderBean.class);
                                  mBean = bean.getData();
@@ -196,22 +190,20 @@ public class MaOrderConfirmActivity extends BaseActivity {
     @SuppressLint("SetTextI18n")
     private void setData() {
         // 如果地址内容不为空，设置显示信息
-        if (mBean.getAddress().getName() != null || mBean.getAddress().getMobile() != null || mBean.getAddress().getAddress_all() != null) {
+        if (mBean.getAddress().getConsignee() != null || mBean.getAddress().getMobile() != null || mBean.getAddress().getAddress() != null) {
             tvAddrNull.setVisibility(View.GONE);
             layoutAddr.setVisibility(View.VISIBLE);
-            tvConsignee.setText(getString(R.string.text_consignee) + mBean.getAddress().getName());
+            tvConsignee.setText(getString(R.string.text_consignee) + mBean.getAddress().getConsignee());
             tvPhone.setText(mBean.getAddress().getMobile());
-            tvAddress.setText(getString(R.string.text_shipping_address) + mBean.getAddress().getAddress_all());
+            tvAddress.setText(getString(R.string.text_shipping_address) + mBean.getAddress().getAddress());
         } else {
             tvAddrNull.setVisibility(View.VISIBLE);
             layoutAddr.setVisibility(View.GONE);
         }
 
-        Glide.with(this).load(mBean.getGoods().getImage()).into(imgGoods);
-        tvName.setText(mBean.getGoods().getName());
-        tvMoney.setText(getString(R.string.rmb) + mBean.getGoods().getMoney());
-        tvPostageBasics.setText(getString(R.string.basic_postage) + mBean.getGoods().getBasics_postage());
-        tvPostageFull.setText(getString(R.string.postage_before) + mBean.getGoods().getPostage() + getString(R.string.postage_after));
+        Glide.with(this).load(mBean.getGoods().getOriginal_img()).into(imgGoods);
+        tvName.setText(mBean.getGoods().getGoods_name());
+        tvMoney.setText(getString(R.string.rmb) + mBean.getGoods().getSale_price());
 
         mNumber = 1;
         mAddressId = mBean.getAddress().getId();

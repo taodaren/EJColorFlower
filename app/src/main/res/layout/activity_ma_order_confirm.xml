@@ -192,20 +192,12 @@
             android:textSize="16sp" />
 
         <TextView
-            android:id="@+id/tv_confirm_order_postage_full"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
+            android:text="基础运费：包邮"
             android:layout_marginEnd="8dp"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/tv_confirm_order_postage_basics"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toStartOf="@id/tv_confirm_order_postage_full"
             android:textSize="12sp" />
     </RelativeLayout>
 
