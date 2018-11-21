@@ -18,22 +18,19 @@ public interface Urls {
     String LOGIN              = BASE_URL_V2 + "login";                                    // 用户登录
     String GET_DEVICE_MAC     = BASE_URL_V2 + "getDeviceMac";                             // 设备ID获取MAC地址
 
-    String DEVICE_LIST = BASE_URL + "device_list";                                     // 获取用户设备列表
-    String GET_MATERIAL_INFO = BASE_URL_V2 + "getMaterialInfo";                           // 扫码获取料包信息
-    String WAIT_USE_STATUS = BASE_URL_V2 + "modifyWaitingForUseStatus";                   // 修改为待使用状态
-    String END_USE_STATUS = BASE_URL_V2 + "modifyUseCompletedStatus";                     // 修改为已使用状态
+    String GET_MATERIAL_INFO  = BASE_URL_V2 + "getMaterialInfo";                          // 扫码获取料包信息
+    String WAIT_USE_STATUS    = BASE_URL_V2 + "modifyWaitingForUseStatus";                // 修改为待使用状态
+    String END_USE_STATUS     = BASE_URL_V2 + "modifyUseCompletedStatus";                 // 修改为已使用状态
 
-    String GET_GOODS_LIST = BASE_URL_V2 + "getGoodsList";                                 // 商品列表
-    String GOODS_DETAIL = BASE_URL_V2 + "goodsDetail";                                    // 商品详情
-    String CONFIRM_ORDER = BASE_URL_V2 + "confirmOrder";                                  // 确认订单页面展示
-    String ADDRESS_LIST = BASE_URL + "addressList";                                    // 用户地址列表
-    String ADDRESS_ADD = BASE_URL + "addressAdd";                                      // 用户地址填加
-    String PROVINCES = BASE_URL + "provinces";                                         // 省接口
-    String CITYS = BASE_URL + "citys";                                                 // 市接口
-    String AREAS = BASE_URL + "areas";                                                 // 县接口
-    String ADDRESS_UPDATE = BASE_URL + "addressUpdate";                                // 用户地址更改
-    String ADDRESS_DEF = BASE_URL + "addressDef";                                      // 用户设置默认地址
-    String ADDRESS_DEL = BASE_URL + "addressDel";                                      // 用户地址删除
+    String GET_GOODS_LIST     = BASE_URL_V2 + "getGoodsList";                             // 商品列表
+    String GOODS_DETAIL       = BASE_URL_V2 + "goodsDetail";                              // 商品详情
+    String CONFIRM_ORDER      = BASE_URL_V2 + "confirmOrder";                             // 确认订单页面展示
+    String ADDRESS_LIST       = BASE_URL_V2 + "addressList";                              // 收货地址列表
+    String CREATE_ADDRESS     = BASE_URL_V2 + "createAddress";                            // 添加收货地址
+    String AREA_SELECT        = BASE_URL_V2 + "areaSelect";                               // 地区选择
+    String EDIT_ADDRESS       = BASE_URL_V2 + "editAddress";                              // 修改收货地址
+    String SET_DEF_ADDRESS    = BASE_URL_V2 + "setDefaultAddress";                        // 设置默认地址
+    String DEL_ADDRESS        = BASE_URL_V2 + "delAddress";                               // 删除收货地址
     String PAY = BASE_URL + "pay";                                                     // 支付
     String CALL_BACK_CONFIRM = BASE_URL + "callBackConfirm";                           // 确认支付结果
 

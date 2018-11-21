@@ -13,28 +13,24 @@ import java.util.List;
 
 import butterknife.BindView;
 import cn.eejing.colorflower.R;
-import cn.eejing.colorflower.app.AppConstant;
-import cn.eejing.colorflower.model.request.AddrAreasBean;
+import cn.eejing.colorflower.model.request.AreaSelectBean;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
-import cn.eejing.colorflower.view.adapter.AddrAreasAdapter;
+import cn.eejing.colorflower.util.ToastUtil;
+import cn.eejing.colorflower.view.adapter.AddrProvinceAdapter;
 import cn.eejing.colorflower.view.base.BaseActivity;
 
-import static cn.eejing.colorflower.app.AppConstant.ADDRESS_CITYS;
-import static cn.eejing.colorflower.app.AppConstant.ADDRESS_ID_CITYS;
-import static cn.eejing.colorflower.app.AppConstant.ADDRESS_PROVINCESS;
-
 /**
- * 县
+ * 省级地区
  */
 
-public class MaAddrAreasActivity extends BaseActivity {
+public class MaAddrProvinceActivity extends BaseActivity {
+    private static final String TAG = "MaAddrProvinceActivity";
 
     @BindView(R.id.rv_citys)        PullLoadMoreRecyclerView rvCitys;
 
-    private List<AddrAreasBean.DataBean> mList;
-    private AddrAreasAdapter mAdapter;
-    private String mProvincess, mCity, mCityId;
+    private List<AreaSelectBean.DataBean> mList;
+    private AddrProvinceAdapter mAdapter;
 
     @Override
     protected int layoutViewId() {
@@ -44,23 +40,28 @@ public class MaAddrAreasActivity extends BaseActivity {
     @Override
     public void initView() {
         setToolbar("选择地区", View.VISIBLE, null, View.GONE);
-        mProvincess = getIntent().getStringExtra(ADDRESS_PROVINCESS);
-        mCity = getIntent().getStringExtra(ADDRESS_CITYS);
-        mCityId = getIntent().getStringExtra(ADDRESS_ID_CITYS);
         mList = new ArrayList<>();
+
+        addActivity("provinces", this);
         initRecyclerView();
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        delActivity("provinces");
+    }
+
+    @Override
     public void initData() {
-        getDataWithAreas();
+        getDataWithProvinces();
     }
 
     private void initRecyclerView() {
         // 设置布局
         rvCitys.setLinearLayout();
         // 绑定适配器
-        mAdapter = new AddrAreasAdapter(this, mList, mProvincess, mCity);
+        mAdapter = new AddrProvinceAdapter(this, mList);
         rvCitys.setAdapter(mAdapter);
 
         // 不需要上拉刷新
@@ -68,7 +69,7 @@ public class MaAddrAreasActivity extends BaseActivity {
         rvCitys.setOnPullLoadMoreListener(new PullLoadMoreRecyclerView.PullLoadMoreListener() {
             @Override
             public void onRefresh() {
-                getDataWithAreas();
+                getDataWithProvinces();
             }
 
             @Override
@@ -80,18 +81,18 @@ public class MaAddrAreasActivity extends BaseActivity {
         rvCitys.setPullLoadMoreCompleted();
     }
 
-    private void getDataWithAreas() {
-        OkGo.<String>post(Urls.AREAS)
+    private void getDataWithProvinces() {
+        OkGo.<String>post(Urls.AREA_SELECT)
                 .tag(this)
-                .params("city_id", mCityId)
+                .params("token", MainActivity.getAppCtrl().getToken())
                 .execute(new StringCallback() {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 LogUtil.e(AppConstant.TAG, "areas request succeeded--->" + body);
+                                 LogUtil.d(TAG, "地区选择 请求成功: " + body);
 
                                  Gson gson = new Gson();
-                                 AddrAreasBean bean = gson.fromJson(body, AddrAreasBean.class);
+                                 AreaSelectBean bean = gson.fromJson(body, AreaSelectBean.class);
                                  switch (bean.getCode()) {
                                      case 1:
                                          mList = bean.getData();
@@ -101,13 +102,9 @@ public class MaAddrAreasActivity extends BaseActivity {
                                          rvCitys.setPullLoadMoreCompleted();
                                          break;
                                      default:
+                                         ToastUtil.showShort(bean.getMessage());
                                          break;
                                  }
-                             }
-
-                             @Override
-                             public void onError(Response<String> response) {
-                                 super.onError(response);
                              }
                          }
                 );

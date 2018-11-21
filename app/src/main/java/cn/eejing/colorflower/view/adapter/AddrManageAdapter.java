@@ -25,18 +25,22 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
-import cn.eejing.colorflower.app.AppConstant;
-import cn.eejing.colorflower.model.request.AddrDefBean;
 import cn.eejing.colorflower.model.request.AddrListBean;
+import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.view.activity.MaAddrModifyActivity;
+import cn.eejing.colorflower.view.activity.MainActivity;
+
+/**
+ * 地址管理适配器
+ */
 
 public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final String TAG = "AddrManageAdapter";
     private Context mContext;
     private LayoutInflater mInflater;
     private List<AddrListBean.DataBean> mList;
-    private String mMemberId, mToken;
     private Gson mGson;
     private int lastSelectedPosition;
 
@@ -46,13 +50,11 @@ public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         this.mOnClickListener = onClickListener;
     }
 
-    public AddrManageAdapter(Context context, List<AddrListBean.DataBean> list, String memberId, String token) {
+    public AddrManageAdapter(Context context, List<AddrListBean.DataBean> list) {
         this.mContext = context;
         this.mInflater = LayoutInflater.from(context);
         this.mList = new ArrayList<>();
         this.mList.addAll(list);
-        this.mMemberId = memberId;
-        this.mToken = token;
         this.mGson = new Gson();
     }
 
@@ -99,8 +101,8 @@ public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         @SuppressLint({"SetTextI18n"})
         public void setData(AddrListBean.DataBean bean, final int position) {
             // 判断默认状态，设置默认选中按钮
-            switch (bean.getStatus()) {
-                case 1:
+            switch (bean.getIs_default()) {
+                case "1":
                     // 默认
                     lastSelectedPosition = position;
                     rbttDef.setButtonDrawable(R.drawable.ic_single_selected);
@@ -114,9 +116,9 @@ public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     break;
             }
 
-            tvName.setText(bean.getName());
+            tvName.setText(bean.getConsignee());
             tvPhone.setText(bean.getMobile());
-            tvAddress.setText(mContext.getResources().getString(R.string.text_shipping_address) + bean.getAddress_all());
+            tvAddress.setText(mContext.getResources().getString(R.string.text_shipping_address) + bean.getAddress());
 
             btnDel.setTag(getAdapterPosition());
             btnDel.setOnClickListener(mOnClickListener);
@@ -139,37 +141,31 @@ public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     private void getDataWithAddressDef(final int position) {
-        OkGo.<String>post(Urls.ADDRESS_DEF)
+        OkGo.<String>post(Urls.SET_DEF_ADDRESS)
                 .tag(this)
-                .params("member_id", mMemberId)
                 .params("address_id", mList.get(position).getId())
-                .params("token", mToken)
+                .params("token", MainActivity.getAppCtrl().getToken())
                 .execute(new StringCallback() {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 LogUtil.e(AppConstant.TAG, "address_def request succeeded--->" + body);
+                                 LogUtil.d(TAG, "设置默认地址 请求成功: " + body);
 
-                                 AddrDefBean bean = mGson.fromJson(body, AddrDefBean.class);
+                                 CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
                                  switch (bean.getCode()) {
                                      case 1:
                                          // 如果最后选中 position 与当前不一致，执行下列操作（解决点击已选中状态问题）
                                          if (lastSelectedPosition != position) {
                                              // 设置选中
-                                             mList.get(position).setStatus(1);
+                                             mList.get(position).setIs_default("1");
                                              // 设置取消选中
-                                             mList.get(lastSelectedPosition).setStatus(0);
+                                             mList.get(lastSelectedPosition).setIs_default("0");
                                              notifyDataSetChanged();
                                          }
                                          break;
                                      default:
                                          break;
                                  }
-                             }
-
-                             @Override
-                             public void onError(Response<String> response) {
-                                 super.onError(response);
                              }
                          }
                 );

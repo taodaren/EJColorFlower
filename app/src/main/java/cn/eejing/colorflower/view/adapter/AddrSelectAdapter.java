@@ -25,6 +25,10 @@ import cn.eejing.colorflower.util.TextColorSizeHelper;
 
 import static android.app.Activity.RESULT_OK;
 
+/**
+ * 地址选择适配器
+ */
+
 public class AddrSelectAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Activity mContext;
     private LayoutInflater mInflater;
@@ -79,21 +83,21 @@ public class AddrSelectAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         @RequiresApi(api = Build.VERSION_CODES.M)
         @SuppressLint("SetTextI18n")
         public void setData(AddrListBean.DataBean bean) {
-            String defAddress = mContext.getResources().getString(R.string.text_address_def) + bean.getAddress_all();
+            String defAddress = mContext.getResources().getString(R.string.text_address_def) + bean.getAddress();
             String[] defColor = {"[", "默", "认", "地", "址", "]"};
 
-            switch (bean.getStatus()) {
-                case 1:
+            switch (bean.getIs_default()) {
+                case "1":
                     // 默认地址
                     tvAddress.setText(TextColorSizeHelper.getTextSpan(mContext,
                             mContext.getResources().getColor(R.color.colorNavBar), defAddress, defColor));
                     break;
                 default:
                     // 新增地址
-                    tvAddress.setText(bean.getAddress_all());
+                    tvAddress.setText(bean.getAddress());
                     break;
             }
-            tvName.setText(bean.getName());
+            tvName.setText(bean.getConsignee());
             tvPhone.setText(bean.getMobile());
         }
 

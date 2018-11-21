@@ -7,8 +7,8 @@ public class AddrListBean {
 
     /**
      * code : 1
-     * message : 操作成功!
-     * data : [{"id":1,"member_id":15,"name":"胡斐","mobile":"18666666666","province_id":620000,"city_id":622900,"area_id":622927,"address":"天山","address_all":"甘肃省临夏回族自治州积石山保安族东乡族撒拉族自治县天山","status":1,"add_time":"1525829655","addres_two":"甘肃省 临夏回族自治州 积石山保安族东乡族撒拉族自治县"},{"id":25,"member_id":15,"name":"令狐冲","mobile":"15899999945","province_id":230000,"city_id":231100,"area_id":231121,"address":"北极","address_all":"黑龙江黑河市嫩江县北极","status":0,"add_time":"1529898826","addres_two":"黑龙江 黑河市 嫩江县"}]
+     * message : 数据获取成功
+     * data : [{"id":53,"consignee":"李","province":"北京市","city":"北京市","district":"东城区","address":"东邪西毒","mobile":"17777777777","is_default":"1","created_at":"2018-11-01 17:49:42","updated_at":"2018-11-01 17:49:42","province_id":"1","city_id":"2","district_id":"3"},{"id":54,"consignee":"据了解","province":"北京市","city":"县","district":"延庆县","address":"i 亏咯直接","mobile":"12475285155","is_default":"0","created_at":"2018-11-01 17:49:42","updated_at":"2018-11-01 17:49:42","province_id":"1","city_id":"300","district_id":"322"}]
      */
 
     private int code;
@@ -41,32 +41,34 @@ public class AddrListBean {
 
     public static class DataBean implements Serializable {
         /**
-         * id : 1
-         * member_id : 15
-         * name : 胡斐
-         * mobile : 18666666666
-         * province_id : 620000
-         * city_id : 622900
-         * area_id : 622927
-         * address : 天山
-         * address_all : 甘肃省临夏回族自治州积石山保安族东乡族撒拉族自治县天山
-         * status : 1
-         * add_time : 1525829655
-         * addres_two : 甘肃省 临夏回族自治州 积石山保安族东乡族撒拉族自治县
+         * id : 53
+         * consignee : 李
+         * province : 北京市
+         * city : 北京市
+         * district : 东城区
+         * address : 东邪西毒
+         * mobile : 17777777777
+         * is_default : 1
+         * created_at : 2018-11-01 17:49:42
+         * updated_at : 2018-11-01 17:49:42
+         * province_id : 1
+         * city_id : 2
+         * district_id : 3
          */
 
         private int id;
-        private int member_id;
-        private String name;
-        private String mobile;
-        private int province_id;
-        private int city_id;
-        private int area_id;
+        private String consignee;
+        private String province;
+        private String city;
+        private String district;
         private String address;
-        private String address_all;
-        private int status;
-        private String add_time;
-        private String addres_two;
+        private String mobile;
+        private String is_default;
+        private String created_at;
+        private String updated_at;
+        private String province_id;
+        private String city_id;
+        private String district_id;
 
         public int getId() {
             return id;
@@ -76,52 +78,36 @@ public class AddrListBean {
             this.id = id;
         }
 
-        public int getMember_id() {
-            return member_id;
+        public String getConsignee() {
+            return consignee;
         }
 
-        public void setMember_id(int member_id) {
-            this.member_id = member_id;
+        public void setConsignee(String consignee) {
+            this.consignee = consignee;
         }
 
-        public String getName() {
-            return name;
+        public String getProvince() {
+            return province;
         }
 
-        public void setName(String name) {
-            this.name = name;
+        public void setProvince(String province) {
+            this.province = province;
         }
 
-        public String getMobile() {
-            return mobile;
+        public String getCity() {
+            return city;
         }
 
-        public void setMobile(String mobile) {
-            this.mobile = mobile;
+        public void setCity(String city) {
+            this.city = city;
         }
 
-        public int getProvince_id() {
-            return province_id;
+        public String getDistrict() {
+            return district;
         }
 
-        public void setProvince_id(int province_id) {
-            this.province_id = province_id;
-        }
-
-        public int getCity_id() {
-            return city_id;
-        }
-
-        public void setCity_id(int city_id) {
-            this.city_id = city_id;
-        }
-
-        public int getArea_id() {
-            return area_id;
-        }
-
-        public void setArea_id(int area_id) {
-            this.area_id = area_id;
+        public void setDistrict(String district) {
+            this.district = district;
         }
 
         public String getAddress() {
@@ -132,37 +118,60 @@ public class AddrListBean {
             this.address = address;
         }
 
-        public String getAddress_all() {
-            return address_all;
+        public String getMobile() {
+            return mobile;
         }
 
-        public void setAddress_all(String address_all) {
-            this.address_all = address_all;
+        public void setMobile(String mobile) {
+            this.mobile = mobile;
         }
 
-        public int getStatus() {
-            return status;
+        public String getIs_default() {
+            return is_default;
         }
 
-        public void setStatus(int status) {
-            this.status = status;
+        public void setIs_default(String is_default) {
+            this.is_default = is_default;
         }
 
-        public String getAdd_time() {
-            return add_time;
+        public String getCreated_at() {
+            return created_at;
         }
 
-        public void setAdd_time(String add_time) {
-            this.add_time = add_time;
+        public void setCreated_at(String created_at) {
+            this.created_at = created_at;
         }
 
-        public String getAddres_two() {
-            return addres_two;
+        public String getUpdated_at() {
+            return updated_at;
         }
 
-        public void setAddres_two(String addres_two) {
-            this.addres_two = addres_two;
+        public void setUpdated_at(String updated_at) {
+            this.updated_at = updated_at;
+        }
+
+        public String getProvince_id() {
+            return province_id;
+        }
+
+        public void setProvince_id(String province_id) {
+            this.province_id = province_id;
+        }
+
+        public String getCity_id() {
+            return city_id;
+        }
+
+        public void setCity_id(String city_id) {
+            this.city_id = city_id;
+        }
+
+        public String getDistrict_id() {
+            return district_id;
+        }
+
+        public void setDistrict_id(String district_id) {
+            this.district_id = district_id;
         }
     }
-
 }

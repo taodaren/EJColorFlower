@@ -22,14 +22,12 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
-import cn.eejing.colorflower.app.AppConstant;
 import cn.eejing.colorflower.app.BaseApplication;
 import cn.eejing.colorflower.model.event.AddrAddEvent;
-import cn.eejing.colorflower.model.request.AddrDefBean;
 import cn.eejing.colorflower.model.request.AddrListBean;
+import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
-import cn.eejing.colorflower.util.MySettings;
 import cn.eejing.colorflower.util.SelfDialogBase;
 import cn.eejing.colorflower.view.adapter.AddrManageAdapter;
 import cn.eejing.colorflower.view.base.BaseActivity;
@@ -43,13 +41,13 @@ import static cn.eejing.colorflower.app.AppConstant.FROM_SET_TO_ADDR;
  */
 
 public class MaAddrMgrActivity extends BaseActivity {
+    private static final String TAG = "MaAddrMgrActivity";
 
     @BindView(R.id.btn_shipping_address)        Button btnAddAddress;
     @BindView(R.id.rv_shipping_address)         PullLoadMoreRecyclerView rvAddress;
     @BindView(R.id.ll_shipping_address)         LinearLayout nullAddress;
 
     private Gson mGson;
-    private String mMemberId, mToken;
     private List<AddrListBean.DataBean> mList;
     private AddrManageAdapter mAdapter;
 
@@ -63,8 +61,6 @@ public class MaAddrMgrActivity extends BaseActivity {
         setToolbar("管理收货地址", View.VISIBLE, null, View.GONE);
         mList = new ArrayList<>();
         mGson = new Gson();
-        mMemberId = String.valueOf(MySettings.getLoginSessionInfo(this).getMember_id());
-        mToken = MySettings.getLoginSessionInfo(this).getToken();
         initRecyclerView();
         EventBus.getDefault().register(this);
     }
@@ -145,7 +141,7 @@ public class MaAddrMgrActivity extends BaseActivity {
         // 设置布局
         rvAddress.setLinearLayout();
         // 绑定适配器
-        mAdapter = new AddrManageAdapter(this, mList, mMemberId, mToken);
+        mAdapter = new AddrManageAdapter(this, mList);
         // 监听删除点击事件
         mAdapter.setOnClickListener(v -> {
             int position = (int) v.getTag();
@@ -173,13 +169,12 @@ public class MaAddrMgrActivity extends BaseActivity {
     private void getDataWithAddressList() {
         OkGo.<String>post(Urls.ADDRESS_LIST)
                 .tag(this)
-                .params("member_id", mMemberId)
-                .params("token", mToken)
+                .params("token", MainActivity.getAppCtrl().getToken())
                 .execute(new StringCallback() {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 LogUtil.e(AppConstant.TAG, "address_list request succeeded--->" + body);
+                                 LogUtil.d(TAG, "收货地址列表 请求成功: " + body);
 
                                  AddrListBean bean = mGson.fromJson(body, AddrListBean.class);
                                  switch (bean.getCode()) {
@@ -212,18 +207,17 @@ public class MaAddrMgrActivity extends BaseActivity {
     }
 
     private void getDataWithAddressDel(final int position) {
-        OkGo.<String>post(Urls.ADDRESS_DEL)
+        OkGo.<String>post(Urls.DEL_ADDRESS)
                 .tag(this)
-                .params("member_id", mMemberId)
                 .params("address_id", mList.get(position).getId())
-                .params("token", mToken)
+                .params("token", MainActivity.getAppCtrl().getToken())
                 .execute(new StringCallback() {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 LogUtil.e(AppConstant.TAG, "address_del request succeeded--->" + body);
+                                 LogUtil.d(TAG, "删除收货地址 请求成功: " + body);
 
-                                 AddrDefBean bean = mGson.fromJson(body, AddrDefBean.class);
+                                 CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
                                  switch (bean.getCode()) {
                                      case 1:
                                          mList.remove(position);
@@ -233,11 +227,6 @@ public class MaAddrMgrActivity extends BaseActivity {
                                      default:
                                          break;
                                  }
-                             }
-
-                             @Override
-                             public void onError(Response<String> response) {
-                                 super.onError(response);
                              }
                          }
                 );

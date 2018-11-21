@@ -1,6 +1,5 @@
 package cn.eejing.colorflower.view.activity;
 
-import android.util.Log;
 import android.view.View;
 
 import com.google.gson.Gson;
@@ -14,26 +13,30 @@ import java.util.List;
 
 import butterknife.BindView;
 import cn.eejing.colorflower.R;
-import cn.eejing.colorflower.app.AppConstant;
-import cn.eejing.colorflower.model.request.AddrCitysBean;
+import cn.eejing.colorflower.model.request.AreaSelectBean;
 import cn.eejing.colorflower.presenter.Urls;
-import cn.eejing.colorflower.view.adapter.AddrCitysAdapter;
+import cn.eejing.colorflower.util.LogUtil;
+import cn.eejing.colorflower.util.ToastUtil;
+import cn.eejing.colorflower.view.adapter.AddrDistrictAdapter;
 import cn.eejing.colorflower.view.base.BaseActivity;
 
-import static cn.eejing.colorflower.app.AppConstant.ADDRESS_ID_PROVINCESS;
-import static cn.eejing.colorflower.app.AppConstant.ADDRESS_PROVINCESS;
+import static cn.eejing.colorflower.app.AppConstant.ADDRESS_CITY;
+import static cn.eejing.colorflower.app.AppConstant.ADDRESS_ID_CITY;
+import static cn.eejing.colorflower.app.AppConstant.ADDRESS_ID_PROVINCE;
+import static cn.eejing.colorflower.app.AppConstant.ADDRESS_PROVINCE;
 
 /**
- * 市
+ * 区级地区
  */
 
-public class MaAddrCitysActivity extends BaseActivity {
+public class MaAddrDistrictActivity extends BaseActivity {
+    private static final String TAG = "MaAddrDistrictActivity";
 
     @BindView(R.id.rv_citys)        PullLoadMoreRecyclerView rvCitys;
 
-    private List<AddrCitysBean.DataBean> mList;
-    private AddrCitysAdapter mAdapter;
-    private String mProvincess, mProvincessId;
+    private List<AreaSelectBean.DataBean> mList;
+    private AddrDistrictAdapter mAdapter;
+    private String mProvince, mProvinceId, mCity, mCityId;
 
     @Override
     protected int layoutViewId() {
@@ -43,30 +46,24 @@ public class MaAddrCitysActivity extends BaseActivity {
     @Override
     public void initView() {
         setToolbar("选择地区", View.VISIBLE, null, View.GONE);
-        addActivity("citys", this);
+        mProvince = getIntent().getStringExtra(ADDRESS_PROVINCE);
+        mProvinceId = getIntent().getStringExtra(ADDRESS_ID_PROVINCE);
+        mCity = getIntent().getStringExtra(ADDRESS_CITY);
+        mCityId = getIntent().getStringExtra(ADDRESS_ID_CITY);
         mList = new ArrayList<>();
-        mProvincess = getIntent().getStringExtra(ADDRESS_PROVINCESS);
-        mProvincessId = getIntent().getStringExtra(ADDRESS_ID_PROVINCESS);
-
         initRecyclerView();
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        delActivity("citys");
-    }
-
-    @Override
     public void initData() {
-        getDataWithCitys();
+        getDataWithAreas();
     }
 
     private void initRecyclerView() {
         // 设置布局
         rvCitys.setLinearLayout();
         // 绑定适配器
-        mAdapter = new AddrCitysAdapter(this, mList, mProvincess);
+        mAdapter = new AddrDistrictAdapter(this, mList, mProvince, mProvinceId, mCity, mCityId);
         rvCitys.setAdapter(mAdapter);
 
         // 不需要上拉刷新
@@ -74,7 +71,7 @@ public class MaAddrCitysActivity extends BaseActivity {
         rvCitys.setOnPullLoadMoreListener(new PullLoadMoreRecyclerView.PullLoadMoreListener() {
             @Override
             public void onRefresh() {
-                getDataWithCitys();
+                getDataWithAreas();
             }
 
             @Override
@@ -86,18 +83,19 @@ public class MaAddrCitysActivity extends BaseActivity {
         rvCitys.setPullLoadMoreCompleted();
     }
 
-    private void getDataWithCitys() {
-        OkGo.<String>post(Urls.CITYS)
+    private void getDataWithAreas() {
+        OkGo.<String>post(Urls.AREA_SELECT)
                 .tag(this)
-                .params("province_id", mProvincessId)
+                .params("area_id", mCityId)
+                .params("token", MainActivity.getAppCtrl().getToken())
                 .execute(new StringCallback() {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 Log.e(AppConstant.TAG, "citys request succeeded--->" + body);
+                                 LogUtil.d(TAG, "地区选择 请求成功: " + body);
 
                                  Gson gson = new Gson();
-                                 AddrCitysBean bean = gson.fromJson(body, AddrCitysBean.class);
+                                 AreaSelectBean bean = gson.fromJson(body, AreaSelectBean.class);
                                  switch (bean.getCode()) {
                                      case 1:
                                          mList = bean.getData();
@@ -107,13 +105,9 @@ public class MaAddrCitysActivity extends BaseActivity {
                                          rvCitys.setPullLoadMoreCompleted();
                                          break;
                                      default:
+                                         ToastUtil.showShort(bean.getMessage());
                                          break;
                                  }
-                             }
-
-                             @Override
-                             public void onError(Response<String> response) {
-                                 super.onError(response);
                              }
                          }
                 );

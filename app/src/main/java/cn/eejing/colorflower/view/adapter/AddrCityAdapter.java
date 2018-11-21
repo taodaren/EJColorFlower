@@ -16,25 +16,31 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
-import cn.eejing.colorflower.model.request.AddrCitysBean;
-import cn.eejing.colorflower.view.activity.MaAddrAreasActivity;
+import cn.eejing.colorflower.model.request.AreaSelectBean;
+import cn.eejing.colorflower.view.activity.MaAddrDistrictActivity;
 
-import static cn.eejing.colorflower.app.AppConstant.ADDRESS_CITYS;
-import static cn.eejing.colorflower.app.AppConstant.ADDRESS_ID_CITYS;
-import static cn.eejing.colorflower.app.AppConstant.ADDRESS_PROVINCESS;
+import static cn.eejing.colorflower.app.AppConstant.ADDRESS_CITY;
+import static cn.eejing.colorflower.app.AppConstant.ADDRESS_ID_CITY;
+import static cn.eejing.colorflower.app.AppConstant.ADDRESS_ID_PROVINCE;
+import static cn.eejing.colorflower.app.AppConstant.ADDRESS_PROVINCE;
 
-public class AddrCitysAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+/**
+ * 市级地区适配器
+ */
+
+public class AddrCityAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context mContext;
     private LayoutInflater mInflater;
-    private List<AddrCitysBean.DataBean> mList;
-    private String mProvincess;
+    private List<AreaSelectBean.DataBean> mList;
+    private String mProvince, mProvinceId;
 
-    public AddrCitysAdapter(Context context, List<AddrCitysBean.DataBean> list, String provincess) {
+    public AddrCityAdapter(Context context, List<AreaSelectBean.DataBean> list, String province, String provinceId) {
         this.mContext = context;
         this.mInflater = LayoutInflater.from(context);
         this.mList = new ArrayList<>();
         this.mList.addAll(list);
-        this.mProvincess = provincess;
+        this.mProvince = province;
+        this.mProvinceId = provinceId;
     }
 
     @NonNull
@@ -53,40 +59,41 @@ public class AddrCitysAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return mList.size();
     }
 
-    public void refreshList(List<AddrCitysBean.DataBean> list) {
+    public void refreshList(List<AreaSelectBean.DataBean> list) {
         if (list != null) {
             mList.clear();
             addList(list);
         }
     }
 
-    private void addList(List<AddrCitysBean.DataBean> list) {
+    private void addList(List<AreaSelectBean.DataBean> list) {
         mList.addAll(list);
         notifyDataSetChanged();
     }
 
     class CitysViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.tv_addr_citys)
-        TextView tvCitys;
-        private String city, cityId;
+        @BindView(R.id.tv_addr_citys)        TextView tvCitys;
+
+        String city, cityId;
 
         CitysViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
 
-        public void setData(AddrCitysBean.DataBean bean) {
-            city = bean.getCity();
-            cityId = bean.getCity_id();
+        public void setData(AreaSelectBean.DataBean bean) {
+            city = bean.getName();
+            cityId = String.valueOf(bean.getId());
             tvCitys.setText(city);
         }
 
         @OnClick(R.id.layout_addr_citys)
         public void onViewClicked() {
-            mContext.startActivity(new Intent(mContext, MaAddrAreasActivity.class)
-                    .putExtra(ADDRESS_PROVINCESS, mProvincess)
-                    .putExtra(ADDRESS_CITYS, city)
-                    .putExtra(ADDRESS_ID_CITYS, cityId)
+            mContext.startActivity(new Intent(mContext, MaAddrDistrictActivity.class)
+                    .putExtra(ADDRESS_PROVINCE, mProvince)
+                    .putExtra(ADDRESS_ID_PROVINCE, mProvinceId)
+                    .putExtra(ADDRESS_CITY, city)
+                    .putExtra(ADDRESS_ID_CITY, cityId)
             );
         }
     }

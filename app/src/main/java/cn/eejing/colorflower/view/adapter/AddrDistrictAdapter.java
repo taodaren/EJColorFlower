@@ -17,22 +17,29 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
-import cn.eejing.colorflower.model.request.AddrAreasBean;
+import cn.eejing.colorflower.model.event.AddrSelectEvent;
+import cn.eejing.colorflower.model.request.AreaSelectBean;
 import cn.eejing.colorflower.view.base.BaseActivity;
 
-public class AddrAreasAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+/**
+ * 区级地区适配器
+ */
+
+public class AddrDistrictAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Activity mContext;
     private LayoutInflater mInflater;
-    private List<AddrAreasBean.DataBean> mList;
-    private String mProvincess, mCity;
+    private List<AreaSelectBean.DataBean> mList;
+    private String mProvince, mProvinceId, mCity, mCityId;
 
-    public AddrAreasAdapter(Activity context, List<AddrAreasBean.DataBean> list, String provincess, String city) {
+    public AddrDistrictAdapter(Activity context, List<AreaSelectBean.DataBean> list, String province, String provinceId, String city, String cityId) {
         this.mContext = context;
         this.mInflater = LayoutInflater.from(context);
         this.mList = new ArrayList<>();
         this.mList.addAll(list);
-        this.mProvincess = provincess;
+        this.mProvince = province;
+        this.mProvinceId = provinceId;
         this.mCity = city;
+        this.mCityId = cityId;
     }
 
     @NonNull
@@ -51,45 +58,40 @@ public class AddrAreasAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return mList.size();
     }
 
-    public void refreshList(List<AddrAreasBean.DataBean> list) {
+    public void refreshList(List<AreaSelectBean.DataBean> list) {
         if (list != null) {
             mList.clear();
             addList(list);
         }
     }
 
-    private void addList(List<AddrAreasBean.DataBean> list) {
+    private void addList(List<AreaSelectBean.DataBean> list) {
         mList.addAll(list);
         notifyDataSetChanged();
     }
 
     class CitysViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.tv_addr_citys)
-        TextView tvCitys;
-        private String areas;
+        @BindView(R.id.tv_addr_citys)        TextView tvCity;
+
+        String district, districtId;
 
         CitysViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
 
-        public void setData(AddrAreasBean.DataBean bean) {
-            areas = bean.getArea();
-            tvCitys.setText(areas);
+        public void setData(AreaSelectBean.DataBean bean) {
+            district = bean.getName();
+            districtId = String.valueOf(bean.getId());
+            tvCity.setText(district);
         }
 
         @OnClick(R.id.layout_addr_citys)
         public void onViewClicked() {
-//            Intent intent = new Intent(mContext, MaAddrAddActivity.class);
-//            intent.putExtra(ADDRESS_PROVINCESS, mProvincess);
-//            intent.putExtra(ADDRESS_CITYS, mCity);
-//            intent.putExtra(ADDRESS_AREAS, areas);
-//            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//            mContext.startActivity(intent);
             BaseActivity.delActivity("citys");
             BaseActivity.delActivity("provinces");
             mContext.finish();
-            EventBus.getDefault().post(mProvincess + "  " + mCity + "  " + areas);
+            EventBus.getDefault().post(new AddrSelectEvent(mProvince, mCity, district, mProvinceId, mCityId, districtId));
         }
     }
 

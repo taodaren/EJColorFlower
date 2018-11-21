@@ -1,6 +1,8 @@
 package cn.eejing.colorflower.view.activity;
 
+import android.annotation.SuppressLint;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -18,12 +20,11 @@ import org.greenrobot.eventbus.ThreadMode;
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
-import cn.eejing.colorflower.app.AppConstant;
 import cn.eejing.colorflower.model.event.AddrAddEvent;
-import cn.eejing.colorflower.model.request.AddrAddBean;
+import cn.eejing.colorflower.model.event.AddrSelectEvent;
+import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
-import cn.eejing.colorflower.util.MySettings;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.base.BaseActivity;
 
@@ -32,17 +33,17 @@ import cn.eejing.colorflower.view.base.BaseActivity;
  */
 
 public class MaAddrAddActivity extends BaseActivity {
+    private static final String TAG = "MaAddrAddActivity";
 
-    @BindView(R.id.et_address_add_consignee)        EditText etConsignee;
-    @BindView(R.id.et_address_add_phone)            EditText etPhone;
-    @BindView(R.id.et_address_add_address)          EditText etAddress;
-    @BindView(R.id.tv_address_add_address)          TextView tvAddress;
-    @BindView(R.id.stv_address_add_def)             SuperTextView stvSwitch;
+    @BindView(R.id.et_address_add_consignee)      EditText etConsignee;
+    @BindView(R.id.et_address_add_phone)          EditText etPhone;
+    @BindView(R.id.et_address_add_address)        EditText etAddress;
+    @BindView(R.id.tv_address_add_address)        TextView tvAddress;
+    @BindView(R.id.stv_address_add_def)           SuperTextView stvSwitch;
 
     private int mFlag;
     private Gson mGson;
-    private String mMemberId, mToken;
-    private String mAddress;
+    private String mAddress, mProvinceId, mCityId, mDistrictId;
 
     @Override
     protected int layoutViewId() {
@@ -53,8 +54,6 @@ public class MaAddrAddActivity extends BaseActivity {
     public void initView() {
         EventBus.getDefault().register(this);
         mGson = new Gson();
-        mMemberId = String.valueOf(MySettings.getLoginSessionInfo(this).getMember_id());
-        mToken = MySettings.getLoginSessionInfo(this).getToken();
 
         setToolbar("添加收货地址", View.VISIBLE, null, View.GONE);
     }
@@ -71,63 +70,82 @@ public class MaAddrAddActivity extends BaseActivity {
                 });
     }
 
-    @OnClick(R.id.btn_address_add_save)
-    public void clickSave() {
-        if (TextUtils.isEmpty(etConsignee.getText().toString().trim())) {
-            ToastUtil.showShort("请输入收货人姓名");
-        } else if (TextUtils.isEmpty(etPhone.getText().toString().trim())) {
-            ToastUtil.showShort("请输入手机号");
-        } else if (tvAddress.getText().toString().trim().equals("请选择")
-                || TextUtils.isEmpty(tvAddress.getText().toString().trim())) {
-            ToastUtil.showShort("请您选择所在地区");
-        } else if (TextUtils.isEmpty(etAddress.getText().toString().trim())) {
-            ToastUtil.showShort("请您填写详细地址");
-        } else {
-            mAddress = tvAddress.getText().toString().trim() + " " + etAddress.getText().toString().trim();
-            getDataWithAddressAdd();
+    @OnClick({R.id.layout_address_add_select, R.id.btn_address_add_save})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.layout_address_add_select:
+                jumpToActivity(MaAddrProvinceActivity.class);
+                break;
+            case R.id.btn_address_add_save:
+                saveAddAddress();
+                break;
         }
     }
 
-    @OnClick(R.id.layout_address_add_select)
-    public void clickAddSelect() {
-        jumpToActivity(MaAddrProvincesActivity.class);
+    public String validate() {
+        String consignee = etConsignee.getText().toString();
+        String phone = etPhone.getText().toString();
+        String txtAddress = tvAddress.getText().toString().trim();
+        String eidtAddress = etAddress.getText().toString().trim();
+
+        if (TextUtils.isEmpty(consignee)) {
+            return "请输入收货人姓名";
+        }
+
+        if (TextUtils.isEmpty(phone)) {
+            return "请输入手机号";
+        }
+
+        if (phone.length() != 11) {
+            return "请输入一个有效的手机号码";
+        }
+
+        if (txtAddress.equals("请选择") || TextUtils.isEmpty(txtAddress)) {
+            return "请您选择所在地区";
+        }
+
+        if (TextUtils.isEmpty(eidtAddress)) {
+            return "请您填写详细地址";
+        }
+        return "验证通过";
+    }
+
+    private void saveAddAddress() {
+        String info = validate();
+        if (!info.equals("验证通过")) {
+            ToastUtil.showLong(info);
+            return;
+        }
+        mAddress = tvAddress.getText().toString().trim() + " " + etAddress.getText().toString().trim();
+        getDataWithAddressAdd();
     }
 
     private void getDataWithAddressAdd() {
-        OkGo.<String>post(Urls.ADDRESS_ADD)
+        OkGo.<String>post(Urls.CREATE_ADDRESS)
                 .tag(this)
-                .params("member_id", mMemberId)
-                .params("token", mToken)
-                .params("name", etConsignee.getText().toString())
-                .params("mobile", etPhone.getText().toString())
+                .params("consignee", etConsignee.getText().toString())
+                .params("province", mProvinceId)
+                .params("city", mCityId)
+                .params("district", mDistrictId)
                 .params("address", mAddress)
-                .params("status", mFlag)
+                .params("mobile", etPhone.getText().toString())
+                .params("is_default", mFlag)
+                .params("token", MainActivity.getAppCtrl().getToken())
                 .execute(new StringCallback() {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 LogUtil.e(AppConstant.TAG, "address_add request succeeded--->" + body);
+                                 LogUtil.d(TAG, "添加收货地址 请求成功: " + body);
 
-                                 AddrAddBean bean = mGson.fromJson(body, AddrAddBean.class);
+                                 CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
                                  switch (bean.getCode()) {
                                      case 1:
                                          ToastUtil.showShort("地址添加成功");
                                          EventBus.getDefault().post(new AddrAddEvent("add_ok"));
                                          finish();
                                          break;
-                                     case 4:
-                                         ToastUtil.showShort("收货人不能为空");
-                                         break;
-                                     case 5:
-                                         ToastUtil.showShort("手机号不能为空");
-                                         break;
-                                     case 6:
-                                         ToastUtil.showShort("手机号码格式不正确");
-                                         break;
-                                     case 0:
-                                         ToastUtil.showShort("地址添加失败");
-                                         break;
                                      default:
+                                         ToastUtil.showShort(bean.getMessage());
                                          break;
                                  }
                              }
@@ -135,6 +153,7 @@ public class MaAddrAddActivity extends BaseActivity {
                              @Override
                              public void onError(Response<String> response) {
                                  super.onError(response);
+                                 LogUtil.e(TAG, "添加收货地址 onError: " + response.body());
                              }
                          }
                 );
@@ -146,9 +165,13 @@ public class MaAddrAddActivity extends BaseActivity {
         EventBus.getDefault().unregister(this);
     }
 
+    @SuppressLint("SetTextI18n")
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void receiverAddressInfo(String address) {
-        tvAddress.setText(address);
+    public void onEventBySelectAddr(AddrSelectEvent event) {
+        mProvinceId = event.getProvinceId();
+        mCityId = event.getCityId();
+        mDistrictId = event.getDistrictId();
+        tvAddress.setText(event.getProvince() + " " + event.getCity() + " " + event.getDistrict());
         etAddress.setText("");
     }
 }

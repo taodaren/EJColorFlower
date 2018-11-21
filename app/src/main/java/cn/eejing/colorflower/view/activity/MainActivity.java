@@ -27,12 +27,10 @@ import java.util.List;
 import java.util.Map;
 
 import cn.eejing.colorflower.R;
-import cn.eejing.colorflower.app.AppConstant;
 import cn.eejing.colorflower.model.device.Device;
 import cn.eejing.colorflower.model.device.DeviceConfig;
 import cn.eejing.colorflower.model.device.DeviceStatus;
 import cn.eejing.colorflower.model.event.DevConnEvent;
-import cn.eejing.colorflower.model.request.DeviceListBean;
 import cn.eejing.colorflower.model.request.QueryDevMacBean;
 import cn.eejing.colorflower.model.session.LoginSession;
 import cn.eejing.colorflower.presenter.ISendCommand;
@@ -47,7 +45,6 @@ import cn.eejing.colorflower.view.fragment.TabCtrlFragment;
 import cn.eejing.colorflower.view.fragment.TabMallFragment;
 import cn.eejing.colorflower.view.fragment.TabMineFragment;
 
-import static cn.eejing.colorflower.app.AppConstant.DEVICE_CONNECT_CAN;
 import static cn.eejing.colorflower.app.AppConstant.DEVICE_CONNECT_NO;
 import static cn.eejing.colorflower.app.AppConstant.DEVICE_CONNECT_YES;
 import static cn.eejing.colorflower.app.AppConstant.EXIT_LOGIN;
@@ -66,7 +63,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     private String mMemberId, mToken;
     private Gson mGson;
 
-    static private MainActivity AppInstance;
+    private static MainActivity AppInstance;
 
     public static MainActivity getAppCtrl() {
         return AppInstance;
@@ -95,51 +92,12 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         mFragments = getFragments();
         setDefFragment();
 
-        mServerDevList = new ArrayList<>();
-        mServerMacList = new ArrayList<>();
-
-//        getDataWithDeviceList();
         scanRefresh();
     }
 
     public void scanRefresh() {
         addScanFilter(UUID_GATT_SERVICE);
         refresh();
-    }
-
-    private void getDataWithDeviceList() {
-        OkGo.<String>post(Urls.DEVICE_LIST)
-                .tag(this)
-                .params("member_id", mMemberId)
-                .params("token", mToken)
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        LogUtil.e(AppConstant.TAG, "设备列表请求成功！" + body);
-
-                        DeviceListBean bean = mGson.fromJson(body, DeviceListBean.class);
-                        DeviceListBean.DataBean.ListBean deviceBean = mGson.fromJson(body, DeviceListBean.DataBean.ListBean.class);
-                        switch (bean.getCode()) {
-                            case 101:
-                            case 102:
-                                ToastUtil.showShort(R.string.toast_login_fail);
-                                startActivity(new Intent(MainActivity.this, SignInActivity.class));
-                                finish();
-                                break;
-                            case 1:
-                                mServerDevList = bean.getData().getList();
-                                for (int i = 0; i < mServerDevList.size(); i++) {
-                                    mServerMacList.add(mServerDevList.get(i).getMac());
-                                }
-                                setAllowConnDevListMAC(mServerMacList);
-                                LogUtil.i(TAG, "设备列表 size：" + mServerDevList.size());
-                                LogUtil.i(TAG, "服务器 MAC size：" + mServerMacList.size());
-                                break;
-                            default:
-                        }
-                    }
-                });
     }
 
     @SuppressLint("MissingSuperCall")
@@ -247,8 +205,6 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         return super.onKeyDown(keyCode, event);
     }
 
-    private List<DeviceListBean.DataBean.ListBean> mServerDevList;// 服务器绑定设备列表
-    private List<String> mServerMacList;
     private final List<Device> mDevList = new LinkedList<>();
     private final Map<String, ProtocolWithDev> mProtocolMap = new ArrayMap<>();
 
@@ -502,22 +458,11 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         super.onFoundDevice(bleDevice, serviceUuids);
         String name = bleDevice.getName();
         String mac = bleDevice.getAddress();
-
         // 通过设备广播名称，判断是否为配置的设备
         if (name.indexOf(getAllowedConnDevName()) != 0) {
             return;
         }
-
         LogUtil.d(TAG, "dev mac: " + mac);
-        for (int i = 0; i < mServerDevList.size(); i++) {
-            LogUtil.d(TAG, "allow mac: " + mServerMacList);
-        }
-        LogUtil.d(TAG, "allow: " + mServerMacList.contains(mac));
-        // 是否与服务器 MAC 地址匹配
-        if (mServerMacList.contains(mac)) {
-            // 如果服务器设备列表的 Mac 与扫描到的蓝牙 Mac 一致，此设备【可连接】
-            EventBus.getDefault().post(new DevConnEvent(mac, DEVICE_CONNECT_CAN));
-        }
     }
 
     /** 设备就绪 */

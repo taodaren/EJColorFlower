@@ -2,6 +2,7 @@ package cn.eejing.colorflower.view.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -132,9 +133,9 @@ public class MaOrderConfirmActivity extends BaseActivity {
             if (requestCode == REQUEST_CODE_ADDR_SELECT) {
                 AddrListBean.DataBean bean = (AddrListBean.DataBean) data.getSerializableExtra("address");
 
-                tvConsignee.setText(getString(R.string.text_consignee) + bean.getName());
+                tvConsignee.setText(getString(R.string.text_consignee) + bean.getConsignee());
                 tvPhone.setText(bean.getMobile());
-                tvAddress.setText(getString(R.string.text_shipping_address) + bean.getAddress_all());
+                tvAddress.setText(getString(R.string.text_shipping_address) + bean.getAddress());
                 mAddressId = bean.getId();
             }
             super.onActivityResult(requestCode, resultCode, data);
@@ -167,6 +168,7 @@ public class MaOrderConfirmActivity extends BaseActivity {
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
                                  LogUtil.d(TAG, "确认订单页面展示 请求成功: " + body);
+                                 Log.i(TAG, "onSuccess: " + MainActivity.getAppCtrl().getToken());
 
                                  ConfirmOrderBean bean = mGson.fromJson(body, ConfirmOrderBean.class);
                                  mBean = bean.getData();
@@ -175,13 +177,9 @@ public class MaOrderConfirmActivity extends BaseActivity {
                                          setData();
                                          break;
                                      default:
+                                         ToastUtil.showShort(bean.getMessage());
                                          break;
                                  }
-                             }
-
-                             @Override
-                             public void onError(Response<String> response) {
-                                 super.onError(response);
                              }
                          }
                 );

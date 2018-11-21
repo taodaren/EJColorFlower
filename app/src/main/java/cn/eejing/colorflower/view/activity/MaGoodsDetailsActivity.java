@@ -128,11 +128,6 @@ public class MaGoodsDetailsActivity extends BaseActivity {
                                  // 刷新结束
                                  rvGoodsDetails.setPullLoadMoreCompleted();
                              }
-
-                             @Override
-                             public void onError(Response<String> response) {
-                                 super.onError(response);
-                             }
                          }
                 );
     }

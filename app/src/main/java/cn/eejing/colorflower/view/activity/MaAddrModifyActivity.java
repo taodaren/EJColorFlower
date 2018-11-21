@@ -18,13 +18,11 @@ import org.greenrobot.eventbus.ThreadMode;
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
-import cn.eejing.colorflower.app.AppConstant;
 import cn.eejing.colorflower.model.event.AddrAddEvent;
-import cn.eejing.colorflower.model.request.AddrAddBean;
 import cn.eejing.colorflower.model.request.AddrListBean;
+import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
-import cn.eejing.colorflower.util.MySettings;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.base.BaseActivity;
 
@@ -33,6 +31,7 @@ import cn.eejing.colorflower.view.base.BaseActivity;
  */
 
 public class MaAddrModifyActivity extends BaseActivity {
+    private static final String TAG = "MaAddrModifyActivity";
 
     @BindView(R.id.et_addr_modify_consignee)        EditText etConsignee;
     @BindView(R.id.et_addr_modify_phone)            EditText etPhone;
@@ -40,7 +39,6 @@ public class MaAddrModifyActivity extends BaseActivity {
     @BindView(R.id.tv_addr_modify_address)          TextView tvAddress;
 
     private Gson mGson;
-    private String mMemberId, mToken;
     private String mAddress;
     private int mAddressId;
 
@@ -53,9 +51,7 @@ public class MaAddrModifyActivity extends BaseActivity {
     public void initView() {
         EventBus.getDefault().register(this);
         setToolbar("修改收货地址", View.VISIBLE, null, View.GONE);
-
         mGson = new Gson();
-        mToken = MySettings.getLoginSessionInfo(this).getToken();
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -63,18 +59,17 @@ public class MaAddrModifyActivity extends BaseActivity {
             if (intent.getStringExtra("type").equals("edit")) {
                 AddrListBean.DataBean data = (AddrListBean.DataBean) intent.getSerializableExtra("address_info");
                 mAddressId = data.getId();
-                etConsignee.setText(data.getName());
+                etConsignee.setText(data.getConsignee());
                 etPhone.setText(data.getMobile());
 
                 StringBuilder sb = new StringBuilder();
-                String addressAll = data.getAddress_all();
+                String addressAll = data.getAddress();
                 String[] split = addressAll.split(" ");
                 for (int i = 0; i < split.length - 1; i++) {
                     sb.append(split[i]).append(" ");
                 }
                 etAddress.setText(split[split.length - 1]);
                 tvAddress.setText(sb.toString().trim());
-                mMemberId = data.getMember_id() + "";
             }
         }
     }
@@ -99,54 +94,37 @@ public class MaAddrModifyActivity extends BaseActivity {
 
     @OnClick(R.id.layout_addr_modify_select)
     public void clickModifySelect() {
-        jumpToActivity(MaAddrProvincesActivity.class);
+        jumpToActivity(MaAddrProvinceActivity.class);
     }
 
     private void getDataWithAddrUpdate() {
-        OkGo.<String>post(Urls.ADDRESS_UPDATE)
+        OkGo.<String>post(Urls.EDIT_ADDRESS)
                 .tag(this)
-                .params("member_id", mMemberId)
-                .params("token", mToken)
-                .params("address_id", mAddressId)
-                .params("name", etConsignee.getText().toString())
-                .params("mobile", etPhone.getText().toString())
+                .params("consignee", etConsignee.getText().toString())
+                .params("province", "")
+                .params("city", "")
+                .params("district", "")
                 .params("address", mAddress.trim())
+                .params("mobile", etPhone.getText().toString())
+                .params("token", MainActivity.getAppCtrl().getToken())
+                .params("address_id", mAddressId)
                 .execute(new StringCallback() {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 LogUtil.e(AppConstant.TAG, "address_update request succeeded--->" + body);
+                                 LogUtil.d(TAG, "修改收货地址 请求成功: " + body);
 
-                                 AddrAddBean bean = mGson.fromJson(body, AddrAddBean.class);
+                                 CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
                                  switch (bean.getCode()) {
                                      case 1:
                                          ToastUtil.showShort("地址更改成功");
                                          EventBus.getDefault().post(new AddrAddEvent("add_ok"));
                                          finish();
                                          break;
-                                     case 4:
-                                         ToastUtil.showShort("收货人不能为空");
-                                         break;
-                                     case 5:
-                                         ToastUtil.showShort("手机号不能为空");
-                                         break;
-                                     case 6:
-                                         ToastUtil.showShort("详细地址不能为空");
-                                         break;
-                                     case 7:
-                                         ToastUtil.showShort("地址不存在");
-                                         break;
-                                     case 0:
-                                         ToastUtil.showShort("地址更改失败");
-                                         break;
                                      default:
+                                         ToastUtil.showShort(bean.getMessage());
                                          break;
                                  }
-                             }
-
-                             @Override
-                             public void onError(Response<String> response) {
-                                 super.onError(response);
                              }
                          }
                 );

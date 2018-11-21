@@ -105,13 +105,13 @@
             android:name="cn.eejing.colorflower.view.activity.MaAddrAddActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.MaAddrProvincesActivity"
+            android:name="cn.eejing.colorflower.view.activity.MaAddrProvinceActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.MaAddrAreasActivity"
+            android:name="cn.eejing.colorflower.view.activity.MaAddrDistrictActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.MaAddrCitysActivity"
+            android:name="cn.eejing.colorflower.view.activity.MaAddrCityActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name="cn.eejing.colorflower.view.activity.MaAddrModifyActivity"
