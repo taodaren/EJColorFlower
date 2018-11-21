@@ -25,14 +25,16 @@ public interface Urls {
     String GET_GOODS_LIST     = BASE_URL_V2 + "getGoodsList";                             // 商品列表
     String GOODS_DETAIL       = BASE_URL_V2 + "goodsDetail";                              // 商品详情
     String CONFIRM_ORDER      = BASE_URL_V2 + "confirmOrder";                             // 确认订单页面展示
+    String SET_ORDER          = BASE_URL_V2 + "setOrder";                                 // 用户提交订单并生成订单
     String ADDRESS_LIST       = BASE_URL_V2 + "addressList";                              // 收货地址列表
     String CREATE_ADDRESS     = BASE_URL_V2 + "createAddress";                            // 添加收货地址
     String AREA_SELECT        = BASE_URL_V2 + "areaSelect";                               // 地区选择
     String EDIT_ADDRESS       = BASE_URL_V2 + "editAddress";                              // 修改收货地址
     String SET_DEF_ADDRESS    = BASE_URL_V2 + "setDefaultAddress";                        // 设置默认地址
     String DEL_ADDRESS        = BASE_URL_V2 + "delAddress";                               // 删除收货地址
-    String PAY = BASE_URL + "pay";                                                     // 支付
-    String CALL_BACK_CONFIRM = BASE_URL + "callBackConfirm";                           // 确认支付结果
+    String A_LI_PAY           = BASE_URL_V2 + "aLiPay";                                   // 支付宝支付
+    String WE_CHAT_PAY        = BASE_URL_V2 + "weChatPay";                                // 微信支付
+    String CALL_BACK_CONFIRM  = BASE_URL_V2 + "payCallBackConfirm";                       // 商品订单支付结果确认
 
     String WAIT_GOODS = BASE_URL + "waitGoods";                                        // 待发货
     String ALREADY_GOODS = BASE_URL + "alreadyGodos";                                  // 已发货

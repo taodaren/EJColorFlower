@@ -7,7 +7,7 @@ public class PayWeiBean {
     /**
      * code : 1
      * message : 操作成功
-     * data : {"appid":"wx6a32217e1e3ae4f4","partnerid":"1509160731","prepayid":"wx161632247296257dd6e400b51251022708","package":"Sign=WXPay","timestamp":1531729935,"noncestr":"BpINuLZLO06DeCcp","sign":"7B2C9DFD10CC55E893357DBE7FB21022","Out_trade_no":"2018071616321533171ZNXT"}
+     * data : {"appid":"wx6a32217e1e3ae4f4","partnerid":"1509160731","prepayid":"wx21163240863241ae009d4c401623462326","package":"Sign=WXPay","timestamp":1542789160,"noncestr":"JBrNP2k2qngrtmYH","sign":"CD958CFE6491E79F99FE91714D50A0D5","Out_trade_no":"YJ181121162040b2QipI"}
      */
 
     private int code;
@@ -42,12 +42,12 @@ public class PayWeiBean {
         /**
          * appid : wx6a32217e1e3ae4f4
          * partnerid : 1509160731
-         * prepayid : wx161632247296257dd6e400b51251022708
+         * prepayid : wx21163240863241ae009d4c401623462326
          * package : Sign=WXPay
-         * timestamp : 1531729935
-         * noncestr : BpINuLZLO06DeCcp
-         * sign : 7B2C9DFD10CC55E893357DBE7FB21022
-         * Out_trade_no : 2018071616321533171ZNXT
+         * timestamp : 1542789160
+         * noncestr : JBrNP2k2qngrtmYH
+         * sign : CD958CFE6491E79F99FE91714D50A0D5
+         * Out_trade_no : YJ181121162040b2QipI
          */
 
         private String appid;

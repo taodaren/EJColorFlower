@@ -388,7 +388,7 @@ public class BLEManagerActivity extends BaseActivity {
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
             String mac = result.getDevice().getAddress();
-            LogUtil.i(TAG, "onScanResult " + callbackType + " " + mac + " | " + result.getDevice().getName());
+//            LogUtil.i(TAG, "onScanResult " + callbackType + " " + mac + " | " + result.getDevice().getName());
             if (callbackType == ScanSettings.CALLBACK_TYPE_ALL_MATCHES) {
                 // 如果回调类型全部匹配
                 if (!mDevMgrSet.containsKey(mac)) {
@@ -422,11 +422,11 @@ public class BLEManagerActivity extends BaseActivity {
     void onFoundDevice(BluetoothDevice bleDevice, @Nullable List<ParcelUuid> serviceUuids) {
         String name = bleDevice.getName();
         String mac = bleDevice.getAddress();
-        LogUtil.i(TAG, "onFoundDevice " + mac + " | " + name);
+//        LogUtil.i(TAG, "onFoundDevice " + mac + " | " + name);
 
         if (serviceUuids != null) {
             for (ParcelUuid uuid : serviceUuids) {
-                LogUtil.i(TAG, "serviceUuid " + uuid.toString());
+//                LogUtil.i(TAG, "serviceUuid " + uuid.toString());
             }
         }
     }

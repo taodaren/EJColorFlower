@@ -33,8 +33,8 @@ public class AppConstant {
     public static final String QR_DEV_MAC                   = "qr_dev_mac";
     public static final String QR_MATERIAL_ID               = "qr_material_id";
 
-    public static final String PAY_CODE_ALI                 = "alipay";
-    public static final String PAY_CODE_WEI                 = "weipay";
+    public static final String PAY_ALI                      = "支付宝支付";
+    public static final String PAY_WX                       = "微信支付";
     public static final String EXIT_LOGIN                   = "exit_login";
     public static final String ARG_TYPE                     = "arg_type";
 

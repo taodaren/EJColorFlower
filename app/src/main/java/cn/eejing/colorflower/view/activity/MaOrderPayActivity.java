@@ -1,6 +1,7 @@
 package cn.eejing.colorflower.view.activity;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
@@ -21,9 +22,8 @@ import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 import java.util.Map;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 import cn.eejing.colorflower.R;
-import cn.eejing.colorflower.app.AppConstant;
-import cn.eejing.colorflower.model.request.CallBackConfirmBean;
 import cn.eejing.colorflower.model.request.PayAliBean;
 import cn.eejing.colorflower.model.request.PayWeiBean;
 import cn.eejing.colorflower.presenter.Urls;
@@ -33,12 +33,15 @@ import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.base.BaseActivity;
 
 import static cn.eejing.colorflower.app.AppConstant.APP_ID;
+import static cn.eejing.colorflower.app.AppConstant.PAY_ALI;
+import static cn.eejing.colorflower.app.AppConstant.PAY_WX;
 
 /**
  * 订单支付
  */
 
-public class MaOrderPayActivity extends BaseActivity implements View.OnClickListener {
+public class MaOrderPayActivity extends BaseActivity {
+    private static final String TAG = "MaOrderPayActivity";
 
     @BindView(R.id.btn_pay)                SuperButton btnPay;
     @BindView(R.id.tv_pay_money)           TextView tvPayMoney;
@@ -49,12 +52,16 @@ public class MaOrderPayActivity extends BaseActivity implements View.OnClickList
 
     private static final int SDK_PAY_FLAG = 1;
     private Gson mGson;
-    private PayAliBean.DataBean mBeanAli;
-    private PayWeiBean.DataBean mBeanWei;
-    private String mMemberId, mToken;
-    private int mGoodsId, mNumber, mAddressId;
+    private String mOrderNo;
+    private double mTotalPrice;
     private int mPayFlag = 1;
-    private IWXAPI api;
+    private IWXAPI wxApi;
+
+    private static MaOrderPayActivity mInstance;
+
+    public static MaOrderPayActivity getInstance() {
+        return mInstance;
+    }
 
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
@@ -78,29 +85,21 @@ public class MaOrderPayActivity extends BaseActivity implements View.OnClickList
     @SuppressLint("SetTextI18n")
     @Override
     public void initView() {
+        mInstance = this;
         setToolbar("订单支付", View.VISIBLE, null, View.GONE);
-        tvPayMoney.setText(getString(R.string.rmb) + getIntent().getDoubleExtra("money", 0));
 
         mGson = new Gson();
-        mGoodsId = getIntent().getIntExtra("goods_id", 0);
-        mNumber = getIntent().getIntExtra("quantity", 0);
-        mAddressId = getIntent().getIntExtra("address_id", 0);
-        mMemberId = getIntent().getStringExtra("member_id");
-        mToken = getIntent().getStringExtra("token");
+        mOrderNo = getIntent().getStringExtra("order_no");
+        mTotalPrice = getIntent().getDoubleExtra("total_price", 0);
+        tvPayMoney.setText(getString(R.string.rmb) + mTotalPrice);
 
-        // 初始化微信支付 api
-        api = WXAPIFactory.createWXAPI(this, APP_ID);
+        // 初始化微信支付 注册APPID
+        wxApi = WXAPIFactory.createWXAPI(this, null);
+        wxApi.registerApp(APP_ID);
     }
 
-    @Override
-    public void initListener() {
-        btnPay.setOnClickListener(this);
-        mPayAli.setOnClickListener(this);
-        mPayWx.setOnClickListener(this);
-    }
-
-    @Override
-    public void onClick(View view) {
+    @OnClick({R.id.ll_pay_ali, R.id.ll_pay_wei_xin, R.id.btn_pay})
+    public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_pay:
                 if (mPayFlag == 1) {
@@ -119,8 +118,6 @@ public class MaOrderPayActivity extends BaseActivity implements View.OnClickList
                 imgPayAli.setImageDrawable(getDrawable(R.drawable.ic_single_unselected));
                 imgPayWx.setImageDrawable(getDrawable(R.drawable.ic_single_selected));
                 break;
-            default:
-                break;
         }
     }
 
@@ -130,29 +127,12 @@ public class MaOrderPayActivity extends BaseActivity implements View.OnClickList
         //（验证的规则请看 https://doc.open.alipay.com/doc2/detail.htm?spm=0.0.0.0.xdvAU6&treeId=59&articleId=103665&docType=1)
         // 建议商户依赖异步通知
         String resultInfo = payResult.getResult();// 同步返回需要验证的信息
-//        getDataWithCallBackConfirm();
-
-        String resultStatus = payResult.getResultStatus();
-        switch (resultStatus) {
-            case "9000":
-                // 判断 resultStatus 为“9000”则代表支付成功，具体状态码代表含义可参考接口文档
-                ToastUtil.showShort("支付宝支付成功");
-                jumpToActivity(MainActivity.class);
-                break;
-            case "8000":
-                // 支付确认中（小概率事件）
-                // 判断 resultStatus 为非"9000"则代表可能支付失败
-                ToastUtil.showShort("支付结果确认中");
-                break;
-            default:
-                // 其他值就可以判断为支付失败，包括用户主动取消支付，或者系统返回的错误
-                ToastUtil.showShort("支付失败");
-                break;
-        }
+        LogUtil.v(TAG, "" + resultInfo);
+        getDataWithCallBackConfirm(PAY_ALI, payResult);
     }
 
     /** 调用支付宝 */
-    public void callAlipay(final String orderString) {
+    public void callAliPay(final String orderString) {
         Runnable payRunnable = () -> {
             // 构造 PayTask 对象
             PayTask alipay = new PayTask(MaOrderPayActivity.this);
@@ -171,113 +151,98 @@ public class MaOrderPayActivity extends BaseActivity implements View.OnClickList
     }
 
     /** 调用微信支付 */
-    public void sendPayRequest() {
-        PayReq req = new PayReq();
-        req.appId = mBeanWei.getAppid();
-        req.partnerId = mBeanWei.getPartnerid();
-        req.prepayId = mBeanWei.getPrepayid();
-        req.packageValue = mBeanWei.getPackageX();
-        req.nonceStr = mBeanWei.getNoncestr();
-        req.timeStamp = String.valueOf(mBeanWei.getTimestamp());
-        req.sign = mBeanWei.getSign();
+    public void sendPayRequest(PayWeiBean.DataBean wxData) {
+        PayReq request = new PayReq();
+        request.appId = wxData.getAppid();
+        request.partnerId = wxData.getPartnerid();
+        request.prepayId = wxData.getPrepayid();
+        request.packageValue = wxData.getPackageX();
+        request.nonceStr = wxData.getNoncestr();
+        request.timeStamp = String.valueOf(wxData.getTimestamp());
+        request.sign = wxData.getSign();
         // 在支付之前，如果应用没有注册到微信，应该先调用IWXMsg.registerApp将应用注册到微信
         // 调用微信支付 sdk 支付方法
-        api.sendReq(req);
+        wxApi.sendReq(request);
     }
 
     private void getDataWithPayAli() {
-        OkGo.<String>post(Urls.PAY)
+        OkGo.<String>post(Urls.A_LI_PAY)
                 .tag(this)
-                .params("pay_code", AppConstant.PAY_CODE_ALI)
-                .params("goods_id", mGoodsId)
-                .params("quantity", mNumber)
-                .params("address_id", mAddressId)
-                .params("member_id", mMemberId)
-                .params("token", mToken)
+                .params("trade_no", mOrderNo)
+                .params("total_price", mTotalPrice)
+                .params("subject", "商品购买")
+                .params("token", MainActivity.getAppCtrl().getToken())
                 .execute(new StringCallback() {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 LogUtil.e(AppConstant.TAG, "pay ali request succeeded--->" + body);
+                                 LogUtil.d(TAG, "支付宝支付 请求成功: " + body);
 
-                                 PayAliBean bean = mGson.fromJson(body, PayAliBean.class);
-                                 mBeanAli = bean.getData();
-                                 switch (bean.getCode()) {
-                                     case 1:
-                                         callAlipay(mBeanAli.getOrderString());
-                                         break;
-                                     default:
-                                         break;
+                                 if (mGson.fromJson(body, PayAliBean.class).getCode() == 1) {
+                                     callAliPay(mGson.fromJson(body, PayAliBean.class).getData().getOrderString());
                                  }
-                             }
-
-                             @Override
-                             public void onError(Response<String> response) {
-                                 super.onError(response);
                              }
                          }
                 );
     }
 
     private void getDataWithPayWei() {
-        OkGo.<String>post(Urls.PAY)
+        OkGo.<String>post(Urls.WE_CHAT_PAY)
                 .tag(this)
-                .params("pay_code", AppConstant.PAY_CODE_WEI)
-                .params("goods_id", mGoodsId)
-                .params("quantity", mNumber)
-                .params("address_id", mAddressId)
-                .params("member_id", mMemberId)
-                .params("token", mToken)
+                .params("trade_no", mOrderNo)
+                .params("total_price", mTotalPrice)
+                .params("subject", "商品购买")
+                .params("token", MainActivity.getAppCtrl().getToken())
                 .execute(new StringCallback() {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 LogUtil.e(AppConstant.TAG, "pay wei request succeeded--->" + body);
+                                 LogUtil.d(TAG, "微信支付 请求成功: " + body);
 
-                                 PayWeiBean bean = mGson.fromJson(body, PayWeiBean.class);
-                                 mBeanWei = bean.getData();
-                                 switch (bean.getCode()) {
-                                     case 1:
-                                         sendPayRequest();
-                                         break;
-                                     default:
-                                         break;
+                                 if (mGson.fromJson(body, PayWeiBean.class).getCode() == 1) {
+                                     sendPayRequest(mGson.fromJson(body, PayWeiBean.class).getData());
                                  }
-                             }
-
-                             @Override
-                             public void onError(Response<String> response) {
-                                 super.onError(response);
                              }
                          }
                 );
     }
 
-    private void getDataWithCallBackConfirm() {
+    public void getDataWithCallBackConfirm(String type, PayResult result) {
         OkGo.<String>post(Urls.CALL_BACK_CONFIRM)
                 .tag(this)
-                .params("order_num", 15)
+                .params("order_sn", mOrderNo)
+                .params("token", MainActivity.getAppCtrl().getToken())
                 .execute(new StringCallback() {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 LogUtil.e(AppConstant.TAG, "call_back_confirm request succeeded--->" + body);
-
-                                 CallBackConfirmBean bean = mGson.fromJson(body, CallBackConfirmBean.class);
-                                 switch (bean.getCode()) {
-                                     case 0:
+                                 LogUtil.d(TAG, "商品订单支付结果确认 请求成功: " + body);
+                                 switch (type) {
+                                     case PAY_ALI:
+                                         int resultStatus = Integer.parseInt(result.getResultStatus());
+                                         switch (resultStatus) {
+                                             case 9000:
+                                                 // 订单支付成功
+                                                 ToastUtil.showShort("支付宝支付成功");
+                                                 jumpToActivity(MainActivity.class);
+                                                 break;
+                                             case 8000:
+                                                 // 正在处理中，支付结果未知（有可能已经支付成功），请查询商户订单列表中订单的支付状态
+                                                 ToastUtil.showShort("支付结果确认中");
+                                                 break;
+                                             default:
+                                                 // 其他值就可以判断为支付失败，包括用户主动取消支付，或者系统返回的错误
+                                                 ToastUtil.showShort("支付失败");
+                                                 break;
+                                         }
                                          break;
-                                     default:
+                                     case PAY_WX:
+                                         startActivity(new Intent(MaOrderPayActivity.this, MainActivity.class));
+                                         ToastUtil.showShort("微信支付成功");
                                          break;
                                  }
-                             }
-
-                             @Override
-                             public void onError(Response<String> response) {
-                                 super.onError(response);
                              }
                          }
                 );
     }
-
 }

@@ -24,10 +24,11 @@ import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.app.BaseApplication;
 import cn.eejing.colorflower.model.event.AddrAddEvent;
 import cn.eejing.colorflower.model.request.AddrListBean;
+import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.model.request.ConfirmOrderBean;
+import cn.eejing.colorflower.model.request.OrderSetBean;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
-import cn.eejing.colorflower.util.MySettings;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.base.BaseActivity;
 
@@ -55,9 +56,7 @@ public class MaOrderConfirmActivity extends BaseActivity {
 
     private ConfirmOrderBean.DataBean mBean;
     private Gson mGson;
-    private String mMemberId, mToken;
     private int mGoodsId, mNumber;
-    private double mTotalMoney;
     private int mAddressId;
 
     @Override
@@ -72,8 +71,6 @@ public class MaOrderConfirmActivity extends BaseActivity {
 
         mGson = new Gson();
         mGoodsId = getIntent().getIntExtra("goods_id", 0);
-        mMemberId = String.valueOf(MySettings.getLoginSessionInfo(this).getMember_id());
-        mToken = MySettings.getLoginSessionInfo(this).getToken();
     }
 
     @Override
@@ -91,18 +88,7 @@ public class MaOrderConfirmActivity extends BaseActivity {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_submit_order:
-                if (tvConsignee.getText().length() > 0 && tvPhone.getText().length() > 0 && tvAddress.getText().length() > 0) {
-                    Intent intent = new Intent(this, MaOrderPayActivity.class);
-                    intent.putExtra("goods_id", mGoodsId);
-                    intent.putExtra("quantity", mNumber);
-                    intent.putExtra("address_id", mAddressId);
-                    intent.putExtra("member_id", mMemberId);
-                    intent.putExtra("token", mToken);
-                    intent.putExtra("money", mTotalMoney);
-                    jumpToActivity(intent);
-                } else {
-                    ToastUtil.showShort(getString(R.string.text_add_addr));
-                }
+                submitOrder();
                 break;
             case R.id.btn_confirm_order_add:
                 mNumber = mNumber + 1;
@@ -154,21 +140,50 @@ public class MaOrderConfirmActivity extends BaseActivity {
         tvNumBuy.setText("" + number);
 
         // 设置合计金额
-        mTotalMoney = number * Double.parseDouble(mBean.getGoods().getSale_price());
-        tvTotalMoney.setText(getString(R.string.rmb) + mTotalMoney);
+        double totalMoney = number * Double.parseDouble(mBean.getGoods().getSale_price());
+        tvTotalMoney.setText(getString(R.string.rmb) + totalMoney);
+    }
+
+    private void submitOrder() {
+        if (tvConsignee.getText().length() > 0 && tvPhone.getText().length() > 0 && tvAddress.getText().length() > 0) {
+            OkGo.<String>post(Urls.SET_ORDER)
+                    .tag(this)
+                    .params("goods_id", mGoodsId)
+                    .params("address_id", mAddressId)
+                    .params("quantity", mNumber)
+                    .params("token", MainActivity.getAppCtrl().getToken())
+                    .execute(new StringCallback() {
+                        @Override
+                        public void onSuccess(Response<String> response) {
+                            String body = response.body();
+                            LogUtil.d(TAG, "用户提交订单并生成订单 请求成功: " + body);
+
+                            OrderSetBean bean = mGson.fromJson(body, OrderSetBean.class);
+                            if (bean.getCode() == 1) {
+                                jumpToActivity(new Intent(MaOrderConfirmActivity.this, MaOrderPayActivity.class)
+                                        .putExtra("order_no", bean.getData().getOrder_sn())
+                                        .putExtra("total_price", bean.getData().getTotal_amount())
+                                );
+                            } else {
+                                ToastUtil.showShort(bean.getMessage());
+                            }
+                        }
+                    });
+        } else {
+            ToastUtil.showShort(getString(R.string.text_add_addr));
+        }
     }
 
     private void getDataWithConfirmOrder() {
         OkGo.<String>post(Urls.CONFIRM_ORDER)
                 .tag(this)
                 .params("goods_id", mGoodsId)
-                .params("token", mToken)
+                .params("token", MainActivity.getAppCtrl().getToken())
                 .execute(new StringCallback() {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
                                  LogUtil.d(TAG, "确认订单页面展示 请求成功: " + body);
-                                 Log.i(TAG, "onSuccess: " + MainActivity.getAppCtrl().getToken());
 
                                  ConfirmOrderBean bean = mGson.fromJson(body, ConfirmOrderBean.class);
                                  mBean = bean.getData();

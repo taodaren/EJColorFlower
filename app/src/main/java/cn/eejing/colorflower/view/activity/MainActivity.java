@@ -462,7 +462,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         if (name.indexOf(getAllowedConnDevName()) != 0) {
             return;
         }
-        LogUtil.d(TAG, "dev mac: " + mac);
+//        LogUtil.d(TAG, "dev mac: " + mac);
     }
 
     /** 设备就绪 */
