@@ -46,8 +46,7 @@ public class MiSetPayPwdActivity extends BaseActivity {
     @BindView(R.id.tv_pay_get_code)              TextView          tvCode;
 
     private static final String TAG = "MiSetPayPwdActivity";
-    private String mPwd;
-    private String mPhone, mCode, mSetPwd, mPwdConfirm;
+    private String mPwdOriginal, mPhone, mCode, mSetPwd, mPwdConfirm;
     private String mIv;
     private Gson mGson;
 
@@ -63,12 +62,12 @@ public class MiSetPayPwdActivity extends BaseActivity {
 
         @Override
         public void afterTextChanged(Editable editable) {
-            String phone = etPhone.getText().toString().trim();
-            String code = etCode.getText().toString().trim();
-            String pwd = etPwdNew.getText().toString().trim();
-            String pwdConfirm = etPwdConfirm.getText().toString().trim();
+            mPhone = etPhone.getText().toString().trim();
+            mCode = etCode.getText().toString().trim();
+            mSetPwd = etPwdNew.getText().toString().trim();
+            mPwdConfirm = etPwdConfirm.getText().toString().trim();
 
-            if (TextUtils.isEmpty(phone) || TextUtils.isEmpty(code) || TextUtils.isEmpty(pwd) || TextUtils.isEmpty(pwdConfirm)) {
+            if (TextUtils.isEmpty(mPhone) || TextUtils.isEmpty(mCode) || TextUtils.isEmpty(mSetPwd) || TextUtils.isEmpty(mPwdConfirm)) {
                 // 设置支付密码 ET 有空情况
                 btnConfirmSet.setEnabled(Boolean.FALSE);
                 btnConfirmSet.setBackground(getResources().getDrawable(R.drawable.shape_btn_jbs_no));
@@ -90,7 +89,7 @@ public class MiSetPayPwdActivity extends BaseActivity {
         setToolbar("设置支付密码", View.VISIBLE, null, View.GONE);
         layoutSet.setVisibility(View.GONE);
         layoutVerify.setVisibility(View.VISIBLE);
-        mPwd = MySettings.getLoginSessionInfo(this).getPassword();
+        mPwdOriginal = MySettings.getLoginSessionInfo(this).getPassword();
         mIv = Encryption.newIv();
     }
 
@@ -107,10 +106,6 @@ public class MiSetPayPwdActivity extends BaseActivity {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_pay_pwd_confirm_set:
-                mPhone = etPhone.getText().toString();
-                mCode = etCode.getText().toString();
-                mSetPwd = etPwdNew.getText().toString();
-                mPwdConfirm = etPwdConfirm.getText().toString();
                 if (!validate().equals("验证通过")) {
                     ToastUtil.showLong(validate());
                     return;
@@ -120,7 +115,7 @@ public class MiSetPayPwdActivity extends BaseActivity {
             case R.id.btn_pay_pwd_confirm_login:
                 String pwdLogin = etPwdLogin.getText().toString().trim();
 
-                if (!pwdLogin.equals(mPwd) || TextUtils.isEmpty(pwdLogin)) {
+                if (!pwdLogin.equals(mPwdOriginal) || TextUtils.isEmpty(pwdLogin)) {
                     ToastUtil.showShort("登陆密码验证失败");
                     layoutSet.setVisibility(View.GONE);
                     layoutVerify.setVisibility(View.VISIBLE);
@@ -207,7 +202,7 @@ public class MiSetPayPwdActivity extends BaseActivity {
 
                         mGson = new Gson();
                         CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
-                        ToastUtil.showShort(bean.getMessage());
+                        ToastUtil.showLong(bean.getMessage());
                         finish();
                     }
                 });
