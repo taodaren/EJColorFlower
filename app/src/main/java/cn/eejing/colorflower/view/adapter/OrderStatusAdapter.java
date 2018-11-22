@@ -111,6 +111,9 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             tvMoney.setText(mContext.getString(R.string.text_total) + money + mContext.getString(R.string.yuan));
 
             switch (mType) {
+                case AppConstant.TYPE_WAIT_PAYMENT:
+                    btnEdit.setText("立即支付");
+                    break;
                 case AppConstant.TYPE_WAIT_SHIP:
                     btnEdit.setVisibility(View.GONE);
                     break;
@@ -162,7 +165,7 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     private void getDataWithCollectGoods(int orderId) {
-        OkGo.<String>post(Urls.COLLECT_GOODS)
+        OkGo.<String>post(Urls.CONFIRM_RECEIPT)
                 .tag(this)
                 .params("order_id", orderId)
                 .params("member_id", mMemberId)
@@ -193,7 +196,7 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     private void getDataWithDelCompleted(int orderId) {
-        OkGo.<String>post(Urls.DEL_COMPLETED)
+        OkGo.<String>post(Urls.DEL_ORDER)
                 .tag(this)
                 .params("order_id", orderId)
                 .params("member_id", mMemberId)

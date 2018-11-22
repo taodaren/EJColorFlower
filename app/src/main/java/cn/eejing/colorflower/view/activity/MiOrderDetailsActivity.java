@@ -26,16 +26,16 @@ import cn.eejing.colorflower.view.base.BaseActivity;
 
 public class MiOrderDetailsActivity extends BaseActivity {
 
-    @BindView(R.id.tv_order_dtl_status)           TextView     tvOrderStatus;
-    @BindView(R.id.tv_order_dtl_consignee)        TextView     tvConsignee;
-    @BindView(R.id.tv_order_dtl_phone)            TextView     tvPhone;
-    @BindView(R.id.tv_order_dtl_address)          TextView     tvAddress;
-    @BindView(R.id.tv_order_dtl_name)             TextView     tvName;
-    @BindView(R.id.tv_order_dtl_money)            TextView     tvMoney;
-    @BindView(R.id.tv_order_dtl_num)              TextView     tvNum;
-    @BindView(R.id.tv_order_dtl_odd)              TextView     tvOdd;
-    @BindView(R.id.tv_order_dtl_time)             TextView     tvTime;
-    @BindView(R.id.img_order_dtl_show)            ImageView    imgShow;
+    @BindView(R.id.tv_order_dtl_status)       TextView     tvOrderStatus;
+    @BindView(R.id.tv_order_dtl_consignee)    TextView     tvConsignee;
+    @BindView(R.id.tv_order_dtl_phone)        TextView     tvPhone;
+    @BindView(R.id.tv_order_dtl_address)      TextView     tvAddress;
+    @BindView(R.id.tv_order_dtl_name)         TextView     tvName;
+    @BindView(R.id.tv_order_dtl_money)        TextView     tvMoney;
+    @BindView(R.id.tv_order_dtl_num)          TextView     tvNum;
+    @BindView(R.id.tv_order_dtl_odd)          TextView     tvOdd;
+    @BindView(R.id.tv_order_dtl_time)         TextView     tvTime;
+    @BindView(R.id.img_order_dtl_show)        ImageView    imgShow;
 
     private int mOrderId;
     private String mType;
@@ -60,7 +60,7 @@ public class MiOrderDetailsActivity extends BaseActivity {
     }
 
     private void getDataWithOrderDtl() {
-        OkGo.<String>post(Urls.ORDER_DETAILS)
+        OkGo.<String>post(Urls.ORDER_DETAIL)
                 .tag(this)
                 .params("order_id", mOrderId)
                 .execute(new StringCallback() {
@@ -97,6 +97,9 @@ public class MiOrderDetailsActivity extends BaseActivity {
         tvTime.setText(getString(R.string.text_order_time) + bean.getOrder_time());
 
         switch (mType) {
+            case AppConstant.TYPE_WAIT_PAYMENT:
+                tvOrderStatus.setText(getString(R.string.type_wait_payment));
+                break;
             case AppConstant.TYPE_WAIT_SHIP:
                 tvOrderStatus.setText(getString(R.string.type_wait_ship));
                 break;

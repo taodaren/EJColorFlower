@@ -21,10 +21,10 @@ import cn.eejing.colorflower.view.fragment.PageOrderStatusFragment;
 public class MiOrderActivity extends BaseActivity {
     private static final int DEFAULT_SELECTION = 0;
 
-    @BindView(R.id.tl_mi_order)        TabLayout mTabLayout;
-    @BindView(R.id.vp_mi_order)        ViewPager mViewPager;
+    @BindView(R.id.tl_mi_order)    TabLayout mTabLayout;
+    @BindView(R.id.vp_mi_order)    ViewPager mViewPager;
 
-    private String[] mTitles = {"待发货", "待收货", "已完成"};
+    private String[] mTitles = {"待付款", "待发货", "待收货", "已完成"};
 
     @Override
     protected int layoutViewId() {
@@ -50,7 +50,7 @@ public class MiOrderActivity extends BaseActivity {
         }
 
         // 设置预加载页面数量
-        mViewPager.setOffscreenPageLimit(4);
+        mViewPager.setOffscreenPageLimit(0);
         // 设置 adapter
         mViewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager(), fragments, mTitles));
         // 设置滚动条

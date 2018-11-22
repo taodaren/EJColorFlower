@@ -152,6 +152,7 @@
     <string name="text_multiply">×</string>
     <string name="text_common">共</string>
     <string name="text_items">件商品</string>
+    <string name="type_wait_payment">待付款</string>
     <string name="type_wait_ship">待发货</string>
     <string name="type_wait_receipt">待收货</string>
     <string name="type_complete_goods">已完成</string>

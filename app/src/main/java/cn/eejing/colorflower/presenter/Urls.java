@@ -39,11 +39,11 @@ public interface Urls {
     String WAIT_GOODS = BASE_URL + "waitGoods";                                        // 待发货
     String ALREADY_GOODS = BASE_URL + "alreadyGodos";                                  // 已发货
     String COMPLETED = BASE_URL + "Completed";                                         // 已完成
-    String ORDER_DETAILS = BASE_URL + "orderDetails";                                  // 订单详情
-    String COLLECT_GOODS = BASE_URL + "collectGoods";                                  // 确认收货(待收货)
-    String DEL_COMPLETED = BASE_URL + "delCompleted";                                  // 删除已完成订单(已完成)
-    String PWD_UPDATE = BASE_URL + "pwdUpdate";                                        // 修改密码
-    String FEED_BACK = BASE_URL_V2 + "feedback";                                          // 意见反馈
-    String ABOUT_US = BASE_URL_V2 + "aboutUs";                                            // 关于我们
-    String SET_PAY_PWD = BASE_URL_V2 + "setPayPwd";                                       // 设置支付密码
+    String ORDER_DETAIL = BASE_URL_V2 + "orderDetail";                                    // 订单详情
+    String ORDER_LIST = BASE_URL_V2 + "orderList";                                        // 订单列表
+    String CONFIRM_RECEIPT = BASE_URL_V2 + "confirmReceipt";                              // 确认收货(待收货)
+    String DEL_ORDER = BASE_URL + "delOrder";                                             // 删除订单
+    String FEED_BACK          = BASE_URL_V2 + "feedback";                                 // 意见反馈
+    String ABOUT_US           = BASE_URL_V2 + "aboutUs";                                  // 关于我们
+    String SET_PAY_PWD        = BASE_URL_V2 + "setPayPwd";                                // 设置支付密码
 }

@@ -66,6 +66,7 @@ public class AppConstant {
     public static final String DEVICE_CONNECT_NO            = "不可连接";
     public static final String DEVICE_OUT_OF_RANGE          = "超出连接范围";
 
+    public static final String TYPE_WAIT_PAYMENT            = "待付款";
     public static final String TYPE_WAIT_SHIP               = "待发货";
     public static final String TYPE_WAIT_RECEIPT            = "待收货";
     public static final String TYPE_COMPLETE_GOODS          = "已完成";

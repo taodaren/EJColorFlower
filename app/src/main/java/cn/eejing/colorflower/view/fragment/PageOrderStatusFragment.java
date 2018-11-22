@@ -13,6 +13,7 @@ import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import cn.eejing.colorflower.R;
@@ -23,6 +24,8 @@ import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.MySettings;
 import cn.eejing.colorflower.view.adapter.OrderStatusAdapter;
 import cn.eejing.colorflower.view.base.BaseFragment;
+
+import static cn.eejing.colorflower.app.AppConstant.ARG_TYPE;
 
 /**
  * 订单状态
@@ -42,7 +45,7 @@ public class PageOrderStatusFragment extends BaseFragment {
     public static PageOrderStatusFragment newInstance(String mTitle) {
         PageOrderStatusFragment fragment = new PageOrderStatusFragment();
         Bundle bundle = new Bundle();
-        bundle.putString(AppConstant.ARG_TYPE, mTitle);
+        bundle.putString(ARG_TYPE, mTitle);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -55,7 +58,7 @@ public class PageOrderStatusFragment extends BaseFragment {
         super.onAttach(context);
         Bundle bundle = getArguments();
         if (bundle != null) {
-            mType = bundle.getString(AppConstant.ARG_TYPE);
+            mType = bundle.getString(ARG_TYPE);
         }
     }
 
@@ -68,7 +71,7 @@ public class PageOrderStatusFragment extends BaseFragment {
     public void initView(View rootView) {
         mGson = new Gson();
         mList = new ArrayList<>();
-        mMemberId = String.valueOf(MySettings.getLoginSessionInfo(getActivity()).getMember_id());
+        mMemberId = String.valueOf(MySettings.getLoginSessionInfo(Objects.requireNonNull(getActivity())).getMember_id());
         mToken = MySettings.getLoginSessionInfo(getActivity()).getToken();
         initRecyclerView();
     }
@@ -76,6 +79,9 @@ public class PageOrderStatusFragment extends BaseFragment {
     @Override
     public void initData() {
         switch (mType) {
+            case AppConstant.TYPE_WAIT_PAYMENT:
+                getDataWithWaitPayment();
+                break;
             case AppConstant.TYPE_WAIT_SHIP:
                 getDataWithWaitGoods();
                 break;
@@ -103,6 +109,9 @@ public class PageOrderStatusFragment extends BaseFragment {
             @Override
             public void onRefresh() {
                 switch (mType) {
+                    case AppConstant.TYPE_WAIT_PAYMENT:
+                        getDataWithWaitPayment();
+                        break;
                     case AppConstant.TYPE_WAIT_SHIP:
                         getDataWithWaitGoods();
                         break;
@@ -123,6 +132,38 @@ public class PageOrderStatusFragment extends BaseFragment {
         });
         // 刷新结束
         rvOrderStatus.setPullLoadMoreCompleted();
+    }
+
+    private void getDataWithWaitPayment() {
+        OkGo.<String>post(Urls.WAIT_GOODS)
+                .tag(this)
+                .params("member_id", mMemberId)
+                .params("token", mToken)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        String body = response.body();
+                        LogUtil.d(AppConstant.TAG, "wait_goods request succeeded --->" + body);
+
+                        OrderPagerBean bean = mGson.fromJson(body, OrderPagerBean.class);
+                        switch (bean.getCode()) {
+                            case 1:
+                                mList = bean.getData();
+                                // 刷新数据
+                                mAdapter.refreshList(mList);
+                                // 刷新结束
+                                rvOrderStatus.setPullLoadMoreCompleted();
+                                break;
+                            case 4:
+                                llNoOrder.setVisibility(View.VISIBLE);
+                                // 刷新结束
+                                rvOrderStatus.setPullLoadMoreCompleted();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
     }
 
     private void getDataWithWaitGoods() {
