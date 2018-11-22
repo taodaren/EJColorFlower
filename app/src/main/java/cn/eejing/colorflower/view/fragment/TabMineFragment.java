@@ -6,9 +6,9 @@ import com.allen.library.SuperTextView;
 
 import java.util.Objects;
 
-import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.activity.MainActivity;
 import cn.eejing.colorflower.view.activity.MiAboutActivity;
 import cn.eejing.colorflower.view.activity.MiOpinionActivity;
@@ -16,17 +16,13 @@ import cn.eejing.colorflower.view.activity.MiOrderActivity;
 import cn.eejing.colorflower.view.activity.MiSetActivity;
 import cn.eejing.colorflower.view.base.BaseFragment;
 
+import static cn.eejing.colorflower.app.BaseApplication.getVersionName;
+
 /**
  * 我的模块
  */
 
 public class TabMineFragment extends BaseFragment {
-
-    @BindView(R.id.stv_mine_opinion)        SuperTextView stvMineOpinion;
-    @BindView(R.id.stv_mine_about)          SuperTextView stvMineAbout;
-    @BindView(R.id.stv_mine_set)            SuperTextView stvMineSet;
-    @BindView(R.id.stv_mine_order)          SuperTextView stvMineOrder;
-
     public static TabMineFragment newInstance() {
         return new TabMineFragment();
     }
@@ -42,18 +38,29 @@ public class TabMineFragment extends BaseFragment {
     }
 
     @Override
-    public void initListener() {
-        stvMineOrder.setOnSuperTextViewClickListener(superTextView -> ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(MiOrderActivity.class));
-
-        stvMineOpinion.setOnSuperTextViewClickListener(superTextView -> ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(MiOpinionActivity.class));
-
-        stvMineAbout.setOnSuperTextViewClickListener(superTextView -> ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(MiAboutActivity.class));
-
-        stvMineSet.setOnSuperTextViewClickListener(superTextView -> ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(MiSetActivity.class));
+    public void initView(View rootView) {
+        String versionName = getVersionName(Objects.requireNonNull(getContext()));
+        ((SuperTextView) rootView.findViewById(R.id.stv_mine_version)).setRightString("V " + versionName + " 版本");
     }
 
-    @OnClick(R.id.btn_mine_upgrade)
-    public void onViewClicked() {
-        // 升级为黄金
+    @OnClick({R.id.btn_mine_upgrade, R.id.stv_mine_order, R.id.stv_mine_opinion, R.id.stv_mine_about, R.id.stv_mine_set})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.btn_mine_upgrade:
+                ToastUtil.showShort("升级为黄金");
+                break;
+            case R.id.stv_mine_order:
+                ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(MiOrderActivity.class);
+                break;
+            case R.id.stv_mine_opinion:
+                ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(MiOpinionActivity.class);
+                break;
+            case R.id.stv_mine_about:
+                ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(MiAboutActivity.class);
+                break;
+            case R.id.stv_mine_set:
+                ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(MiSetActivity.class);
+                break;
+        }
     }
 }

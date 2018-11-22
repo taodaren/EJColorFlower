@@ -1,21 +1,13 @@
 package cn.eejing.colorflower.view.activity;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
-
-import butterknife.BindView;
 import cn.eejing.colorflower.R;
-import cn.eejing.colorflower.app.AppConstant;
-import cn.eejing.colorflower.model.request.AboutLinkBean;
 import cn.eejing.colorflower.presenter.Urls;
-import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.view.base.BaseActivity;
 
 /**
@@ -23,9 +15,6 @@ import cn.eejing.colorflower.view.base.BaseActivity;
  */
 
 public class MiAboutActivity extends BaseActivity {
-
-    @BindView(R.id.web_about)
-    WebView webAbout;
 
     @Override
     protected int layoutViewId() {
@@ -35,39 +24,15 @@ public class MiAboutActivity extends BaseActivity {
     @Override
     public void initView() {
         setToolbar("关于我们", View.VISIBLE, null, View.GONE);
+        setWebView();
     }
 
-    @Override
-    public void initData() {
-        getDataWithAboutLink();
-    }
-
-    private void getDataWithAboutLink() {
-        OkGo.<String>get(Urls.ABOUT_LINK)
-                .tag(this)
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        LogUtil.e(AppConstant.TAG, "about_link request succeeded --->" + body);
-
-                        Gson gson = new Gson();
-                        AboutLinkBean bean = gson.fromJson(body, AboutLinkBean.class);
-                        switch (bean.getCode()) {
-                            case 1:
-                                setWebView(bean.getData());
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                });
-    }
-
-    private void setWebView(String data) {
-        webAbout.loadUrl(data);
-
+    @SuppressLint("SetJavaScriptEnabled")
+    private void setWebView() {
+        WebView webAbout = findViewById(R.id.web_about);
+        webAbout.loadUrl(Urls.ABOUT_US);
         WebSettings webSettings = webAbout.getSettings();
+
         // 5.0 以上开启混合模式加载
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);

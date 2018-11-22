@@ -23,7 +23,7 @@
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <application
-        android:name="cn.eejing.colorflower.app.BaseApplication"
+        android:name=".app.BaseApplication"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_descriptor"
         android:icon="@mipmap/ic_launcher"
@@ -33,7 +33,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name="cn.eejing.colorflower.view.activity.SignInActivity"
+            android:name=".view.activity.SignInActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,101 +42,101 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="cn.eejing.colorflower.view.activity.SignUpActivity"
+            android:name=".view.activity.SignUpActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.SiPwdForgetActivity"
+            android:name=".view.activity.SiPwdForgetActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.MainActivity"
+            android:name=".view.activity.MainActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.CtQrScanActivity"
+            android:name=".view.activity.CtQrScanActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.CtDevConfigActivity"
+            android:name=".view.activity.CtDevConfigActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.CtMasterModeActivity"
+            android:name=".view.activity.CtMasterModeActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.CtSetGroupActivity"
+            android:name=".view.activity.CtSetGroupActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.CtAddEffectActivity"
+            android:name=".view.activity.CtAddEffectActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.CtDemoDescriptionActivity"
+            android:name=".view.activity.CtDemoDescriptionActivity"
             android:screenOrientation="landscape" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.CtConfigStreamActivity"
+            android:name=".view.activity.CtConfigStreamActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.CtConfigRideActivity"
+            android:name=".view.activity.CtConfigRideActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.CtConfigIntervalActivity"
+            android:name=".view.activity.CtConfigIntervalActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.CtConfigDelayActivity"
+            android:name=".view.activity.CtConfigDelayActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.CtConfigTogetherActivity"
+            android:name=".view.activity.CtConfigTogetherActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.MaGoodsDetailsActivity"
+            android:name=".view.activity.MaGoodsDetailsActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.MaOrderConfirmActivity"
+            android:name=".view.activity.MaOrderConfirmActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.MaOrderPayActivity"
+            android:name=".view.activity.MaOrderPayActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.MaAddrSelectActivity"
+            android:name=".view.activity.MaAddrSelectActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.MaAddrMgrActivity"
+            android:name=".view.activity.MaAddrMgrActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.MaAddrAddActivity"
+            android:name=".view.activity.MaAddrAddActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.MaAddrProvinceActivity"
+            android:name=".view.activity.MaAddrProvinceActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.MaAddrDistrictActivity"
+            android:name=".view.activity.MaAddrDistrictActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.MaAddrCityActivity"
+            android:name=".view.activity.MaAddrCityActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.MaAddrModifyActivity"
+            android:name=".view.activity.MaAddrModifyActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.MiOpinionActivity"
+            android:name=".view.activity.MiOpinionActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.MiAboutActivity"
+            android:name=".view.activity.MiAboutActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.MiSetActivity"
+            android:name=".view.activity.MiSetActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.MiUserInfoActivity"
+            android:name=".view.activity.MiUserInfoActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.MiPwdModifyActivity"
+            android:name=".view.activity.MiPwdModifyActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.MiOrderActivity"
+            android:name=".view.activity.MiOrderActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="cn.eejing.colorflower.view.activity.MiOrderDetailsActivity"
+            android:name=".view.activity.MiOrderDetailsActivity"
             android:screenOrientation="portrait" />
 
         <!-- alipay -->
@@ -155,9 +155,11 @@
 
         <!-- weixinpay -->
         <activity
-            android:name="cn.eejing.colorflower.wxapi.WXPayEntryActivity"
+            android:name=".wxapi.WXPayEntryActivity"
             android:exported="true"
             android:launchMode="singleTop" />
+        <activity android:name=".view.activity.MiSetPayPwdActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

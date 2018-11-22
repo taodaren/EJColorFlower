@@ -1,11 +1,8 @@
 package cn.eejing.colorflower.view.activity;
 
 import android.view.View;
-import android.widget.Button;
 
-import com.allen.library.SuperTextView;
-
-import butterknife.BindView;
+import butterknife.OnClick;
 import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.app.BaseApplication;
 import cn.eejing.colorflower.util.SelfDialogBase;
@@ -18,12 +15,6 @@ import static cn.eejing.colorflower.app.AppConstant.FROM_SET_TO_ADDR;
  */
 
 public class MiSetActivity extends BaseActivity {
-
-    @BindView(R.id.stv_set_user_info)             SuperTextView stvUserInfo;
-    @BindView(R.id.stv_set_modify_pwd)            SuperTextView stvModifyPwd;
-    @BindView(R.id.stv_set_manage_address)        SuperTextView stvManageAddress;
-    @BindView(R.id.btn_exit_login)                Button        btnExitLogin;
-
     private SelfDialogBase mDialog;
 
     @Override
@@ -36,16 +27,24 @@ public class MiSetActivity extends BaseActivity {
         setToolbar("设置", View.VISIBLE, null, View.GONE);
     }
 
-    @Override
-    public void initListener() {
-        stvUserInfo.setOnSuperTextViewClickListener(superTextView -> jumpToActivity(MiUserInfoActivity.class));
-        stvModifyPwd.setOnSuperTextViewClickListener(superTextView -> jumpToActivity(MiPwdModifyActivity.class));
-        stvManageAddress.setOnSuperTextViewClickListener(superTextView -> {
-            BaseApplication baseApplication = (BaseApplication) getApplication();
-            baseApplication.setFlagAddrMgr(FROM_SET_TO_ADDR);
-            jumpToActivity(MaAddrMgrActivity.class);
-        });
-        btnExitLogin.setOnClickListener(v -> signOut());
+    @OnClick({R.id.stv_set_user_info, R.id.stv_set_pay_pwd, R.id.stv_set_manage_address, R.id.btn_exit_login})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.stv_set_user_info:
+                jumpToActivity(MiUserInfoActivity.class);
+                break;
+            case R.id.stv_set_pay_pwd:
+                jumpToActivity(MiSetPayPwdActivity.class);
+                break;
+            case R.id.stv_set_manage_address:
+                BaseApplication baseApplication = (BaseApplication) getApplication();
+                baseApplication.setFlagAddrMgr(FROM_SET_TO_ADDR);
+                jumpToActivity(MaAddrMgrActivity.class);
+                break;
+            case R.id.btn_exit_login:
+                signOut();
+                break;
+        }
     }
 
     private void signOut() {
@@ -58,5 +57,4 @@ public class MiSetActivity extends BaseActivity {
         mDialog.setNoOnclickListener("取消", () -> mDialog.dismiss());
         mDialog.show();
     }
-
 }

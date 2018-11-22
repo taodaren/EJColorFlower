@@ -18,9 +18,10 @@ public class AppConstant {
             = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
 
     // 发送短信flag
-    public static final int SEND_MSG_FLAG_REGISTER          = 0;    // 注册
-    public static final int SEND_MSG_FLAG_FORGET            = 1;    // 忘记密码
-    public static final int SEND_MSG_FLAG_PAY               = 2;    // 设置支付密码
+    public static final int SEND_MSG_FLAG_REGISTER          = 0;         // 注册
+    public static final int SEND_MSG_FLAG_FORGET            = 1;         // 忘记密码
+    public static final int SEND_MSG_FLAG_PAY               = 2;         // 设置支付密码
+    public static final int SMS_RESEND_TIME                 = 299000;    // 短信重新发送时间
 
     public static final String APP_QR_GET_MID               = "二维码扫描获取料包 ID";
     public static final String APP_QR_GET_DID               = "二维码扫描获取设备 ID";

@@ -57,10 +57,9 @@
             android:layout_marginEnd="32dp"
             android:layout_marginBottom="28dp"
             android:background="@drawable/shape_btn_upgrade"
-            android:text="升级为黄金"
+            android:text="升级为VIP"
             android:textColor="#6e7580"
-            android:textSize="12sp"
-            android:visibility="invisible" />
+            android:textSize="12sp" />
 
     </RelativeLayout>
 
@@ -105,6 +104,7 @@
         stv:sUseRipple="true" />
 
     <com.allen.library.SuperTextView
+        android:id="@+id/stv_mine_version"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:paddingStart="20dp"
@@ -113,7 +113,7 @@
         stv:sDividerLineType="none"
         stv:sLeftIconRes="@drawable/ic_mine_version_info"
         stv:sLeftTextString="版本信息"
-        stv:sRightTextString="V 1.0.0"
+        stv:sRightTextString="V 1.0 版本"
         stv:sRightViewMarginRight="16dp"
         stv:sUseRipple="false" />
 

@@ -3,10 +3,7 @@ package cn.eejing.colorflower.view.base;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -44,6 +41,7 @@ import cn.eejing.colorflower.view.activity.SignInActivity;
 
 import static cn.eejing.colorflower.app.AppConstant.EXIT_LOGIN;
 import static cn.eejing.colorflower.app.AppConstant.REQUEST_CODE_FORCED_UPDATE;
+import static cn.eejing.colorflower.app.BaseApplication.getVersionName;
 import static cn.eejing.colorflower.presenter.Urls.DOWN_LOAD_APK;
 
 /**
@@ -195,18 +193,6 @@ public abstract class BaseActivity extends AppCompatActivity {
             startActivity(new Intent(activity, MainActivity.class));
         });
         dialog.show();
-    }
-
-    private String getVersionName(Context context) {
-        PackageManager manager = context.getPackageManager();
-        String versionName = null;
-        try {
-            PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
-            versionName = info.versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-        return versionName;
     }
 
     /** 版本更新 */

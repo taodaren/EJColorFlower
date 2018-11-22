@@ -9,19 +9,18 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.allen.library.SuperButton;
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 import cn.eejing.colorflower.R;
-import cn.eejing.colorflower.app.AppConstant;
-import cn.eejing.colorflower.model.request.FeedBackBean;
+import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
-import cn.eejing.colorflower.util.MySettings;
+import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.base.BaseActivity;
 
 /**
@@ -29,12 +28,13 @@ import cn.eejing.colorflower.view.base.BaseActivity;
  */
 
 public class MiOpinionActivity extends BaseActivity {
-    int MAX_LENGTH = 500;
-    int Rest_Length = MAX_LENGTH;
+    private static final String TAG = "MiOpinionActivity";
+    private static final int MAX_LENGTH = 500;
 
-    @BindView(R.id.edit_opinion_content)        EditText edContent;
-    @BindView(R.id.tv_num_length)               TextView tvLength;
-    @BindView(R.id.btn_opinion_submit)          SuperButton btnSubmit;
+    @BindView(R.id.edit_opinion_content)    EditText edContent;
+    @BindView(R.id.tv_num_length)           TextView tvLength;
+
+    private int mRestLength = MAX_LENGTH;
 
     @Override
     protected int layoutViewId() {
@@ -47,16 +47,6 @@ public class MiOpinionActivity extends BaseActivity {
         setEditEnter();
     }
 
-    @Override
-    public void initListener() {
-        btnSubmit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getDataWithFeedBack();
-            }
-        });
-    }
-
     private void setEditEnter() {
         // 设置最大可输入字符数
         edContent.setFilters(new InputFilter[]{new InputFilter.LengthFilter(MAX_LENGTH)});
@@ -64,55 +54,54 @@ public class MiOpinionActivity extends BaseActivity {
         edContent.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                Rest_Length = MAX_LENGTH - edContent.getText().length();
+                mRestLength = MAX_LENGTH - edContent.getText().length();
             }
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                Rest_Length = MAX_LENGTH - edContent.getText().length();
+                mRestLength = MAX_LENGTH - edContent.getText().length();
             }
 
             @SuppressLint("SetTextI18n")
             @Override
             public void afterTextChanged(Editable s) {
-                Rest_Length = MAX_LENGTH - edContent.getText().length();
+                mRestLength = MAX_LENGTH - edContent.getText().length();
                 tvLength.setText(edContent.getText().length() + getString(R.string.num_500));
-                if (Rest_Length <= 0) {
+                if (mRestLength <= 0) {
                     Toast.makeText(MiOpinionActivity.this, R.string.upper_limit, Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
 
+    @OnClick(R.id.btn_opinion_submit)
+    public void onViewClicked() {
+        getDataWithFeedBack();
+    }
+
     private void getDataWithFeedBack() {
         OkGo.<String>post(Urls.FEED_BACK)
                 .tag(this)
                 .params("content", edContent.getText().toString())
-                .params("mobile", MySettings.getLoginSessionInfo(this).getUsername())
+                .params("token", MainActivity.getAppCtrl().getToken())
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        LogUtil.e(AppConstant.TAG, "feed_back request succeeded --->" + body);
+                        LogUtil.d(TAG, "意见反馈 请求成功: " + body);
 
                         Gson gson = new Gson();
-                        FeedBackBean bean = gson.fromJson(body, FeedBackBean.class);
+                        CodeMsgBean bean = gson.fromJson(body, CodeMsgBean.class);
                         switch (bean.getCode()) {
                             case 1:
-                                Toast.makeText(MiOpinionActivity.this, "意见反馈成功", Toast.LENGTH_SHORT).show();
                                 finish();
-                                break;
-                            case 2:
-                                Toast.makeText(MiOpinionActivity.this, "请输入反馈意见", Toast.LENGTH_SHORT).show();
-                                break;
-                            case 0:
-                                Toast.makeText(MiOpinionActivity.this, "意见反馈失败", Toast.LENGTH_SHORT).show();
+                                ToastUtil.showShort(bean.getMessage());
                                 break;
                             default:
+                                ToastUtil.showShort(bean.getMessage());
                                 break;
                         }
                     }
                 });
     }
-
 }

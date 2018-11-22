@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite"
+    android:orientation="vertical"
+    tools:context=".view.activity.MiSetPayPwdActivity">
+
+    <include layout="@layout/layout_toolbar" />
+
+    <LinearLayout
+        android:id="@+id/layout_pay_pwd_verify"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            android:layout_marginBottom="20dp"
+            android:text="请输入登陆密码"
+            android:textColor="@color/colorBlack"
+            android:textSize="16sp" />
+
+        <cn.eejing.colorflower.util.ClearableEditText
+            android:id="@+id/et_pay_pwd_login"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_marginStart="80dp"
+            android:layout_marginEnd="80dp"
+            android:background="@drawable/shape_edit_bg"
+            android:hint="@string/please_input"
+            android:inputType="numberPassword"
+            android:maxLength="6"
+            android:padding="8dp"
+            android:textColor="@color/colorTitleName"
+            android:textCursorDrawable="@null"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="输入登陆密码验证进入支付密码设置界面"
+            android:textColor="@color/colorNoClick"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btn_pay_pwd_confirm_login"
+            android:layout_width="100dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/shape_btn_jbs"
+            android:text="@string/btn_confirm"
+            android:textColor="@color/colorWhite"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_pay_pwd_set"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginStart="48dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="48dp"
+            android:background="@drawable/shape_edit_bg"
+            android:gravity="center_vertical"
+            android:padding="4dp">
+
+            <cn.eejing.colorflower.util.ClearableEditText
+                android:id="@+id/et_pay_pwd_phone"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:background="@null"
+                android:hint="请输入手机号码"
+                android:inputType="number"
+                android:maxLength="11"
+                android:padding="8dp"
+                android:textColor="@color/colorTitleName"
+                android:textCursorDrawable="@null"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginStart="48dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="48dp"
+            android:background="@drawable/shape_edit_bg"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="4dp">
+
+            <cn.eejing.colorflower.util.ClearableEditText
+                android:id="@+id/et_pay_pwd_code"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:background="@null"
+                android:hint="请输入验证码"
+                android:inputType="number"
+                android:maxLength="4"
+                android:padding="8dp"
+                android:textColor="@color/colorTitleName"
+                android:textCursorDrawable="@null"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tv_pay_get_code"
+                android:layout_width="100dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/shape_edit_code"
+                android:gravity="center"
+                android:text="获取验证码"
+                android:textColor="@color/colorWhite"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginStart="48dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="48dp"
+            android:background="@drawable/shape_edit_bg"
+            android:gravity="center_vertical"
+            android:padding="4dp">
+
+            <cn.eejing.colorflower.util.ClearableEditText
+                android:id="@+id/et_pay_pwd_new"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:background="@null"
+                android:hint="请输入支付密码"
+                android:inputType="numberPassword"
+                android:maxLength="6"
+                android:padding="8dp"
+                android:textColor="@color/colorTitleName"
+                android:textCursorDrawable="@null"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginStart="48dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="48dp"
+            android:background="@drawable/shape_edit_bg"
+            android:gravity="center_vertical"
+            android:padding="4dp">
+
+            <cn.eejing.colorflower.util.ClearableEditText
+                android:id="@+id/et_pay_pwd_confirm"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:background="@null"
+                android:hint="请确认支付密码"
+                android:inputType="numberPassword"
+                android:maxLength="6"
+                android:padding="8dp"
+                android:textColor="@color/colorTitleName"
+                android:textCursorDrawable="@null"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_pay_pwd_confirm_set"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="80dp"
+            android:layout_marginTop="48dp"
+            android:layout_marginEnd="80dp"
+            android:background="@drawable/shape_btn_jbs"
+            android:text="@string/btn_confirm"
+            android:textColor="@color/colorWhite"
+            android:textSize="16sp" />
+    </LinearLayout>
+</LinearLayout>

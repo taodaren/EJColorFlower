@@ -3,6 +3,8 @@ package cn.eejing.colorflower.app;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -61,6 +63,7 @@ public class BaseApplication extends LitePalApplication {
         // 初始化 LitePal 数据库
         LitePal.initialize(this);
     }
+
     public static Context getContext() {
         return mContext;
     }
@@ -99,6 +102,18 @@ public class BaseApplication extends LitePalApplication {
 
     public static void setMainHandler(Handler mHandler) {
         BaseApplication.mHandler = mHandler;
+    }
+
+    public static String getVersionName(Context context) {
+        PackageManager manager = context.getPackageManager();
+        String versionName = null;
+        try {
+            PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
+            versionName = info.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return versionName;
     }
 
     /** 重启当前应用 */

@@ -43,6 +43,7 @@ public interface Urls {
     String COLLECT_GOODS = BASE_URL + "collectGoods";                                  // 确认收货(待收货)
     String DEL_COMPLETED = BASE_URL + "delCompleted";                                  // 删除已完成订单(已完成)
     String PWD_UPDATE = BASE_URL + "pwdUpdate";                                        // 修改密码
-    String FEED_BACK = BASE_URL + "feedBack";                                          // 意见反馈
-    String ABOUT_LINK = BASE_URL + "aboutLink";                                        // 关于我们
+    String FEED_BACK = BASE_URL_V2 + "feedback";                                          // 意见反馈
+    String ABOUT_US = BASE_URL_V2 + "aboutUs";                                            // 关于我们
+    String SET_PAY_PWD = BASE_URL_V2 + "setPayPwd";                                       // 设置支付密码
 }

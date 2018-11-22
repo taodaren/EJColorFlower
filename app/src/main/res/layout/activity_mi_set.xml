@@ -25,10 +25,10 @@
         stv:sUseRipple="true" />
 
     <com.allen.library.SuperTextView
-        android:id="@+id/stv_set_modify_pwd"
+        android:id="@+id/stv_set_pay_pwd"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        stv:sLeftTextString="修改密码"
+        stv:sLeftTextString="设置支付密码"
         stv:sRightIconMarginRight="12dp"
         stv:sRightIconRes="@drawable/ic_mine_right"
         stv:sUseRipple="true" />
