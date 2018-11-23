@@ -23,6 +23,7 @@ import org.litepal.LitePalApplication;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -30,6 +31,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.X509TrustManager;
 
+import cn.eejing.colorflower.model.lite.VipLvLite;
 import okhttp3.OkHttpClient;
 
 /**
@@ -240,5 +242,23 @@ public class BaseApplication extends LitePalApplication {
 
     public void setFlagAddrMgr(String flagAddrMgr) {
         this.flagAddrMgr = flagAddrMgr;
+    }
+
+    public static void saveUserLv(String phone, String level) {
+        VipLvLite lite = new VipLvLite();
+        lite.setPhone(phone);
+        lite.setUserLevel(level);
+        lite.save();
+    }
+
+    public static String getUserLv(String phone) {
+        List<VipLvLite> userLvList = LitePal.where("phone=?", phone).find(VipLvLite.class);
+        return userLvList.get(0).getUserLevel();
+    }
+
+    public static void updateLiteData(String phone, String level) {
+        List<VipLvLite> userLvList = LitePal.where("phone=?", phone).find(VipLvLite.class);
+        userLvList.get(0).setUserLevel(level);
+        userLvList.get(0).updateAll("phone=?", phone);
     }
 }

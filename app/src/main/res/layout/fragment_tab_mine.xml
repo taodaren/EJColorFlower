@@ -11,47 +11,15 @@
     <include layout="@layout/layout_toolbar" />
 
     <RelativeLayout
+        android:id="@+id/layout_user_info"
         android:layout_width="match_parent"
-        android:layout_height="156dp"
-        android:layout_marginStart="14dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="14sp"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/ic_mine_user_bg">
-
-        <ImageView
-            android:id="@+id/img_user_img"
-            android:layout_width="34dp"
-            android:layout_height="34dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginTop="28dp"
-            android:src="@drawable/ic_mine_user_img" />
-
-        <TextView
-            android:id="@+id/tv_mine_user_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:layout_marginTop="25dp"
-            android:layout_toEndOf="@id/img_user_img"
-            android:text="普通用户"
-            android:textColor="@color/colorWhite"
-            android:textSize="18sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/tv_mine_user_name"
-            android:layout_marginStart="7dp"
-            android:layout_toEndOf="@id/img_user_img"
-            android:text="Ordinary user"
-            android:textColor="@color/colorE1"
-            android:textSize="12sp" />
+        android:layout_height="180dp"
+        android:background="@drawable/ic_user_vip">
 
         <Button
             android:id="@+id/btn_mine_upgrade"
             android:layout_width="82dp"
-            android:layout_height="29dp"
+            android:layout_height="28dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginEnd="32dp"

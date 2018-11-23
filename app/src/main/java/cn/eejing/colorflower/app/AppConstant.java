@@ -23,6 +23,11 @@ public class AppConstant {
     public static final int SEND_MSG_FLAG_PAY               = 2;         // 设置支付密码
     public static final int SMS_RESEND_TIME                 = 299000;    // 短信重新发送时间
 
+    // 用户 VIP 等级
+    public static final String LEVEL_GENERAL_USER           = "1";
+    public static final String LEVEL_VIP_USER               = "2";
+    public static final String LEVEL_VVIP_USER              = "3";
+
     public static final String APP_QR_GET_MID               = "二维码扫描获取料包 ID";
     public static final String APP_QR_GET_DID               = "二维码扫描获取设备 ID";
 
