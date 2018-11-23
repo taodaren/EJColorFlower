@@ -35,8 +35,10 @@ public interface Urls {
     String WE_CHAT_PAY        = BASE_URL + "weChatPay";                        // 微信支付
     String CALL_BACK_CONFIRM  = BASE_URL + "payCallBackConfirm";               // 商品订单支付结果确认
 
-    String ORDER_DETAIL       = BASE_URL + "orderDetail";                      // 订单详情
+    String TO_UPGRADE_VIP     = BASE_URL + "toUpgradeVIP";                     // 进入升级 VIP 页面
+    String TO_BE_VIP          = BASE_URL + "toBeVip";                          // 升级为 VIP
     String ORDER_LIST         = BASE_URL + "orderList";                        // 订单列表
+    String ORDER_DETAIL       = BASE_URL + "orderDetail";                      // 订单详情
     String CONFIRM_RECEIPT    = BASE_URL + "confirmReceipt";                   // 确认收货
     String DEL_ORDER          = BASE_URL + "delOrder";                         // 删除订单
     String FEED_BACK          = BASE_URL + "feedback";                         // 意见反馈

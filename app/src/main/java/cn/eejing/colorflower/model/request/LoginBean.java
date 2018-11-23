@@ -2,9 +2,15 @@ package cn.eejing.colorflower.model.request;
 
 public class LoginBean {
 
+    /**
+     * code : 1
+     * message : 登录成功
+     * data : {"token":"GO0meZ1K4WS3gnfMprxE","level":"1","user_id":58}
+     */
+
     private int code;
     private String message;
-    private LoginData data;
+    private DataBean data;
 
     public int getCode() {
         return code;
@@ -22,17 +28,24 @@ public class LoginBean {
         this.message = message;
     }
 
-    public LoginData getData() {
+    public DataBean getData() {
         return data;
     }
 
-    public void setData(LoginData data) {
+    public void setData(DataBean data) {
         this.data = data;
     }
 
-    public class LoginData {
+    public static class DataBean {
+        /**
+         * token : GO0meZ1K4WS3gnfMprxE
+         * level : 1
+         * user_id : 58
+         */
+
         private String token;
-        private long member_id;
+        private String level;
+        private int user_id;
 
         public String getToken() {
             return token;
@@ -42,14 +55,21 @@ public class LoginBean {
             this.token = token;
         }
 
-        public long getMember_id() {
-            return member_id;
+        public String getLevel() {
+            return level;
         }
 
-        public void setMember_id(long member_id) {
-            this.member_id = member_id;
+        public void setLevel(String level) {
+            this.level = level;
+        }
+
+        public int getUser_id() {
+            return user_id;
+        }
+
+        public void setUser_id(int user_id) {
+            this.user_id = user_id;
         }
     }
-
 }
 

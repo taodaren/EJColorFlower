@@ -150,7 +150,7 @@ public class SignInActivity extends BaseActivity {
                                 MySettings.storeSessionInfo(SignInActivity.this, new LoginSession(
                                         etPhone.getText().toString(),
                                         etPwd.getText().toString(),
-                                        bean.getData().getMember_id(),
+                                        bean.getData().getUser_id(),
                                         bean.getData().getToken()
                                 ));
                                 jumpToActivity(MainActivity.class);

@@ -14,6 +14,7 @@ import cn.eejing.colorflower.view.activity.MiAboutActivity;
 import cn.eejing.colorflower.view.activity.MiOpinionActivity;
 import cn.eejing.colorflower.view.activity.MiOrderActivity;
 import cn.eejing.colorflower.view.activity.MiSetActivity;
+import cn.eejing.colorflower.view.activity.MiUpgradeVipActivity;
 import cn.eejing.colorflower.view.base.BaseFragment;
 
 import static cn.eejing.colorflower.app.BaseApplication.getVersionName;
@@ -47,7 +48,7 @@ public class TabMineFragment extends BaseFragment {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_mine_upgrade:
-                ToastUtil.showShort("升级为黄金");
+                ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(MiUpgradeVipActivity.class);
                 break;
             case R.id.stv_mine_order:
                 ((MainActivity) Objects.requireNonNull(getActivity())).jumpToActivity(MiOrderActivity.class);
