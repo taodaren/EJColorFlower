@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
@@ -25,30 +24,41 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.colorflower.R;
-import cn.eejing.colorflower.app.AppConstant;
-import cn.eejing.colorflower.model.request.OrderPagerBean;
-import cn.eejing.colorflower.model.request.OrderStatusBean;
+import cn.eejing.colorflower.model.request.CodeMsgBean;
+import cn.eejing.colorflower.model.request.OrderListBean;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.SelfDialogBase;
+import cn.eejing.colorflower.util.ToastUtil;
+import cn.eejing.colorflower.view.activity.MaOrderPayActivity;
+import cn.eejing.colorflower.view.activity.MainActivity;
+import cn.eejing.colorflower.view.activity.MiOrderActivity;
 import cn.eejing.colorflower.view.activity.MiOrderDetailsActivity;
 
+import static cn.eejing.colorflower.app.AppConstant.TYPE_COMPLETE_GOODS;
+import static cn.eejing.colorflower.app.AppConstant.TYPE_WAIT_PAYMENT;
+import static cn.eejing.colorflower.app.AppConstant.TYPE_WAIT_RECEIPT;
+import static cn.eejing.colorflower.app.AppConstant.TYPE_WAIT_SHIP;
+
+/**
+ * 订单状态适配器
+ */
+
 public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final String TAG = "OrderStatusAdapter";
     private Context mContext;
     private LayoutInflater mInflater;
-    private List<OrderPagerBean.DataBean> mList;
-    private String mType, mMemberId, mToken;
+    private List<OrderListBean.DataBean> mList;
+    private String mType;
     private SelfDialogBase mDialog;
     private Gson mGson;
 
-    public OrderStatusAdapter(Context context, List<OrderPagerBean.DataBean> list, String type, String memberId, String token) {
+    public OrderStatusAdapter(Context context, List<OrderListBean.DataBean> list, String type) {
         this.mContext = context;
         this.mInflater = LayoutInflater.from(context);
         this.mList = new ArrayList<>();
         this.mList.addAll(list);
         this.mType = type;
-        this.mMemberId = memberId;
-        this.mToken = token;
         this.mGson = new Gson();
     }
 
@@ -69,28 +79,26 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         return mList.size();
     }
 
-    public void refreshList(List<OrderPagerBean.DataBean> list) {
-        // 先把之前的数据清空
+    public void refreshList(List<OrderListBean.DataBean> list) {
         mList.clear();
         addList(list);
     }
 
-    private void addList(List<OrderPagerBean.DataBean> list) {
-        // 把新集合添加进来
+    private void addList(List<OrderListBean.DataBean> list) {
         mList.addAll(list);
-        // 通知列表刷新
         notifyDataSetChanged();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.img_order_status)                 ImageView imgGoods;
-        @BindView(R.id.tv_order_status_name)             TextView tvName;
-        @BindView(R.id.tv_order_status_money_rmb)        TextView tvMoneyRmb;
-        @BindView(R.id.tv_order_status_num)              TextView tvNum;
-        @BindView(R.id.tv_order_status_quantity)         TextView tvQuantity;
-        @BindView(R.id.tv_order_status_postage)          TextView tvPostage;
-        @BindView(R.id.tv_order_status_money)            TextView tvMoney;
-        @BindView(R.id.btn_order_status)                 Button btnEdit;
+        @BindView(R.id.img_order_status)             ImageView imgGoods;
+        @BindView(R.id.tv_order_status_name)         TextView  tvName;
+        @BindView(R.id.tv_order_status_money_rmb)    TextView  tvMoneyRmb;
+        @BindView(R.id.tv_order_status_num)          TextView  tvNum;
+        @BindView(R.id.tv_order_status_quantity)     TextView  tvQuantity;
+        @BindView(R.id.tv_order_status_postage)      TextView  tvPostage;
+        @BindView(R.id.tv_order_status_money)        TextView  tvMoney;
+        @BindView(R.id.btn_order_status)             Button    btnEdit;
+        @BindView(R.id.btn_order_cancel)             Button    btnCancel;
         View outItem;
 
         ViewHolder(View itemView) {
@@ -100,27 +108,30 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
 
         @SuppressLint("SetTextI18n")
-        public void setData(final OrderPagerBean.DataBean bean) {
-            double money = bean.getMoney() * bean.getQuantity();
-            Glide.with(mContext).load(bean.getImage()).into(imgGoods);
-            tvName.setText(bean.getName());
-            tvMoneyRmb.setText(mContext.getString(R.string.rmb) + money);
+        public void setData(final OrderListBean.DataBean bean) {
+            Glide.with(mContext).load(bean.getGoods_img()).into(imgGoods);
+            tvName.setText(bean.getGoods_name());
+            tvMoneyRmb.setText(mContext.getString(R.string.rmb) + bean.getGoods_price());
             tvNum.setText(mContext.getString(R.string.text_multiply) + bean.getQuantity());
             tvQuantity.setText(mContext.getString(R.string.text_common) + bean.getQuantity() + mContext.getString(R.string.text_items));
-            tvPostage.setText(mContext.getString(R.string.postage) + bean.getPostage() + mContext.getString(R.string.yuan));
-            tvMoney.setText(mContext.getString(R.string.text_total) + money + mContext.getString(R.string.yuan));
+            tvPostage.setText(mContext.getString(R.string.postage) + 0 + mContext.getString(R.string.yuan));
+            tvMoney.setText(mContext.getString(R.string.text_total) + bean.getTotal_amount() + mContext.getString(R.string.yuan));
 
             switch (mType) {
-                case AppConstant.TYPE_WAIT_PAYMENT:
+                case TYPE_WAIT_PAYMENT:
+                    btnCancel.setText("取消订单");
                     btnEdit.setText("立即支付");
                     break;
-                case AppConstant.TYPE_WAIT_SHIP:
+                case TYPE_WAIT_SHIP:
+                    btnCancel.setVisibility(View.GONE);
                     btnEdit.setVisibility(View.GONE);
                     break;
-                case AppConstant.TYPE_WAIT_RECEIPT:
+                case TYPE_WAIT_RECEIPT:
+                    btnCancel.setVisibility(View.GONE);
                     btnEdit.setText("确认收货");
                     break;
-                case AppConstant.TYPE_COMPLETE_GOODS:
+                case TYPE_COMPLETE_GOODS:
+                    btnCancel.setVisibility(View.GONE);
                     btnEdit.setText("删除");
                     break;
                 default:
@@ -128,104 +139,108 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
 
             outItem.setOnClickListener(v -> mContext.startActivity(new Intent(mContext, MiOrderDetailsActivity.class)
-                    .putExtra("order_id", bean.getOrder_id())
-                    .putExtra("type",mType)));
+                    .putExtra("order_id", bean.getOrder_sn())
+                    .putExtra("type", mType)
+            ));
 
             btnEdit.setOnClickListener(view -> {
-                if (mType.equals(AppConstant.TYPE_WAIT_RECEIPT)) {
-                    collectGoods(bean.getOrder_id());
-                } else if (mType.equals(AppConstant.TYPE_COMPLETE_GOODS)) {
-                    delCompleted(bean.getOrder_id());
+                switch (mType) {
+                    case TYPE_WAIT_PAYMENT:
+                        ((MiOrderActivity) mContext).jumpToActivity(new Intent(mContext, MaOrderPayActivity.class)
+                                .putExtra("order_no", bean.getOrder_sn())
+                                .putExtra("total_price", Double.parseDouble(bean.getTotal_amount()))
+                        );
+                        break;
+                    case TYPE_WAIT_RECEIPT:
+                        confirmReceipt(bean.getOrder_sn());
+                        break;
+                    case TYPE_COMPLETE_GOODS:
+                        delOrder(bean.getOrder_sn());
+                        break;
                 }
             });
 
+            btnCancel.setOnClickListener(v -> cancelOrder(bean.getOrder_sn()));
         }
     }
 
-    private void collectGoods(final int orderId) {
+    private void confirmReceipt(final String orderSn) {
         mDialog = new SelfDialogBase(mContext);
         mDialog.setTitle("您是否已收到该订单商品？");
         mDialog.setYesOnclickListener("已收货", () -> {
-            getDataWithCollectGoods(orderId);
+            getDataWithConfirmReceipt(orderSn);
             mDialog.dismiss();
         });
         mDialog.setNoOnclickListener("未收货", () -> mDialog.dismiss());
         mDialog.show();
     }
 
-    private void delCompleted(final int orderId) {
+    private void cancelOrder(final String orderSn) {
+        mDialog = new SelfDialogBase(mContext);
+        mDialog.setTitle("确认取消此订单？");
+        mDialog.setYesOnclickListener("确认", () -> {
+            getDataWithDelOrder(orderSn, "取消订单成功");
+            mDialog.dismiss();
+        });
+        mDialog.setNoOnclickListener("再想想", () -> mDialog.dismiss());
+        mDialog.show();
+    }
+
+    private void delOrder(final String orderSn) {
         mDialog = new SelfDialogBase(mContext);
         mDialog.setTitle("确认删除此订单？");
         mDialog.setYesOnclickListener("删除", () -> {
-            getDataWithDelCompleted(orderId);
+            getDataWithDelOrder(orderSn, "删除订单成功");
             mDialog.dismiss();
         });
         mDialog.setNoOnclickListener("取消", () -> mDialog.dismiss());
         mDialog.show();
     }
 
-    private void getDataWithCollectGoods(int orderId) {
+    private void getDataWithConfirmReceipt(String orderSn) {
         OkGo.<String>post(Urls.CONFIRM_RECEIPT)
                 .tag(this)
-                .params("order_id", orderId)
-                .params("member_id", mMemberId)
-                .params("token", mToken)
+                .params("order_sn", orderSn)
+                .params("token", MainActivity.getAppCtrl().getToken())
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        LogUtil.e(AppConstant.TAG, "collect_goods request succeeded --->" + body);
+                        LogUtil.d(TAG, "确认收货 请求成功: " + body);
 
-                        OrderStatusBean bean = mGson.fromJson(body, OrderStatusBean.class);
+                        CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
                         switch (bean.getCode()) {
                             case 1:
                                 refreshList(mList);
-                                Toast.makeText(mContext, "确认收货成功", Toast.LENGTH_SHORT).show();
-                                break;
-                            case 0:
-                                Toast.makeText(mContext, "操作失败", Toast.LENGTH_SHORT).show();
-                                break;
-                            case 4:
-                                Toast.makeText(mContext, "该会员没有订单", Toast.LENGTH_SHORT).show();
+                                ToastUtil.showShort("确认收货成功");
                                 break;
                             default:
+                                ToastUtil.showShort(bean.getMessage());
                                 break;
                         }
                     }
                 });
     }
 
-    private void getDataWithDelCompleted(int orderId) {
+    private void getDataWithDelOrder(String orderSn, String successMsg) {
         OkGo.<String>post(Urls.DEL_ORDER)
                 .tag(this)
-                .params("order_id", orderId)
-                .params("member_id", mMemberId)
-                .params("token", mToken)
+                .params("order_sn", orderSn)
+                .params("token", MainActivity.getAppCtrl().getToken())
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         String body = response.body();
-                        LogUtil.e(AppConstant.TAG, "del_completed request succeeded --->" + body);
+                        LogUtil.d(TAG, "删除订单 请求成功: " + body);
 
-                        OrderStatusBean bean = mGson.fromJson(body, OrderStatusBean.class);
+                        CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
                         switch (bean.getCode()) {
                             case 1:
                                 refreshList(mList);
-                                Toast.makeText(mContext, "删除订单成功", Toast.LENGTH_SHORT).show();
-                                break;
-                            case 0:
-                                Toast.makeText(mContext, "操作失败", Toast.LENGTH_SHORT).show();
-                                break;
-                            case 3:
-                                Toast.makeText(mContext, "该订单不存在", Toast.LENGTH_SHORT).show();
-                                break;
-                            case 4:
-                                Toast.makeText(mContext, "订单为完成,不能删除", Toast.LENGTH_SHORT).show();
-                                break;
-                            case 7:
-                                Toast.makeText(mContext, "该会员没有订单", Toast.LENGTH_SHORT).show();
+                                ToastUtil.showShort(successMsg);
                                 break;
                             default:
+                                ToastUtil.showShort(bean.getMessage());
                                 break;
                         }
                     }
