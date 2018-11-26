@@ -68,4 +68,17 @@
         android:src="@drawable/ic_ble_conn"
         android:visibility="gone"
         tools:ignore="ContentDescription" />
+
+    <ImageView
+        android:id="@+id/img_vip_toolbar"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:layout_gravity="center_vertical|end"
+        android:layout_marginEnd="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/ic_vvip_vip"
+        android:visibility="gone"
+        tools:ignore="ContentDescription" />
 </android.support.v7.widget.Toolbar>

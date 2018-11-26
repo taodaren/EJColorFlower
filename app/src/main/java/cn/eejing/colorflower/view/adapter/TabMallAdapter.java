@@ -66,8 +66,10 @@ public class TabMallAdapter extends RecyclerView.Adapter<TabMallAdapter.ViewHold
     /** 刷新列表 */
     public void refreshList(List<GoodsListBean.DataBean> list) {
         // 先把之前的数据清空
-        mList.clear();
-        addList(list);
+        if (list != null) {
+            mList.clear();
+            addList(list);
+        }
     }
 
     /** 加载更多列表 */
