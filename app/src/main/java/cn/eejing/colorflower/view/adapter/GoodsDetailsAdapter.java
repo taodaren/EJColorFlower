@@ -27,6 +27,9 @@ import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.app.AppConstant;
 import cn.eejing.colorflower.model.request.GoodsDetailsBean;
 import cn.eejing.colorflower.util.LogUtil;
+import cn.eejing.colorflower.view.activity.MainActivity;
+
+import static cn.eejing.colorflower.app.AppConstant.LEVEL_GENERAL_USER;
 
 /**
  * 商品详情适配器
@@ -140,6 +143,11 @@ public class GoodsDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         public void setData(GoodsDetailsBean.DataBean bean) {
             tvName.setText(bean.getGoods_name());
             tvMoney.setText(mContext.getResources().getString(R.string.rmb) + bean.getSale_price());
+            if (MainActivity.getAppCtrl().getLevel().equals(LEVEL_GENERAL_USER)) {
+                tvMoneyOld.setVisibility(View.GONE);
+            } else {
+                tvMoneyOld.setVisibility(View.VISIBLE);
+            }
             tvMoneyOld.setText(mContext.getResources().getString(R.string.rmb) + bean.getPrice());
             tvSold.setText(mContext.getResources().getString(R.string.sold) + bean.getSales_sum());
             // 添加删除线

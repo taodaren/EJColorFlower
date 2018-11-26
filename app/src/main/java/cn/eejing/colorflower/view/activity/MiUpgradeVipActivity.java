@@ -20,9 +20,7 @@ import cn.eejing.colorflower.util.SelfDialogBase;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.base.BaseActivity;
 
-import static cn.eejing.colorflower.app.AppConstant.LEVEL_GENERAL_USER;
 import static cn.eejing.colorflower.app.AppConstant.LEVEL_VIP_USER;
-import static cn.eejing.colorflower.app.BaseApplication.saveUserLv;
 
 /**
  * 升级为VIP
@@ -113,8 +111,8 @@ public class MiUpgradeVipActivity extends BaseActivity {
                         CodeMsgBean bean = gson.fromJson(body, CodeMsgBean.class);
                         switch (bean.getCode()) {
                             case 1:
+                                MainActivity.getAppCtrl().setLevel(LEVEL_VIP_USER);
                                 finish();
-                                saveUserLv(mPhone, LEVEL_VIP_USER);
                                 ToastUtil.showLong(bean.getMessage());
                                 break;
                             default:

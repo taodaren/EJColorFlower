@@ -12,14 +12,9 @@ import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
-import org.litepal.LitePal;
-
-import java.util.List;
-
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
-import cn.eejing.colorflower.model.lite.VipLvLite;
 import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.Encryption;
@@ -27,9 +22,7 @@ import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.base.BaseActivity;
 
-import static cn.eejing.colorflower.app.AppConstant.LEVEL_GENERAL_USER;
 import static cn.eejing.colorflower.app.AppConstant.SEND_MSG_FLAG_REGISTER;
-import static cn.eejing.colorflower.app.BaseApplication.saveUserLv;
 
 /**
  * 注册
@@ -183,7 +176,6 @@ public class SignUpActivity extends BaseActivity {
                             switch (bean.getCode()) {
                                 case 1:
                                     ToastUtil.showShort("账号注册成功");
-                                    saveUserLv(mPhone.getText().toString(), LEVEL_GENERAL_USER);
                                     setResult(RESULT_OK, new Intent()
                                             .putExtra("register_phone", mPhone.getText().toString())
                                             .putExtra("register_pwd", mSetPwd.getText().toString())

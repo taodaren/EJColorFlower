@@ -8,6 +8,6 @@
         android:topRightRadius="1dp" />
     <stroke
         android:width="0.67dp"
-        android:color="@color/colorNavBar" />
+        android:color="@color/colorNoClick" />
     <solid android:color="@color/colorWhite" />
 </shape>

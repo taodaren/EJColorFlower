@@ -89,7 +89,7 @@ public class MiSetPayPwdActivity extends BaseActivity {
         setToolbar("设置支付密码", View.VISIBLE, null, View.GONE);
         layoutSet.setVisibility(View.GONE);
         layoutVerify.setVisibility(View.VISIBLE);
-        mPwdOriginal = MySettings.getLoginSessionInfo(this).getPassword();
+        mPwdOriginal = MySettings.getLoginInfo(this).getPassword();
         mIv = Encryption.newIv();
     }
 
@@ -121,7 +121,7 @@ public class MiSetPayPwdActivity extends BaseActivity {
                     layoutVerify.setVisibility(View.VISIBLE);
                 } else {
                     ToastUtil.showShort("登陆密码验证成功");
-                    etPhone.setText(MySettings.getLoginSessionInfo(MiSetPayPwdActivity.this).getUsername());
+                    etPhone.setText(MySettings.getLoginInfo(MiSetPayPwdActivity.this).getUsername());
                     layoutSet.setVisibility(View.VISIBLE);
                     layoutVerify.setVisibility(View.GONE);
                 }

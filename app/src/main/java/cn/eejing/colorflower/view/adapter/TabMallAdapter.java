@@ -21,6 +21,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.model.request.GoodsListBean;
+import cn.eejing.colorflower.view.activity.MainActivity;
+
+import static cn.eejing.colorflower.app.AppConstant.LEVEL_GENERAL_USER;
 
 /**
  * 商城模块适配器
@@ -96,6 +99,11 @@ public class TabMallAdapter extends RecyclerView.Adapter<TabMallAdapter.ViewHold
             Glide.with(mContext).load(bean.getOriginal_img()).into(imgGoods);
             tvTitle.setText(bean.getGoods_name());
             tvRmb.setText(mContext.getResources().getString(R.string.rmb) + bean.getSale_price());
+            if (MainActivity.getAppCtrl().getLevel().equals(LEVEL_GENERAL_USER)) {
+                tvRmbOld.setVisibility(View.GONE);
+            } else {
+                tvRmbOld.setVisibility(View.VISIBLE);
+            }
             tvRmbOld.setText(mContext.getResources().getString(R.string.rmb) + bean.getPrice());
             // 添加删除线
             tvRmbOld.getPaint().setFlags(Paint.STRIKE_THRU_TEXT_FLAG);

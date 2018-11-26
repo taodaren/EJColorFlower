@@ -119,8 +119,8 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
         mApp = (BaseApplication) getApplication();
         setToolbar("设备配置", View.VISIBLE, null, View.GONE);
 
-        mMemberId = MySettings.getLoginSessionInfo(this).getMember_id();
-        mToken = MySettings.getLoginSessionInfo(this).getToken();
+        mMemberId = MySettings.getLoginInfo(this).getUserId();
+        mToken = MySettings.getLoginInfo(this).getToken();
         mGson = new Gson();
 
         mDevId = getIntent().getLongExtra(QR_DEV_ID, 0);

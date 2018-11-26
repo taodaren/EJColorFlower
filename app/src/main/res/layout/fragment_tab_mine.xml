@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/windowBackground"
+    android:background="@color/colorWhite"
     android:orientation="vertical"
     tools:context=".view.fragment.TabMineFragment">
 
@@ -13,8 +13,8 @@
     <RelativeLayout
         android:id="@+id/layout_user_info"
         android:layout_width="match_parent"
-        android:layout_height="180dp"
-        android:background="@drawable/ic_user_vip">
+        android:layout_height="175dp"
+        android:background="@drawable/ic_user_vvip">
 
         <Button
             android:id="@+id/btn_mine_upgrade"
@@ -22,8 +22,8 @@
             android:layout_height="28dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginEnd="32dp"
-            android:layout_marginBottom="28dp"
+            android:layout_marginEnd="36dp"
+            android:layout_marginBottom="32dp"
             android:background="@drawable/shape_btn_upgrade"
             android:text="升级为VIP"
             android:textColor="#6e7580"
@@ -31,14 +31,73 @@
 
     </RelativeLayout>
 
+    <LinearLayout
+        android:id="@+id/layout_vvip_mine"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/ic_vvip_bg"
+        android:gravity="center_vertical">
+
+        <LinearLayout
+            android:id="@+id/layout_vvip_order"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_vvip_order" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="我的订单"
+                android:textColor="@color/colorConfig"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="25dp"
+            android:layout_marginBottom="25dp"
+            android:background="@color/line" />
+
+        <LinearLayout
+            android:id="@+id/layout_vvip_account"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_vvip_account" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="我的账户"
+                android:textColor="@color/colorConfig"
+                android:textSize="16sp" />
+        </LinearLayout>
+    </LinearLayout>
+
     <com.allen.library.SuperTextView
         android:id="@+id/stv_mine_order"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginBottom="2dp"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
-        stv:sDividerLineType="none"
+        stv:sDividerLineType="bottom"
         stv:sLeftIconRes="@drawable/ic_mine_order"
         stv:sLeftTextString="我的订单"
         stv:sRightIconMarginRight="12dp"
@@ -89,10 +148,9 @@
         android:id="@+id/stv_mine_set"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginTop="2dp"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
-        stv:sDividerLineType="none"
+        stv:sDividerLineType="top"
         stv:sLeftIconRes="@drawable/ic_mine_set"
         stv:sLeftTextString="设置"
         stv:sRightIconMarginRight="12dp"

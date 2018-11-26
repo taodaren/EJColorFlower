@@ -1,31 +1,18 @@
 package cn.eejing.colorflower.model.session;
 
 public class LoginSession {
+    private String token;
+    private String level;
+    private long userId;
     private String username;
     private String password;
-    private long member_id;
-    private String token;
 
-    public LoginSession(String username, String password, long member_id, String token) {
-        this.username = username;
-        this.password = password;
-        this.member_id = member_id;
+    public LoginSession(String token, String level, long userId, String username, String password) {
         this.token = token;
-    }
-
-    public LoginSession(String username, String password) {
+        this.level = level;
+        this.userId = userId;
         this.username = username;
         this.password = password;
-        this.member_id = 0;
-        this.token = null;
-    }
-
-    public long getMember_id() {
-        return member_id;
-    }
-
-    public void setMember_id(long member_id) {
-        this.member_id = member_id;
     }
 
     public String getToken() {
@@ -34,6 +21,22 @@ public class LoginSession {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 
     public String getUsername() {

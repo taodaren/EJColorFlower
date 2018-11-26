@@ -49,7 +49,7 @@ public class SignInActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        LoginSession session = MySettings.getLoginSessionInfo(this);
+        LoginSession session = MySettings.getLoginInfo(this);
         String phone = session.getUsername();
         String password = session.getPassword();
         if (phone != null) {
@@ -147,11 +147,12 @@ public class SignInActivity extends BaseActivity {
 
                         switch (bean.getCode()) {
                             case 1:
-                                MySettings.storeSessionInfo(SignInActivity.this, new LoginSession(
-                                        etPhone.getText().toString(),
-                                        etPwd.getText().toString(),
+                                MySettings.saveLoginInfo(SignInActivity.this, new LoginSession(
+                                        bean.getData().getToken(),
+                                        bean.getData().getLevel(),
                                         bean.getData().getUser_id(),
-                                        bean.getData().getToken()
+                                        etPhone.getText().toString(),
+                                        etPwd.getText().toString()
                                 ));
                                 jumpToActivity(MainActivity.class);
                                 onLoginSuccess();

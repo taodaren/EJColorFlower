@@ -60,7 +60,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     private List<Fragment> mFragments;
     private Fragment mCurrentFragment;
 
-    private String mMemberId, mToken;
+    private LoginSession mLoginSession;
     private Gson mGson;
 
     private static MainActivity AppInstance;
@@ -83,9 +83,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         forcedVersionUpdate();
         AppInstance = this;
         addActivity(EXIT_LOGIN, this);
-        LoginSession session = MySettings.getLoginSessionInfo(this);
-        mMemberId = String.valueOf(session.getMember_id());
-        mToken = session.getToken();
+        mLoginSession = MySettings.getLoginInfo(this);
         mGson = new Gson();
 
         initBtnNavBar();
@@ -585,7 +583,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     private void getDataWithQueryDevMac() {
         OkGo.<String>post(Urls.GET_DEVICE_MAC)
                 .tag(this)
-                .params("token", mToken)
+                .params("token", getToken())
                 .params("device_id", mStrDevId)
                 .execute(new StringCallback() {
                     @Override
@@ -612,12 +610,20 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         return mMacById;
     }
 
-    public String getMemberId() {
-        return mMemberId;
+    public String getToken() {
+        return mLoginSession.getToken();
     }
 
-    public String getToken() {
-        return mToken;
+    public String getLevel() {
+        return mLoginSession.getLevel();
+    }
+
+    public void setLevel(String lv) {
+        mLoginSession.setLevel(lv);
+    }
+
+    public String getUserId() {
+        return String.valueOf(mLoginSession.getUserId());
     }
 
 }
