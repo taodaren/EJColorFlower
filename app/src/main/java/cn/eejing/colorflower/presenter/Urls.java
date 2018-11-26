@@ -47,8 +47,8 @@ public interface Urls {
     String SHOW_UNDERLING_VIP  = BASE_URL + "showUnderlingVip";             // 获取下游 vip 列表
     String SET_VIP_DISCOUNT    = BASE_URL + "setVipDiscount";               // VVIP 设置 vip 价格折扣
     String SET_VIP_RERMARK     = BASE_URL + "setVipRermark";                // VVIP 设置 vip 备注
+    String SALES_RECORD        = BASE_URL + "salesRecord";                  // 销售记录
     String APPLY_FOR_WITH_DRAW = BASE_URL + "applyForWithdraw";             // 提现申请
     String OPEN_WALLET         = BASE_URL + "openWallet";                   // 打开钱包
     String WALLET_LOG          = BASE_URL + "walletLog";                    // 钱包变更记录
-    String SALES_RECORD        = BASE_URL + "salesRecord";                  // 销售记录
 }

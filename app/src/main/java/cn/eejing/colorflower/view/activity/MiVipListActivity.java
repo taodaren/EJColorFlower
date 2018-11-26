@@ -2,7 +2,6 @@ package cn.eejing.colorflower.view.activity;
 
 import android.text.InputType;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 
 import com.google.gson.Gson;
@@ -19,6 +18,7 @@ import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.model.request.VipListBean;
 import cn.eejing.colorflower.presenter.Urls;
+import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.SelfDialog;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.adapter.VipListAdapter;
@@ -137,7 +137,7 @@ public class MiVipListActivity extends BaseActivity {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 Log.d(TAG, "获取下游 vip 列表 请求成功: " + body);
+                                 LogUtil.d(TAG, "获取下游 vip 列表 请求成功: " + body);
 
                                  Gson gson = new Gson();
                                  VipListBean bean = gson.fromJson(body, VipListBean.class);
@@ -169,7 +169,7 @@ public class MiVipListActivity extends BaseActivity {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 Log.d(TAG, "VVIP 设置 vip 备注 请求成功: " + body);
+                                 LogUtil.d(TAG, "VVIP 设置 vip 备注 请求成功: " + body);
 
                                  Gson gson = new Gson();
                                  CodeMsgBean bean = gson.fromJson(body, CodeMsgBean.class);
@@ -198,7 +198,7 @@ public class MiVipListActivity extends BaseActivity {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
-                                 Log.d(TAG, "VVIP 设置 vip 价格折扣 请求成功: " + body);
+                                 LogUtil.d(TAG, "VVIP 设置 vip 价格折扣 请求成功: " + body);
 
                                  Gson gson = new Gson();
                                  CodeMsgBean bean = gson.fromJson(body, CodeMsgBean.class);

@@ -1,14 +1,10 @@
 package cn.eejing.colorflower.view.fragment;
 
-import android.content.Context;
-import android.content.res.Resources;
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Toolbar;
 
 import com.allen.library.SuperTextView;
 
@@ -21,6 +17,7 @@ import cn.eejing.colorflower.app.BaseApplication;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.activity.MainActivity;
 import cn.eejing.colorflower.view.activity.MiAboutActivity;
+import cn.eejing.colorflower.view.activity.MiBuyRecordActivity;
 import cn.eejing.colorflower.view.activity.MiOpinionActivity;
 import cn.eejing.colorflower.view.activity.MiOrderActivity;
 import cn.eejing.colorflower.view.activity.MiSetActivity;
@@ -41,8 +38,8 @@ public class TabMineFragment extends BaseFragment {
     @BindView(R.id.layout_user_info)    RelativeLayout layoutUserInfo;
     @BindView(R.id.layout_vvip_mine)    LinearLayout   layoutVvipShow;
     @BindView(R.id.btn_mine_upgrade)    Button         btnUpgrade;
-    private View mRootView;
 
+    private View mRootView;
     public static TabMineFragment newInstance() {
         return new TabMineFragment();
     }
@@ -98,14 +95,14 @@ public class TabMineFragment extends BaseFragment {
         }
     }
 
-    @OnClick({R.id.img_vip_toolbar, R.id.layout_vvip_order, R.id.layout_vvip_account, R.id.btn_mine_upgrade, R.id.stv_mine_order, R.id.stv_mine_opinion, R.id.stv_mine_about, R.id.stv_mine_set})
+    @OnClick({R.id.img_vip_toolbar, R.id.layout_vvip_record, R.id.layout_vvip_account, R.id.btn_mine_upgrade, R.id.stv_mine_order, R.id.stv_mine_opinion, R.id.stv_mine_about, R.id.stv_mine_set})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.img_vip_toolbar:
                 ((MainActivity) Objects.requireNonNull(getContext())).jumpToActivity(MiVipListActivity.class);
                 break;
-            case R.id.layout_vvip_order:
-                ToastUtil.showShort("order");
+            case R.id.layout_vvip_record:
+                ((MainActivity) Objects.requireNonNull(getContext())).jumpToActivity(MiBuyRecordActivity.class);
                 break;
             case R.id.layout_vvip_account:
                 ToastUtil.showShort("account");

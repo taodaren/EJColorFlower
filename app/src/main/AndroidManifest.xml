@@ -162,7 +162,8 @@
             android:name=".view.activity.MiSetPayPwdActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".view.activity.MiUpgradeVipActivity" />
-        <activity android:name=".view.activity.MiVipListActivity"></activity>
+        <activity android:name=".view.activity.MiVipListActivity" />
+        <activity android:name=".view.activity.MiBuyRecordActivity"></activity>
     </application>
 
 </manifest>
