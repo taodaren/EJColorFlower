@@ -163,7 +163,8 @@
             android:screenOrientation="portrait" />
         <activity android:name=".view.activity.MiUpgradeVipActivity" />
         <activity android:name=".view.activity.MiVipListActivity" />
-        <activity android:name=".view.activity.MiBuyRecordActivity"></activity>
+        <activity android:name=".view.activity.MiBuyRecordActivity" />
+        <activity android:name=".view.activity.PickerViewActivity"></activity>
     </application>
 
 </manifest>

@@ -174,4 +174,9 @@
     <string name="text_start_dmx">起始 DMX</string>
     <string name="def_addr">默认地址</string>
     <string name="clear_material">清料</string>
+    <string name="txt_start_time">开始时间</string>
+    <string name="txt_end_time">结束时间</string>
+    <string name="txt_year">年</string>
+    <string name="txt_month">月</string>
+    <string name="txt_day">日</string>
 </resources>
