@@ -10,6 +10,14 @@ import java.util.Date;
  */
 
 public class StampUtil {
+    public static final String FORMAT = "yyyy-MM-dd HH:mm:ss";
+
+    /** 获取当前时间 */
+    public static String getCurDate(String format){
+        @SuppressLint("SimpleDateFormat")
+        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+        return dateFormat.format(new Date());
+    }
 
     /**
      * 时间戳转换成日期格式字符串
@@ -22,7 +30,7 @@ public class StampUtil {
             return "";
         }
         if (format == null || format.isEmpty()) {
-            format = "yyyy-MM-dd HH:mm:ss";
+            format = FORMAT;
         }
         @SuppressLint("SimpleDateFormat")
         SimpleDateFormat sdf = new SimpleDateFormat(format);
@@ -46,11 +54,14 @@ public class StampUtil {
         return "";
     }
 
+    /** 获取系统当前时间戳 */
+    public static long getTimeStamp() {
+        return System.currentTimeMillis();
+    }
+
     /** 取得当前时间戳（精确到秒） */
     public static String timeStamp() {
-        long time = System.currentTimeMillis();
-        String t = String.valueOf(time / 1000);
-        return t;
+        return String.valueOf(System.currentTimeMillis() / 1000);
     }
 
     /** 判断是否闰年 */
@@ -74,14 +85,14 @@ public class StampUtil {
         LogUtil.d("TYC", "timeStamp=" + timeStamp);
 
         // 运行输出:1470278082980 该方法的作用是返回当前的计算机时间，时间的表达格式为当前计算机时间和GMT时间(格林威治时间)1970年1月1号0时0分0秒所差的毫秒数
-        LogUtil.d("TYC", "" + System.currentTimeMillis());
+        LogUtil.d("TYC", "" + getTimeStamp());
 
         // 运行输出:date=2016-08-04 10:34:42
-        String date = timeStamp2Date(timeStamp, "yyyy-MM-dd HH:mm:ss");
+        String date = timeStamp2Date(timeStamp, FORMAT);
         LogUtil.d("TYC", "date=" + date);
 
         // 运行输出:1470278082
-        String timeStamp2 = date2TimeStamp(date, "yyyy-MM-dd HH:mm:ss");
+        String timeStamp2 = date2TimeStamp(date, FORMAT);
         LogUtil.d("TYC", "timeStamp2=" + timeStamp2);
     }
 }

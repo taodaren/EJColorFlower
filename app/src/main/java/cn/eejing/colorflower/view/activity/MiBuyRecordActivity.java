@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
@@ -17,11 +18,13 @@ import com.wx.wheelview.widget.WheelView;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.model.request.BuyRecordBean;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.BottomDialog;
 import cn.eejing.colorflower.util.LogUtil;
@@ -30,6 +33,9 @@ import cn.eejing.colorflower.view.adapter.BuyRecordAdapter;
 import cn.eejing.colorflower.view.adapter.MyWheelAdapter;
 import cn.eejing.colorflower.view.base.BaseActivity;
 
+import static cn.eejing.colorflower.util.StampUtil.FORMAT;
+import static cn.eejing.colorflower.util.StampUtil.date2TimeStamp;
+import static cn.eejing.colorflower.util.StampUtil.getCurDate;
 import static cn.eejing.colorflower.util.StampUtil.getLastDay;
 
 /**
@@ -38,11 +44,13 @@ import static cn.eejing.colorflower.util.StampUtil.getLastDay;
 
 public class MiBuyRecordActivity extends BaseActivity {
     @BindView(R.id.rv_buy_record)    PullLoadMoreRecyclerView rvBuy;
+    @BindView(R.id.tv_not_pay)       TextView tvNotPay;
 
     private static final String TAG = "MiBuyRecordActivity";
-//    private List<BuyRecordBean.DataBean> mList;
+    private List<BuyRecordBean.DataBean> mList;
     private BuyRecordAdapter mAdapter;
     private BottomDialog mBottomDialog;
+    private String mStartStamp, mEndStamp;
 
     @Override
     protected int layoutViewId() {
@@ -52,8 +60,10 @@ public class MiBuyRecordActivity extends BaseActivity {
     @Override
     public void initView() {
         setToolbar("购买记录", View.VISIBLE, null, View.GONE);
-//        mList = new ArrayList<>();
-//        initRecyclerView();
+        mList = new ArrayList<>();
+        mStartStamp = date2TimeStamp("2018-01-01 00:00:00", FORMAT);
+        mEndStamp = date2TimeStamp(getCurDate(FORMAT), FORMAT);
+        initRecyclerView();
     }
 
     @Override
@@ -70,18 +80,24 @@ public class MiBuyRecordActivity extends BaseActivity {
 
     @Override
     public void initData() {
-        getDataWithBuyRecord();
+        getDataWithBuyRecord(mStartStamp, mEndStamp);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        getDataWithBuyRecord(mStartStamp, mEndStamp);
     }
 
     private void initRecyclerView() {
         rvBuy.setLinearLayout();
-//        mAdapter = new BuyRecordAdapter(this, mList);
+        mAdapter = new BuyRecordAdapter(this, mList);
         rvBuy.setAdapter(mAdapter);
         rvBuy.setPushRefreshEnable(false);
         rvBuy.setOnPullLoadMoreListener(new PullLoadMoreRecyclerView.PullLoadMoreListener() {
             @Override
             public void onRefresh() {
-                getDataWithBuyRecord();
+                getDataWithBuyRecord(mStartStamp, mEndStamp);
             }
 
             @Override
@@ -91,32 +107,38 @@ public class MiBuyRecordActivity extends BaseActivity {
         rvBuy.setPullLoadMoreCompleted();
     }
 
-    private void getDataWithBuyRecord() {
+    private void getDataWithBuyRecord(String startStamp, String endStamp) {
         OkGo.<String>post(Urls.SALES_RECORD)
                 .tag(this)
                 .params("token", MainActivity.getAppCtrl().getToken())
-                .params("start", "时间戳格式")
-                .params("end", "时间戳格式")
+                .params("start", startStamp)
+                .params("end", endStamp)
                 .execute(new StringCallback() {
                              @Override
                              public void onSuccess(Response<String> response) {
                                  String body = response.body();
                                  LogUtil.d(TAG, "销售记录 请求成功: " + body);
 
-//                                 Gson gson = new Gson();
-//                                 BuyRecordBean bean = gson.fromJson(body, BuyRecordBean.class);
-//                                 switch (bean.getCode()) {
-//                                     case 1:
-//                                         mList = bean.getData();
-//                                         // 刷新数据
-//                                         mAdapter.refreshList(mList);
-//                                         // 刷新结束
-//                                         rvBuy.setPullLoadMoreCompleted();
-//                                         break;
-//                                     default:
-//                                         ToastUtil.showShort(bean.getMessage());
-//                                         break;
-//                                 }
+                                 Gson gson = new Gson();
+                                 BuyRecordBean bean = gson.fromJson(body, BuyRecordBean.class);
+                                 switch (bean.getCode()) {
+                                     case 1:
+                                         rvBuy.setVisibility(View.VISIBLE);
+                                         tvNotPay.setVisibility(View.GONE);
+                                         mList = bean.getData();
+                                         // 刷新数据
+                                         mAdapter.refreshList(mList);
+                                         // 刷新结束
+                                         rvBuy.setPullLoadMoreCompleted();
+                                         break;
+                                     case 0:
+                                         rvBuy.setVisibility(View.GONE);
+                                         tvNotPay.setVisibility(View.VISIBLE);
+                                         break;
+                                     default:
+                                         ToastUtil.showShort(bean.getMessage());
+                                         break;
+                                 }
                              }
                          }
                 );
@@ -232,15 +254,15 @@ public class MiBuyRecordActivity extends BaseActivity {
             if (niEndYear >= niStartYear) {
                 if (niEndMonth >= niStartMonth) {
                     if (niEndDay >= niStartDay) {
-                        if (niEndMonth == niStartMonth) {
-                            strStartTime = niStartYear + "/" + strStartMonth + "/" + strStartDay;
-                            strEndTime = niEndYear + "/" + strEndMonth + "/" + strEndDay;
-                            LogUtil.d(TAG, strStartTime + "~" + strEndTime);
+                        strStartTime = niStartYear + "-" + strStartMonth + "-" + strStartDay + " 00:00:00";
+                        if (niEndYear == niStartYear && niEndMonth == niStartMonth && niEndDay == niStartDay) {
+                            strEndTime = niEndYear + "-" + strEndMonth + "-" + strEndDay + " 23:59:59";
                         } else {
-                            strStartTime = niStartYear + "/" + strStartMonth + "/" + strStartDay;
-                            strEndTime = niEndYear + "/" + strEndMonth + "/" + strEndDay;
-                            LogUtil.d(TAG, strStartTime + "~" + strEndTime);
+                            strEndTime = niEndYear + "-" + strEndMonth + "-" + strEndDay + " " + getCurDate("HH:mm:ss");
                         }
+                        mStartStamp = date2TimeStamp(strStartTime, FORMAT);
+                        mEndStamp = date2TimeStamp(strEndTime, FORMAT);
+                        getDataWithBuyRecord(mStartStamp, mEndStamp);
                     } else {
                         ToastUtil.showShort("请输入正确的日期");
                     }
@@ -254,10 +276,9 @@ public class MiBuyRecordActivity extends BaseActivity {
 
         // 取消
         tvCancel.setOnClickListener(v -> mBottomDialog.dismiss());
+
         // 防止弹出两个窗口
-        if (mBottomDialog != null && mBottomDialog.isShowing()) {
-            return;
-        }
+        if (mBottomDialog != null && mBottomDialog.isShowing()) {return;}
         mBottomDialog = new BottomDialog(this, R.style.ActionSheetDialogStyle);
         // 将布局设置给 Dialog
         mBottomDialog.setContentView(outView);
@@ -282,7 +303,6 @@ public class MiBuyRecordActivity extends BaseActivity {
     }
 
     private ArrayList<String> getDayData(int lastDay) {
-        // 忽略条件
         ArrayList<String> list = new ArrayList<>();
         for (int i = 1; i <= lastDay; i++) {
             list.add(String.valueOf(i));
