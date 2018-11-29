@@ -44,6 +44,7 @@ import cn.eejing.colorflower.util.Util;
 import cn.eejing.colorflower.view.fragment.TabCtrlFragment;
 import cn.eejing.colorflower.view.fragment.TabMallFragment;
 import cn.eejing.colorflower.view.fragment.TabMineFragment;
+import cn.eejing.colorflower.view.fragment.TabVideoFragment;
 
 import static cn.eejing.colorflower.app.AppConstant.DEVICE_CONNECT_NO;
 import static cn.eejing.colorflower.app.AppConstant.DEVICE_CONNECT_YES;
@@ -119,6 +120,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                 // 设置导航图标、名称及背景颜色
                 .addItem(new BottomNavigationItem(R.drawable.tab_ctrl, R.string.control_name).setActiveColorResource(R.color.colorWhite))
                 .addItem(new BottomNavigationItem(R.drawable.tab_mall, R.string.mall_name).setActiveColorResource(R.color.colorWhite))
+                .addItem(new BottomNavigationItem(R.drawable.tab_mall, R.string.video_name).setActiveColorResource(R.color.colorWhite))
                 .addItem(new BottomNavigationItem(R.drawable.tab_mine, R.string.mine_name).setActiveColorResource(R.color.colorWhite))
                 // 默认显示面板
                 .setFirstSelectedPosition(0)
@@ -133,6 +135,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         ArrayList<Fragment> list = new ArrayList<>();
         list.add(TabCtrlFragment.newInstance());
         list.add(TabMallFragment.newInstance());
+        list.add(TabVideoFragment.newInstance());
         list.add(TabMineFragment.newInstance());
         return list;
     }
