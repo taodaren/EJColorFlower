@@ -23,7 +23,6 @@ import static cn.eejing.colorflower.util.DateUtil.FORMAT_HM;
 import static cn.eejing.colorflower.util.DateUtil.FORMAT_MD;
 import static cn.eejing.colorflower.util.DateUtil.FORMAT_MDHM;
 import static cn.eejing.colorflower.util.DateUtil.date2TimeStamp;
-import static cn.eejing.colorflower.util.DateUtil.getCurDate;
 import static cn.eejing.colorflower.util.DateUtil.isToday;
 import static cn.eejing.colorflower.util.DateUtil.isWeek;
 import static cn.eejing.colorflower.util.DateUtil.isYear;
@@ -91,16 +90,16 @@ public class BillAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             try {
                 boolean isToday = isToday(bean.getCreate_time());
                 boolean isYesterday = isYesterday(bean.getCreate_time());
-                boolean isWeek = isWeek(Long.parseLong(timeStamp));
-                boolean isYear = isYear(Long.parseLong(timeStamp));
-                /*if (isToday) {
+                boolean isWeek = isWeek(timeStamp, timeStamp.length());
+                boolean isYear = isYear(timeStamp, timeStamp.length());
+                if (isToday) {
                     tvTime.setText("今天 " + hmDate);
                 } else if (isYesterday) {
                     tvTime.setText("昨天 " + hmDate);
-                } else */if (isWeek(Long.parseLong(timeStamp))) {
+                } else if (isWeek) {
                     String weekString = showWeekString(Long.parseLong(timeStamp));
                     tvTime.setText(weekString + " " + hmDate);
-                } else if (isYear(Long.parseLong(timeStamp))) {
+                } else if (isYear) {
                     tvTime.setText(mdDate + " " + hmDate);
                 } else {
                     tvTime.setText(timeStamp2Date(timeStamp, FORMAT_MDHM));

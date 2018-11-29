@@ -62,6 +62,20 @@ public class DateUtil {
         return "";
     }
 
+    /** 时间戳转换(13转10位) */
+    public static String tamp13To10(long time) {
+        @SuppressLint("SimpleDateFormat")
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(FORMAT_ALL);
+        return simpleDateFormat.format(new Date(time * 1000L));
+    }
+
+    /** 时间戳转换(13转10位) */
+    public static String tamp10To13(long time) {
+        @SuppressLint("SimpleDateFormat")
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(FORMAT_ALL);
+        return simpleDateFormat.format(new Date(time * 1000L));
+    }
+
     /** 获取系统当前时间戳 */
     public static long getTimeStamp() {
         return System.currentTimeMillis();
@@ -160,11 +174,27 @@ public class DateUtil {
         return c.getTimeInMillis();
     }
 
-    /** 是否是这个星期 */
-    public static boolean isWeek(long time) {
-        long startWeek = getMondayOfThisWeek(); // 本周一
-        long endWeek = getSundayOfThisWeek();
-        return time >= startWeek && time <= endWeek;
+    /** 是否是今年 */
+    public static boolean isYear(String time, int length) {
+        if (length == 10) {
+            time = time + "000";
+        }
+        Calendar cal = Calendar.getInstance();
+        int dy = cal.get(Calendar.YEAR);
+        cal.setTimeInMillis(Long.parseLong(time));
+        int iy = cal.get(Calendar.YEAR);
+        return dy == iy;
+    }
+
+    /** 是否是本星期 */
+    public static boolean isWeek(String time, int length) {
+        if (length == 10) {
+            time = time + "000";
+        }
+        long startWeek, endWeek;
+        startWeek = getMondayOfThisWeek();
+        endWeek = getSundayOfThisWeek();
+        return Long.parseLong(time) >= startWeek && Long.parseLong(time) <= endWeek;
     }
 
     /** 显示星期格式 */
@@ -193,15 +223,6 @@ public class DateUtil {
             return "星期日";
         }
         return "星期一";
-    }
-
-    /** 是否是今年 */
-    public static boolean isYear(long time) {
-        Calendar cal = Calendar.getInstance();
-        int dy = cal.get(Calendar.YEAR);
-        cal.setTimeInMillis(time);
-        int iy = cal.get(Calendar.YEAR);
-        return dy == iy;
     }
 
     private static ThreadLocal<SimpleDateFormat> DateLocal = new ThreadLocal<>();
