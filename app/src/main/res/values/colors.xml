@@ -23,7 +23,7 @@
     <color name="colorRing">#E8E8E8</color>
 
     <color name="colorTitle">#232323</color>
-    <color name="colorNavBar">#3A72FF</color>
+    <color name="colorNavBar">#3a72ff</color>
     <color name="colorBlack">#000000</color>
     <color name="colorBlue">#69b1bf</color>
     <color name="colorOrange">#d9934d</color>
@@ -35,6 +35,8 @@
     <color name="colorE1">#E1E1E1</color>
     <color name="colorRmb">#FF2F30</color>
 
+    <color name="keyboard_bg">#D2D5DB</color>
+    <color name="money_add">#e8541e</color>
     <color name="colorTitleName">#666666</color>
     <color name="colorConfig">#333333</color>
     <color name="colorNoClick">#999999</color>
@@ -43,6 +45,7 @@
     <color name="colorFrame">#d2d2d2</color>
     <color name="colorProgressDrawable">#5A97FF</color>
     <color name="colorSeekBg">#F0F2F4</color>
+    <color name="color92">#929292</color>
 
     <color name="colorHighlightTempLow">#619ee4</color>
     <color name="colorHighlightTempHigh">#f75e5e</color>

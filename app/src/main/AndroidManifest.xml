@@ -130,13 +130,25 @@
             android:name=".view.activity.MiUserInfoActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".view.activity.MiPwdModifyActivity"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".view.activity.MiOrderActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.activity.MiOrderDetailsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.MiSetPayPwdActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.MiUpgradeVipActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.MiVipListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.MiBuyRecordActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".view.activity.MiAccountActivity"
             android:screenOrientation="portrait" />
 
         <!-- alipay -->
@@ -158,13 +170,8 @@
             android:name=".wxapi.WXPayEntryActivity"
             android:exported="true"
             android:launchMode="singleTop" />
-        <activity
-            android:name=".view.activity.MiSetPayPwdActivity"
-            android:screenOrientation="portrait" />
-        <activity android:name=".view.activity.MiUpgradeVipActivity" />
-        <activity android:name=".view.activity.MiVipListActivity" />
-        <activity android:name=".view.activity.MiBuyRecordActivity" />
-        <activity android:name=".view.activity.PickerViewActivity"></activity>
+        <activity android:name=".view.activity.MiCashSuccessActivity" />
+        <activity android:name=".view.activity.MiBillActivity"></activity>
     </application>
 
 </manifest>

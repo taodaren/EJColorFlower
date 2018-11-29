@@ -33,7 +33,8 @@ import static cn.eejing.colorflower.app.AppConstant.SMS_RESEND_TIME;
  * 设置支付密码
  */
 
-public class MiSetPayPwdActivity extends BaseActivity {
+public class MiSetPayPwdActivity extends BaseActivity implements TextWatcher {
+
     @BindView(R.id.layout_pay_pwd_verify)        LinearLayout      layoutVerify;
     @BindView(R.id.layout_pay_pwd_set)           LinearLayout      layoutSet;
     @BindView(R.id.et_pay_pwd_login)             ClearableEditText etPwdLogin;
@@ -49,35 +50,6 @@ public class MiSetPayPwdActivity extends BaseActivity {
     private String mPwdOriginal, mPhone, mCode, mSetPwd, mPwdConfirm;
     private String mIv;
     private Gson mGson;
-
-    // 监听设置相关 EditText 文本
-    private TextWatcher twListenET = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        }
-
-        @Override
-        public void afterTextChanged(Editable editable) {
-            mPhone = etPhone.getText().toString().trim();
-            mCode = etCode.getText().toString().trim();
-            mSetPwd = etPwdNew.getText().toString().trim();
-            mPwdConfirm = etPwdConfirm.getText().toString().trim();
-
-            if (TextUtils.isEmpty(mPhone) || TextUtils.isEmpty(mCode) || TextUtils.isEmpty(mSetPwd) || TextUtils.isEmpty(mPwdConfirm)) {
-                // 设置支付密码 ET 有空情况
-                btnConfirmSet.setEnabled(Boolean.FALSE);
-                btnConfirmSet.setBackground(getResources().getDrawable(R.drawable.shape_btn_jbs_no));
-            } else {
-                // ET 同时不为空的情况
-                btnConfirmSet.setEnabled(Boolean.TRUE);
-                btnConfirmSet.setBackground(getResources().getDrawable(R.drawable.shape_btn_jbs));
-            }
-        }
-    };
 
     @Override
     protected int layoutViewId() {
@@ -95,11 +67,11 @@ public class MiSetPayPwdActivity extends BaseActivity {
 
     @Override
     public void initListener() {
-        etPwdLogin.addTextChangedListener(twListenET);
-        etPhone.addTextChangedListener(twListenET);
-        etCode.addTextChangedListener(twListenET);
-        etPwdNew.addTextChangedListener(twListenET);
-        etPwdConfirm.addTextChangedListener(twListenET);
+        etPwdLogin.addTextChangedListener(this);
+        etPhone.addTextChangedListener(this);
+        etCode.addTextChangedListener(this);
+        etPwdNew.addTextChangedListener(this);
+        etPwdConfirm.addTextChangedListener(this);
     }
 
     @OnClick({R.id.btn_pay_pwd_confirm_set, R.id.btn_pay_pwd_confirm_login, R.id.tv_pay_get_code})
@@ -186,26 +158,58 @@ public class MiSetPayPwdActivity extends BaseActivity {
     }
 
     private void getDateWithSetPayPwd() {
-        OkGo.<String>post(Urls.SET_PAY_PWD)
-                .tag(this)
-                .params("code", mCode)
-                .params("mobile", mPhone)
-                .params("pay_password", mSetPwd)
-                .params("verify_pay_password", mPwdConfirm)
-                .params("iv", mIv)
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        LogUtil.d(TAG, "设置支付密码 请求成功: " + body);
+        try {
+            String encryptSetPwd = Encryption.encrypt(mSetPwd, mIv);
+            String encryptPwdConfirm = Encryption.encrypt(mPwdConfirm, mIv);
 
-                        mGson = new Gson();
-                        CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
-                        ToastUtil.showLong(bean.getMessage());
-                        finish();
-                    }
-                });
+            OkGo.<String>post(Urls.SET_PAY_PWD)
+                    .tag(this)
+                    .params("code", mCode)
+                    .params("mobile", mPhone)
+                    .params("pay_password", encryptSetPwd)
+                    .params("verify_pay_password", encryptPwdConfirm)
+                    .params("iv", mIv)
+                    .params("token", MainActivity.getAppCtrl().getToken())
+                    .execute(new StringCallback() {
+                        @Override
+                        public void onSuccess(Response<String> response) {
+                            String body = response.body();
+                            LogUtil.d(TAG, "设置支付密码 请求成功: " + body);
+
+                            mGson = new Gson();
+                            CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
+                            ToastUtil.showLong(bean.getMessage());
+                            finish();
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        mPhone = etPhone.getText().toString().trim();
+        mCode = etCode.getText().toString().trim();
+        mSetPwd = etPwdNew.getText().toString().trim();
+        mPwdConfirm = etPwdConfirm.getText().toString().trim();
+
+        if (TextUtils.isEmpty(mPhone) || TextUtils.isEmpty(mCode) || TextUtils.isEmpty(mSetPwd) || TextUtils.isEmpty(mPwdConfirm)) {
+            // 设置支付密码 ET 有空情况
+            btnConfirmSet.setEnabled(Boolean.FALSE);
+            btnConfirmSet.setBackground(getResources().getDrawable(R.drawable.shape_btn_jbs_no));
+        } else {
+            // ET 同时不为空的情况
+            btnConfirmSet.setEnabled(Boolean.TRUE);
+            btnConfirmSet.setBackground(getResources().getDrawable(R.drawable.shape_btn_jbs));
+        }
+    }
 }

@@ -33,10 +33,12 @@ import cn.eejing.colorflower.view.adapter.BuyRecordAdapter;
 import cn.eejing.colorflower.view.adapter.MyWheelAdapter;
 import cn.eejing.colorflower.view.base.BaseActivity;
 
-import static cn.eejing.colorflower.util.StampUtil.FORMAT;
-import static cn.eejing.colorflower.util.StampUtil.date2TimeStamp;
-import static cn.eejing.colorflower.util.StampUtil.getCurDate;
-import static cn.eejing.colorflower.util.StampUtil.getLastDay;
+import static cn.eejing.colorflower.util.DateUtil.FORMAT_ALL;
+import static cn.eejing.colorflower.util.DateUtil.FORMAT_HMS;
+import static cn.eejing.colorflower.util.DateUtil.FORMAT_YMD;
+import static cn.eejing.colorflower.util.DateUtil.date2TimeStamp;
+import static cn.eejing.colorflower.util.DateUtil.getCurDate;
+import static cn.eejing.colorflower.util.DateUtil.getLastDay;
 
 /**
  * 购买记录
@@ -61,8 +63,8 @@ public class MiBuyRecordActivity extends BaseActivity {
     public void initView() {
         setToolbar("购买记录", View.VISIBLE, null, View.GONE);
         mList = new ArrayList<>();
-        mStartStamp = date2TimeStamp("2018-01-01 00:00:00", FORMAT);
-        mEndStamp = date2TimeStamp(getCurDate(FORMAT), FORMAT);
+        mStartStamp = date2TimeStamp("2018-01-01 00:00:00", FORMAT_ALL);
+        mEndStamp = date2TimeStamp(getCurDate(FORMAT_ALL), FORMAT_ALL);
         initRecyclerView();
     }
 
@@ -181,7 +183,7 @@ public class MiBuyRecordActivity extends BaseActivity {
         wvEndDay.setStyle(style);
 
         // 格式化当前时间，并转换为年月日整型数据
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        SimpleDateFormat sdf = new SimpleDateFormat(FORMAT_YMD, Locale.getDefault());
         String[] split = sdf.format(new Date()).split("-");
         int currentYear = Integer.parseInt(split[0]);
         int currentMonth = Integer.parseInt(split[1]);
@@ -258,10 +260,10 @@ public class MiBuyRecordActivity extends BaseActivity {
                         if (niEndYear == niStartYear && niEndMonth == niStartMonth && niEndDay == niStartDay) {
                             strEndTime = niEndYear + "-" + strEndMonth + "-" + strEndDay + " 23:59:59";
                         } else {
-                            strEndTime = niEndYear + "-" + strEndMonth + "-" + strEndDay + " " + getCurDate("HH:mm:ss");
+                            strEndTime = niEndYear + "-" + strEndMonth + "-" + strEndDay + " " + getCurDate(FORMAT_HMS);
                         }
-                        mStartStamp = date2TimeStamp(strStartTime, FORMAT);
-                        mEndStamp = date2TimeStamp(strEndTime, FORMAT);
+                        mStartStamp = date2TimeStamp(strStartTime, FORMAT_ALL);
+                        mEndStamp = date2TimeStamp(strEndTime, FORMAT_ALL);
                         getDataWithBuyRecord(mStartStamp, mEndStamp);
                     } else {
                         ToastUtil.showShort("请输入正确的日期");

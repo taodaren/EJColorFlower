@@ -17,6 +17,7 @@ import cn.eejing.colorflower.app.BaseApplication;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.activity.MainActivity;
 import cn.eejing.colorflower.view.activity.MiAboutActivity;
+import cn.eejing.colorflower.view.activity.MiAccountActivity;
 import cn.eejing.colorflower.view.activity.MiBuyRecordActivity;
 import cn.eejing.colorflower.view.activity.MiOpinionActivity;
 import cn.eejing.colorflower.view.activity.MiOrderActivity;
@@ -105,7 +106,7 @@ public class TabMineFragment extends BaseFragment {
                 ((MainActivity) Objects.requireNonNull(getContext())).jumpToActivity(MiBuyRecordActivity.class);
                 break;
             case R.id.layout_vvip_account:
-                ToastUtil.showShort("account");
+                ((MainActivity) Objects.requireNonNull(getContext())).jumpToActivity(MiAccountActivity.class);
                 break;
             case R.id.btn_mine_upgrade:
                 ((MainActivity) Objects.requireNonNull(getContext())).jumpToActivity(MiUpgradeVipActivity.class);

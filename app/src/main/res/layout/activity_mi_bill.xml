@@ -4,17 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.activity.MiBuyRecordActivity">
+    tools:context=".view.activity.MiBillActivity">
 
     <include
-        android:id="@+id/toolbar_my_account"
+        android:id="@+id/toolbar_bill"
         layout="@layout/layout_toolbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView
-        android:id="@+id/rv_buy_record"
+        android:id="@+id/rv_bill"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
@@ -23,23 +23,23 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar_my_account" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_bill" />
 
     <TextView
-        android:id="@+id/tv_not_pay"
+        android:id="@+id/tv_bill"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:text="您尚未购买过商品"
+        android:text="您当前账户尚无账单"
         android:textSize="20sp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar_my_account"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_bill"
         app:layout_constraintVertical_bias="0.25" />
 
 </android.support.constraint.ConstraintLayout>

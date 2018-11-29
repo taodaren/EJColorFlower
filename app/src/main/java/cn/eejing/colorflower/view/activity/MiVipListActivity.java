@@ -3,6 +3,7 @@ package cn.eejing.colorflower.view.activity;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
@@ -30,6 +31,7 @@ import cn.eejing.colorflower.view.base.BaseActivity;
 
 public class MiVipListActivity extends BaseActivity {
     @BindView(R.id.rv_vip_list)        PullLoadMoreRecyclerView rvVip;
+    @BindView(R.id.tv_down_vip)        TextView tvDownVip;
 
     private static final String TAG = "MiVipListActivity";
     private List<VipListBean.DataBean> mList;
@@ -143,11 +145,17 @@ public class MiVipListActivity extends BaseActivity {
                                  VipListBean bean = gson.fromJson(body, VipListBean.class);
                                  switch (bean.getCode()) {
                                      case 1:
+                                         rvVip.setVisibility(View.VISIBLE);
+                                         tvDownVip.setVisibility(View.GONE);
                                          mList = bean.getData();
                                          // 刷新数据
                                          mAdapter.refreshList(mList);
                                          // 刷新结束
                                          rvVip.setPullLoadMoreCompleted();
+                                         break;
+                                     case 0:
+                                         rvVip.setVisibility(View.GONE);
+                                         tvDownVip.setVisibility(View.VISIBLE);
                                          break;
                                      default:
                                          ToastUtil.showShort(bean.getMessage());
@@ -214,6 +222,5 @@ public class MiVipListActivity extends BaseActivity {
                              }
                          }
                 );
-
     }
 }
