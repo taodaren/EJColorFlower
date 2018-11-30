@@ -14,7 +14,37 @@
         android:id="@+id/layout_user_info"
         android:layout_width="match_parent"
         android:layout_height="175dp"
-        android:background="@drawable/ic_user_vvip">
+        android:background="@drawable/ic_user_vip_bg">
+
+        <ImageView
+            android:id="@+id/img_user_level"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="36dp"
+            android:layout_marginTop="42dp"
+            android:src="@drawable/ic_user_vip_img" />
+
+        <TextView
+            android:id="@+id/tv_level_ch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="38dp"
+            android:layout_toEndOf="@id/img_user_level"
+            android:text="VIP用户"
+            android:textColor="@color/colorWhite"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/tv_level_english"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_level_ch"
+            android:layout_marginStart="8dp"
+            android:layout_toEndOf="@id/img_user_level"
+            android:text="Vip users"
+            android:textColor="#fff7e9d2"
+            android:textSize="12sp" />
 
         <Button
             android:id="@+id/btn_mine_upgrade"

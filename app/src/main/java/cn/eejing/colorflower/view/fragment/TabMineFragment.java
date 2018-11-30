@@ -1,10 +1,12 @@
 package cn.eejing.colorflower.view.fragment;
 
+import android.annotation.SuppressLint;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.allen.library.SuperTextView;
 
@@ -39,6 +41,9 @@ public class TabMineFragment extends BaseFragment {
     @BindView(R.id.layout_user_info)    RelativeLayout layoutUserInfo;
     @BindView(R.id.layout_vvip_mine)    LinearLayout   layoutVvipShow;
     @BindView(R.id.btn_mine_upgrade)    Button         btnUpgrade;
+    @BindView(R.id.img_user_level)      ImageView      imgLevel;
+    @BindView(R.id.tv_level_ch)         TextView       tvLevelCh;
+    @BindView(R.id.tv_level_english)    TextView       tvLevelEg;
 
     private View mRootView;
     public static TabMineFragment newInstance() {
@@ -73,23 +78,36 @@ public class TabMineFragment extends BaseFragment {
         ((SuperTextView) rootView.findViewById(R.id.stv_mine_version)).setRightString("V " + versionName + " 版本");
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onStart() {
         super.onStart();
         String userLv = MainActivity.getAppCtrl().getLevel();
         switch (userLv) {
             case LEVEL_GENERAL_USER:
-                layoutUserInfo.setBackground(BaseApplication.getContext().getResources().getDrawable(R.drawable.ic_user_general));
+                layoutUserInfo.setBackground(BaseApplication.getContext().getResources().getDrawable(R.drawable.ic_user_general_bg));
+                imgLevel.setImageDrawable(getResources().getDrawable(R.drawable.ic_user_general_img));
+                tvLevelCh.setText("普通用户");
+                tvLevelEg.setText("Ordinary user");
+                tvLevelEg.setTextColor(getResources().getColor(R.color.colorGeneralUser));
                 layoutVvipShow.setVisibility(View.GONE);
                 btnUpgrade.setVisibility(View.VISIBLE);
                 break;
             case LEVEL_VIP_USER:
-                layoutUserInfo.setBackground(BaseApplication.getContext().getResources().getDrawable(R.drawable.ic_user_vip));
+                layoutUserInfo.setBackground(BaseApplication.getContext().getResources().getDrawable(R.drawable.ic_user_vip_bg));
+                imgLevel.setImageDrawable(getResources().getDrawable(R.drawable.ic_user_vip_img));
+                tvLevelCh.setText("VIP用户");
+                tvLevelEg.setText("Vip users");
+                tvLevelEg.setTextColor(getResources().getColor(R.color.colorVipUser));
                 layoutVvipShow.setVisibility(View.GONE);
                 btnUpgrade.setVisibility(View.GONE);
                 break;
             case LEVEL_VVIP_USER:
-                layoutUserInfo.setBackground(BaseApplication.getContext().getResources().getDrawable(R.drawable.ic_user_vvip));
+                layoutUserInfo.setBackground(BaseApplication.getContext().getResources().getDrawable(R.drawable.ic_user_vvip_bg));
+                imgLevel.setImageDrawable(getResources().getDrawable(R.drawable.ic_user_vvip_img));
+                tvLevelCh.setText("VVIP用户");
+                tvLevelEg.setText("VVip users");
+                tvLevelEg.setTextColor(getResources().getColor(R.color.colorVVipUser));
                 layoutVvipShow.setVisibility(View.VISIBLE);
                 btnUpgrade.setVisibility(View.GONE);
                 break;

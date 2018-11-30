@@ -10,6 +10,10 @@
     <color name="colorTransparent50White">#80FFFFFF</color>
     <color name="colorTransparent30Red">#4Dca0d0d</color>
 
+    <color name="colorGeneralUser">#E1E1E1</color>
+    <color name="colorVipUser">#F7E9D2</color>
+    <color name="colorVVipUser">#E1E1E1</color>
+
     <color name="colorTempLvOne">#9dc3e8</color>
     <color name="colorTempLvTwo">#dde1eb</color>
     <color name="colorTempLvThree">#ead683</color>
