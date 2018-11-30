@@ -124,6 +124,7 @@ public class BillAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     tvStatus.setText("[审核中]");
                     break;
                 case "1":
+                    tvStatus.setText("");
                     LogUtil.d(TAG, "正常处理不显示");
                     break;
                 case "2":// 驳回

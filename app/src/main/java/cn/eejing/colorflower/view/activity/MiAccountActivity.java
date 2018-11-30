@@ -73,7 +73,7 @@ public class MiAccountActivity extends BaseActivity implements OnPasswordFinishe
         params.width = 68;
         imgBill.setLayoutParams(params);
         imgBill.setVisibility(View.VISIBLE);
-        imgBill.setImageDrawable(getResources().getDrawable(R.drawable.ic_mine_order));
+        imgBill.setImageDrawable(getResources().getDrawable(R.drawable.ic_account_bill));
     }
 
     @Override

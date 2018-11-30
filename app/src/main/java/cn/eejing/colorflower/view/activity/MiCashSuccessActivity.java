@@ -33,7 +33,7 @@ public class MiCashSuccessActivity extends BaseActivity {
         params.width = 68;
         imgBill.setLayoutParams(params);
         imgBill.setVisibility(View.VISIBLE);
-        imgBill.setImageDrawable(getResources().getDrawable(R.drawable.ic_mine_order));
+        imgBill.setImageDrawable(getResources().getDrawable(R.drawable.ic_account_bill));
     }
 
     @OnClick({R.id.img_vip_toolbar, R.id.btn_account_cash})

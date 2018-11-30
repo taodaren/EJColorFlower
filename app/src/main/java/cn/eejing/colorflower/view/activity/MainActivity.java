@@ -37,6 +37,7 @@ import cn.eejing.colorflower.presenter.ISendCommand;
 import cn.eejing.colorflower.presenter.OnReceivePackage;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.BleDevProtocol;
+import cn.eejing.colorflower.util.BtnBarUtil;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.MySettings;
 import cn.eejing.colorflower.util.ToastUtil;
@@ -120,12 +121,13 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                 // 设置导航图标、名称及背景颜色
                 .addItem(new BottomNavigationItem(R.drawable.tab_ctrl, R.string.control_name).setActiveColorResource(R.color.colorWhite))
                 .addItem(new BottomNavigationItem(R.drawable.tab_mall, R.string.mall_name).setActiveColorResource(R.color.colorWhite))
-                .addItem(new BottomNavigationItem(R.drawable.tab_mall, R.string.video_name).setActiveColorResource(R.color.colorWhite))
+                .addItem(new BottomNavigationItem(R.drawable.tab_video, R.string.video_name).setActiveColorResource(R.color.colorWhite))
                 .addItem(new BottomNavigationItem(R.drawable.tab_mine, R.string.mine_name).setActiveColorResource(R.color.colorWhite))
                 // 默认显示面板
                 .setFirstSelectedPosition(0)
                 // 初始化
                 .initialise();
+        BtnBarUtil.setBottomNavigationItem(navBar, 0, 36, 12);
         // 设置事件监听器
         navBar.setTabSelectedListener(this);
     }
