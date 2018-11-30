@@ -7,7 +7,7 @@ package cn.eejing.colorflower.presenter;
 public interface Urls {
     String DOWN_LOAD_APK = "https://eejing.oss-cn-beijing.aliyuncs.com/eejing_download/eejing.apk";
 
-    String BASE_URL = "http://v2.eejing.cn/api/v2.0/";                      // 域名公共部分 2.0 版本
+    String BASE_URL = "http://v2.eejing.cn/api/v2.1/";                      // 域名公共部分 2.0 版本
 
     String NEW_VERSION_UPDATE  = BASE_URL + "newVersionUpdate";             // 版本更新
     String SEND_MSG            = BASE_URL + "sendMsg";                      // 发送短信
@@ -19,6 +19,7 @@ public interface Urls {
     String GET_MATERIAL_INFO   = BASE_URL + "getMaterialInfo";              // 扫码获取料包信息
     String WAIT_USE_STATUS     = BASE_URL + "modifyWaitingForUseStatus";    // 修改为待使用状态
     String END_USE_STATUS      = BASE_URL + "modifyUseCompletedStatus";     // 修改为已使用状态
+    String VIDEO_LIST          = BASE_URL + "videoList";                    // 视频列表
 
     String GET_GOODS_LIST      = BASE_URL + "getGoodsList";                 // 商品列表
     String GOODS_DETAIL        = BASE_URL + "goodsDetail";                  // 商品详情

@@ -1,0 +1,56 @@
+{
+  "code": 1,
+  "message": "数据获取成功",
+  "data": [
+    {
+      "title": "彩花机齐喷效果",
+      "url": "http://eejing-video.oss-cn-shanghai.aliyuncs.com/Ej_obiOs5.mp4",
+      "thumbnail_url": "http://eejing-video.oss-cn-shanghai.aliyuncs.com/Ej_obiOs5.mp4?x-oss-process=video/snapshot,t_12000,f_jpg,w_960,h_540,m_fast"
+    },
+    {
+      "title": "狮子王 中文先行版预告",
+      "url": "http://vfx.mtime.cn/Video/2018/11/23/mp4/181123080148212016.mp4",
+      "thumbnail_url": "http://img5.mtime.cn/mg/2018/11/23/080146.61613371_120X90X4.jpg"
+    },
+    {
+      "title": "蜘蛛侠：平行宇宙 定档预告片",
+      "url": "http://vfx.mtime.cn/Video/2018/11/21/mp4/181121160744281935.mp4",
+      "thumbnail_url": "http://img5.mtime.cn/mg/2018/11/21/160455.38409012_120X90X4.jpg"
+    },
+    {
+      "title": "《大侦探皮卡丘》中文预告",
+      "url": "http://vfx.mtime.cn/Video/2018/11/13/mp4/181113120437163423.mp4",
+      "thumbnail_url": "http://img5.mtime.cn/mg/2018/11/13/072514.91662976_120X90X4.jpg"
+    },
+    {
+      "title": "武林怪兽 “怪兽出道”预告",
+      "url": "http://vfx.mtime.cn/Video/2018/11/12/mp4/181112104954485036.mp4",
+      "thumbnail_url": "http://img5.mtime.cn/mg/2018/11/12/105247.77925564_120X90X4.jpg"
+    },
+    {
+      "title": "你好，之华 终极预告",
+      "url": "http://vfx.mtime.cn/Video/2018/11/06/mp4/181106113832574293.mp4",
+      "thumbnail_url": "http://img5.mtime.cn/mg/2018/11/06/113814.55617568_120X90X4.jpg"
+    },
+    {
+      "title": "毒液：致命守护者 中国终极预告",
+      "url": "http://vfx.mtime.cn/Video/2018/11/01/mp4/181101101903596169.mp4",
+      "thumbnail_url": "http://img5.mtime.cn/mg/2018/11/01/101954.46098888_120X90X4.jpg"
+    },
+    {
+      "title": "沉睡的人鱼之家 中文剧场版预告",
+      "url": "http://vfx.mtime.cn/Video/2018/10/24/mp4/181024135044050740.mp4",
+      "thumbnail_url": "http://img5.mtime.cn/mg/2018/10/24/135036.78263602_120X90X4.jpg"
+    },
+    {
+      "title": "宠物坟场 台版中文预告",
+      "url": "http://vfx.mtime.cn/Video/2018/10/10/mp4/181010222833316763.mp4",
+      "thumbnail_url": "http://img5.mtime.cn/mg/2018/10/10/221817.90889396_120X90X4.jpg"
+    },
+    {
+      "title": "骡子 预告片",
+      "url": "http://vfx.mtime.cn/Video/2018/10/05/mp4/181005095042620189.mp4",
+      "thumbnail_url": "http://img5.mtime.cn/mg/2018/10/05/095706.36164023_120X90X4.jpg"
+    }
+  ]
+}

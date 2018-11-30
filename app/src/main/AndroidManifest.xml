@@ -49,6 +49,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.activity.MainActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
@@ -150,6 +151,10 @@
         <activity
             android:name=".view.activity.MiAccountActivity"
             android:screenOrientation="portrait" />
+        <activity android:name=".view.activity.MiCashSuccessActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".view.activity.MiBillActivity"
+            android:screenOrientation="portrait" />
 
         <!-- alipay -->
         <activity
@@ -170,8 +175,6 @@
             android:name=".wxapi.WXPayEntryActivity"
             android:exported="true"
             android:launchMode="singleTop" />
-        <activity android:name=".view.activity.MiCashSuccessActivity" />
-        <activity android:name=".view.activity.MiBillActivity"></activity>
     </application>
 
 </manifest>
