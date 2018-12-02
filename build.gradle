@@ -24,6 +24,8 @@ allprojects {
         maven{url'https://maven.google.com'}
         jcenter()
         maven { url "https://jitpack.io" }
+        // view 圆角
+        maven { url "http://lib.gcssloop.com:8081/repository/gcssloop-central/" }
     }
 }
 

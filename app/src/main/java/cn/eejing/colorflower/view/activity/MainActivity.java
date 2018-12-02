@@ -46,6 +46,7 @@ import cn.eejing.colorflower.view.fragment.TabCtrlFragment;
 import cn.eejing.colorflower.view.fragment.TabMallFragment;
 import cn.eejing.colorflower.view.fragment.TabMineFragment;
 import cn.eejing.colorflower.view.fragment.TabVideoFragment;
+import cn.jzvd.Jzvd;
 
 import static cn.eejing.colorflower.app.AppConstant.DEVICE_CONNECT_NO;
 import static cn.eejing.colorflower.app.AppConstant.DEVICE_CONNECT_YES;
@@ -189,6 +190,14 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     /** Tab 被重新选中 */
     @Override
     public void onTabReselected(int position) {
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (Jzvd.backPress()) {
+            return;
+        }
+        super.onBackPressed();
     }
 
     private long exitTime = 0;

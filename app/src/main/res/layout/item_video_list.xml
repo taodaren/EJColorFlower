@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
-        android:id="@+id/detail_player"
+    <com.gcssloop.widget.RCRelativeLayout
+        android:id="@+id/RCRelativeLayout"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:layout_marginStart="20dp"
@@ -13,7 +13,28 @@
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintCircleRadius="25dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:round_corner="8dp">
+
+        <cn.eejing.colorflower.view.customize.MyJzvdStd
+            android:id="@+id/detail_player"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </com.gcssloop.widget.RCRelativeLayout>
+
+    <TextView
+        android:id="@+id/tv_video_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="饺子好恶心"
+        android:textColor="@color/colorWhite"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/RCRelativeLayout"
+        app:layout_constraintEnd_toEndOf="@+id/RCRelativeLayout"
+        app:layout_constraintStart_toStartOf="@+id/RCRelativeLayout"
+        app:layout_constraintTop_toTopOf="@+id/RCRelativeLayout"
+        app:layout_constraintVertical_bias="0.9" />
 </android.support.constraint.ConstraintLayout>

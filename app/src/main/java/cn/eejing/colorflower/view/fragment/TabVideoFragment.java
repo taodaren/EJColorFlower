@@ -1,6 +1,8 @@
 package cn.eejing.colorflower.view.fragment;
 
-import android.os.Build;
+import android.opengl.GLES20;
+import android.support.v7.widget.RecyclerView;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.lzy.okgo.OkGo;
@@ -12,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import javax.microedition.khronos.opengles.GL10;
+
 import butterknife.BindView;
 import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.model.request.VideoListBean;
@@ -21,6 +25,7 @@ import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.view.activity.MainActivity;
 import cn.eejing.colorflower.view.adapter.TabVideoAdapter;
 import cn.eejing.colorflower.view.base.BaseFragment;
+import cn.jzvd.Jzvd;
 
 /**
  * 视频模块
@@ -59,18 +64,39 @@ public class TabVideoFragment extends BaseFragment {
         initRecyclerView();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        Jzvd.releaseAllVideos();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                getActivity().finish();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void initRecyclerView() {
         // 设置布局
         rvTabVideo.setLinearLayout();
         // 绑定适配器
         mAdapter = new TabVideoAdapter(getContext(), mList);
         rvTabVideo.setAdapter(mAdapter);
+        rvTabVideo.getRecyclerView().addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
+            @Override
+            public void onChildViewAttachedToWindow(View view) {
+                Jzvd.onChildViewAttachedToWindow(view, R.id.detail_player);
+            }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            rvTabVideo.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
-
-            });
-        }
+            @Override
+            public void onChildViewDetachedFromWindow(View view) {
+                Jzvd.onChildViewDetachedFromWindow(view);
+            }
+        });
 
         // 不需要上拉刷新
         rvTabVideo.setPushRefreshEnable(false);
