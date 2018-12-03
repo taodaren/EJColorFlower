@@ -16,7 +16,6 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.app.BaseApplication;
-import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.activity.MainActivity;
 import cn.eejing.colorflower.view.activity.MiAboutActivity;
 import cn.eejing.colorflower.view.activity.MiAccountActivity;

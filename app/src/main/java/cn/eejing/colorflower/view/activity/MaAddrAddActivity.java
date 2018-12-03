@@ -2,7 +2,6 @@ package cn.eejing.colorflower.view.activity;
 
 import android.annotation.SuppressLint;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -148,12 +147,6 @@ public class MaAddrAddActivity extends BaseActivity {
                                          ToastUtil.showShort(bean.getMessage());
                                          break;
                                  }
-                             }
-
-                             @Override
-                             public void onError(Response<String> response) {
-                                 super.onError(response);
-                                 LogUtil.e(TAG, "添加收货地址 onError: " + response.body());
                              }
                          }
                 );
