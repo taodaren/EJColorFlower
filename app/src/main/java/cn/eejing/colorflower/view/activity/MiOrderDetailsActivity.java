@@ -6,14 +6,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 
 import butterknife.BindView;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.OrderDetailsBean;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.ToastUtil;
@@ -42,7 +41,6 @@ public class MiOrderDetailsActivity extends BaseActivity {
 
     private static final String TAG = "MiOrderDetailsActivity";
     private String mOrderId, mType;
-    private Gson mGson;
 
     @Override
     protected int layoutViewId() {
@@ -54,7 +52,6 @@ public class MiOrderDetailsActivity extends BaseActivity {
         setToolbar("订单详情", View.VISIBLE, null, View.GONE);
         mType = getIntent().getStringExtra("type");
         mOrderId = getIntent().getStringExtra("order_id");
-        mGson = new Gson();
     }
 
     @Override
@@ -62,18 +59,22 @@ public class MiOrderDetailsActivity extends BaseActivity {
         getDataWithOrderDtl();
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithOrderDtl() {
-        OkGo.<String>post(Urls.ORDER_DETAIL)
-                .tag(this)
-                .params("order_sn", mOrderId)
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        LogUtil.d(TAG, "订单详情 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("order_sn", mOrderId);
 
-                        OrderDetailsBean bean = mGson.fromJson(body, OrderDetailsBean.class);
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.ORDER_DETAIL)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(OrderDetailsBean.class)
+                .callback(new Callback<OrderDetailsBean>() {
+                    @Override
+                    public void onSuccess(OrderDetailsBean bean, int id) {
+                        LogUtil.d(TAG, "订单详情 请求成功");
+
                         switch (bean.getCode()) {
                             case 1:
                                 setData(bean.getData());
@@ -83,7 +84,11 @@ public class MiOrderDetailsActivity extends BaseActivity {
                                 break;
                         }
                     }
-                });
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
     @SuppressLint("SetTextI18n")

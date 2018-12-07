@@ -18,10 +18,7 @@ import android.widget.TextView;
 
 import com.flyco.tablayout.SegmentTabLayout;
 import com.flyco.tablayout.listener.OnTabSelectListener;
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -37,8 +34,10 @@ import cn.eejing.colorflower.app.BaseApplication;
 import cn.eejing.colorflower.model.device.Device;
 import cn.eejing.colorflower.model.device.DeviceMaterialStatus;
 import cn.eejing.colorflower.model.event.DevConnEvent;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.model.request.MaterialInfoBean;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.OnReceivePackage;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.BleDevProtocol;
@@ -92,9 +91,7 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
     private int mPageType;
     private SelfDialog mDialogDmx;
     private SelfDialogBase mDialogBack;
-    private Gson mGson;
     private long mMemberId;
-    private String mToken;
 
     private int mDMXAddress;
     private int mTemperature;
@@ -120,9 +117,6 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
         setToolbar("设备配置", View.VISIBLE, null, View.GONE);
 
         mMemberId = MySettings.getLoginInfo(this).getUserId();
-        mToken = MySettings.getLoginInfo(this).getToken();
-        mGson = new Gson();
-
         mDevId = getIntent().getLongExtra(QR_DEV_ID, 0);
         mDevMac = getIntent().getStringExtra(QR_DEV_MAC);
         Log.i(TAG, "设备信息: " + mDevId + " " + mDevMac);
@@ -236,17 +230,22 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
         );
     }
 
+    @SuppressWarnings("unchecked")
     private void byServerMaterialInfo_D(final long materialId) {
-        OkGo.<String>post(Urls.GET_MATERIAL_INFO)
-                .params("material_id", materialId)
-                .params("token", mToken)
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        Log.d(TAG, "获取料包信息 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("material_id", materialId);
 
-                        MaterialInfoBean bean = mGson.fromJson(body, MaterialInfoBean.class);
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.GET_MATERIAL_INFO)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(MaterialInfoBean.class)
+                .callback(new Callback<MaterialInfoBean>() {
+                    @Override
+                    public void onSuccess(MaterialInfoBean bean, int id) {
+                        Log.d(TAG, "获取料包信息 请求成功");
+
                         final int addTime = Integer.parseInt(bean.getData().getDuration());
 
                         switch (bean.getCode()) {
@@ -279,23 +278,30 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                                 ToastUtil.showShort(bean.getMessage());
                                 break;
                         }
-
                     }
-                });
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
+    @SuppressWarnings("unchecked")
     private void byServerMaterialInfo_E(final long deviceMID) {
         LogUtil.i(JL, "byServerMaterialInfo_E: " + mDevId + " " + deviceMID + " " + mMemberId);
-        OkGo.<String>post(Urls.GET_MATERIAL_INFO)
-                .params("material_id", deviceMID)
-                .params("token", mToken)
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        LogUtil.d(TAG, "获取料包信息 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("material_id", deviceMID);
 
-                        MaterialInfoBean bean = mGson.fromJson(body, MaterialInfoBean.class);
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.GET_MATERIAL_INFO)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(MaterialInfoBean.class)
+                .callback(new Callback<MaterialInfoBean>() {
+                    @Override
+                    public void onSuccess(MaterialInfoBean bean, int id) {
+                        Log.d(TAG, "获取料包信息 请求成功");
 
                         switch (bean.getCode()) {
                             case 1:
@@ -327,20 +333,29 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                                 break;
                         }
                     }
-                });
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
+    @SuppressWarnings("unchecked")
     private void byServerEndUseStatus_E(final long deviceMId, final long serverMId) {
-        OkGo.<String>post(Urls.END_USE_STATUS)
-                .params("material_id", deviceMId)
-                .params("token", mToken)
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        LogUtil.d(TAG, "修改为已使用状态 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("material_id", deviceMId);
 
-                        CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.END_USE_STATUS)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(CodeMsgBean.class)
+                .callback(new Callback<CodeMsgBean>() {
+                    @Override
+                    public void onSuccess(CodeMsgBean bean, int id) {
+                        LogUtil.d(TAG, "修改为已使用状态 请求成功");
+
                         switch (bean.getCode()) {
                             case 1:
                                 // 状态修改成功
@@ -354,7 +369,11 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                                 break;
                         }
                     }
-                });
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
     private void cmdClearAddMaterialInfo_E(final long deviceMId, final long serverMId, final int resendNum) {
@@ -395,17 +414,21 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
         );
     }
 
+    @SuppressWarnings("unchecked")
     private void byServerWaitUseStatus(final long materialId, final int addTime) {
-        OkGo.<String>post(Urls.WAIT_USE_STATUS)
-                .params("material_id", materialId)
-                .params("token", mToken)
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        LogUtil.d(TAG, "修改为待使用状态 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("material_id", materialId);
 
-                        CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.WAIT_USE_STATUS)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(CodeMsgBean.class)
+                .callback(new Callback<CodeMsgBean>() {
+                    @Override
+                    public void onSuccess(CodeMsgBean bean, int id) {
+                        LogUtil.d(TAG, "修改为待使用状态 请求成功");
 
                         switch (bean.getCode()) {
                             case 1:
@@ -418,7 +441,11 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                                 break;
                         }
                     }
-                });
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
     private void cmdGetTimestamps(final long materialId, final int addTime, final int resendNum) {
@@ -483,17 +510,22 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
         );
     }
 
+    @SuppressWarnings("unchecked")
     private void byServerEndUseStatus_D(final long materialId) {
-        OkGo.<String>post(Urls.END_USE_STATUS)
-                .params("material_id", materialId)
-                .params("token", mToken)
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        LogUtil.d(TAG, "修改为已使用状态 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("material_id", materialId);
 
-                        CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.END_USE_STATUS)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(CodeMsgBean.class)
+                .callback(new Callback<CodeMsgBean>() {
+                    @Override
+                    public void onSuccess(CodeMsgBean bean, int id) {
+                        LogUtil.d(TAG, "修改为已使用状态 请求成功");
+
                         switch (bean.getCode()) {
                             case 1:
                                 // 状态修改成功
@@ -508,7 +540,11 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                                 break;
                         }
                     }
-                });
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
     private void cmdClearAddMaterialInfo_D(final long materialId, final int resendNum) {

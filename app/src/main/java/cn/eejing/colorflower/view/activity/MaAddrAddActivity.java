@@ -7,10 +7,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.allen.library.SuperTextView;
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -21,7 +18,9 @@ import butterknife.OnClick;
 import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.model.event.AddrAddEvent;
 import cn.eejing.colorflower.model.event.AddrSelectEvent;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.CodeMsgBean;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.ToastUtil;
@@ -41,7 +40,6 @@ public class MaAddrAddActivity extends BaseActivity {
     @BindView(R.id.stv_address_add_def)           SuperTextView stvSwitch;
 
     private int mFlag;
-    private Gson mGson;
     private String mAddress, mProvinceId, mCityId, mDistrictId;
 
     @Override
@@ -52,8 +50,6 @@ public class MaAddrAddActivity extends BaseActivity {
     @Override
     public void initView() {
         EventBus.getDefault().register(this);
-        mGson = new Gson();
-
         setToolbar("添加收货地址", View.VISIBLE, null, View.GONE);
     }
 
@@ -119,37 +115,44 @@ public class MaAddrAddActivity extends BaseActivity {
         getDataWithAddressAdd();
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithAddressAdd() {
-        OkGo.<String>post(Urls.CREATE_ADDRESS)
-                .tag(this)
-                .params("consignee", etConsignee.getText().toString())
-                .params("province", mProvinceId)
-                .params("city", mCityId)
-                .params("district", mDistrictId)
-                .params("address", mAddress)
-                .params("mobile", etPhone.getText().toString())
-                .params("is_default", mFlag)
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .execute(new StringCallback() {
-                             @Override
-                             public void onSuccess(Response<String> response) {
-                                 String body = response.body();
-                                 LogUtil.d(TAG, "添加收货地址 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("consignee", etConsignee.getText().toString());
+        params.put("province", mProvinceId);
+        params.put("city", mCityId);
+        params.put("district", mDistrictId);
+        params.put("address", mAddress);
+        params.put("mobile", etPhone.getText().toString());
+        params.put("is_default", mFlag);
 
-                                 CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
-                                 switch (bean.getCode()) {
-                                     case 1:
-                                         ToastUtil.showShort("地址添加成功");
-                                         EventBus.getDefault().post(new AddrAddEvent("add_ok"));
-                                         finish();
-                                         break;
-                                     default:
-                                         ToastUtil.showShort(bean.getMessage());
-                                         break;
-                                 }
-                             }
-                         }
-                );
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.CREATE_ADDRESS)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(CodeMsgBean.class)
+                .callback(new Callback<CodeMsgBean>() {
+                    @Override
+                    public void onSuccess(CodeMsgBean bean, int id) {
+                        LogUtil.d(TAG, "添加收货地址 请求成功");
+
+                        switch (bean.getCode()) {
+                            case 1:
+                                ToastUtil.showShort("地址添加成功");
+                                EventBus.getDefault().post(new AddrAddEvent("add_ok"));
+                                finish();
+                                break;
+                            default:
+                                ToastUtil.showShort(bean.getMessage());
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
     @Override

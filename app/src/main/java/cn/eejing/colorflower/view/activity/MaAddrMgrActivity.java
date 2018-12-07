@@ -6,10 +6,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
 
 import org.greenrobot.eventbus.EventBus;
@@ -24,8 +21,10 @@ import butterknife.OnClick;
 import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.app.BaseApplication;
 import cn.eejing.colorflower.model.event.AddrAddEvent;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.AddrListBean;
 import cn.eejing.colorflower.model.request.CodeMsgBean;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.SelfDialogBase;
@@ -47,7 +46,6 @@ public class MaAddrMgrActivity extends BaseActivity {
     @BindView(R.id.rv_shipping_address)         PullLoadMoreRecyclerView rvAddress;
     @BindView(R.id.ll_shipping_address)         LinearLayout nullAddress;
 
-    private Gson mGson;
     private List<AddrListBean.DataBean> mList;
     private AddrManageAdapter mAdapter;
 
@@ -60,7 +58,6 @@ public class MaAddrMgrActivity extends BaseActivity {
     public void initView() {
         setToolbar("管理收货地址", View.VISIBLE, null, View.GONE);
         mList = new ArrayList<>();
-        mGson = new Gson();
         initRecyclerView();
         EventBus.getDefault().register(this);
     }
@@ -166,70 +163,78 @@ public class MaAddrMgrActivity extends BaseActivity {
         rvAddress.setPullLoadMoreCompleted();
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithAddressList() {
-        OkGo.<String>post(Urls.ADDRESS_LIST)
-                .tag(this)
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .execute(new StringCallback() {
-                             @Override
-                             public void onSuccess(Response<String> response) {
-                                 String body = response.body();
-                                 LogUtil.d(TAG, "收货地址列表 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
 
-                                 AddrListBean bean = mGson.fromJson(body, AddrListBean.class);
-                                 switch (bean.getCode()) {
-                                     case 1:
-                                         nullAddress.setVisibility(View.GONE);
-                                         rvAddress.setVisibility(View.VISIBLE);
-                                         mList = bean.getData();
-                                         // 刷新数据
-                                         mAdapter.refreshList(mList);
-                                         // 刷新结束
-                                         rvAddress.setPullLoadMoreCompleted();
-                                         break;
-                                     case 0:
-                                         // 该会员暂无地址
-                                         nullAddress.setVisibility(View.VISIBLE);
-                                         rvAddress.setVisibility(View.GONE);
-                                         // 刷新结束
-                                         rvAddress.setPullLoadMoreCompleted();
-                                     default:
-                                         break;
-                                 }
-                             }
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.ADDRESS_LIST)
+                .method(OkGoBuilder.POST)
+                .params(new HttpParams())
+                .cls(AddrListBean.class)
+                .callback(new Callback<AddrListBean>() {
+                    @Override
+                    public void onSuccess(AddrListBean bean, int id) {
+                        LogUtil.d(TAG, "收货地址列表 请求成功");
 
-                             @Override
-                             public void onError(Response<String> response) {
-                                 super.onError(response);
-                             }
-                         }
-                );
+                        switch (bean.getCode()) {
+                            case 1:
+                                nullAddress.setVisibility(View.GONE);
+                                rvAddress.setVisibility(View.VISIBLE);
+                                mList = bean.getData();
+                                // 刷新数据
+                                mAdapter.refreshList(mList);
+                                // 刷新结束
+                                rvAddress.setPullLoadMoreCompleted();
+                                break;
+                            case 0:
+                                // 该会员暂无地址
+                                nullAddress.setVisibility(View.VISIBLE);
+                                rvAddress.setVisibility(View.GONE);
+                                // 刷新结束
+                                rvAddress.setPullLoadMoreCompleted();
+                            default:
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithAddressDel(final int position) {
-        OkGo.<String>post(Urls.DEL_ADDRESS)
-                .tag(this)
-                .params("address_id", mList.get(position).getId())
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .execute(new StringCallback() {
-                             @Override
-                             public void onSuccess(Response<String> response) {
-                                 String body = response.body();
-                                 LogUtil.d(TAG, "删除收货地址 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("address_id", mList.get(position).getId());
 
-                                 CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
-                                 switch (bean.getCode()) {
-                                     case 1:
-                                         mList.remove(position);
-                                         mAdapter.notifyDataSetChanged();
-                                         getDataWithAddressList();
-                                         break;
-                                     default:
-                                         break;
-                                 }
-                             }
-                         }
-                );
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.DEL_ADDRESS)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(CodeMsgBean.class)
+                .callback(new Callback<CodeMsgBean>() {
+                    @Override
+                    public void onSuccess(CodeMsgBean bean, int id) {
+                        LogUtil.d(TAG, "删除收货地址 请求成功");
+
+                        switch (bean.getCode()) {
+                            case 1:
+                                mList.remove(position);
+                                mAdapter.notifyDataSetChanged();
+                                getDataWithAddressList();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
     private SelfDialogBase mDialogDel;

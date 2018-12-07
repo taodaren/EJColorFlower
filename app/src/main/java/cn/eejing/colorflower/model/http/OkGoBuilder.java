@@ -20,6 +20,8 @@ import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.MySettings;
 import cn.eejing.colorflower.view.activity.MainActivity;
 
+import static cn.eejing.colorflower.app.AppConstant.NO_TOKEN;
+
 /**
  * OkGgo 帮助类-建造者模式
  */
@@ -101,7 +103,9 @@ public class OkGoBuilder<T> {
 
     /** post 请求 */
     private void postRequest() {
-        mParams.put("token", mToken);
+        if (!mToken.equals(NO_TOKEN)) {
+            mParams.put("token", mToken);
+        }
 
         OkGo.<T>post(mUrl)                       // 请求方式和请求 url
                 .params(mParams)                 // 请求参数
@@ -113,21 +117,26 @@ public class OkGoBuilder<T> {
                     public void onSuccess(Response<T> response) {
                         String json = new Gson().toJson(response.body());
                         BaseBean bean = new Gson().fromJson(json, BaseBean.class);
-                        switch (bean.getCode()) {
-                            case 21:// Token 已更新，重新请求接口
-                                mParams.remove("token");
-                                TokenBean tokenBean = new Gson().fromJson(json, TokenBean.class);
-                                mToken = tokenBean.getData().getToken();
-                                MySettings.updateToken(mActivity, new LoginSession(mToken));
-                                postRequest();
-                                break;
-                            case 20:// Token 不存在
-                            case 22:// Token 已过期
-                                EventBus.getDefault().post(new JumpLoginEvent("跳转到登陆界面"));
-                                break;
-                            default:
-                                mCallback.onSuccess(response.body(), 1);
-                                break;
+                        if (!mToken.equals(NO_TOKEN)) {
+                            switch (bean.getCode()) {
+                                case 21:// Token 已更新，重新请求接口
+                                    mParams.remove("token");
+                                    TokenBean tokenBean = new Gson().fromJson(json, TokenBean.class);
+                                    mToken = tokenBean.getData().getToken();
+                                    MySettings.updateToken(mActivity, new LoginSession(mToken));
+                                    postRequest();
+                                    break;
+                                case 20:// Token 不存在
+                                case 22:// Token 已过期
+                                    EventBus.getDefault().post(new JumpLoginEvent("跳转到登陆界面"));
+                                    break;
+                                default:
+                                    mCallback.onSuccess(response.body(), 1);
+                                    break;
+                            }
+                        } else {
+                            // 如果传入的参数中不需传Token，走此路
+                            mCallback.onSuccess(response.body(), 1);
                         }
                     }
 

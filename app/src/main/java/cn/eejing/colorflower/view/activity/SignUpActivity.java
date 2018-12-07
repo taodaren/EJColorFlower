@@ -8,20 +8,22 @@ import android.widget.EditText;
 
 import com.allen.library.SuperButton;
 import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.CodeMsgBean;
+import cn.eejing.colorflower.model.request.QueryDevMacBean;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.Encryption;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.base.BaseActivity;
 
+import static cn.eejing.colorflower.app.AppConstant.NO_TOKEN;
 import static cn.eejing.colorflower.app.AppConstant.SEND_MSG_FLAG_REGISTER;
 
 /**
@@ -122,23 +124,27 @@ public class SignUpActivity extends BaseActivity {
         return "验证通过";
     }
 
+    @SuppressWarnings("unchecked")
     private void getDateWithSendMsg() {
         try {
             String encryptPhone = Encryption.encrypt(mPhone.getText().toString(), mIv);
 
-            OkGo.<String>post(Urls.SEND_MSG)
-                    .tag(this)
-                    .params("mobile", encryptPhone)
-                    .params("iv", mIv)
-                    .params("flag", SEND_MSG_FLAG_REGISTER)
-                    .execute(new StringCallback() {
-                        @Override
-                        public void onSuccess(Response<String> response) {
-                            String body = response.body();
-                            LogUtil.d(TAG, "发送短信 请求成功: " + body);
+            OkGoBuilder.getInstance().setToken(NO_TOKEN);
+            HttpParams params = new HttpParams();
+            params.put("mobile", encryptPhone);
+            params.put("iv", mIv);
+            params.put("flag", SEND_MSG_FLAG_REGISTER);
 
-                            mGson = new Gson();
-                            CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
+            OkGoBuilder.getInstance().Builder(this)
+                    .url(Urls.SEND_MSG)
+                    .method(OkGoBuilder.POST)
+                    .params(params)
+                    .cls(CodeMsgBean.class)
+                    .callback(new Callback<CodeMsgBean>() {
+                        @Override
+                        public void onSuccess(CodeMsgBean bean, int id) {
+                            LogUtil.d(TAG, "发送短信 请求成功");
+
                             switch (bean.getCode()) {
                                 case 1:
                                     ToastUtil.showShort("验证码发送成功");
@@ -148,30 +154,37 @@ public class SignUpActivity extends BaseActivity {
                                     break;
                             }
                         }
-                    });
+
+                        @Override
+                        public void onError(Throwable e, int id) {
+                        }
+                    }).build();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void getDateWithRegister(final ProgressDialog dialog) {
         try {
             String encryptSetPwd = Encryption.encrypt(mSetPwd.getText().toString(), mIv);
 
-            OkGo.<String>post(Urls.REGISTER)
-                    .tag(this)
-                    .params("mobile", mPhone.getText().toString())
-                    .params("code", mVerifyCode.getText().toString())
-                    .params("password", encryptSetPwd)
-                    .params("iv", mIv)
-                    .execute(new StringCallback() {
-                        @Override
-                        public void onSuccess(Response<String> response) {
-                            String body = response.body();
-                            LogUtil.d(TAG, "普通用户注册 请求成功: " + body);
+            OkGoBuilder.getInstance().setToken(NO_TOKEN);
+            HttpParams params = new HttpParams();
+            params.put("mobile", mPhone.getText().toString());
+            params.put("code", mVerifyCode.getText().toString());
+            params.put("password", encryptSetPwd);
+            params.put("iv", mIv);
 
-                            mGson = new Gson();
-                            CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
+            OkGoBuilder.getInstance().Builder(this)
+                    .url(Urls.REGISTER)
+                    .method(OkGoBuilder.POST)
+                    .params(params)
+                    .cls(QueryDevMacBean.class)
+                    .callback(new Callback<QueryDevMacBean>() {
+                        @Override
+                        public void onSuccess(QueryDevMacBean bean, int id) {
+                            LogUtil.d(TAG, "普通用户注册 请求成功");
 
                             switch (bean.getCode()) {
                                 case 1:
@@ -188,9 +201,12 @@ public class SignUpActivity extends BaseActivity {
                             }
                             btnRegister.setEnabled(true);
                             dialog.dismiss();
-
                         }
-                    });
+
+                        @Override
+                        public void onError(Throwable e, int id) {
+                        }
+                    }).build();
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -1,7 +1,7 @@
 package cn.eejing.colorflower.view.adapter;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,10 +13,7 @@ import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +22,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.AddrListBean;
 import cn.eejing.colorflower.model.request.CodeMsgBean;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.view.activity.MaAddrModifyActivity;
@@ -38,10 +37,9 @@ import cn.eejing.colorflower.view.activity.MainActivity;
 
 public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final String TAG = "AddrManageAdapter";
-    private Context mContext;
+    private Activity mContext;
     private LayoutInflater mInflater;
     private List<AddrListBean.DataBean> mList;
-    private Gson mGson;
     private int lastSelectedPosition;
 
     private View.OnClickListener mOnClickListener;
@@ -50,12 +48,11 @@ public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         this.mOnClickListener = onClickListener;
     }
 
-    public AddrManageAdapter(Context context, List<AddrListBean.DataBean> list) {
+    public AddrManageAdapter(Activity context, List<AddrListBean.DataBean> list) {
         this.mContext = context;
         this.mInflater = LayoutInflater.from(context);
         this.mList = new ArrayList<>();
         this.mList.addAll(list);
-        this.mGson = new Gson();
     }
 
     @NonNull
@@ -140,35 +137,42 @@ public class AddrManageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithAddressDef(final int position) {
-        OkGo.<String>post(Urls.SET_DEF_ADDRESS)
-                .tag(this)
-                .params("address_id", mList.get(position).getId())
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .execute(new StringCallback() {
-                             @Override
-                             public void onSuccess(Response<String> response) {
-                                 String body = response.body();
-                                 LogUtil.d(TAG, "设置默认地址 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("address_id", mList.get(position).getId());
 
-                                 CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
-                                 switch (bean.getCode()) {
-                                     case 1:
-                                         // 如果最后选中 position 与当前不一致，执行下列操作（解决点击已选中状态问题）
-                                         if (lastSelectedPosition != position) {
-                                             // 设置选中
-                                             mList.get(position).setIs_default("1");
-                                             // 设置取消选中
-                                             mList.get(lastSelectedPosition).setIs_default("0");
-                                             notifyDataSetChanged();
-                                         }
-                                         break;
-                                     default:
-                                         break;
-                                 }
-                             }
-                         }
-                );
+        OkGoBuilder.getInstance().Builder(mContext)
+                .url(Urls.SET_DEF_ADDRESS)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(CodeMsgBean.class)
+                .callback(new Callback<CodeMsgBean>() {
+                    @Override
+                    public void onSuccess(CodeMsgBean bean, int id) {
+                        LogUtil.d(TAG, "设置默认地址 请求成功");
+
+                        switch (bean.getCode()) {
+                            case 1:
+                                // 如果最后选中 position 与当前不一致，执行下列操作（解决点击已选中状态问题）
+                                if (lastSelectedPosition != position) {
+                                    // 设置选中
+                                    mList.get(position).setIs_default("1");
+                                    // 设置取消选中
+                                    mList.get(lastSelectedPosition).setIs_default("0");
+                                    notifyDataSetChanged();
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
 }

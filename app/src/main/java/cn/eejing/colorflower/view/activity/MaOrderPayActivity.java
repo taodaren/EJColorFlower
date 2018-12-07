@@ -11,10 +11,7 @@ import android.widget.TextView;
 
 import com.alipay.sdk.app.PayTask;
 import com.allen.library.SuperButton;
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 import com.tencent.mm.opensdk.modelpay.PayReq;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
@@ -24,8 +21,11 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
+import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.model.request.PayAliBean;
 import cn.eejing.colorflower.model.request.PayWeiBean;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.PayResult;
@@ -51,7 +51,6 @@ public class MaOrderPayActivity extends BaseActivity {
     @BindView(R.id.img_pay_wei_xin)        ImageView imgPayWx;
 
     private static final int SDK_PAY_FLAG = 1;
-    private Gson mGson;
     private String mOrderNo;
     private double mTotalPrice;
     private int mPayFlag = 1;
@@ -88,7 +87,6 @@ public class MaOrderPayActivity extends BaseActivity {
         mInstance = this;
         setToolbar("订单支付", View.VISIBLE, null, View.GONE);
 
-        mGson = new Gson();
         mOrderNo = getIntent().getStringExtra("order_no");
         mTotalPrice = getIntent().getDoubleExtra("total_price", 0);
         tvPayMoney.setText(getString(R.string.rmb) + mTotalPrice);
@@ -165,84 +163,108 @@ public class MaOrderPayActivity extends BaseActivity {
         wxApi.sendReq(request);
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithPayAli() {
-        OkGo.<String>post(Urls.A_LI_PAY)
-                .tag(this)
-                .params("trade_no", mOrderNo)
-                .params("total_price", mTotalPrice)
-                .params("subject", "商品购买")
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .execute(new StringCallback() {
-                             @Override
-                             public void onSuccess(Response<String> response) {
-                                 String body = response.body();
-                                 LogUtil.d(TAG, "支付宝支付 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("trade_no", mOrderNo);
+        params.put("total_price", mTotalPrice);
+        params.put("subject", "商品购买");
 
-                                 if (mGson.fromJson(body, PayAliBean.class).getCode() == 1) {
-                                     callAliPay(mGson.fromJson(body, PayAliBean.class).getData().getOrderString());
-                                 }
-                             }
-                         }
-                );
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.A_LI_PAY)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(PayAliBean.class)
+                .callback(new Callback<PayAliBean>() {
+                    @Override
+                    public void onSuccess(PayAliBean bean, int id) {
+                        LogUtil.d(TAG, "支付宝支付 请求成功");
+
+                        if (bean.getCode() == 1) {
+                            callAliPay(bean.getData().getOrderString());
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithPayWei() {
-        OkGo.<String>post(Urls.WE_CHAT_PAY)
-                .tag(this)
-                .params("trade_no", mOrderNo)
-                .params("total_price", mTotalPrice)
-                .params("subject", "商品购买")
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .execute(new StringCallback() {
-                             @Override
-                             public void onSuccess(Response<String> response) {
-                                 String body = response.body();
-                                 LogUtil.d(TAG, "微信支付 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("trade_no", mOrderNo);
+        params.put("total_price", mTotalPrice);
+        params.put("subject", "商品购买");
 
-                                 if (mGson.fromJson(body, PayWeiBean.class).getCode() == 1) {
-                                     sendPayRequest(mGson.fromJson(body, PayWeiBean.class).getData());
-                                 }
-                             }
-                         }
-                );
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.WE_CHAT_PAY)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(PayWeiBean.class)
+                .callback(new Callback<PayWeiBean>() {
+                    @Override
+                    public void onSuccess(PayWeiBean bean, int id) {
+                        LogUtil.d(TAG, "微信支付 请求成功");
+
+                        if (bean.getCode() == 1) {
+                            sendPayRequest(bean.getData());
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
+    @SuppressWarnings("unchecked")
     public void getDataWithCallBackConfirm(String type, PayResult result) {
-        OkGo.<String>post(Urls.CALL_BACK_CONFIRM)
-                .tag(this)
-                .params("order_sn", mOrderNo)
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .execute(new StringCallback() {
-                             @Override
-                             public void onSuccess(Response<String> response) {
-                                 String body = response.body();
-                                 LogUtil.d(TAG, "商品订单支付结果确认 请求成功: " + body);
-                                 switch (type) {
-                                     case PAY_ALI:
-                                         int resultStatus = Integer.parseInt(result.getResultStatus());
-                                         switch (resultStatus) {
-                                             case 9000:
-                                                 // 订单支付成功
-                                                 ToastUtil.showShort("支付宝支付成功");
-                                                 jumpToActivity(MainActivity.class);
-                                                 break;
-                                             case 8000:
-                                                 // 正在处理中，支付结果未知（有可能已经支付成功），请查询商户订单列表中订单的支付状态
-                                                 ToastUtil.showShort("支付结果确认中");
-                                                 break;
-                                             default:
-                                                 // 其他值就可以判断为支付失败，包括用户主动取消支付，或者系统返回的错误
-                                                 ToastUtil.showShort("支付失败");
-                                                 break;
-                                         }
-                                         break;
-                                     case PAY_WX:
-                                         startActivity(new Intent(MaOrderPayActivity.this, MainActivity.class));
-                                         ToastUtil.showShort("微信支付成功");
-                                         break;
-                                 }
-                             }
-                         }
-                );
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("order_sn", mOrderNo);
+
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.CALL_BACK_CONFIRM)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(CodeMsgBean.class)
+                .callback(new Callback<CodeMsgBean>() {
+                    @Override
+                    public void onSuccess(CodeMsgBean bean, int id) {
+                        LogUtil.d(TAG, "商品订单支付结果确认 请求成功");
+                        switch (type) {
+                            case PAY_ALI:
+                                int resultStatus = Integer.parseInt(result.getResultStatus());
+                                switch (resultStatus) {
+                                    case 9000:
+                                        // 订单支付成功
+                                        ToastUtil.showShort("支付宝支付成功");
+                                        jumpToActivity(MainActivity.class);
+                                        break;
+                                    case 8000:
+                                        // 正在处理中，支付结果未知（有可能已经支付成功），请查询商户订单列表中订单的支付状态
+                                        ToastUtil.showShort("支付结果确认中");
+                                        break;
+                                    default:
+                                        // 其他值就可以判断为支付失败，包括用户主动取消支付，或者系统返回的错误
+                                        ToastUtil.showShort("支付失败");
+                                        break;
+                                }
+                                break;
+                            case PAY_WX:
+                                startActivity(new Intent(MaOrderPayActivity.this, MainActivity.class));
+                                ToastUtil.showShort("微信支付成功");
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 }

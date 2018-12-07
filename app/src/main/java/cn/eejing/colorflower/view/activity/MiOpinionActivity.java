@@ -9,15 +9,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.CodeMsgBean;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.ToastUtil;
@@ -79,19 +78,22 @@ public class MiOpinionActivity extends BaseActivity {
         getDataWithFeedBack();
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithFeedBack() {
-        OkGo.<String>post(Urls.FEED_BACK)
-                .tag(this)
-                .params("content", edContent.getText().toString())
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        LogUtil.d(TAG, "意见反馈 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("content", edContent.getText().toString());
 
-                        Gson gson = new Gson();
-                        CodeMsgBean bean = gson.fromJson(body, CodeMsgBean.class);
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.FEED_BACK)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(CodeMsgBean.class)
+                .callback(new Callback<CodeMsgBean>() {
+                    @Override
+                    public void onSuccess(CodeMsgBean bean, int id) {
+                        LogUtil.d(TAG, "意见反馈 请求成功");
+
                         switch (bean.getCode()) {
                             case 1:
                                 finish();
@@ -102,6 +104,10 @@ public class MiOpinionActivity extends BaseActivity {
                                 break;
                         }
                     }
-                });
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 }

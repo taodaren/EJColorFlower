@@ -6,10 +6,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -19,8 +16,10 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.model.event.AddrAddEvent;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.AddrListBean;
 import cn.eejing.colorflower.model.request.CodeMsgBean;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.ToastUtil;
@@ -38,7 +37,6 @@ public class MaAddrModifyActivity extends BaseActivity {
     @BindView(R.id.et_addr_modify_address)          EditText etAddress;
     @BindView(R.id.tv_addr_modify_address)          TextView tvAddress;
 
-    private Gson mGson;
     private String mAddress;
     private int mAddressId;
 
@@ -51,7 +49,6 @@ public class MaAddrModifyActivity extends BaseActivity {
     public void initView() {
         EventBus.getDefault().register(this);
         setToolbar("修改收货地址", View.VISIBLE, null, View.GONE);
-        mGson = new Gson();
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -97,37 +94,44 @@ public class MaAddrModifyActivity extends BaseActivity {
         jumpToActivity(MaAddrProvinceActivity.class);
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithAddrUpdate() {
-        OkGo.<String>post(Urls.EDIT_ADDRESS)
-                .tag(this)
-                .params("consignee", etConsignee.getText().toString())
-                .params("province", "")
-                .params("city", "")
-                .params("district", "")
-                .params("address", mAddress.trim())
-                .params("mobile", etPhone.getText().toString())
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .params("address_id", mAddressId)
-                .execute(new StringCallback() {
-                             @Override
-                             public void onSuccess(Response<String> response) {
-                                 String body = response.body();
-                                 LogUtil.d(TAG, "修改收货地址 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("consignee", etConsignee.getText().toString());
+        params.put("province", "");
+        params.put("city", "");
+        params.put("district", "");
+        params.put("address", mAddress.trim());
+        params.put("mobile", etPhone.getText().toString());
+        params.put("address_id", mAddressId);
 
-                                 CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
-                                 switch (bean.getCode()) {
-                                     case 1:
-                                         ToastUtil.showShort("地址更改成功");
-                                         EventBus.getDefault().post(new AddrAddEvent("add_ok"));
-                                         finish();
-                                         break;
-                                     default:
-                                         ToastUtil.showShort(bean.getMessage());
-                                         break;
-                                 }
-                             }
-                         }
-                );
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.EDIT_ADDRESS)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(CodeMsgBean.class)
+                .callback(new Callback<CodeMsgBean>() {
+                    @Override
+                    public void onSuccess(CodeMsgBean bean, int id) {
+                        LogUtil.d(TAG, "修改收货地址 请求成功");
+
+                        switch (bean.getCode()) {
+                            case 1:
+                                ToastUtil.showShort("地址更改成功");
+                                EventBus.getDefault().post(new AddrAddEvent("add_ok"));
+                                finish();
+                                break;
+                            default:
+                                ToastUtil.showShort(bean.getMessage());
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
     @Override

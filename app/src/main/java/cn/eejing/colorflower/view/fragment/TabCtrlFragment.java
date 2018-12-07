@@ -54,7 +54,7 @@ public class TabCtrlFragment extends BaseFragment implements EasyPermissions.Per
 
     @Override
     public void initView(View rootView) {
-        EventBus.getDefault().register(this);
+//        EventBus.getDefault().register(this);
         mApp = (BaseApplication) getContext().getApplicationContext();
     }
 
@@ -120,7 +120,7 @@ public class TabCtrlFragment extends BaseFragment implements EasyPermissions.Per
     @Override
     public void onDestroy() {
         super.onDestroy();
-        EventBus.getDefault().unregister(this);
+//        EventBus.getDefault().unregister(this);
     }
 
     @Override

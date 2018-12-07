@@ -3,16 +3,15 @@ package cn.eejing.colorflower.view.activity;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.model.request.UpgradeVipBean;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.ClearableEditText;
 import cn.eejing.colorflower.util.LogUtil;
@@ -72,18 +71,20 @@ public class MiUpgradeVipActivity extends BaseActivity {
         mDialog.show();
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithUpgradeVIP() {
-        OkGo.<String>post(Urls.TO_UPGRADE_VIP)
-                .tag(this)
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        LogUtil.d(TAG, "进入升级 VIP 页面 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
 
-                        Gson gson = new Gson();
-                        UpgradeVipBean bean = gson.fromJson(body, UpgradeVipBean.class);
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.TO_UPGRADE_VIP)
+                .method(OkGoBuilder.POST)
+                .params(new HttpParams())
+                .cls(UpgradeVipBean.class)
+                .callback(new Callback<UpgradeVipBean>() {
+                    @Override
+                    public void onSuccess(UpgradeVipBean bean, int id) {
+                        LogUtil.d(TAG, "进入升级 VIP 页面 请求成功");
+
                         switch (bean.getCode()) {
                             case 1:
                                 // TODO: 展示升级条件和VIP权益，目前写死了
@@ -93,22 +94,29 @@ public class MiUpgradeVipActivity extends BaseActivity {
                                 break;
                         }
                     }
-                });
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithToBeVip() {
-        OkGo.<String>post(Urls.TO_BE_VIP)
-                .tag(this)
-                .params("mobile", mPhone)
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        LogUtil.d(TAG, "升级为 VIP 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("mobile", mPhone);
 
-                        Gson gson = new Gson();
-                        CodeMsgBean bean = gson.fromJson(body, CodeMsgBean.class);
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.TO_BE_VIP)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(CodeMsgBean.class)
+                .callback(new Callback<CodeMsgBean>() {
+                    @Override
+                    public void onSuccess(CodeMsgBean bean, int id) {
+                        LogUtil.d(TAG, "升级为 VIP 请求成功 请求成功");
+
                         switch (bean.getCode()) {
                             case 1:
                                 MainActivity.getAppCtrl().setLevel(LEVEL_VIP_USER);
@@ -120,6 +128,10 @@ public class MiUpgradeVipActivity extends BaseActivity {
                                 break;
                         }
                     }
-                });
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 }

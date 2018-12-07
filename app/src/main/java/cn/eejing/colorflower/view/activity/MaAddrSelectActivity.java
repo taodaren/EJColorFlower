@@ -3,10 +3,7 @@ package cn.eejing.colorflower.view.activity;
 import android.view.View;
 import android.widget.LinearLayout;
 
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
 
 import org.greenrobot.eventbus.EventBus;
@@ -21,7 +18,9 @@ import butterknife.OnClick;
 import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.app.BaseApplication;
 import cn.eejing.colorflower.model.event.AddrAddEvent;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.AddrListBean;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.view.adapter.AddrSelectAdapter;
@@ -39,7 +38,6 @@ public class MaAddrSelectActivity extends BaseActivity {
     @BindView(R.id.rv_shipping_address)    PullLoadMoreRecyclerView rvAddress;
     @BindView(R.id.ll_shipping_address)    LinearLayout nullAddress;
 
-    private Gson mGson;
     private List<AddrListBean.DataBean> mList;
     private AddrSelectAdapter mAdapter;
 
@@ -52,10 +50,7 @@ public class MaAddrSelectActivity extends BaseActivity {
     public void initView() {
         EventBus.getDefault().register(this);
         setToolbar("选择收货地址", View.VISIBLE, "管理", View.VISIBLE);
-
         mList = new ArrayList<>();
-        mGson = new Gson();
-
         initRecyclerView();
     }
 
@@ -104,37 +99,43 @@ public class MaAddrSelectActivity extends BaseActivity {
         rvAddress.setPullLoadMoreCompleted();
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithAddressList() {
-        OkGo.<String>post(Urls.ADDRESS_LIST)
-                .tag(this)
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .execute(new StringCallback() {
-                             @Override
-                             public void onSuccess(Response<String> response) {
-                                 String body = response.body();
-                                 LogUtil.d(TAG, "收货地址列表 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
 
-                                 AddrListBean bean = mGson.fromJson(body, AddrListBean.class);
-                                 switch (bean.getCode()) {
-                                     case 1:
-                                         nullAddress.setVisibility(View.GONE);
-                                         rvAddress.setVisibility(View.VISIBLE);
-                                         mList = bean.getData();
-                                         // 刷新数据
-                                         mAdapter.refreshList(mList);
-                                         // 刷新结束
-                                         rvAddress.setPullLoadMoreCompleted();
-                                         break;
-                                     case 0:
-                                         // 该会员暂无地址
-                                         nullAddress.setVisibility(View.VISIBLE);
-                                         rvAddress.setVisibility(View.GONE);
-                                     default:
-                                         break;
-                                 }
-                             }
-                         }
-                );
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.ADDRESS_LIST)
+                .method(OkGoBuilder.POST)
+                .params(new HttpParams())
+                .cls(AddrListBean.class)
+                .callback(new Callback<AddrListBean>() {
+                    @Override
+                    public void onSuccess(AddrListBean bean, int id) {
+                        LogUtil.d(TAG, "收货地址列表 请求成功");
+
+                        switch (bean.getCode()) {
+                            case 1:
+                                nullAddress.setVisibility(View.GONE);
+                                rvAddress.setVisibility(View.VISIBLE);
+                                mList = bean.getData();
+                                // 刷新数据
+                                mAdapter.refreshList(mList);
+                                // 刷新结束
+                                rvAddress.setPullLoadMoreCompleted();
+                                break;
+                            case 0:
+                                // 该会员暂无地址
+                                nullAddress.setVisibility(View.VISIBLE);
+                                rvAddress.setVisibility(View.GONE);
+                            default:
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
 }

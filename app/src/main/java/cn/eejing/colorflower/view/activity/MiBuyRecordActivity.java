@@ -8,10 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
 import com.wx.wheelview.widget.WheelView;
 
@@ -24,7 +21,9 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.BuyRecordBean;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.BottomDialog;
 import cn.eejing.colorflower.util.LogUtil;
@@ -109,42 +108,47 @@ public class MiBuyRecordActivity extends BaseActivity {
         rvBuy.setPullLoadMoreCompleted();
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithBuyRecord(String startStamp, String endStamp) {
-        OkGo.<String>post(Urls.SALES_RECORD)
-                .tag(this)
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .params("start", startStamp)
-                .params("end", endStamp)
-                .execute(new StringCallback() {
-                             @Override
-                             public void onSuccess(Response<String> response) {
-                                 String body = response.body();
-                                 LogUtil.d(TAG, "销售记录 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("start", startStamp);
+        params.put("end", endStamp);
 
-                                 Gson gson = new Gson();
-                                 BuyRecordBean bean = gson.fromJson(body, BuyRecordBean.class);
-                                 switch (bean.getCode()) {
-                                     case 1:
-                                         rvBuy.setVisibility(View.VISIBLE);
-                                         tvNotPay.setVisibility(View.GONE);
-                                         mList = bean.getData();
-                                         // 刷新数据
-                                         mAdapter.refreshList(mList);
-                                         // 刷新结束
-                                         rvBuy.setPullLoadMoreCompleted();
-                                         break;
-                                     case 0:
-                                         rvBuy.setVisibility(View.GONE);
-                                         tvNotPay.setVisibility(View.VISIBLE);
-                                         break;
-                                     default:
-                                         ToastUtil.showShort(bean.getMessage());
-                                         break;
-                                 }
-                             }
-                         }
-                );
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.SALES_RECORD)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(BuyRecordBean.class)
+                .callback(new Callback<BuyRecordBean>() {
+                    @Override
+                    public void onSuccess(BuyRecordBean bean, int id) {
+                        LogUtil.d(TAG, "销售记录 请求成功");
 
+                        switch (bean.getCode()) {
+                            case 1:
+                                rvBuy.setVisibility(View.VISIBLE);
+                                tvNotPay.setVisibility(View.GONE);
+                                mList = bean.getData();
+                                // 刷新数据
+                                mAdapter.refreshList(mList);
+                                // 刷新结束
+                                rvBuy.setPullLoadMoreCompleted();
+                                break;
+                            case 0:
+                                rvBuy.setVisibility(View.GONE);
+                                tvNotPay.setVisibility(View.VISIBLE);
+                                break;
+                            default:
+                                ToastUtil.showShort(bean.getMessage());
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
     @OnClick(R.id.img_vip_toolbar)

@@ -3,10 +3,7 @@ package cn.eejing.colorflower.view.activity;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
 
 import java.util.ArrayList;
@@ -14,7 +11,9 @@ import java.util.List;
 
 import butterknife.BindView;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.BillBean;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.ToastUtil;
@@ -69,40 +68,44 @@ public class MiBillActivity extends BaseActivity {
         rvBill.setPullLoadMoreCompleted();
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithBillLog() {
-        OkGo.<String>post(Urls.WALLET_LOG)
-                .tag(this)
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .execute(new StringCallback() {
-                             @Override
-                             public void onSuccess(Response<String> response) {
-                                 String body = response.body();
-                                 LogUtil.d(TAG, "钱包变更记录 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
 
-                                 Gson gson = new Gson();
-                                 BillBean bean = gson.fromJson(body, BillBean.class);
-                                 switch (bean.getCode()) {
-                                     case 1:
-                                         rvBill.setVisibility(View.VISIBLE);
-                                         tvBill.setVisibility(View.GONE);
-                                         mList = bean.getData();
-                                         // 刷新数据
-                                         mAdapter.refreshList(mList);
-                                         // 刷新结束
-                                         rvBill.setPullLoadMoreCompleted();
-                                         break;
-                                     case 0:
-                                         rvBill.setVisibility(View.GONE);
-                                         tvBill.setVisibility(View.VISIBLE);
-                                         break;
-                                     default:
-                                         ToastUtil.showShort(bean.getMessage());
-                                         break;
-                                 }
-                             }
-                         }
-                );
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.WALLET_LOG)
+                .method(OkGoBuilder.POST)
+                .params(new HttpParams())
+                .cls(BillBean.class)
+                .callback(new Callback<BillBean>() {
+                    @Override
+                    public void onSuccess(BillBean bean, int id) {
+                        LogUtil.d(TAG, "钱包变更记录 请求成功");
 
+                        switch (bean.getCode()) {
+                            case 1:
+                                rvBill.setVisibility(View.VISIBLE);
+                                tvBill.setVisibility(View.GONE);
+                                mList = bean.getData();
+                                // 刷新数据
+                                mAdapter.refreshList(mList);
+                                // 刷新结束
+                                rvBill.setPullLoadMoreCompleted();
+                                break;
+                            case 0:
+                                rvBill.setVisibility(View.GONE);
+                                tvBill.setVisibility(View.VISIBLE);
+                                break;
+                            default:
+                                ToastUtil.showShort(bean.getMessage());
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
 }

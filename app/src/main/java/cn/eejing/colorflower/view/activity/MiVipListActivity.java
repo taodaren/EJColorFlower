@@ -5,10 +5,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
 
 import java.util.ArrayList;
@@ -16,8 +13,10 @@ import java.util.List;
 
 import butterknife.BindView;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.model.request.VipListBean;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.SelfDialog;
@@ -131,96 +130,111 @@ public class MiVipListActivity extends BaseActivity {
         mDialogDiscount.show();
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithVipList() {
-        OkGo.<String>post(Urls.SHOW_UNDERLING_VIP)
-                .tag(this)
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .execute(new StringCallback() {
-                             @Override
-                             public void onSuccess(Response<String> response) {
-                                 String body = response.body();
-                                 LogUtil.d(TAG, "获取下游 vip 列表 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
 
-                                 Gson gson = new Gson();
-                                 VipListBean bean = gson.fromJson(body, VipListBean.class);
-                                 switch (bean.getCode()) {
-                                     case 1:
-                                         rvVip.setVisibility(View.VISIBLE);
-                                         tvDownVip.setVisibility(View.GONE);
-                                         mList = bean.getData();
-                                         // 刷新数据
-                                         mAdapter.refreshList(mList);
-                                         // 刷新结束
-                                         rvVip.setPullLoadMoreCompleted();
-                                         break;
-                                     case 0:
-                                         rvVip.setVisibility(View.GONE);
-                                         tvDownVip.setVisibility(View.VISIBLE);
-                                         break;
-                                     default:
-                                         ToastUtil.showShort(bean.getMessage());
-                                         break;
-                                 }
-                             }
-                         }
-                );
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.SHOW_UNDERLING_VIP)
+                .method(OkGoBuilder.POST)
+                .params(new HttpParams())
+                .cls(VipListBean.class)
+                .callback(new Callback<VipListBean>() {
+                    @Override
+                    public void onSuccess(VipListBean bean, int id) {
+                        LogUtil.d(TAG, "获取下游 vip 列表 请求成功");
 
+                        switch (bean.getCode()) {
+                            case 1:
+                                rvVip.setVisibility(View.VISIBLE);
+                                tvDownVip.setVisibility(View.GONE);
+                                mList = bean.getData();
+                                // 刷新数据
+                                mAdapter.refreshList(mList);
+                                // 刷新结束
+                                rvVip.setPullLoadMoreCompleted();
+                                break;
+                            case 0:
+                                rvVip.setVisibility(View.GONE);
+                                tvDownVip.setVisibility(View.VISIBLE);
+                                break;
+                            default:
+                                ToastUtil.showShort(bean.getMessage());
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithSetRemark(String mobile, String remark) {
-        OkGo.<String>post(Urls.SET_VIP_RERMARK)
-                .tag(this)
-                .params("mobile", mobile)
-                .params("remark", remark)
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .execute(new StringCallback() {
-                             @Override
-                             public void onSuccess(Response<String> response) {
-                                 String body = response.body();
-                                 LogUtil.d(TAG, "VVIP 设置 vip 备注 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("mobile", mobile);
+        params.put("remark", remark);
 
-                                 Gson gson = new Gson();
-                                 CodeMsgBean bean = gson.fromJson(body, CodeMsgBean.class);
-                                 switch (bean.getCode()) {
-                                     case 1:
-                                         getDataWithVipList();
-                                         ToastUtil.showShort(bean.getMessage());
-                                         break;
-                                     default:
-                                         ToastUtil.showShort(bean.getMessage());
-                                         break;
-                                 }
-                             }
-                         }
-                );
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.SET_VIP_RERMARK)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(CodeMsgBean.class)
+                .callback(new Callback<CodeMsgBean>() {
+                    @Override
+                    public void onSuccess(CodeMsgBean bean, int id) {
+                        LogUtil.d(TAG, "VVIP 设置 vip 备注 请求成功");
 
+                        switch (bean.getCode()) {
+                            case 1:
+                                getDataWithVipList();
+                                ToastUtil.showShort(bean.getMessage());
+                                break;
+                            default:
+                                ToastUtil.showShort(bean.getMessage());
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithSetDiscount(String mobile, float discount) {
-        OkGo.<String>post(Urls.SET_VIP_DISCOUNT)
-                .tag(this)
-                .params("mobile", mobile)
-                .params("discount", discount)
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .execute(new StringCallback() {
-                             @Override
-                             public void onSuccess(Response<String> response) {
-                                 String body = response.body();
-                                 LogUtil.d(TAG, "VVIP 设置 vip 价格折扣 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("mobile", mobile);
+        params.put("discount", discount);
 
-                                 Gson gson = new Gson();
-                                 CodeMsgBean bean = gson.fromJson(body, CodeMsgBean.class);
-                                 switch (bean.getCode()) {
-                                     case 1:
-                                         getDataWithVipList();
-                                         ToastUtil.showShort(bean.getMessage());
-                                         break;
-                                     default:
-                                         ToastUtil.showShort(bean.getMessage());
-                                         break;
-                                 }
-                             }
-                         }
-                );
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.SET_VIP_DISCOUNT)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(CodeMsgBean.class)
+                .callback(new Callback<CodeMsgBean>() {
+                    @Override
+                    public void onSuccess(CodeMsgBean bean, int id) {
+                        LogUtil.d(TAG, "VVIP 设置 vip 价格折扣 请求成功");
+
+                        switch (bean.getCode()) {
+                            case 1:
+                                getDataWithVipList();
+                                ToastUtil.showShort(bean.getMessage());
+                                break;
+                            default:
+                                ToastUtil.showShort(bean.getMessage());
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 }

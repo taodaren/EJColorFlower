@@ -9,16 +9,15 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.model.request.OpenWalletBean;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.OnPasswordFinishedListener;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.ClearableEditText;
@@ -46,7 +45,6 @@ public class MiAccountActivity extends BaseActivity implements OnPasswordFinishe
     private static final String TAG = "MiAccountActivity";
     private static final int PWD_STATUS_NO = 0;    // 未设置支付密码
     private static final int PWD_STATUS_OK = 1;    // 已设置支付密码
-    private Gson mGson;
     private String mIv;
     private String mMoney;
     private int mPwdStatus;
@@ -153,71 +151,81 @@ public class MiAccountActivity extends BaseActivity implements OnPasswordFinishe
         payPopupWindow.show(btnCash);
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithOpenWallet() {
-        OkGo.<String>post(Urls.OPEN_WALLET)
-                .tag(this)
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .execute(new StringCallback() {
-                             @Override
-                             public void onSuccess(Response<String> response) {
-                                 String body = response.body();
-                                 LogUtil.d(TAG, "打开钱包 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
 
-                                 mGson = new Gson();
-                                 OpenWalletBean bean = mGson.fromJson(body, OpenWalletBean.class);
-                                 switch (bean.getCode()) {
-                                     case 1:
-                                         mMoney = bean.getData().getMoney();
-                                         mPwdStatus = bean.getData().getPwd_status();
-                                         tvMoney.setText(mMoney);
-                                         break;
-                                     default:
-                                         ToastUtil.showShort(bean.getMessage());
-                                         break;
-                                 }
-                             }
-                         }
-                );
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.OPEN_WALLET)
+                .method(OkGoBuilder.POST)
+                .params(new HttpParams())
+                .cls(OpenWalletBean.class)
+                .callback(new Callback<OpenWalletBean>() {
+                    @Override
+                    public void onSuccess(OpenWalletBean bean, int id) {
+                        LogUtil.d(TAG, "打开钱包 请求成功");
 
+                        switch (bean.getCode()) {
+                            case 1:
+                                mMoney = bean.getData().getMoney();
+                                mPwdStatus = bean.getData().getPwd_status();
+                                tvMoney.setText(mMoney);
+                                break;
+                            default:
+                                ToastUtil.showShort(bean.getMessage());
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithCashWithdrawal(String password) {
         try {
             String payPwd = Encryption.encrypt(password, mIv);
 
-            OkGo.<String>post(Urls.APPLY_FOR_WITH_DRAW)
-                    .tag(this)
-                    .params("token", MainActivity.getAppCtrl().getToken())
-                    .params("pay_password", payPwd)
-                    .params("money", etCashNum.getText().toString())
-                    .params("iv", mIv)
-                    .params("bank", etOpen.getText().toString())
-                    .params("card_number", etCard.getText().toString())
-                    .params("name", etName.getText().toString())
-                    .execute(new StringCallback() {
-                                 @Override
-                                 public void onSuccess(Response<String> response) {
-                                     String body = response.body();
-                                     LogUtil.d(TAG, "提现申请 请求成功: " + body);
+            OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+            HttpParams params = new HttpParams();
+            params.put("pay_password", payPwd);
+            params.put("money", etCashNum.getText().toString());
+            params.put("iv", mIv);
+            params.put("bank", etOpen.getText().toString());
+            params.put("card_number", etCard.getText().toString());
+            params.put("name", etName.getText().toString());
 
-                                     mGson = new Gson();
-                                     CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
-                                     switch (bean.getCode()) {
-                                         case 1:
-                                             // 跳转到提现成功
-                                             jumpToActivity(MiCashSuccessActivity.class);
-                                             finish();
-                                             break;
-                                         case 5:
-                                             showDialogByPayPwd("支付密码有误，请重试", "忘记密码", "重试");
-                                             break;
-                                         default:
-                                             ToastUtil.showShort(bean.getMessage());
-                                             break;
-                                     }
-                                 }
-                             }
-                    );
+            OkGoBuilder.getInstance().Builder(this)
+                    .url(Urls.APPLY_FOR_WITH_DRAW)
+                    .method(OkGoBuilder.POST)
+                    .params(params)
+                    .cls(CodeMsgBean.class)
+                    .callback(new Callback<CodeMsgBean>() {
+                        @Override
+                        public void onSuccess(CodeMsgBean bean, int id) {
+                            LogUtil.d(TAG, "提现申请 请求成功");
+
+                            switch (bean.getCode()) {
+                                case 1:
+                                    // 跳转到提现成功
+                                    jumpToActivity(MiCashSuccessActivity.class);
+                                    finish();
+                                    break;
+                                case 5:
+                                    showDialogByPayPwd("支付密码有误，请重试", "忘记密码", "重试");
+                                    break;
+                                default:
+                                    ToastUtil.showShort(bean.getMessage());
+                                    break;
+                            }
+                        }
+
+                        @Override
+                        public void onError(Throwable e, int id) {
+                        }
+                    }).build();
         } catch (Exception e) {
             e.printStackTrace();
         }

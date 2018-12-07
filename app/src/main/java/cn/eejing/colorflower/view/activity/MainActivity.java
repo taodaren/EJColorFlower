@@ -15,9 +15,7 @@ import android.view.KeyEvent;
 import com.ashokvarma.bottomnavigation.BottomNavigationBar;
 import com.ashokvarma.bottomnavigation.BottomNavigationItem;
 import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -31,8 +29,10 @@ import cn.eejing.colorflower.model.device.Device;
 import cn.eejing.colorflower.model.device.DeviceConfig;
 import cn.eejing.colorflower.model.device.DeviceStatus;
 import cn.eejing.colorflower.model.event.DevConnEvent;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.QueryDevMacBean;
 import cn.eejing.colorflower.model.session.LoginSession;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.ISendCommand;
 import cn.eejing.colorflower.presenter.OnReceivePackage;
 import cn.eejing.colorflower.presenter.Urls;
@@ -121,8 +121,8 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                 .setMode(BottomNavigationBar.MODE_FIXED)
                 // 设置导航图标、名称及背景颜色
                 .addItem(new BottomNavigationItem(R.drawable.tab_ctrl, R.string.control_name).setActiveColorResource(R.color.colorWhite))
-                .addItem(new BottomNavigationItem(R.drawable.tab_mall, R.string.mall_name).setActiveColorResource(R.color.colorWhite))
                 .addItem(new BottomNavigationItem(R.drawable.tab_video, R.string.video_name).setActiveColorResource(R.color.colorWhite))
+                .addItem(new BottomNavigationItem(R.drawable.tab_mall, R.string.mall_name).setActiveColorResource(R.color.colorWhite))
                 .addItem(new BottomNavigationItem(R.drawable.tab_mine, R.string.mine_name).setActiveColorResource(R.color.colorWhite))
                 // 默认显示面板
                 .setFirstSelectedPosition(0)
@@ -137,8 +137,8 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     private ArrayList<Fragment> getFragments() {
         ArrayList<Fragment> list = new ArrayList<>();
         list.add(TabCtrlFragment.newInstance());
-        list.add(TabMallFragment.newInstance());
         list.add(TabVideoFragment.newInstance());
+        list.add(TabMallFragment.newInstance());
         list.add(TabMineFragment.newInstance());
         return list;
     }
@@ -594,18 +594,22 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
 
     private String mMacById;
 
+    @SuppressWarnings("unchecked")
     private void getDataWithQueryDevMac() {
-        OkGo.<String>post(Urls.GET_DEVICE_MAC)
-                .tag(this)
-                .params("token", getToken())
-                .params("device_id", mStrDevId)
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        LogUtil.d(TAG, "设备 ID 获取 MAC 地址 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("device_id", mStrDevId);
 
-                        QueryDevMacBean bean = mGson.fromJson(body, QueryDevMacBean.class);
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.GET_DEVICE_MAC)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(QueryDevMacBean.class)
+                .callback(new Callback<QueryDevMacBean>() {
+                    @Override
+                    public void onSuccess(QueryDevMacBean bean, int id) {
+                        LogUtil.d(TAG, "设备 ID 获取 MAC 地址 请求成功");
+
                         if (bean.getCode() == 1) {
                             mMacById = bean.getData().getMac();
 
@@ -613,7 +617,11 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                             connDevice(mMacById, Long.parseLong(mStrDevId));
                         }
                     }
-                });
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
     public long getDevId() {
@@ -625,6 +633,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     }
 
     public String getToken() {
+        mLoginSession = MySettings.getLoginInfo(this);
         return mLoginSession.getToken();
     }
 

@@ -15,6 +15,10 @@ public class LoginSession {
         this.password = password;
     }
 
+    public LoginSession(String token) {
+        this.token = token;
+    }
+
     public String getToken() {
         return token;
     }

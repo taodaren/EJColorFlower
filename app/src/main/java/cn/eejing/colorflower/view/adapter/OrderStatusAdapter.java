@@ -1,7 +1,7 @@
 package cn.eejing.colorflower.view.adapter;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -13,10 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +21,10 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.model.request.OrderListBean;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.SelfDialogBase;
@@ -46,20 +45,18 @@ import static cn.eejing.colorflower.app.AppConstant.TYPE_WAIT_SHIP;
 
 public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final String TAG = "OrderStatusAdapter";
-    private Context mContext;
+    private Activity mContext;
     private LayoutInflater mInflater;
     private List<OrderListBean.DataBean> mList;
     private String mType;
     private SelfDialogBase mDialog;
-    private Gson mGson;
 
-    public OrderStatusAdapter(Context context, List<OrderListBean.DataBean> list, String type) {
+    public OrderStatusAdapter(Activity context, List<OrderListBean.DataBean> list, String type) {
         this.mContext = context;
         this.mInflater = LayoutInflater.from(context);
         this.mList = new ArrayList<>();
         this.mList.addAll(list);
         this.mType = type;
-        this.mGson = new Gson();
     }
 
     @NonNull
@@ -197,18 +194,22 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         mDialog.show();
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithConfirmReceipt(String orderSn) {
-        OkGo.<String>post(Urls.CONFIRM_RECEIPT)
-                .tag(this)
-                .params("order_sn", orderSn)
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        LogUtil.d(TAG, "确认收货 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("order_sn", orderSn);
 
-                        CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
+        OkGoBuilder.getInstance().Builder(mContext)
+                .url(Urls.CONFIRM_RECEIPT)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(CodeMsgBean.class)
+                .callback(new Callback<CodeMsgBean>() {
+                    @Override
+                    public void onSuccess(CodeMsgBean bean, int id) {
+                        LogUtil.d(TAG, "确认收货 请求成功");
+
                         switch (bean.getCode()) {
                             case 1:
                                 refreshList(mList);
@@ -219,21 +220,29 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                                 break;
                         }
                     }
-                });
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithDelOrder(String orderSn, String successMsg) {
-        OkGo.<String>post(Urls.DEL_ORDER)
-                .tag(this)
-                .params("order_sn", orderSn)
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        LogUtil.d(TAG, "删除订单 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("order_sn", orderSn);
 
-                        CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
+        OkGoBuilder.getInstance().Builder(mContext)
+                .url(Urls.DEL_ORDER)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(CodeMsgBean.class)
+                .callback(new Callback<CodeMsgBean>() {
+                    @Override
+                    public void onSuccess(CodeMsgBean bean, int id) {
+                        LogUtil.d(TAG, "删除订单 请求成功");
+
                         switch (bean.getCode()) {
                             case 1:
                                 refreshList(mList);
@@ -244,7 +253,11 @@ public class OrderStatusAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                                 break;
                         }
                     }
-                });
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
 }

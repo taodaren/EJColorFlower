@@ -9,22 +9,23 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.allen.library.SuperButton;
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.LoginBean;
 import cn.eejing.colorflower.model.session.LoginSession;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.Encryption;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.MySettings;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.base.BaseActivity;
+
+import static cn.eejing.colorflower.app.AppConstant.NO_TOKEN;
 
 /**
  * 登录
@@ -110,9 +111,10 @@ public class SignInActivity extends BaseActivity {
 
         btnLogin.setEnabled(false);
 
-        final ProgressDialog progressDialog = new ProgressDialog(SignInActivity.this,
-                ProgressDialog.THEME_HOLO_LIGHT);
+        final ProgressDialog progressDialog =
+                new ProgressDialog(SignInActivity.this, ProgressDialog.THEME_HOLO_LIGHT);
         progressDialog.setIndeterminate(true);
+        progressDialog.setCanceledOnTouchOutside(false);// 设置点击进度对话框外的区域对话框不消失
         progressDialog.setMessage("登录中...");
         progressDialog.show();
 
@@ -127,23 +129,25 @@ public class SignInActivity extends BaseActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithLogin(final ProgressDialog dialog, String phone, String password, String iv) {
-        OkGo.<String>post(Urls.LOGIN)
-                .tag(this)
-                .params("mobile", phone)
-                .params("password", password)
-                .params("iv", iv)
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        LogUtil.d(TAG, "用户登录 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(NO_TOKEN);
+        HttpParams params = new HttpParams();
+        params.put("mobile", phone);
+        params.put("password", password);
+        params.put("iv", iv);
 
-                        Gson gson = new Gson();
-                        LoginBean bean = gson.fromJson(body, LoginBean.class);
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.LOGIN)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(LoginBean.class)
+                .callback(new Callback<LoginBean>() {
+                    @Override
+                    public void onSuccess(LoginBean bean, int id) {
+                        LogUtil.d(TAG, "用户登录 请求成功");
 
                         switch (bean.getCode()) {
                             case 1:
@@ -165,11 +169,11 @@ public class SignInActivity extends BaseActivity {
                     }
 
                     @Override
-                    public void onError(Response<String> response) {
+                    public void onError(Throwable e, int id) {
                         onLoginFailed("出现异常，登陆失败");
                         dialog.dismiss();
                     }
-                });
+                }).build();
     }
 
     public void onLoginSuccess() {

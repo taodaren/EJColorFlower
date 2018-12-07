@@ -8,20 +8,21 @@ import android.widget.EditText;
 
 import com.allen.library.SuperButton;
 import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.CodeMsgBean;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.Encryption;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.base.BaseActivity;
 
+import static cn.eejing.colorflower.app.AppConstant.NO_TOKEN;
 import static cn.eejing.colorflower.app.AppConstant.SEND_MSG_FLAG_FORGET;
 
 /**
@@ -125,23 +126,27 @@ public class SiPwdForgetActivity extends BaseActivity {
         return "验证通过";
     }
 
+    @SuppressWarnings("unchecked")
     private void getDateWithSendMsg() {
         try {
             String encryptPhone = Encryption.encrypt(etPhone.getText().toString(), mIv);
 
-            OkGo.<String>post(Urls.SEND_MSG)
-                    .tag(this)
-                    .params("mobile", encryptPhone)
-                    .params("iv", mIv)
-                    .params("flag", SEND_MSG_FLAG_FORGET)
-                    .execute(new StringCallback() {
-                        @Override
-                        public void onSuccess(Response<String> response) {
-                            String body = response.body();
-                            LogUtil.d(TAG, "发送短信 请求成功: " + body);
+            OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+            HttpParams params = new HttpParams();
+            params.put("mobile", encryptPhone);
+            params.put("iv", mIv);
+            params.put("flag", SEND_MSG_FLAG_FORGET);
 
-                            mGson = new Gson();
-                            CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
+            OkGoBuilder.getInstance().Builder(this)
+                    .url(Urls.GET_DEVICE_MAC)
+                    .method(OkGoBuilder.POST)
+                    .params(params)
+                    .cls(CodeMsgBean.class)
+                    .callback(new Callback<CodeMsgBean>() {
+                        @Override
+                        public void onSuccess(CodeMsgBean bean, int id) {
+                            LogUtil.d(TAG, "发送短信 请求成功");
+
                             switch (bean.getCode()) {
                                 case 1:
                                     ToastUtil.showShort("验证码发送成功");
@@ -151,31 +156,38 @@ public class SiPwdForgetActivity extends BaseActivity {
                                     break;
                             }
                         }
-                    });
+
+                        @Override
+                        public void onError(Throwable e, int id) {
+                        }
+                    }).build();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithPwdFind(ProgressDialog dialog) {
         try {
             String encryptPwd = Encryption.encrypt(etSetPwd.getText().toString(), mIv);
             String code = etVerifyCode.getText().toString();
 
-            OkGo.<String>post(Urls.CHANGE_PWD)
-                    .tag(this)
-                    .params("mobile", etPhone.getText().toString())
-                    .params("code", code)
-                    .params("password", encryptPwd)
-                    .params("iv", mIv)
-                    .execute(new StringCallback() {
-                        @Override
-                        public void onSuccess(Response<String> response) {
-                            String body = response.body();
-                            LogUtil.d(TAG, "修改密码 请求成功: " + body);
+            OkGoBuilder.getInstance().setToken(NO_TOKEN);
+            HttpParams params = new HttpParams();
+            params.put("mobile", etPhone.getText().toString());
+            params.put("code", code);
+            params.put("password", encryptPwd);
+            params.put("iv", mIv);
 
-                            mGson = new Gson();
-                            CodeMsgBean bean = mGson.fromJson(body, CodeMsgBean.class);
+            OkGoBuilder.getInstance().Builder(this)
+                    .url(Urls.CHANGE_PWD)
+                    .method(OkGoBuilder.POST)
+                    .params(params)
+                    .cls(CodeMsgBean.class)
+                    .callback(new Callback<CodeMsgBean>() {
+                        @Override
+                        public void onSuccess(CodeMsgBean bean, int id) {
+                            LogUtil.d(TAG, "修改密码 请求成功");
 
                             switch (bean.getCode()) {
                                 case 1:
@@ -192,7 +204,11 @@ public class SiPwdForgetActivity extends BaseActivity {
                             btnResetPwd.setEnabled(true);
                             dialog.dismiss();
                         }
-                    });
+
+                        @Override
+                        public void onError(Throwable e, int id) {
+                        }
+                    }).build();
         } catch (Exception e) {
             e.printStackTrace();
         }

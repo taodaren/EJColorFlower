@@ -2,17 +2,13 @@ package cn.eejing.colorflower.view.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -23,10 +19,11 @@ import butterknife.OnClick;
 import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.app.BaseApplication;
 import cn.eejing.colorflower.model.event.AddrAddEvent;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.AddrListBean;
-import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.model.request.ConfirmOrderBean;
 import cn.eejing.colorflower.model.request.OrderSetBean;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.ToastUtil;
@@ -55,7 +52,6 @@ public class MaOrderConfirmActivity extends BaseActivity {
     @BindView(R.id.tv_confirm_order_total_money)           TextView     tvTotalMoney;
 
     private ConfirmOrderBean.DataBean mBean;
-    private Gson mGson;
     private int mGoodsId, mNumber;
     private int mAddressId;
 
@@ -69,7 +65,6 @@ public class MaOrderConfirmActivity extends BaseActivity {
         EventBus.getDefault().register(this);
         setToolbar("确认订单", View.VISIBLE, null, View.GONE);
 
-        mGson = new Gson();
         mGoodsId = getIntent().getIntExtra("goods_id", 0);
     }
 
@@ -144,21 +139,25 @@ public class MaOrderConfirmActivity extends BaseActivity {
         tvTotalMoney.setText(getString(R.string.rmb) + totalMoney);
     }
 
+    @SuppressWarnings("unchecked")
     private void submitOrder() {
         if (tvConsignee.getText().length() > 0 && tvPhone.getText().length() > 0 && tvAddress.getText().length() > 0) {
-            OkGo.<String>post(Urls.SET_ORDER)
-                    .tag(this)
-                    .params("goods_id", mGoodsId)
-                    .params("address_id", mAddressId)
-                    .params("quantity", mNumber)
-                    .params("token", MainActivity.getAppCtrl().getToken())
-                    .execute(new StringCallback() {
-                        @Override
-                        public void onSuccess(Response<String> response) {
-                            String body = response.body();
-                            LogUtil.d(TAG, "用户提交订单并生成订单 请求成功: " + body);
+            OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+            HttpParams params = new HttpParams();
+            params.put("goods_id", mGoodsId);
+            params.put("address_id", mAddressId);
+            params.put("quantity", mNumber);
 
-                            OrderSetBean bean = mGson.fromJson(body, OrderSetBean.class);
+            OkGoBuilder.getInstance().Builder(this)
+                    .url(Urls.SET_ORDER)
+                    .method(OkGoBuilder.POST)
+                    .params(params)
+                    .cls(OrderSetBean.class)
+                    .callback(new Callback<OrderSetBean>() {
+                        @Override
+                        public void onSuccess(OrderSetBean bean, int id) {
+                            LogUtil.d(TAG, "用户提交订单并生成订单 请求成功");
+
                             if (bean.getCode() == 1) {
                                 jumpToActivity(new Intent(MaOrderConfirmActivity.this, MaOrderPayActivity.class)
                                         .putExtra("order_no", bean.getData().getOrder_sn())
@@ -168,36 +167,47 @@ public class MaOrderConfirmActivity extends BaseActivity {
                                 ToastUtil.showShort(bean.getMessage());
                             }
                         }
-                    });
+
+                        @Override
+                        public void onError(Throwable e, int id) {
+                        }
+                    }).build();
         } else {
             ToastUtil.showShort(getString(R.string.text_add_addr));
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithConfirmOrder() {
-        OkGo.<String>post(Urls.CONFIRM_ORDER)
-                .tag(this)
-                .params("goods_id", mGoodsId)
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .execute(new StringCallback() {
-                             @Override
-                             public void onSuccess(Response<String> response) {
-                                 String body = response.body();
-                                 LogUtil.d(TAG, "确认订单页面展示 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("goods_id", mGoodsId);
 
-                                 ConfirmOrderBean bean = mGson.fromJson(body, ConfirmOrderBean.class);
-                                 mBean = bean.getData();
-                                 switch (bean.getCode()) {
-                                     case 1:
-                                         setData();
-                                         break;
-                                     default:
-                                         ToastUtil.showShort(bean.getMessage());
-                                         break;
-                                 }
-                             }
-                         }
-                );
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.CONFIRM_ORDER)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(ConfirmOrderBean.class)
+                .callback(new Callback<ConfirmOrderBean>() {
+                    @Override
+                    public void onSuccess(ConfirmOrderBean bean, int id) {
+                        LogUtil.d(TAG, "确认订单页面展示 请求成功");
+
+                        mBean = bean.getData();
+                        switch (bean.getCode()) {
+                            case 1:
+                                setData();
+                                break;
+                            default:
+                                ToastUtil.showShort(bean.getMessage());
+                                break;
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
     @SuppressLint("SetTextI18n")

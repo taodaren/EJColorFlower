@@ -1,5 +1,6 @@
 package cn.eejing.colorflower.view.base;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,8 +13,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import butterknife.ButterKnife;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.model.event.JumpLoginEvent;
+import cn.eejing.colorflower.view.activity.SignInActivity;
 
 /**
  * BaseFragment
@@ -38,8 +45,16 @@ public abstract class BaseFragment extends Fragment {
         // 子类不再需要设置布局 ID，也不再需要使用 ButterKnife.BindView()
         mRootView = inflater.inflate(layoutViewId(), container, false);
         ButterKnife.bind(this, mRootView);
+        EventBus.getDefault().register(this);
+        initData();
         initView(mRootView);
         return mRootView;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
     public void initView(View rootView) {
@@ -49,7 +64,6 @@ public abstract class BaseFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         initToolbar();
-        initData();
         initListener();
     }
 
@@ -94,6 +108,12 @@ public abstract class BaseFragment extends Fragment {
             // 隐藏 Toolbar 自带标题栏
             actionBar.setDisplayShowTitleEnabled(false);
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventByJumpLogin(JumpLoginEvent event) {
+        // token 返回 20 或 22 跳转到登陆界面
+        startActivity(new Intent(getContext(), SignInActivity.class));
     }
 
 }

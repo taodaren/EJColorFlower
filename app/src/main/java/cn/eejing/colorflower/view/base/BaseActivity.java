@@ -17,11 +17,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
 import com.jaeger.library.StatusBarUtil;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.util.HashMap;
@@ -29,7 +26,9 @@ import java.util.Map;
 
 import butterknife.ButterKnife;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.VersionUpdateBean;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.AppUtils;
 import cn.eejing.colorflower.util.LogUtil;
@@ -40,6 +39,7 @@ import cn.eejing.colorflower.view.activity.MainActivity;
 import cn.eejing.colorflower.view.activity.SignInActivity;
 
 import static cn.eejing.colorflower.app.AppConstant.EXIT_LOGIN;
+import static cn.eejing.colorflower.app.AppConstant.NO_TOKEN;
 import static cn.eejing.colorflower.app.AppConstant.REQUEST_CODE_FORCED_UPDATE;
 import static cn.eejing.colorflower.app.BaseApplication.getVersionName;
 import static cn.eejing.colorflower.presenter.Urls.DOWN_LOAD_APK;
@@ -196,19 +196,23 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     /** 版本更新 */
+    @SuppressWarnings("unchecked")
     public void forcedVersionUpdate() {
-        OkGo.<String>post(Urls.NEW_VERSION_UPDATE)
-                .tag(this)
-                .params("app_id", 2)// 2代表安卓客户端
-                .params("version_code", getVersionName(this))
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        LogUtil.d(TAG, "版本更新 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(NO_TOKEN);
+        HttpParams params = new HttpParams();
+        params.put("app_id", 2);// 2代表安卓客户端
+        params.put("version_code", getVersionName(this));
 
-                        Gson gson = new Gson();
-                        VersionUpdateBean bean = gson.fromJson(body, VersionUpdateBean.class);
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.NEW_VERSION_UPDATE)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(VersionUpdateBean.class)
+                .callback(new Callback<VersionUpdateBean>() {
+                    @Override
+                    public void onSuccess(VersionUpdateBean bean, int id) {
+                        LogUtil.d(TAG, "版本更新 请求成功");
+
                         if (bean.getCode() == 1) {
                             // 版本升级信息获取成功强制更新（is_upload 1-强制更新 0-可选更新）
                             if (bean.getData().getVersionData().getIs_upload() == 1) {
@@ -216,7 +220,11 @@ public abstract class BaseActivity extends AppCompatActivity {
                             }
                         }
                     }
-                });
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
     /** 强制版本更新 Dialog */

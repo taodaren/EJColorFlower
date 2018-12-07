@@ -3,10 +3,7 @@ package cn.eejing.colorflower.view.fragment;
 import android.content.Intent;
 import android.view.View;
 
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
 
 import java.util.ArrayList;
@@ -15,7 +12,9 @@ import java.util.Objects;
 
 import butterknife.BindView;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.GoodsListBean;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.ToastUtil;
@@ -33,7 +32,6 @@ public class TabMallFragment extends BaseFragment {
 
     @BindView(R.id.rv_tab_mall)        PullLoadMoreRecyclerView rvTabMall;
 
-    private Gson mGson;
     private List<GoodsListBean.DataBean> mList;
     private TabMallAdapter mAdapter;
 
@@ -41,19 +39,9 @@ public class TabMallFragment extends BaseFragment {
         return new TabMallFragment();
     }
 
-    public TabMallFragment() {
-    }
-
     @Override
     protected int layoutViewId() {
         return R.layout.fragment_tab_mall;
-    }
-
-    @Override
-    public void initView(View rootView) {
-        mGson = new Gson();
-        mList = new ArrayList<>();
-        initRecyclerView();
     }
 
     @Override
@@ -66,22 +54,36 @@ public class TabMallFragment extends BaseFragment {
         getDataWithGoodsList();
     }
 
+    @Override
+    public void initView(View rootView) {
+        mList = new ArrayList<>();
+        initRecyclerView();
+    }
+
+    @SuppressWarnings("unchecked")
     private void getDataWithGoodsList() {
-        OkGo.<String>get(Urls.GET_GOODS_LIST)
-                .tag(this)
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .params("page", 1)
-                .execute(new StringCallback() {
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("page", 1);
+
+        OkGoBuilder.getInstance().Builder(getActivity())
+                .url(Urls.GET_GOODS_LIST)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(GoodsListBean.class)
+                .callback(new Callback<GoodsListBean>() {
                     @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        LogUtil.d(TAG, "商品列表 请求成功: " + body);
-                        GoodsListBean bean = mGson.fromJson(body, GoodsListBean.class);
+                    public void onSuccess(GoodsListBean bean, int id) {
+                        LogUtil.d(TAG, "商品列表 请求成功");
                         mList = bean.getData();
                         // 刷新数据
                         mAdapter.refreshList(mList);
                     }
-                });
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
     private void initRecyclerView() {

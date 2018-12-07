@@ -4,10 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.view.View;
 
-import com.google.gson.Gson;
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
 
 import java.util.ArrayList;
@@ -16,7 +13,9 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.GoodsDetailsBean;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.SelfDialogBase;
@@ -32,7 +31,6 @@ public class MaGoodsDetailsActivity extends BaseActivity {
 
     @BindView(R.id.rv_goods_details)        PullLoadMoreRecyclerView rvGoodsDetails;
 
-    private Gson mGson;
     private List<GoodsDetailsBean.DataBean> mList;
     private int mGoodsId;
     private String mPhone;
@@ -46,7 +44,6 @@ public class MaGoodsDetailsActivity extends BaseActivity {
     @Override
     public void initView() {
         mGoodsId = getIntent().getIntExtra("goods_id", 0);
-        mGson = new Gson();
         mList = new ArrayList<>();
     }
 
@@ -110,25 +107,32 @@ public class MaGoodsDetailsActivity extends BaseActivity {
         mDialog.show();
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithGoodsDetails() {
-        OkGo.<String>post(Urls.GOODS_DETAIL)
-                .tag(this)
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .params("goods_id", mGoodsId)
-                .execute(new StringCallback() {
-                             @Override
-                             public void onSuccess(Response<String> response) {
-                                 String body = response.body();
-                                 LogUtil.d(TAG, "商品详情 请求成功: " + body);
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        HttpParams params = new HttpParams();
+        params.put("goods_id", mGoodsId);
 
-                                 GoodsDetailsBean bean = mGson.fromJson(body, GoodsDetailsBean.class);
-                                 mPhone = bean.getData().getServer_tel();
-                                 mList.add(bean.getData());
-                                 initRecyclerView();
-                                 // 刷新结束
-                                 rvGoodsDetails.setPullLoadMoreCompleted();
-                             }
-                         }
-                );
+        OkGoBuilder.getInstance().Builder(this)
+                .url(Urls.GOODS_DETAIL)
+                .method(OkGoBuilder.POST)
+                .params(params)
+                .cls(GoodsDetailsBean.class)
+                .callback(new Callback<GoodsDetailsBean>() {
+                    @Override
+                    public void onSuccess(GoodsDetailsBean bean, int id) {
+                        LogUtil.d(TAG, "商品详情 请求成功");
+
+                        mPhone = bean.getData().getServer_tel();
+                        mList.add(bean.getData());
+                        initRecyclerView();
+                        // 刷新结束
+                        rvGoodsDetails.setPullLoadMoreCompleted();
+                    }
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 }

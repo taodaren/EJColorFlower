@@ -1,26 +1,22 @@
 package cn.eejing.colorflower.view.fragment;
 
-import android.opengl.GLES20;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.lzy.okgo.OkGo;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
+import com.lzy.okgo.model.HttpParams;
 import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import javax.microedition.khronos.opengles.GL10;
-
 import butterknife.BindView;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.VideoListBean;
+import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
-import cn.eejing.colorflower.util.LocalJsonResolutionUtils;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.view.activity.MainActivity;
 import cn.eejing.colorflower.view.adapter.TabVideoAdapter;
@@ -74,7 +70,7 @@ public class TabVideoFragment extends BaseFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                getActivity().finish();
+                Objects.requireNonNull(getActivity()).finish();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -117,26 +113,35 @@ public class TabVideoFragment extends BaseFragment {
         rvTabVideo.setPullLoadMoreCompleted();
     }
 
+    @SuppressWarnings("unchecked")
     private void getDataWithVideoList() {
-        OkGo.<String>get(Urls.VIDEO_LIST)
-                .tag(this)
-                .params("token", MainActivity.getAppCtrl().getToken())
-                .execute(new StringCallback() {
+        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+
+        OkGoBuilder.getInstance().Builder(getActivity())
+                .url(Urls.VIDEO_LIST)
+                .method(OkGoBuilder.POST)
+                .params(new HttpParams())
+                .cls(VideoListBean.class)
+                .callback(new Callback<VideoListBean>() {
                     @Override
-                    public void onSuccess(Response<String> response) {
-                        String body = response.body();
-                        LogUtil.d(TAG, "视频列表 请求成功: " + body);
+                    public void onSuccess(VideoListBean response, int id) {
+                        LogUtil.d(TAG, "视频列表 请求成功");
 
-                        String json = LocalJsonResolutionUtils.getJson(Objects.requireNonNull(getActivity()), "video.json");
-                        // 转换为对象
-                        VideoListBean bean = LocalJsonResolutionUtils.JsonToObject(json, VideoListBean.class);
+//                        // 获取本地 json 文件
+//                        String json = LocalJsonResolutionUtils.getJson(Objects.requireNonNull(getActivity()), "video.json");
+//                        // 转换为对象
+//                        VideoListBean bean = LocalJsonResolutionUtils.JsonToObject(json, VideoListBean.class);
 
-//                        VideoListBean bean = new Gson().fromJson(json, VideoListBean.class);
-                        mList = bean.getData();
+                        mList = response.getData();
+                        // 刷新数据
                         mAdapter.refreshList(mList);
                         rvTabVideo.setPullLoadMoreCompleted();
                     }
-                });
+
+                    @Override
+                    public void onError(Throwable e, int id) {
+                    }
+                }).build();
     }
 
 }

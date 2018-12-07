@@ -14,8 +14,8 @@ public interface Urls {
     String REGISTER            = BASE_URL + "register";                     // 普通用户注册
     String CHANGE_PWD          = BASE_URL + "changePassword";               // 修改密码
     String LOGIN               = BASE_URL + "login";                        // 用户登录
-    String GET_DEVICE_MAC      = BASE_URL + "getDeviceMac";                 // 设备 ID 获取 MAC 地址
 
+    String GET_DEVICE_MAC      = BASE_URL + "getDeviceMac";                 // 设备 ID 获取 MAC 地址
     String GET_MATERIAL_INFO   = BASE_URL + "getMaterialInfo";              // 扫码获取料包信息
     String WAIT_USE_STATUS     = BASE_URL + "modifyWaitingForUseStatus";    // 修改为待使用状态
     String END_USE_STATUS      = BASE_URL + "modifyUseCompletedStatus";     // 修改为已使用状态
