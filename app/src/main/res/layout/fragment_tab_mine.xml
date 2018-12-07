@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:stv="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,184 +8,198 @@
     android:orientation="vertical"
     tools:context=".view.fragment.TabMineFragment">
 
-    <include layout="@layout/layout_toolbar" />
+    <include
+        android:id="@+id/mine_toolbar"
+        layout="@layout/layout_toolbar" />
 
-    <RelativeLayout
-        android:id="@+id/layout_user_info"
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="175dp"
-        android:background="@drawable/ic_user_vip_bg">
-
-        <ImageView
-            android:id="@+id/img_user_level"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="36dp"
-            android:layout_marginTop="42dp"
-            android:src="@drawable/ic_user_vip_img" />
-
-        <TextView
-            android:id="@+id/tv_level_ch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:layout_marginTop="38dp"
-            android:layout_toEndOf="@id/img_user_level"
-            android:text="VIP用户"
-            android:textColor="@color/colorWhite"
-            android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/tv_level_english"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/tv_level_ch"
-            android:layout_marginStart="8dp"
-            android:layout_toEndOf="@id/img_user_level"
-            android:text="Vip users"
-            android:textColor="#fff7e9d2"
-            android:textSize="12sp" />
-
-        <Button
-            android:id="@+id/btn_mine_upgrade"
-            android:layout_width="82dp"
-            android:layout_height="28dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginEnd="36dp"
-            android:layout_marginBottom="32dp"
-            android:background="@drawable/shape_btn_upgrade"
-            android:text="升级为VIP"
-            android:textColor="#6e7580"
-            android:textSize="12sp" />
-
-    </RelativeLayout>
-
-    <LinearLayout
-        android:id="@+id/layout_vvip_mine"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="4dp"
-        android:layout_marginBottom="4dp"
-        android:background="@drawable/ic_vvip_bg"
-        android:gravity="center_vertical">
+        android:layout_height="match_parent"
+        android:layout_below="@id/mine_toolbar">
 
         <LinearLayout
-            android:id="@+id/layout_vvip_record"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_vvip_order" />
+            <RelativeLayout
+                android:id="@+id/layout_user_info"
+                android:layout_width="match_parent"
+                android:layout_height="148dp"
+                android:background="@drawable/ic_user_vip_bg">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:text="购买记录"
-                android:textColor="@color/colorConfig"
-                android:textSize="16sp" />
+                <ImageView
+                    android:id="@+id/img_user_level"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="36dp"
+                    android:layout_marginTop="42dp"
+                    android:src="@drawable/ic_user_vip_img" />
+
+                <TextView
+                    android:id="@+id/tv_level_ch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:layout_marginTop="38dp"
+                    android:layout_toEndOf="@id/img_user_level"
+                    android:text="VIP用户"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/tv_level_english"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/tv_level_ch"
+                    android:layout_marginStart="8dp"
+                    android:layout_toEndOf="@id/img_user_level"
+                    android:text="Vip users"
+                    android:textColor="#fff7e9d2"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:id="@+id/btn_mine_upgrade"
+                    android:layout_width="82dp"
+                    android:layout_height="28dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginEnd="36dp"
+                    android:layout_marginBottom="32dp"
+                    android:background="@drawable/shape_btn_upgrade"
+                    android:text="升级为VIP"
+                    android:textColor="#6e7580"
+                    android:textSize="12sp" />
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_vvip_mine"
+                android:layout_width="match_parent"
+                android:layout_height="75dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="-10dp"
+                android:layout_marginEnd="4dp"
+                android:background="@drawable/ic_vvip_bg"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:id="@+id/layout_vvip_record"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_vvip_order" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:text="购买记录"
+                        android:textColor="@color/colorConfig"
+                        android:textSize="16sp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="25dp"
+                    android:layout_marginBottom="25dp"
+                    android:background="@color/line" />
+
+                <LinearLayout
+                    android:id="@+id/layout_vvip_account"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_vvip_account" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:text="我的账户"
+                        android:textColor="@color/colorConfig"
+                        android:textSize="16sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <com.allen.library.SuperTextView
+                android:id="@+id/stv_mine_order"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginTop="-5dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                stv:sDividerLineType="bottom"
+                stv:sLeftIconRes="@drawable/ic_mine_order"
+                stv:sLeftTextString="我的订单"
+                stv:sRightIconMarginRight="12dp"
+                stv:sRightIconRes="@drawable/ic_mine_right"
+                stv:sUseRipple="true" />
+
+            <com.allen.library.SuperTextView
+                android:id="@+id/stv_mine_opinion"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                stv:sDividerLineType="none"
+                stv:sLeftIconRes="@drawable/ic_mine_opinion"
+                stv:sLeftTextString="意见反馈"
+                stv:sRightIconMarginRight="12dp"
+                stv:sRightIconRes="@drawable/ic_mine_right"
+                stv:sUseRipple="true" />
+
+            <com.allen.library.SuperTextView
+                android:id="@+id/stv_mine_about"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                stv:sDividerLineType="none"
+                stv:sLeftIconRes="@drawable/ic_mine_about"
+                stv:sLeftTextString="关于我们"
+                stv:sRightIconMarginRight="12dp"
+                stv:sRightIconRes="@drawable/ic_mine_right"
+                stv:sUseRipple="true" />
+
+            <com.allen.library.SuperTextView
+                android:id="@+id/stv_mine_version"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                stv:sBackgroundDrawableRes="@color/colorWhite"
+                stv:sDividerLineType="none"
+                stv:sLeftIconRes="@drawable/ic_mine_version_info"
+                stv:sLeftTextString="版本信息"
+                stv:sRightTextString="V 1.0 版本"
+                stv:sRightViewMarginRight="16dp"
+                stv:sUseRipple="false" />
+
+            <com.allen.library.SuperTextView
+                android:id="@+id/stv_mine_set"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                stv:sDividerLineType="top"
+                stv:sLeftIconRes="@drawable/ic_mine_set"
+                stv:sLeftTextString="设置"
+                stv:sRightIconMarginRight="12dp"
+                stv:sRightIconRes="@drawable/ic_mine_right"
+                stv:sRightViewMarginRight="8dp"
+                stv:sUseRipple="true" />
         </LinearLayout>
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:layout_marginTop="25dp"
-            android:layout_marginBottom="25dp"
-            android:background="@color/line" />
-
-        <LinearLayout
-            android:id="@+id/layout_vvip_account"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center">
-
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_vvip_account" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:text="我的账户"
-                android:textColor="@color/colorConfig"
-                android:textSize="16sp" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <com.allen.library.SuperTextView
-        android:id="@+id/stv_mine_order"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        stv:sDividerLineType="bottom"
-        stv:sLeftIconRes="@drawable/ic_mine_order"
-        stv:sLeftTextString="我的订单"
-        stv:sRightIconMarginRight="12dp"
-        stv:sRightIconRes="@drawable/ic_mine_right"
-        stv:sUseRipple="true" />
-
-    <com.allen.library.SuperTextView
-        android:id="@+id/stv_mine_opinion"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        stv:sDividerLineType="none"
-        stv:sLeftIconRes="@drawable/ic_mine_opinion"
-        stv:sLeftTextString="意见反馈"
-        stv:sRightIconMarginRight="12dp"
-        stv:sRightIconRes="@drawable/ic_mine_right"
-        stv:sUseRipple="true" />
-
-    <com.allen.library.SuperTextView
-        android:id="@+id/stv_mine_about"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        stv:sDividerLineType="none"
-        stv:sLeftIconRes="@drawable/ic_mine_about"
-        stv:sLeftTextString="关于我们"
-        stv:sRightIconMarginRight="12dp"
-        stv:sRightIconRes="@drawable/ic_mine_right"
-        stv:sUseRipple="true" />
-
-    <com.allen.library.SuperTextView
-        android:id="@+id/stv_mine_version"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        stv:sBackgroundDrawableRes="@color/colorWhite"
-        stv:sDividerLineType="none"
-        stv:sLeftIconRes="@drawable/ic_mine_version_info"
-        stv:sLeftTextString="版本信息"
-        stv:sRightTextString="V 1.0 版本"
-        stv:sRightViewMarginRight="16dp"
-        stv:sUseRipple="false" />
-
-    <com.allen.library.SuperTextView
-        android:id="@+id/stv_mine_set"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        stv:sDividerLineType="top"
-        stv:sLeftIconRes="@drawable/ic_mine_set"
-        stv:sLeftTextString="设置"
-        stv:sRightIconMarginRight="12dp"
-        stv:sRightIconRes="@drawable/ic_mine_right"
-        stv:sRightViewMarginRight="8dp"
-        stv:sUseRipple="true" />
-
-</LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
+</RelativeLayout>
