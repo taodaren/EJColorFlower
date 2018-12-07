@@ -11,10 +11,9 @@ import cn.eejing.colorflower.model.session.LoginSession;
  */
 
 public class MySettings {
-    private static SharedPreferences mSp;
 
     public static LoginSession getLoginInfo(Context context) {
-        mSp = context.getSharedPreferences("setting", Context.MODE_PRIVATE);
+        SharedPreferences mSp = context.getSharedPreferences("setting", Context.MODE_PRIVATE);
         return new LoginSession(
                 mSp.getString("token", null),
                 mSp.getString("level", null),
@@ -24,7 +23,7 @@ public class MySettings {
     }
 
     public static void saveLoginInfo(Context context, LoginSession session) {
-        mSp = context.getSharedPreferences("setting", Context.MODE_PRIVATE);
+        SharedPreferences mSp = context.getSharedPreferences("setting", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = mSp.edit();
         editor.putString("token", session.getToken());
         editor.putString("level", session.getLevel());
@@ -34,9 +33,16 @@ public class MySettings {
         editor.apply();
     }
 
+    public static void updateToken(Context context, LoginSession session) {
+        SharedPreferences mSp = context.getSharedPreferences("setting", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = mSp.edit();
+        editor.putString("token", session.getToken());
+        editor.apply();
+    }
+
     @SuppressLint("ApplySharedPref")
     public static void clearLoginInfo(Context context) {
-        mSp = context.getSharedPreferences("setting", Context.MODE_PRIVATE);
+        SharedPreferences mSp = context.getSharedPreferences("setting", Context.MODE_PRIVATE);
         mSp.edit().clear().commit();
     }
 
