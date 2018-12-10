@@ -27,7 +27,7 @@ import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
-import cn.eejing.colorflower.util.SelfDialogBase;
+import cn.eejing.colorflower.view.customize.SelfDialogBase;
 import cn.eejing.colorflower.view.adapter.AddrManageAdapter;
 import cn.eejing.colorflower.view.base.BaseActivity;
 

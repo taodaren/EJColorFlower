@@ -22,7 +22,7 @@ import cn.eejing.colorflower.model.lite.MasterGroupLite;
 import cn.eejing.colorflower.model.manager.MgrOutputJet;
 import cn.eejing.colorflower.presenter.OnReceivePackage;
 import cn.eejing.colorflower.util.BleDevProtocol;
-import cn.eejing.colorflower.util.SelfDialogBase;
+import cn.eejing.colorflower.view.customize.SelfDialogBase;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.adapter.CtMasterSetAdapter;
 import cn.eejing.colorflower.view.base.BaseActivity;

@@ -4,10 +4,8 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 
 import com.allen.library.SuperButton;
-import com.google.gson.Gson;
 import com.lzy.okgo.model.HttpParams;
 
 import butterknife.BindView;
@@ -17,6 +15,7 @@ import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
+import cn.eejing.colorflower.util.ClearableEditText;
 import cn.eejing.colorflower.util.Encryption;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.ToastUtil;
@@ -32,14 +31,13 @@ import static cn.eejing.colorflower.app.AppConstant.SEND_MSG_FLAG_FORGET;
 public class SiPwdForgetActivity extends BaseActivity {
     private static final String TAG = "SiPwdForgetActivity";
 
-    @BindView(R.id.et_forget_phone)              EditText    etPhone;
-    @BindView(R.id.et_forget_set_pwd)            EditText    etSetPwd;
-    @BindView(R.id.et_forget_confirm_pwd)        EditText    etConfirmPwd;
-    @BindView(R.id.et_forget_verify_code)        EditText    etVerifyCode;
-    @BindView(R.id.btn_forget_get_code)          Button      btnForgetGetCode;
-    @BindView(R.id.btn_reset_pwd)                SuperButton btnResetPwd;
+    @BindView(R.id.et_forget_phone)              ClearableEditText etPhone;
+    @BindView(R.id.et_forget_set_pwd)            ClearableEditText etSetPwd;
+    @BindView(R.id.et_forget_confirm_pwd)        ClearableEditText etConfirmPwd;
+    @BindView(R.id.et_forget_verify_code)        ClearableEditText etVerifyCode;
+    @BindView(R.id.btn_forget_get_code)          Button            btnForgetGetCode;
+    @BindView(R.id.btn_reset_pwd)                SuperButton       btnResetPwd;
 
-    private Gson mGson;
     private String mIv;
 
     @Override

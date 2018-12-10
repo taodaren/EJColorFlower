@@ -4,7 +4,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -16,6 +15,7 @@ import butterknife.BindView;
 import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.app.BaseApplication;
 import cn.eejing.colorflower.model.lite.JetModeConfigLite;
+import cn.eejing.colorflower.util.ClearableEditText;
 import cn.eejing.colorflower.util.DecimalInputTextWatcher;
 import cn.eejing.colorflower.view.base.BaseActivity;
 
@@ -24,10 +24,10 @@ import static cn.eejing.colorflower.app.AppConstant.DEFAULT_HIGH_DELAY;
 
 public class CtConfigDelayActivity extends BaseActivity implements View.OnClickListener {
 
-    @BindView(R.id.ll_delay_time)           LinearLayout llJetTime;
-    @BindView(R.id.et_delay_time)           EditText     etDelay;
-    @BindView(R.id.tv_delay_time)           TextView     tvJetTime;
-    @BindView(R.id.btn_verify_delay)        Button       btnVerify;
+    @BindView(R.id.ll_delay_time)           LinearLayout      llJetTime;
+    @BindView(R.id.et_delay_time)           ClearableEditText etDelay;
+    @BindView(R.id.tv_delay_time)           TextView          tvJetTime;
+    @BindView(R.id.btn_verify_delay)        Button            btnVerify;
 
     private BaseApplication mApp;
     private long mJetIdMillis;

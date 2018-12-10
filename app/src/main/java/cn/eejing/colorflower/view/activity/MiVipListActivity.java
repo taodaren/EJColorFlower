@@ -19,7 +19,7 @@ import cn.eejing.colorflower.model.request.VipListBean;
 import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
-import cn.eejing.colorflower.util.SelfDialog;
+import cn.eejing.colorflower.view.customize.SelfDialog;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.adapter.VipListAdapter;
 import cn.eejing.colorflower.view.base.BaseActivity;

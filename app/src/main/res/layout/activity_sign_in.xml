@@ -88,7 +88,7 @@
             android:gravity="center"
             android:orientation="vertical">
 
-            <EditText
+            <cn.eejing.colorflower.util.ClearableEditText
                 android:id="@+id/et_login_phone"
                 android:layout_width="270dp"
                 android:layout_height="46dp"
@@ -96,13 +96,14 @@
                 android:gravity="center"
                 android:hint="@string/phone_num"
                 android:inputType="phone"
+                android:maxLength="11"
                 android:padding="4dp"
                 android:textColor="@color/colorWhite"
                 android:textColorHint="@color/colorWhite"
                 android:textCursorDrawable="@null"
                 android:textSize="16sp" />
 
-            <EditText
+            <cn.eejing.colorflower.util.ClearableEditText
                 android:id="@+id/et_login_pwd"
                 android:layout_width="270dp"
                 android:layout_height="46dp"
@@ -111,6 +112,7 @@
                 android:gravity="center"
                 android:hint="@string/login_pwd"
                 android:inputType="textPassword"
+                android:maxLength="20"
                 android:padding="4dp"
                 android:textColor="@color/colorWhite"
                 android:textColorHint="@color/colorWhite"

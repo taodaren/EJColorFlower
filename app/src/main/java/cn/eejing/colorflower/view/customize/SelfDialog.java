@@ -1,13 +1,13 @@
-package cn.eejing.colorflower.util;
+package cn.eejing.colorflower.view.customize;
 
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.util.ClearableEditText;
 
 /**
  * 自定义 dialog
@@ -16,7 +16,7 @@ import cn.eejing.colorflower.R;
 public class SelfDialog extends Dialog {
     private Button btnYes, btnNo;
     private TextView tvTitle, tvMessage;
-    private EditText etEnter;
+    private ClearableEditText etEnter;
 
     // 从外界设置的 title 文本、消息文本、提示文本
     private String strTitle, strMessage, strHint;

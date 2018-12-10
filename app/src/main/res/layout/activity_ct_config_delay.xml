@@ -32,7 +32,7 @@
                     android:textColor="@color/colorConfig"
                     android:textSize="15sp" />
 
-                <EditText
+                <cn.eejing.colorflower.util.ClearableEditText
                     android:id="@+id/et_delay_time"
                     android:layout_width="170dp"
                     android:layout_height="30dp"

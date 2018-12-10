@@ -5,7 +5,6 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +17,7 @@ import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
+import cn.eejing.colorflower.util.ClearableEditText;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.base.BaseActivity;
@@ -30,7 +30,7 @@ public class MiOpinionActivity extends BaseActivity {
     private static final String TAG = "MiOpinionActivity";
     private static final int MAX_LENGTH = 500;
 
-    @BindView(R.id.edit_opinion_content)    EditText edContent;
+    @BindView(R.id.edit_opinion_content)    ClearableEditText edContent;
     @BindView(R.id.tv_num_length)           TextView tvLength;
 
     private int mRestLength = MAX_LENGTH;

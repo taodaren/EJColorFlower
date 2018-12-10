@@ -5,7 +5,7 @@ import android.view.View;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.app.BaseApplication;
-import cn.eejing.colorflower.util.SelfDialogBase;
+import cn.eejing.colorflower.view.customize.SelfDialogBase;
 import cn.eejing.colorflower.view.base.BaseActivity;
 
 import static cn.eejing.colorflower.app.AppConstant.FROM_SET_TO_ADDR;

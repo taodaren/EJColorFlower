@@ -24,7 +24,7 @@
             android:textColor="@color/colorBlack"
             android:textSize="14sp" />
 
-        <EditText
+        <cn.eejing.colorflower.util.ClearableEditText
             android:id="@+id/et_address_add_consignee"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -50,7 +50,7 @@
             android:textColor="@color/colorBlack"
             android:textSize="14sp" />
 
-        <EditText
+        <cn.eejing.colorflower.util.ClearableEditText
             android:id="@+id/et_address_add_phone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -115,7 +115,7 @@
             android:textColor="@color/colorBlack"
             android:textSize="14sp" />
 
-        <EditText
+        <cn.eejing.colorflower.util.ClearableEditText
             android:id="@+id/et_address_add_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

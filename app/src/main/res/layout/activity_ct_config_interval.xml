@@ -32,7 +32,7 @@
                     android:textColor="@color/colorTitle"
                     android:textSize="16sp" />
 
-                <EditText
+                <cn.eejing.colorflower.util.ClearableEditText
                     android:id="@+id/et_interval_gap"
                     android:layout_width="170dp"
                     android:layout_height="30dp"
@@ -66,7 +66,7 @@
                     android:textColor="@color/colorTitle"
                     android:textSize="16sp" />
 
-                <EditText
+                <cn.eejing.colorflower.util.ClearableEditText
                     android:id="@+id/et_interval_duration"
                     android:layout_width="170dp"
                     android:layout_height="30dp"
@@ -100,7 +100,7 @@
                     android:textColor="@color/colorTitle"
                     android:textSize="16sp" />
 
-                <EditText
+                <cn.eejing.colorflower.util.ClearableEditText
                     android:id="@+id/et_interval_frequency"
                     android:layout_width="170dp"
                     android:layout_height="30dp"
@@ -127,7 +127,7 @@
                     android:textColor="@color/colorConfig"
                     android:textSize="16sp" />
 
-                <EditText
+                <cn.eejing.colorflower.util.ClearableEditText
                     android:id="@+id/et_interval_high_max"
                     android:layout_width="170dp"
                     android:layout_height="30dp"
@@ -154,7 +154,7 @@
                     android:textColor="@color/colorConfig"
                     android:textSize="16sp" />
 
-                <EditText
+                <cn.eejing.colorflower.util.ClearableEditText
                     android:id="@+id/et_interval_high_min"
                     android:layout_width="170dp"
                     android:layout_height="30dp"

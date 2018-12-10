@@ -1,4 +1,4 @@
-package cn.eejing.colorflower.util;
+package cn.eejing.colorflower.view.customize;
 
 import android.app.Dialog;
 import android.content.Context;

@@ -40,7 +40,7 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <EditText
+        <cn.eejing.colorflower.util.ClearableEditText
             android:id="@+id/et_forget_phone"
             android:layout_width="270dp"
             android:layout_height="40dp"
@@ -49,13 +49,14 @@
             android:gravity="center"
             android:hint="@string/phone_num"
             android:inputType="phone"
+            android:maxLength="11"
             android:padding="4dp"
             android:textColor="@color/colorWhite"
             android:textColorHint="@color/colorWhite"
             android:textCursorDrawable="@null"
             android:textSize="16sp" />
 
-        <EditText
+        <cn.eejing.colorflower.util.ClearableEditText
             android:id="@+id/et_forget_set_pwd"
             android:layout_width="270dp"
             android:layout_height="40dp"
@@ -65,13 +66,14 @@
             android:gravity="center"
             android:hint="@string/set_pwd"
             android:inputType="textPassword"
+            android:maxLength="20"
             android:padding="4dp"
             android:textColor="@color/colorWhite"
             android:textColorHint="@color/colorWhite"
             android:textCursorDrawable="@null"
             android:textSize="16sp" />
 
-        <EditText
+        <cn.eejing.colorflower.util.ClearableEditText
             android:id="@+id/et_forget_confirm_pwd"
             android:layout_width="270dp"
             android:layout_height="40dp"
@@ -81,6 +83,7 @@
             android:gravity="center"
             android:hint="@string/confirm_psd"
             android:inputType="textPassword"
+            android:maxLength="20"
             android:padding="4dp"
             android:textColor="@color/colorWhite"
             android:textColorHint="@color/colorWhite"
@@ -94,7 +97,7 @@
             android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
-            <EditText
+            <cn.eejing.colorflower.util.ClearableEditText
                 android:id="@+id/et_forget_verify_code"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"

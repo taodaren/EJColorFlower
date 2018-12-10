@@ -4,7 +4,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -18,12 +17,12 @@ import cn.eejing.colorflower.app.AppConstant;
 import cn.eejing.colorflower.app.BaseApplication;
 import cn.eejing.colorflower.model.lite.JetModeConfigLite;
 import cn.eejing.colorflower.model.manager.MgrOutputJet;
+import cn.eejing.colorflower.util.ClearableEditText;
 import cn.eejing.colorflower.util.DecimalInputTextWatcher;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.base.BaseActivity;
 
 import static cn.eejing.colorflower.app.AppConstant.CONFIG_INTERVAL;
-import static cn.eejing.colorflower.app.AppConstant.DEFAULT_HIGH;
 
 /**
  * 间隔高低配置
@@ -31,15 +30,15 @@ import static cn.eejing.colorflower.app.AppConstant.DEFAULT_HIGH;
 
 public class CtConfigIntervalActivity extends BaseActivity implements View.OnClickListener {
 
-    @BindView(R.id.btn_verify_interval)          Button btnVerify;
-    @BindView(R.id.btn_demo_interval)            Button btnDemo;
-    @BindView(R.id.et_interval_gap)              EditText etGap;
-    @BindView(R.id.et_interval_duration)         EditText etDuration;
-    @BindView(R.id.et_interval_frequency)        EditText etFrequency;
-    @BindView(R.id.et_interval_high_max)         EditText etHighMax;
-    @BindView(R.id.et_interval_high_min)         EditText etHighMin;
-    @BindView(R.id.tv_interval_jet_time)         TextView tvJetTime;
-    @BindView(R.id.ll_jet_time_interval)         LinearLayout llJetTime;
+    @BindView(R.id.btn_verify_interval)          Button            btnVerify;
+    @BindView(R.id.btn_demo_interval)            Button            btnDemo;
+    @BindView(R.id.et_interval_gap)              ClearableEditText etGap;
+    @BindView(R.id.et_interval_duration)         ClearableEditText etDuration;
+    @BindView(R.id.et_interval_frequency)        ClearableEditText etFrequency;
+    @BindView(R.id.et_interval_high_max)         ClearableEditText etHighMax;
+    @BindView(R.id.et_interval_high_min)         ClearableEditText etHighMin;
+    @BindView(R.id.tv_interval_jet_time)         TextView          tvJetTime;
+    @BindView(R.id.ll_jet_time_interval)         LinearLayout      llJetTime;
 
     private BaseApplication mApp;
     private long mJetIdMillis;

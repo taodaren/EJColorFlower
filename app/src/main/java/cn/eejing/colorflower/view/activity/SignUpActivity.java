@@ -4,10 +4,8 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 
 import com.allen.library.SuperButton;
-import com.google.gson.Gson;
 import com.lzy.okgo.model.HttpParams;
 
 import butterknife.BindView;
@@ -18,6 +16,7 @@ import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.model.request.QueryDevMacBean;
 import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
+import cn.eejing.colorflower.util.ClearableEditText;
 import cn.eejing.colorflower.util.Encryption;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.ToastUtil;
@@ -33,14 +32,13 @@ import static cn.eejing.colorflower.app.AppConstant.SEND_MSG_FLAG_REGISTER;
 public class SignUpActivity extends BaseActivity {
     private static final String TAG = "SignUpActivity";
 
-    @BindView(R.id.et_register_phone)              EditText    mPhone;
-    @BindView(R.id.et_register_set_pwd)            EditText    mSetPwd;
-    @BindView(R.id.et_register_confirm_pwd)        EditText    mConfirmPwd;
-    @BindView(R.id.et_register_verify_code)        EditText    mVerifyCode;
-    @BindView(R.id.btn_register_get_code)          Button      btnGetCode;
-    @BindView(R.id.btn_register_register)          SuperButton btnRegister;
+    @BindView(R.id.et_register_phone)              ClearableEditText mPhone;
+    @BindView(R.id.et_register_set_pwd)            ClearableEditText mSetPwd;
+    @BindView(R.id.et_register_confirm_pwd)        ClearableEditText mConfirmPwd;
+    @BindView(R.id.et_register_verify_code)        ClearableEditText mVerifyCode;
+    @BindView(R.id.btn_register_get_code)          Button            btnGetCode;
+    @BindView(R.id.btn_register_register)          SuperButton       btnRegister;
 
-    private Gson mGson;
     private String mIv;
 
     @Override

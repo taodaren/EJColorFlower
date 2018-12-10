@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Handler;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -19,6 +18,7 @@ import cn.eejing.colorflower.model.request.LoginBean;
 import cn.eejing.colorflower.model.session.LoginSession;
 import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
+import cn.eejing.colorflower.util.ClearableEditText;
 import cn.eejing.colorflower.util.Encryption;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.MySettings;
@@ -36,12 +36,12 @@ public class SignInActivity extends BaseActivity {
     private static final int REQUEST_SIGN_UP    = 1;
     private static final int REQUEST_FORGET_PWD = 2;
 
-    @BindView(R.id.et_login_phone)           EditText       etPhone;
-    @BindView(R.id.et_login_pwd)             EditText       etPwd;
-    @BindView(R.id.tv_login_register)        TextView       tvRegister;
-    @BindView(R.id.tv_login_forget)          TextView       tvForgetPwd;
-    @BindView(R.id.btn_login)                SuperButton    btnLogin;
-    @BindView(R.id.layout_hide)              RelativeLayout layoutHide;
+    @BindView(R.id.et_login_phone)           ClearableEditText etPhone;
+    @BindView(R.id.et_login_pwd)             ClearableEditText etPwd;
+    @BindView(R.id.tv_login_register)        TextView          tvRegister;
+    @BindView(R.id.tv_login_forget)          TextView          tvForgetPwd;
+    @BindView(R.id.btn_login)                SuperButton       btnLogin;
+    @BindView(R.id.layout_hide)              RelativeLayout    layoutHide;
 
     @Override
     protected int layoutViewId() {

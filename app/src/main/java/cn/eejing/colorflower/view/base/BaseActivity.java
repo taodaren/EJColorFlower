@@ -33,7 +33,7 @@ import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.AppUtils;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.MySettings;
-import cn.eejing.colorflower.util.SelfDialogBase;
+import cn.eejing.colorflower.view.customize.SelfDialogBase;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.activity.MainActivity;
 import cn.eejing.colorflower.view.activity.SignInActivity;

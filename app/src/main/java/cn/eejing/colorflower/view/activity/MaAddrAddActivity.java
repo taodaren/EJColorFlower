@@ -3,7 +3,6 @@ package cn.eejing.colorflower.view.activity;
 import android.annotation.SuppressLint;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.allen.library.SuperTextView;
@@ -22,6 +21,7 @@ import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
+import cn.eejing.colorflower.util.ClearableEditText;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.base.BaseActivity;
@@ -33,11 +33,11 @@ import cn.eejing.colorflower.view.base.BaseActivity;
 public class MaAddrAddActivity extends BaseActivity {
     private static final String TAG = "MaAddrAddActivity";
 
-    @BindView(R.id.et_address_add_consignee)      EditText etConsignee;
-    @BindView(R.id.et_address_add_phone)          EditText etPhone;
-    @BindView(R.id.et_address_add_address)        EditText etAddress;
-    @BindView(R.id.tv_address_add_address)        TextView tvAddress;
-    @BindView(R.id.stv_address_add_def)           SuperTextView stvSwitch;
+    @BindView(R.id.et_address_add_consignee)      ClearableEditText etConsignee;
+    @BindView(R.id.et_address_add_phone)          ClearableEditText etPhone;
+    @BindView(R.id.et_address_add_address)        ClearableEditText etAddress;
+    @BindView(R.id.tv_address_add_address)        TextView          tvAddress;
+    @BindView(R.id.stv_address_add_def)           SuperTextView     stvSwitch;
 
     private int mFlag;
     private String mAddress, mProvinceId, mCityId, mDistrictId;

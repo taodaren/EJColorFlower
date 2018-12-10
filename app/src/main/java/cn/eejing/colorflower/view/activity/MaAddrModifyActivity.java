@@ -3,7 +3,6 @@ package cn.eejing.colorflower.view.activity;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.lzy.okgo.model.HttpParams;
@@ -21,6 +20,7 @@ import cn.eejing.colorflower.model.request.AddrListBean;
 import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
+import cn.eejing.colorflower.util.ClearableEditText;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.base.BaseActivity;
@@ -32,10 +32,10 @@ import cn.eejing.colorflower.view.base.BaseActivity;
 public class MaAddrModifyActivity extends BaseActivity {
     private static final String TAG = "MaAddrModifyActivity";
 
-    @BindView(R.id.et_addr_modify_consignee)        EditText etConsignee;
-    @BindView(R.id.et_addr_modify_phone)            EditText etPhone;
-    @BindView(R.id.et_addr_modify_address)          EditText etAddress;
-    @BindView(R.id.tv_addr_modify_address)          TextView tvAddress;
+    @BindView(R.id.et_addr_modify_consignee)        ClearableEditText etConsignee;
+    @BindView(R.id.et_addr_modify_phone)            ClearableEditText etPhone;
+    @BindView(R.id.et_addr_modify_address)          ClearableEditText etAddress;
+    @BindView(R.id.tv_addr_modify_address)          TextView          tvAddress;
 
     private String mAddress;
     private int mAddressId;

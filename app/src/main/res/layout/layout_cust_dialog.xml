@@ -31,7 +31,7 @@
             android:layout_marginEnd="24dp"
             android:text="message" />
 
-        <EditText
+        <cn.eejing.colorflower.util.ClearableEditText
             android:id="@+id/edit_dialog"
             android:layout_width="match_parent"
             android:layout_height="30dp"
