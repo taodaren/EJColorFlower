@@ -39,6 +39,8 @@ import static cn.eejing.colorflower.app.AppConstant.DEFAULT_GAP;
 import static cn.eejing.colorflower.app.AppConstant.DEFAULT_GAP_BIG;
 import static cn.eejing.colorflower.app.AppConstant.DEFAULT_HIGH;
 import static cn.eejing.colorflower.app.AppConstant.DEFAULT_HIGH_DELAY;
+import static cn.eejing.colorflower.app.AppConstant.DEFAULT_HIGH_MAX;
+import static cn.eejing.colorflower.app.AppConstant.DEFAULT_HIGH_MIN;
 import static cn.eejing.colorflower.app.AppConstant.DEFAULT_JET_ROUND;
 import static cn.eejing.colorflower.app.AppConstant.LEFT_TO_RIGHT;
 
@@ -308,6 +310,8 @@ public class CtSetGroupActivity extends BaseActivity {
         } else {
             lite.setHigh(DEFAULT_HIGH);
         }
+        lite.setHighMax(DEFAULT_HIGH_MAX);
+        lite.setHighMin(DEFAULT_HIGH_MIN);
         lite.save();
         refreshData();
     }

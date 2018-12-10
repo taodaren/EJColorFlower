@@ -21,7 +21,10 @@ import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.view.activity.MainActivity;
 import cn.eejing.colorflower.view.adapter.TabVideoAdapter;
 import cn.eejing.colorflower.view.base.BaseFragment;
+import cn.jzvd.JZMediaManager;
 import cn.jzvd.Jzvd;
+import cn.jzvd.JzvdMgr;
+import cn.jzvd.JzvdStd;
 
 /**
  * 视频模块
@@ -61,9 +64,14 @@ public class TabVideoFragment extends BaseFragment {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        Jzvd.releaseAllVideos();
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        // 这个方法可代替 onResume 和 onPause
+        if (hidden) {
+            JzvdStd.releaseAllVideos();
+        } else {
+            JzvdStd.goOnPlayOnResume();
+        }
     }
 
     @Override
@@ -82,15 +90,35 @@ public class TabVideoFragment extends BaseFragment {
         // 绑定适配器
         mAdapter = new TabVideoAdapter(getContext(), mList);
         rvTabVideo.setAdapter(mAdapter);
+
+//        // RecyclerView  划出列表开启小窗
+//        rvTabVideo.getRecyclerView().addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
+//            @Override
+//            public void onChildViewAttachedToWindow(View view) {
+//                Jzvd.onChildViewAttachedToWindow(view, R.id.detail_player);
+//            }
+//
+//            @Override
+//            public void onChildViewDetachedFromWindow(View view) {
+//                Jzvd.onChildViewDetachedFromWindow(view);
+//            }
+//        });
+
+        // RecyclerView 划出屏幕释放 JZ，同时也是不开启列表划出显示小窗
         rvTabVideo.getRecyclerView().addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
             @Override
             public void onChildViewAttachedToWindow(View view) {
-                Jzvd.onChildViewAttachedToWindow(view, R.id.detail_player);
             }
 
             @Override
             public void onChildViewDetachedFromWindow(View view) {
-                Jzvd.onChildViewDetachedFromWindow(view);
+                Jzvd jzvd = view.findViewById(R.id.detail_player);
+                if (jzvd != null && jzvd.jzDataSource.containsTheUrl(JZMediaManager.getCurrentUrl())) {
+                    Jzvd currentJzvd = JzvdMgr.getCurrentJzvd();
+                    if (currentJzvd != null && currentJzvd.currentScreen != Jzvd.SCREEN_WINDOW_FULLSCREEN) {
+                        Jzvd.releaseAllVideos();
+                    }
+                }
             }
         });
 
@@ -131,6 +159,7 @@ public class TabVideoFragment extends BaseFragment {
 //                        String json = LocalJsonResolutionUtils.getJson(Objects.requireNonNull(getActivity()), "video.json");
 //                        // 转换为对象
 //                        VideoListBean bean = LocalJsonResolutionUtils.JsonToObject(json, VideoListBean.class);
+//                        mList = bean.getData();
 
                         mList = response.getData();
                         // 刷新数据

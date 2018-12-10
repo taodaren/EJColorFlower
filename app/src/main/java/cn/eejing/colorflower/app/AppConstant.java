@@ -112,5 +112,7 @@ public class AppConstant {
     public static final String DEFAULT_JET_ROUND            = "2";
     public static final String DEFAULT_HIGH                 = "100";
     public static final String DEFAULT_HIGH_DELAY           = "0";
+    public static final String DEFAULT_HIGH_MAX             = "100";
+    public static final String DEFAULT_HIGH_MIN             = "40";
 
 }

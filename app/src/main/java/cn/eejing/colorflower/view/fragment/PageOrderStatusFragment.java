@@ -131,18 +131,19 @@ public class PageOrderStatusFragment extends BaseFragment {
 
                         switch (bean.getCode()) {
                             case 1:
+                                rvOrderStatus.setVisibility(View.VISIBLE);
+                                llNoOrder.setVisibility(View.GONE);
                                 mList = bean.getData();
                                 // 刷新数据
                                 mAdapter.refreshList(mList);
                                 // 刷新结束
                                 rvOrderStatus.setPullLoadMoreCompleted();
                                 break;
-                            case 4:
+                            case 0:
+                                rvOrderStatus.setVisibility(View.GONE);
                                 llNoOrder.setVisibility(View.VISIBLE);
                                 // 刷新结束
                                 rvOrderStatus.setPullLoadMoreCompleted();
-                                break;
-                            default:
                                 break;
                         }
                     }

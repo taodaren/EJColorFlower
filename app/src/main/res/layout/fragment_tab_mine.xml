@@ -69,7 +69,8 @@
                     android:background="@drawable/shape_btn_upgrade"
                     android:text="升级为VIP"
                     android:textColor="#6e7580"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    android:visibility="gone" />
 
             </RelativeLayout>
 
@@ -81,7 +82,8 @@
                 android:layout_marginTop="-10dp"
                 android:layout_marginEnd="4dp"
                 android:background="@drawable/ic_vvip_bg"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:visibility="gone">
 
                 <LinearLayout
                     android:id="@+id/layout_vvip_record"

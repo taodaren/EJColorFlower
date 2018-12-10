@@ -1,5 +1,6 @@
 package cn.eejing.colorflower.view.activity;
 
+import android.content.Intent;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -120,6 +121,7 @@ public class MiUpgradeVipActivity extends BaseActivity {
                         switch (bean.getCode()) {
                             case 1:
                                 MainActivity.getAppCtrl().setLevel(LEVEL_VIP_USER);
+                                jumpToActivity(new Intent(MiUpgradeVipActivity.this, SignInActivity.class));
                                 finish();
                                 ToastUtil.showLong(bean.getMessage());
                                 break;

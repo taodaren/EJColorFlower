@@ -45,16 +45,13 @@ public abstract class BaseFragment extends Fragment {
         // 子类不再需要设置布局 ID，也不再需要使用 ButterKnife.BindView()
         mRootView = inflater.inflate(layoutViewId(), container, false);
         ButterKnife.bind(this, mRootView);
-        EventBus.getDefault().register(this);
+//        EventBus.getDefault().register(this);
         initData();
         initView(mRootView);
         return mRootView;
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
+    public void initData() {
     }
 
     public void initView(View rootView) {
@@ -67,11 +64,14 @@ public abstract class BaseFragment extends Fragment {
         initListener();
     }
 
-    public void initToolbar() {
-        // Fragment 中必须在 onActivityCreated 方法中初始化 Toolbar
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
-    public void initData() {
+    public void initToolbar() {
+        // Fragment 中必须在 onActivityCreated 方法中初始化 Toolbar
     }
 
     public void initListener() {

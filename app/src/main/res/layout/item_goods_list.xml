@@ -64,14 +64,14 @@
                     android:layout_height="wrap_content"
                     android:text="￥2000.0"
                     android:textColor="@color/colorRmb"
-                    android:textSize="18sp" />
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/tv_goods_list_rmb_old"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:layout_marginTop="6dp"
+                    android:layout_marginTop="4dp"
                     android:layout_toEndOf="@id/tv_goods_list_rmb"
                     android:text="￥2500.0"
                     android:textColor="@color/colorNoClick"

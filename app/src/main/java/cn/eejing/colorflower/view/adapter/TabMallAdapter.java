@@ -63,7 +63,6 @@ public class TabMallAdapter extends RecyclerView.Adapter<TabMallAdapter.ViewHold
         return mList.size();
     }
 
-    /** 刷新列表 */
     public void refreshList(List<GoodsListBean.DataBean> list) {
         // 先把之前的数据清空
         if (list != null) {
@@ -72,7 +71,6 @@ public class TabMallAdapter extends RecyclerView.Adapter<TabMallAdapter.ViewHold
         }
     }
 
-    /** 加载更多列表 */
     private void addList(List<GoodsListBean.DataBean> list) {
         // 把新集合添加进来
         mList.addAll(list);
@@ -112,15 +110,15 @@ public class TabMallAdapter extends RecyclerView.Adapter<TabMallAdapter.ViewHold
             if (Integer.parseInt(bean.getStore_count()) == 0) {
                 // 无货
                 tvSoldOut.setVisibility(View.VISIBLE);
-                tvTitle.setTextColor(mContext.getColor(R.color.colorNoClick));
-                tvRmb.setTextColor(mContext.getColor(R.color.colorNoClick));
-                tvRmbOld.setTextColor(mContext.getColor(R.color.colorNoClick));
+                tvTitle.setTextColor(mContext.getResources().getColor(R.color.colorNoClick));
+                tvRmb.setTextColor(mContext.getResources().getColor(R.color.colorNoClick));
+                tvRmbOld.setTextColor(mContext.getResources().getColor(R.color.colorNoClick));
             } else {
                 // 有货
                 tvSoldOut.setVisibility(View.GONE);
-                tvTitle.setTextColor(mContext.getColor(R.color.colorConfig));
-                tvRmb.setTextColor(mContext.getColor(R.color.colorRmb));
-                tvRmbOld.setTextColor(mContext.getColor(R.color.colorNoClick));
+                tvTitle.setTextColor(mContext.getResources().getColor(R.color.colorConfig));
+                tvRmb.setTextColor(mContext.getResources().getColor(R.color.colorRmb));
+                tvRmbOld.setTextColor(mContext.getResources().getColor(R.color.colorNoClick));
             }
             // 点击商品
             outView.setTag(getAdapterPosition());
