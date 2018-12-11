@@ -219,11 +219,11 @@ public class MiSetPayPwdActivity extends BaseActivity implements TextWatcher {
         if (TextUtils.isEmpty(mPhone) || TextUtils.isEmpty(mCode) || TextUtils.isEmpty(mSetPwd) || TextUtils.isEmpty(mPwdConfirm)) {
             // 设置支付密码 ET 有空情况
             btnConfirmSet.setEnabled(Boolean.FALSE);
-            btnConfirmSet.setBackground(getResources().getDrawable(R.drawable.shape_btn_jbs_no));
+            btnConfirmSet.setBackground(getResources().getDrawable(R.drawable.shape_btn_clickable_not));
         } else {
             // ET 同时不为空的情况
             btnConfirmSet.setEnabled(Boolean.TRUE);
-            btnConfirmSet.setBackground(getResources().getDrawable(R.drawable.shape_btn_jbs));
+            btnConfirmSet.setBackground(getResources().getDrawable(R.drawable.shape_btn_clickable));
         }
     }
 }

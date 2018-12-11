@@ -44,7 +44,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/shape_btn_jbs"
+        android:background="@drawable/shape_btn_clickable"
         android:text="折扣"
         android:textColor="@color/colorWhite"
         android:textSize="12sp"

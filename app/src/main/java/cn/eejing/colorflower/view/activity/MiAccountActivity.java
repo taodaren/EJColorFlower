@@ -251,11 +251,11 @@ public class MiAccountActivity extends BaseActivity implements OnPasswordFinishe
         if (TextUtils.isEmpty(strCashNum) || TextUtils.isEmpty(strName) || TextUtils.isEmpty(strPhone) || TextUtils.isEmpty(strCard)|| TextUtils.isEmpty(strOpen)) {
             // ET 有空情况
             btnCash.setEnabled(Boolean.FALSE);
-            btnCash.setBackground(getResources().getDrawable(R.drawable.shape_btn_jbs_no));
+            btnCash.setBackground(getResources().getDrawable(R.drawable.shape_btn_clickable_not));
         } else {
             // ET 同时不为空的情况
             btnCash.setEnabled(Boolean.TRUE);
-            btnCash.setBackground(getResources().getDrawable(R.drawable.shape_btn_jbs));
+            btnCash.setBackground(getResources().getDrawable(R.drawable.shape_btn_clickable));
         }
     }
 }

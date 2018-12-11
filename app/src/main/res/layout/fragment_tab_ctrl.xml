@@ -32,7 +32,7 @@
         android:layout_marginStart="52dp"
         android:layout_marginTop="48dp"
         android:layout_marginEnd="52dp"
-        android:background="@drawable/shape_btn_jbs"
+        android:background="@drawable/shape_btn_clickable"
         android:text="扫描连接设备"
         android:textColor="@color/colorWhite"
         android:textSize="20sp"

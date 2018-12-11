@@ -48,12 +48,12 @@ public class CtConfigDelayActivity extends BaseActivity implements View.OnClickL
             if (etDelay.getText().toString().trim().isEmpty()) {
                 // EditText 有空情况
                 btnVerify.setEnabled(Boolean.FALSE);
-                btnVerify.setBackground(getDrawable(R.drawable.shape_btn_jbs_no));
+                btnVerify.setBackground(getDrawable(R.drawable.shape_btn_clickable_not));
                 llJetTime.setVisibility(View.INVISIBLE);
             } else {
                 // EditText 不为空的情况
                 btnVerify.setEnabled(Boolean.TRUE);
-                btnVerify.setBackground(getDrawable(R.drawable.shape_btn_jbs));
+                btnVerify.setBackground(getDrawable(R.drawable.shape_btn_clickable));
                 llJetTime.setVisibility(View.VISIBLE);
                 tvJetTime.setText(countTime());
             }
