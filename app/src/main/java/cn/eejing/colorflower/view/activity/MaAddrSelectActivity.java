@@ -101,9 +101,10 @@ public class MaAddrSelectActivity extends BaseActivity {
 
     @SuppressWarnings("unchecked")
     private void getDataWithAddressList() {
-        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        OkGoBuilder<AddrListBean> builder = new OkGoBuilder<>();
+        builder.setToken(MainActivity.getAppCtrl().getToken());
 
-        OkGoBuilder.getInstance().Builder(this)
+        builder.Builder(this)
                 .url(Urls.ADDRESS_LIST)
                 .method(OkGoBuilder.POST)
                 .params(new HttpParams())

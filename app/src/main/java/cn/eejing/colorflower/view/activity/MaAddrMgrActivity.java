@@ -27,9 +27,9 @@ import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
-import cn.eejing.colorflower.view.customize.SelfDialogBase;
 import cn.eejing.colorflower.view.adapter.AddrManageAdapter;
 import cn.eejing.colorflower.view.base.BaseActivity;
+import cn.eejing.colorflower.view.customize.SelfDialogBase;
 
 import static cn.eejing.colorflower.app.AppConstant.FROM_ORDER_TO_ADDR;
 import static cn.eejing.colorflower.app.AppConstant.FROM_SELECT_TO_ADDR;
@@ -100,21 +100,26 @@ public class MaAddrMgrActivity extends BaseActivity {
         BaseApplication baseApplication = (BaseApplication) getApplication();
         switch (baseApplication.getFlagAddrMgr()) {
             case FROM_SET_TO_ADDR:
+                // 来自于设置
                 jumpToActivity(MiSetActivity.class);
                 finish();
                 break;
             case FROM_SELECT_TO_ADDR:
+                // 来自于选择收货地址
                 if (mList.size() == 0) {
                     EventBus.getDefault().post(new AddrAddEvent("收货地址为空"));
+                    // 跳转到确认订单
                     jumpToActivity(MaOrderConfirmActivity.class);
                     finish();
                 } else {
                     EventBus.getDefault().post(new AddrAddEvent("收货地址不为空"));
+                    // 返回到选择收货地址
                     jumpToActivity(MaAddrSelectActivity.class);
                     finish();
                 }
                 break;
             case FROM_ORDER_TO_ADDR:
+                // 来自于确认订单
                 jumpToActivity(MaOrderConfirmActivity.class);
                 if (mList.size() == 0) {
                     EventBus.getDefault().post(new AddrAddEvent("收货地址为空"));
@@ -165,9 +170,10 @@ public class MaAddrMgrActivity extends BaseActivity {
 
     @SuppressWarnings("unchecked")
     private void getDataWithAddressList() {
-        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        OkGoBuilder<AddrListBean> builder = new OkGoBuilder<>();
+        builder.setToken(MainActivity.getAppCtrl().getToken());
 
-        OkGoBuilder.getInstance().Builder(this)
+        builder.Builder(this)
                 .url(Urls.ADDRESS_LIST)
                 .method(OkGoBuilder.POST)
                 .params(new HttpParams())
@@ -206,11 +212,12 @@ public class MaAddrMgrActivity extends BaseActivity {
 
     @SuppressWarnings("unchecked")
     private void getDataWithAddressDel(final int position) {
-        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        OkGoBuilder<CodeMsgBean> builder = new OkGoBuilder<>();
+        builder.setToken(MainActivity.getAppCtrl().getToken());
         HttpParams params = new HttpParams();
         params.put("address_id", mList.get(position).getId());
 
-        OkGoBuilder.getInstance().Builder(this)
+        builder.Builder(this)
                 .url(Urls.DEL_ADDRESS)
                 .method(OkGoBuilder.POST)
                 .params(params)

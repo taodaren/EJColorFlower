@@ -2,6 +2,7 @@ package cn.eejing.colorflower.view.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -39,17 +40,17 @@ import static cn.eejing.colorflower.app.AppConstant.REQUEST_CODE_ADDR_SELECT;
 public class MaOrderConfirmActivity extends BaseActivity {
     private static final String TAG = "MaOrderConfirmActivity";
 
-    @BindView(R.id.tv_confirm_order_consignee)             TextView     tvConsignee;
-    @BindView(R.id.tv_confirm_order_phone)                 TextView     tvPhone;
-    @BindView(R.id.tv_confirm_order_address)               TextView     tvAddress;
-    @BindView(R.id.layout_addr_confirm_order)              LinearLayout layoutAddr;
-    @BindView(R.id.tv_addr_confirm_order)                  TextView     tvAddrNull;
-    @BindView(R.id.img_confirm_order_goods)                ImageView    imgGoods;
-    @BindView(R.id.tv_confirm_order_name)                  TextView     tvName;
-    @BindView(R.id.tv_confirm_order_money)                 TextView     tvMoney;
-    @BindView(R.id.tv_confirm_order_num)                   TextView     tvNum;
-    @BindView(R.id.tv_confirm_order_num_buy)               TextView     tvNumBuy;
-    @BindView(R.id.tv_confirm_order_total_money)           TextView     tvTotalMoney;
+    @BindView(R.id.tv_confirm_order_consignee)         TextView     tvConsignee;
+    @BindView(R.id.tv_confirm_order_phone)             TextView     tvPhone;
+    @BindView(R.id.tv_confirm_order_address)           TextView     tvAddress;
+    @BindView(R.id.layout_addr_confirm_order)          LinearLayout layoutAddr;
+    @BindView(R.id.tv_addr_confirm_order)              TextView     tvAddrNull;
+    @BindView(R.id.img_confirm_order_goods)            ImageView    imgGoods;
+    @BindView(R.id.tv_confirm_order_name)              TextView     tvName;
+    @BindView(R.id.tv_confirm_order_money)             TextView     tvMoney;
+    @BindView(R.id.tv_confirm_order_num)               TextView     tvNum;
+    @BindView(R.id.tv_confirm_order_num_buy)           TextView     tvNumBuy;
+    @BindView(R.id.tv_confirm_order_total_money)       TextView     tvTotalMoney;
 
     private ConfirmOrderBean.DataBean mBean;
     private int mGoodsId, mNumber;
@@ -125,6 +126,7 @@ public class MaOrderConfirmActivity extends BaseActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(AddrAddEvent event) {
+        Log.i(TAG, "onEvent: " + event.getAddStatus());
         // 管理收货地址返回刷新数据
         getDataWithConfirmOrder();
     }
@@ -179,11 +181,12 @@ public class MaOrderConfirmActivity extends BaseActivity {
 
     @SuppressWarnings("unchecked")
     private void getDataWithConfirmOrder() {
-        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        OkGoBuilder<ConfirmOrderBean> builder = new OkGoBuilder<>();
+        builder.setToken(MainActivity.getAppCtrl().getToken());
         HttpParams params = new HttpParams();
         params.put("goods_id", mGoodsId);
 
-        OkGoBuilder.getInstance().Builder(this)
+        builder.Builder(this)
                 .url(Urls.CONFIRM_ORDER)
                 .method(OkGoBuilder.POST)
                 .params(params)

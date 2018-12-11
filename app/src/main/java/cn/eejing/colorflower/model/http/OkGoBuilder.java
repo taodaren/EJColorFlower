@@ -42,8 +42,8 @@ public class OkGoBuilder<T> {
     // 单列模式
     private static OkGoBuilder mOkGoBuilder = null;
 
-    /** 构造函数私有化 */
-    private OkGoBuilder() {
+//    /** 构造函数私有化 */
+    public OkGoBuilder() {
     }
 
     /** 公有的静态函数，对外暴露获取单例对象的接口 */
@@ -143,6 +143,7 @@ public class OkGoBuilder<T> {
                     @Override
                     public void onError(Response<T> response) {
                         super.onError(response);
+                        Log.d(TAG, "post onError");
                         Throwable throwable = response.getException();
                         if (throwable != null) {
                             mCallback.onError(throwable, 2);

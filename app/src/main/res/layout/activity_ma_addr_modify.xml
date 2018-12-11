@@ -31,6 +31,7 @@
             android:background="@null"
             android:hint="请填写收货人姓名"
             android:inputType="text"
+            android:paddingEnd="8dp"
             android:textCursorDrawable="@null"
             android:textSize="12sp" />
     </LinearLayout>
@@ -45,6 +46,7 @@
         <TextView
             android:layout_width="80dp"
             android:layout_height="wrap_content"
+            android:maxLength="11"
             android:padding="10dp"
             android:text="手机号码"
             android:textColor="@color/colorBlack"
@@ -57,6 +59,7 @@
             android:background="@null"
             android:hint="请填写收货人手机号"
             android:inputType="phone"
+            android:paddingEnd="8dp"
             android:textCursorDrawable="@null"
             android:textSize="12sp" />
     </LinearLayout>
@@ -122,6 +125,7 @@
             android:background="@null"
             android:hint="请填写详细信息"
             android:inputType="text"
+            android:paddingEnd="8dp"
             android:textCursorDrawable="@null"
             android:textSize="12sp" />
     </LinearLayout>
@@ -131,8 +135,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="48dp"
-        android:layout_marginRight="48dp"
         android:layout_marginTop="60dp"
+        android:layout_marginRight="48dp"
         android:text="@string/btn_save"
         android:textColor="@color/white"
         stv:sCornersRadius="50dp"

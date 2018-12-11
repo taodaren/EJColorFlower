@@ -115,11 +115,12 @@ public class PageOrderStatusFragment extends BaseFragment {
 
     @SuppressWarnings("unchecked")
     private void getDataWithOrderList(String status) {
-        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        OkGoBuilder<OrderListBean> builder = new OkGoBuilder<>();
+        builder.setToken(MainActivity.getAppCtrl().getToken());
         HttpParams params = new HttpParams();
         params.put("status", status);
 
-        OkGoBuilder.getInstance().Builder(getActivity())
+        builder.Builder(getActivity())
                 .url(Urls.ORDER_LIST)
                 .method(OkGoBuilder.POST)
                 .params(params)

@@ -18,9 +18,9 @@ import cn.eejing.colorflower.model.request.GoodsDetailsBean;
 import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
-import cn.eejing.colorflower.view.customize.SelfDialogBase;
 import cn.eejing.colorflower.view.adapter.GoodsDetailsAdapter;
 import cn.eejing.colorflower.view.base.BaseActivity;
+import cn.eejing.colorflower.view.customize.SelfDialogBase;
 
 /**
  * 商品详情
@@ -109,11 +109,12 @@ public class MaGoodsDetailsActivity extends BaseActivity {
 
     @SuppressWarnings("unchecked")
     private void getDataWithGoodsDetails() {
-        OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+        OkGoBuilder<GoodsDetailsBean> builder = new OkGoBuilder<>();
+        builder.setToken(MainActivity.getAppCtrl().getToken());
         HttpParams params = new HttpParams();
         params.put("goods_id", mGoodsId);
 
-        OkGoBuilder.getInstance().Builder(this)
+        builder.Builder(this)
                 .url(Urls.GOODS_DETAIL)
                 .method(OkGoBuilder.POST)
                 .params(params)
