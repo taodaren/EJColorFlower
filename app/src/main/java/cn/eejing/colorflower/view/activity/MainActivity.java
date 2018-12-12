@@ -392,7 +392,9 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                 if (nCurDealSend == null) {
                     LogUtil.i(TAG, "没有发送数据包回复处理，但是接收到回复数据");
                 } else if (BleDevProtocol.isMatch(nCurDealSend.cmd_pkg, pkg)) {
-                    nCurDealSend.callback.ack(pkg);
+                    if( nCurDealSend.callback != null ) {
+                        nCurDealSend.callback.ack(pkg);
+                    }
                 } else {
                     LogUtil.i(TAG, "回复数据和命令不匹配 " + Util.hex(nCurDealSend.cmd_pkg, 4) + " 接收 " + Util.hex(pkg, 4));
                 }

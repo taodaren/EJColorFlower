@@ -62,7 +62,7 @@
                         android:minHeight="2dp"
                         android:progressDrawable="@drawable/bg_seek_bar"
                         android:splitTrack="false"
-                        android:thumb="@drawable/thumb_image" />
+                        android:thumb="@drawable/seek_bar_config" />
 
                     <TextView
                         android:id="@+id/tv_dev_num"
@@ -129,7 +129,7 @@
                         android:minHeight="2dp"
                         android:progressDrawable="@drawable/bg_seek_bar"
                         android:splitTrack="false"
-                        android:thumb="@drawable/thumb_image" />
+                        android:thumb="@drawable/seek_bar_config" />
 
                     <TextView
                         android:id="@+id/tv_start_dmx"
@@ -193,7 +193,7 @@
                     android:layout_width="48dp"
                     android:layout_height="match_parent"
                     android:layout_alignParentEnd="true"
-                    android:background="@drawable/shape_add_effect">
+                    android:background="@drawable/shape_banner_placeholder">
 
                     <ImageView
                         android:layout_width="23dp"
@@ -244,7 +244,7 @@
                 android:layout_height="40dp"
                 android:layout_marginStart="25dp"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/shape_add_effect">
+                android:background="@drawable/shape_banner_placeholder">
 
                 <TextView
                     android:id="@+id/tv_jet_time"
@@ -271,7 +271,7 @@
                     android:layout_width="120dp"
                     android:elevation="5dp"
                     android:layout_height="match_parent"
-                    android:background="@drawable/ic_btn_hellow"
+                    android:background="@drawable/ic_btn_hollow"
                     android:text="@string/clear_material"
                     android:textColor="@color/colorNavBar"
                     android:textSize="19sp" />

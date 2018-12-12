@@ -36,6 +36,7 @@ public class BleDevProtocol {
     private final static int CMD_QR_DATA_SEPARATE_PKG = 15;                     // 二维码数据（分包）
     private final static int CMD_ENTER_REAL_TIME_CTRL_MODE = 16;                // 进入在线实时控制模式
     private final static int CMD_CLEAR_MATERIAL = 17;                           // 清料
+    private final static int CMD_CTRL = 18;                                     // 控制命令
 
     private final static int HEADER_LEN = 7;
     private final byte[] pkg = new byte[MAX_PKG_LEN];
@@ -477,6 +478,18 @@ public class BleDevProtocol {
         }
 
         return cmdPkg(CMD_CLEAR_MATERIAL, devId, data);
+    }
+
+    /** 控制命令 */
+    @NonNull
+    public static byte[] pkgCtrl(long devId, int startAddress, int devNum, byte[] cmdWord) {
+        byte[] data = new byte[2 + devNum];
+
+        data[0] = (byte) (startAddress & 0xff);
+        data[1] = (byte) (devNum & 0xff);
+
+        System.arraycopy(cmdWord, 0, data, 2, devNum);
+        return cmdPkg(CMD_CTRL, devId, data);
     }
 
     /** 解析内部状态 */

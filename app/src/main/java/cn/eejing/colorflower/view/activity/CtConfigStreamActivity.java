@@ -82,12 +82,12 @@ public class CtConfigStreamActivity extends BaseActivity implements View.OnClick
                     || etHigh.getText().toString().trim().isEmpty()) {
                 // EditText 有空情况
                 btnVerify.setEnabled(Boolean.FALSE);
-                btnVerify.setBackground(getDrawable(R.drawable.ic_btn_no_click));
+                btnVerify.setBackground(getDrawable(R.drawable.shape_btn_clickable_not));
                 llJetTime.setVisibility(View.INVISIBLE);
             } else {
                 // EditText 同时不为空的情况
                 btnVerify.setEnabled(Boolean.TRUE);
-                btnVerify.setBackground(getDrawable(R.drawable.ic_btn_full));
+                btnVerify.setBackground(getDrawable(R.drawable.shape_btn_clickable));
                 llJetTime.setVisibility(View.VISIBLE);
                 tvJetTime.setText(countTime());
             }

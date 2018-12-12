@@ -288,7 +288,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="20dp"
-                android:background="@drawable/ic_btn_full"
+                android:background="@drawable/shape_btn_clickable"
                 android:text="@string/btn_confirm"
                 android:textColor="@color/colorWhite"
                 android:textSize="19sp" />
@@ -299,7 +299,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="20dp"
-                android:background="@drawable/ic_btn_hellow"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/ic_btn_hollow"
                 android:text="@string/btn_demo_description"
                 android:textColor="@color/colorNavBar"
                 android:textSize="19sp" />

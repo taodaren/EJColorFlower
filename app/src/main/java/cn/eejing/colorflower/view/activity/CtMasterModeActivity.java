@@ -86,7 +86,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
     @Override
     public void initView() {
         EventBus.getDefault().register(this);
-        setToolbar("主控", View.VISIBLE, null, View.GONE);
+        setToolbar("多台控制", View.VISIBLE, null, View.GONE);
 
         mDevice = MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac());
         mMemberId = getIntent().getLongExtra("member_id", 0);

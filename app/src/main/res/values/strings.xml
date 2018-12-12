@@ -143,7 +143,8 @@
     <string name="text_shipping_address">收货地址：</string>
     <string name="text_consignee">收货人：</string>
     <string name="text_manage">管理</string>
-    <string name="text_enter_master_mode">进入主控模式</string>
+    <string name="text_enter_master_mode">多台控制</string>
+    <string name="text_enter_single_mode">单台控制</string>
     <string name="text_master_mode">主控模式</string>
     <string name="text_set_master">设置主控</string>
     <string name="text_order_num">订单编号：</string>

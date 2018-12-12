@@ -8,10 +8,10 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -43,12 +43,12 @@ import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.BleDevProtocol;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.MySettings;
-import cn.eejing.colorflower.view.customize.SelfDialog;
-import cn.eejing.colorflower.view.customize.SelfDialogBase;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.util.ViewFindUtils;
 import cn.eejing.colorflower.view.adapter.ViewPagerAdapter;
 import cn.eejing.colorflower.view.base.BaseActivity;
+import cn.eejing.colorflower.view.customize.SelfDialog;
+import cn.eejing.colorflower.view.customize.SelfDialogBase;
 import cn.eejing.colorflower.view.fragment.ConfigTempFragment;
 import cn.eejing.colorflower.view.fragment.ConfigTimeFragment;
 import pub.devrel.easypermissions.AfterPermissionGranted;
@@ -78,8 +78,6 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
     @BindView(R.id.img_ble_toolbar)         ImageView    imgBleToolbar;
     @BindView(R.id.layout_dmx_set)          LinearLayout dmxSet;
     @BindView(R.id.tv_dmx_show)             TextView     tvDmxShow;
-    @BindView(R.id.btn_add_material)        Button       btnAddMaterial;
-    @BindView(R.id.btn_enter_master)        Button       btnEnterMaster;
 
     private String[] mTitles = {"温度", "时间"};
     private SegmentTabLayout mTabLayout;
@@ -152,7 +150,7 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
         requestCodeQRCodePermissions();
     }
 
-    @OnClick({R.id.img_back_toolbar, R.id.layout_dmx_set, R.id.btn_add_material, R.id.btn_enter_master})
+    @OnClick({R.id.img_back_toolbar, R.id.layout_dmx_set, R.id.btn_add_material, R.id.btn_enter_single, R.id.btn_enter_master})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.layout_dmx_set:
@@ -162,11 +160,18 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                 mApp.setFlagQrCode(APP_QR_GET_MID);
                 startActivityForResult(new Intent(this, CtQrScanActivity.class), 1);
                 break;
+            case R.id.btn_enter_single:
+                if (!isEnterMasterCtrl) {
+                    jumpToActivity(new Intent(this, CtSingleModeActivity.class).putExtra("device_id", mDevId));
+                } else {
+                    ToastUtil.showShort("DMX不为0方可进入单台控制模式");
+                }
+                break;
             case R.id.btn_enter_master:
                 if (isEnterMasterCtrl) {
                     jumpToActivity(new Intent(this, CtMasterModeActivity.class).putExtra("device_id", mDevId).putExtra("member_id", mMemberId));
                 } else {
-                    ToastUtil.showShort("DMX 为 0 方可进入主控模式");
+                    ToastUtil.showShort("DMX为0方可进入多台控制模式");
                 }
                 break;
         }
@@ -695,6 +700,7 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
     /** 修改 DMX Dialog */
     private void showDialogByDmx() {
         mDialogDmx = new SelfDialog(this);
+        mDialogDmx.setEtInputType(InputType.TYPE_CLASS_NUMBER);
         mDialogDmx.setTitle("修改设备 DMX 地址");
         mDialogDmx.setMessage("设置 DMX 地址和取值范围0~510");
         mDialogDmx.setYesOnclickListener("确定", () -> {
@@ -706,8 +712,9 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                         ToastUtil.showShort("DMX超出范围，请重新设置");
                         mDialogDmx.dismiss();
                     } else if (niDmx % 2 != 0) {
-                        // 若输入奇数，提示用户
-                        ToastUtil.showShort("DMX只能为偶数，请重新设置");
+                        // 若输入奇数，自动转换为偶数，并提示用户
+                        updateDmx(niDmx + 1);
+                        ToastUtil.showShort("DMX只能为偶数，已为您转为偶数");
                         mDialogDmx.dismiss();
                     } else {
                         // 更新 DMX 地址

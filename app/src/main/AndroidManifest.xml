@@ -152,9 +152,11 @@
         <activity
             android:name=".view.activity.MiAccountActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".view.activity.MiCashSuccessActivity"
+        <activity
+            android:name=".view.activity.MiCashSuccessActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".view.activity.MiBillActivity"
+        <activity
+            android:name=".view.activity.MiBillActivity"
             android:screenOrientation="portrait" />
 
         <!-- alipay -->
@@ -176,6 +178,7 @@
             android:name=".wxapi.WXPayEntryActivity"
             android:exported="true"
             android:launchMode="singleTop" />
+        <activity android:name=".view.activity.CtSingleModeActivity"></activity>
     </application>
 
 </manifest>
