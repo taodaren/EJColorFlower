@@ -40,9 +40,9 @@ public class MasterGroupLite extends LitePalSupport implements Serializable {
     private int startDmx;                           // 起始DMX
 
     private List<JetModeConfigLite> jetModes;       // 喷射效果列表
-
     private List<MgrOutputJet> mListMstCtrlMgr;     // 喷射管理列表
     private MgrOutputJet mCurrentManager;           // 当前喷射效果管理
+    public int mCurrMasterId, mFlagCurrId;          // 当前主控喷射效果 ID 及标志位
 
     public MasterGroupLite() {
     }
@@ -55,24 +55,15 @@ public class MasterGroupLite extends LitePalSupport implements Serializable {
         mFlagCurrId = INIT_ZERO;
         mCurrentManager = mListMstCtrlMgr.get(INIT_ZERO);
     }
-
-    public int getOutDmxAddrMin() {
-        return startDmx;
-    }
-
-    public int getOutDmxAddrMax() {
-        return startDmx + devNum * 2 - 2; // - ( (isSelectedMaster==1)?2:0 )
-    }
-
-    public int mCurrMasterId, mFlagCurrId;               // 当前主控喷射效果 ID 及标志位
     private byte[] dataOut;
 
-    public int getCurJettiingDevCnt(){
-        if ( mCurrentManager!=null ){
+    public int getCurJettingDevCnt() {
+        if (mCurrentManager != null) {
             return mCurrentManager.getDevCount();
         }
         return 0;
     }
+
     public byte[] updateWithDataOut() {
         // 如果如果当前运行的 ID 大于或等于主控管理集合的最大数量，喷射停止
         if (mCurrMasterId >= mListMstCtrlMgr.size()) {
@@ -178,6 +169,10 @@ public class MasterGroupLite extends LitePalSupport implements Serializable {
 
     public int getStartDmx() {
         return startDmx;
+    }
+
+    public int getEndDmx() {
+        return startDmx + devNum * 2 - 2; // - ( (isSelectedMaster==1)?2:0 )
     }
 
     public void setStartDmx(int startDmx) {

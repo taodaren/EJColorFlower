@@ -18,17 +18,18 @@
     <RelativeLayout
         android:id="@+id/rl_hide_dialog"
         android:layout_width="match_parent"
-        android:layout_height="136dp"
+        android:layout_height="140dp"
         android:layout_alignParentBottom="true"
         android:background="@drawable/ic_bg_start">
 
         <Button
             android:id="@+id/btn_master_start"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:background="@drawable/ic_btn_jet"
+            android:layout_marginBottom="15dp"
+            android:background="@drawable/shape_jet_point"
             android:text="开始"
             android:textColor="@color/colorWhite"
             android:textSize="20sp" />
@@ -39,10 +40,10 @@
             android:layout_height="wrap_content"
             android:layout_above="@id/btn_master_start"
             android:layout_centerHorizontal="true"
-            android:paddingTop="8dp"
             android:paddingStart="8dp"
-            android:paddingBottom="4dp"
+            android:paddingTop="8dp"
             android:paddingEnd="8dp"
+            android:paddingBottom="4dp"
             android:src="@drawable/ic_start_down" />
     </RelativeLayout>
 

@@ -19,10 +19,11 @@ import static cn.eejing.colorflower.app.AppConstant.QR_DEV_ID;
 import static cn.eejing.colorflower.app.AppConstant.QR_MATERIAL_ID;
 
 public class CtQrScanActivity extends BaseActivity implements View.OnClickListener, QRCodeView.Delegate {
-    private static final String TAG = "CtQrScanActivity";
 
     @BindView(R.id.zxingview)              ZXingView mQRCodeView;
     @BindView(R.id.tv_light_switch)        TextView  tvLightSwitch;
+
+    private static final String TAG = "CtQrScanActivity";
 
     private int mFlag;
     private BaseApplication mApp;

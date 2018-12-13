@@ -22,10 +22,10 @@ import cn.eejing.colorflower.model.lite.MasterGroupLite;
 import cn.eejing.colorflower.model.manager.MgrOutputJet;
 import cn.eejing.colorflower.presenter.OnReceivePackage;
 import cn.eejing.colorflower.util.BleDevProtocol;
-import cn.eejing.colorflower.view.customize.SelfDialogBase;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.adapter.CtMasterSetAdapter;
 import cn.eejing.colorflower.view.base.BaseActivity;
+import cn.eejing.colorflower.view.customize.SelfDialogBase;
 
 import static cn.eejing.colorflower.app.AppConstant.CLEAR_MATERIAL_MASTER;
 import static cn.eejing.colorflower.app.AppConstant.CONFIG_DELAY;
@@ -49,7 +49,6 @@ import static cn.eejing.colorflower.app.AppConstant.LEFT_TO_RIGHT;
  */
 
 public class CtSetGroupActivity extends BaseActivity {
-    private static final String TAG = "CtSetGroupActivity";
 
     @BindView(R.id.ll_no_jet_mode)        LinearLayout llNoJetModes;
     @BindView(R.id.rv_master_set)         RecyclerView rvMasterSet;
@@ -58,6 +57,8 @@ public class CtSetGroupActivity extends BaseActivity {
     @BindView(R.id.sb_dev_num)            SeekBar      sbDevNum;
     @BindView(R.id.sb_start_dmx)          SeekBar      sbStartDmx;
     @BindView(R.id.tv_jet_time)           TextView     tvJetTime;
+
+    private static final String TAG = "CtSetGroupActivity";
 
     private long mDevId;
     private String mDevMac;

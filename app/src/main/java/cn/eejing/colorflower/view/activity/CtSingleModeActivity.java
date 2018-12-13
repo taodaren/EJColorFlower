@@ -3,7 +3,6 @@ package cn.eejing.colorflower.view.activity;
 import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.view.View;
@@ -13,7 +12,6 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
-import cn.eejing.colorflower.presenter.OnReceivePackage;
 import cn.eejing.colorflower.util.BleDevProtocol;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.view.base.BaseActivity;
@@ -33,7 +31,7 @@ public class CtSingleModeActivity extends BaseActivity implements SeekBar.OnSeek
     private static final int MSG_JET_START = 1;
 
     private boolean mIsSwitch;
-    private long mDeviceId;
+    private long mDevId;
     private int mHigh = 20;
 
     @SuppressLint("HandlerLeak")
@@ -57,7 +55,7 @@ public class CtSingleModeActivity extends BaseActivity implements SeekBar.OnSeek
     @Override
     public void initView() {
         setToolbar("单台控制", View.VISIBLE, null, View.GONE);
-        mDeviceId = getIntent().getLongExtra("device_id", 0);
+        mDevId = MainActivity.getAppCtrl().getDevId();
     }
 
     @Override
@@ -135,14 +133,14 @@ public class CtSingleModeActivity extends BaseActivity implements SeekBar.OnSeek
     private void cmdJetStart() {
         MainActivity.getAppCtrl().sendCommand(
                 MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
-                BleDevProtocol.pkgJetStart(mDeviceId, 0, 10, mHigh)
+                BleDevProtocol.pkgJetStart(mDevId, 0, 10, mHigh)
         );
     }
 
     private void cmdJetStop() {
         MainActivity.getAppCtrl().sendCommand(
                 MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
-                BleDevProtocol.pkgJetStop(mDeviceId)
+                BleDevProtocol.pkgJetStop(mDevId)
         );
     }
 }

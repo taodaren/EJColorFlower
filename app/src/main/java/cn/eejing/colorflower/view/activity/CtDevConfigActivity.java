@@ -72,12 +72,13 @@ import static cn.eejing.colorflower.app.AppConstant.TYPE_WAIT_USED;
  */
 
 public class CtDevConfigActivity extends BaseActivity implements EasyPermissions.PermissionCallbacks {
-    private static final String TAG = "CtDevConfigActivity";
-    private static final String JL = "about_add_material";
 
     @BindView(R.id.img_ble_toolbar)         ImageView    imgBleToolbar;
     @BindView(R.id.layout_dmx_set)          LinearLayout dmxSet;
     @BindView(R.id.tv_dmx_show)             TextView     tvDmxShow;
+
+    private static final String TAG = "CtDevConfigActivity";
+    private static final String JL = "加料";
 
     private String[] mTitles = {"温度", "时间"};
     private SegmentTabLayout mTabLayout;
@@ -162,14 +163,14 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
                 break;
             case R.id.btn_enter_single:
                 if (!isEnterMasterCtrl) {
-                    jumpToActivity(new Intent(this, CtSingleModeActivity.class).putExtra("device_id", mDevId));
+                    jumpToActivity(new Intent(this, CtSingleModeActivity.class));
                 } else {
                     ToastUtil.showShort("DMX不为0方可进入单台控制模式");
                 }
                 break;
             case R.id.btn_enter_master:
                 if (isEnterMasterCtrl) {
-                    jumpToActivity(new Intent(this, CtMasterModeActivity.class).putExtra("device_id", mDevId).putExtra("member_id", mMemberId));
+                    jumpToActivity(new Intent(this, CtMasterModeActivity.class));
                 } else {
                     ToastUtil.showShort("DMX为0方可进入多台控制模式");
                 }

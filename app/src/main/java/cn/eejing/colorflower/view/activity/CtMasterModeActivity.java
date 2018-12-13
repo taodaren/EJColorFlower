@@ -35,11 +35,11 @@ import cn.eejing.colorflower.presenter.OnReceivePackage;
 import cn.eejing.colorflower.util.BleDevProtocol;
 import cn.eejing.colorflower.util.FabScrollListener;
 import cn.eejing.colorflower.util.LogUtil;
-import cn.eejing.colorflower.view.customize.SelfDialog;
-import cn.eejing.colorflower.view.customize.SelfDialogBase;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.adapter.MasterListAdapter;
 import cn.eejing.colorflower.view.base.BaseActivity;
+import cn.eejing.colorflower.view.customize.SelfDialog;
+import cn.eejing.colorflower.view.customize.SelfDialogBase;
 
 import static cn.eejing.colorflower.app.AppConstant.CLEAR_MATERIAL_MASTER;
 import static cn.eejing.colorflower.app.AppConstant.CONFIG_TOGETHER;
@@ -51,12 +51,10 @@ import static cn.eejing.colorflower.app.AppConstant.HANDLE_BLE_DISCONN;
 import static cn.eejing.colorflower.app.AppConstant.INIT_ZERO;
 
 /**
- * 主控界面
+ * 多台控制
  */
 
 public class CtMasterModeActivity extends BaseActivity implements IShowListener {
-    private static final String TAG = "CtMasterModeActivity";
-    private static final String JET = "主控0.1秒";
 
     @BindView(R.id.img_ble_toolbar)         ImageView imgBleToolbar;
     @BindView(R.id.img_add_toolbar)         ImageView imgAddGroup;
@@ -65,18 +63,25 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
     @BindView(R.id.rl_hide_dialog)          RelativeLayout hideDialog;
     @BindView(R.id.rl_show_dialog)          RelativeLayout showDialog;
 
-    private Device mDevice;
-    private long mMemberId;
-    private long mDeviceId;
-    private long mGroupIdMillis;
+    private static final String TAG = "CtMasterModeActivity";
+    private static final String JET = "主控0.1秒";
+    private static final int MSG_MST_JET   = 1;      // 主控 0.1s 一次
+    private static final int MSG_ZERO_FIVE = 2;      // 齐喷 5 次
+
     private SelfDialog mDialogCrt;
     private SelfDialogBase mDialogDel;
-
-    private int mFlagFive;
-    private boolean isStarJet;                            // 是否开始喷射
     private MasterListAdapter mAdapter;
     private List<MasterGroupLite> mListMstGroup;          // 分组信息列表集合【全部】
     private List<MasterGroupLite> mListJetting;           // 分组信息列表集合【正在喷射过程中】
+
+    private long mDevId;
+    private int mFlagFive;
+    private boolean isStarJet;                            // 是否开始喷射
+    private int[] mBeginId;                               // 喷射效果数据 每组需要放置在总喷射数据的开始位置
+    private int mDevNum;                                  // 真实设备数量
+    private int mStartDmx;                                // 真实起始DMX
+    private int mEndDmx;                                  // 真实结束DMX
+    private int mIsIncludeMst;                            // 是否包含主控 1-包含 0-不包含
 
     @Override
     protected int layoutViewId() {
@@ -87,10 +92,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
     public void initView() {
         EventBus.getDefault().register(this);
         setToolbar("多台控制", View.VISIBLE, null, View.GONE);
-
-        mDevice = MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac());
-        mMemberId = getIntent().getLongExtra("member_id", 0);
-        mDeviceId = getIntent().getLongExtra("device_id", 0);
+        mDevId = MainActivity.getAppCtrl().getDevId();
     }
 
     @Override
@@ -109,7 +111,6 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         refreshData();
     }
 
-    /** 刷新数据 */
     private void refreshData() {
         if (mListMstGroup != null) {
             mListMstGroup.clear();
@@ -118,11 +119,12 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
     }
 
     private void initDatabase() {
-        mListMstGroup = LitePal.where("devId = ?", String.valueOf(mDeviceId)).find(MasterGroupLite.class);
+        mListMstGroup = LitePal.where("devId = ?", String.valueOf(mDevId)).find(MasterGroupLite.class);
 
         for (int i = 0; i < mListMstGroup.size(); i++) {
-            mGroupIdMillis = mListMstGroup.get(i).getGroupIdMillis();
-            List<JetModeConfigLite> listJetModes = LitePal.where("groupIdMillis = ?", String.valueOf(mGroupIdMillis)).find(JetModeConfigLite.class);
+            long mGroupIdMillis = mListMstGroup.get(i).getGroupIdMillis();
+            List<JetModeConfigLite> listJetModes =
+                    LitePal.where("groupIdMillis = ?", String.valueOf(mGroupIdMillis)).find(JetModeConfigLite.class);
             mListMstGroup.get(i).setJetModes(listJetModes);
         }
 
@@ -187,7 +189,6 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
             }
         });
         rvMasterList.setAdapter(mAdapter);
-
         rvMasterList.getRecyclerView().addOnScrollListener(new FabScrollListener(this));
 
         // 不需要上拉刷新
@@ -265,8 +266,8 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
     /** 保存分组数据 */
     private void saveGroupLite(String groupName) {
         MasterGroupLite bean = new MasterGroupLite();
-        bean.setDevId(String.valueOf(mDeviceId));
-        bean.setMemberId(String.valueOf(mMemberId));
+        bean.setDevId(String.valueOf(mDevId));
+        bean.setMemberId(MainActivity.getAppCtrl().getUserId());
         bean.setGroupName(groupName);
         bean.setGroupIdMillis(System.currentTimeMillis());
         bean.setIsSelectedGroup(2);
@@ -342,11 +343,8 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         mAdapter.notifyDataSetChanged();
     }
 
-    private static final int HANDLE_MST_JET = 3;        // 主控 0.1s 一次
-    private static final int HANDLE_ZERO_FIVE = 4;      // 齐喷 5 次
-
     @SuppressLint("HandlerLeak")
-    Handler mHandler = new Handler() {
+    private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -358,27 +356,25 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
                     imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_desconn));
                     showDialogByDisconnect(CtMasterModeActivity.this);
                     break;
-                case HANDLE_MST_JET:
+                case MSG_MST_JET:
                     // 主控输入控制
                     timerCallingMethod();
                     if (isStarJet) {
                         // 如果喷射中，继续发送。定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息）
-                        mHandler.sendEmptyMessageDelayed(HANDLE_MST_JET, 100);
+                        mHandler.sendEmptyMessageDelayed(MSG_MST_JET, 100);
                     }
                     break;
-                case HANDLE_ZERO_FIVE:
+                case MSG_ZERO_FIVE:
                     // 齐喷5次
                     if (mFlagFive < 5) {
                         mFlagFive++;
                         togetherZeroStop();
-                        mHandler.sendEmptyMessageDelayed(HANDLE_ZERO_FIVE, 100);
+                        mHandler.sendEmptyMessageDelayed(MSG_ZERO_FIVE, 100);
                     } else {
                         mFlagFive = 0;
                     }
                     break;
             }
-//            ToastUtil.showShort("任务执行完毕");
-//            showStartDialog();
         }
     };
 
@@ -387,9 +383,6 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         switch (view.getId()) {
             case R.id.btn_master_start:
                 clickStartStop();
-//                ToastUtil.showShort("开始执行任务");
-//                hideStartDialog();
-//                mHandler.sendEmptyMessageDelayed(1, 3000);
                 break;
             case R.id.img_start_hide:
                 hideStartDialog();
@@ -431,12 +424,6 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         }
     }
 
-    private int[] mJetOutDataBeginId; // 喷射效果数据 每组需要放置在总喷射数据的开始位置
-    private int   mJetOutRealDevCnt;  // 真实设备数量
-    private int   mJetOutRealDmxMin;  // 真实起始DMX
-    private int   mJetOutRealDmxMax;  // 真实结束DMX
-    private int   mJetOutSelectMst;   // 是否包含主控 1-包含 0-不包含
-
     private void starJet() {
         mListJetting = new ArrayList<>();
         for (int i = 0; i < mListMstGroup.size(); i++) {
@@ -450,38 +437,38 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
             return;
         }
 
-        mJetOutDataBeginId = new int[mListJetting.size()];
-        mJetOutRealDmxMin = mListJetting.get(0).getOutDmxAddrMin();
-        mJetOutRealDmxMax = mListJetting.get(0).getOutDmxAddrMax();
-        mJetOutSelectMst = 0;
+        mBeginId = new int[mListJetting.size()];
+        mStartDmx = mListJetting.get(0).getStartDmx();
+        mEndDmx = mListJetting.get(0).getEndDmx();
+        mIsIncludeMst = 0;
         // 对 mListJetting 进行初始化操作
         for (int i = 0; i < mListJetting.size(); i++) {
             mListJetting.get(i).makeJetMgrs();
-            int newMin = mListJetting.get(i).getOutDmxAddrMin();
-            int newMax = mListJetting.get(i).getOutDmxAddrMax();
-            if (newMin < mJetOutRealDmxMin) {
-                mJetOutRealDmxMin = newMin;
+            int newStartDmx = mListJetting.get(i).getStartDmx();
+            int newEndDmx = mListJetting.get(i).getEndDmx();
+            if (newStartDmx < mStartDmx) {
+                mStartDmx = newStartDmx;
             }
-            if (newMax > mJetOutRealDmxMax) {
-                mJetOutRealDmxMax = newMax;
+            if (newEndDmx > mEndDmx) {
+                mEndDmx = newEndDmx;
             }
             if (mListJetting.get(i).getIsSelectedMaster() == 1) {
-                mJetOutSelectMst = 1;
+                mIsIncludeMst = 1;
             }
         }
-        mJetOutRealDevCnt = (mJetOutRealDmxMax - mJetOutRealDmxMin) / 2 + 1 + 1;
+        mDevNum = (mEndDmx - mStartDmx) / 2 + 1 + 1;
         for (int i = 0; i < mListJetting.size(); i++) {
             // +1 表示第一个字节肯定是主控数据
-            mJetOutDataBeginId[i] = 1 + (mListJetting.get(i).getOutDmxAddrMin() - mJetOutRealDmxMin) / 2;
+            mBeginId[i] = 1 + (mListJetting.get(i).getStartDmx() - mStartDmx) / 2;
         }
 
         // 如果是停止喷射状态，点击变为开始状态，暂停可点击
         isStarJet = true;
         btnMasterStart.setText("停止");
-        LogUtil.i(JET, "jet=true: " + " jet= " + isStarJet );
+        LogUtil.i(JET, "jet=true: " + " jet= " + isStarJet);
 
         // 启动计时器 0.1s
-        mHandler.sendEmptyMessage(HANDLE_MST_JET);
+        mHandler.sendEmptyMessage(MSG_MST_JET);
     }
 
     private void stopJet() {
@@ -490,12 +477,12 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         btnMasterStart.setText("开始");
         LogUtil.i(JET, "jet=false: " + " jet= " + isStarJet );
         // 齐喷五次
-        mHandler.sendEmptyMessage(HANDLE_ZERO_FIVE);
+        mHandler.sendEmptyMessage(MSG_ZERO_FIVE);
     }
 
     /** 定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息） */
     private void timerCallingMethod() {
-        LogUtil.i(JET, "timerCallingMethod isStarJet = " + isStarJet );
+        LogUtil.i(JET, "timerCallingMethod isStarJet = " + isStarJet);
         byte[] dataOut = new byte[CTRL_DEV_NUM];
         // 调用方法判断全部组是否完成喷射
         boolean isAllFinish = true;
@@ -505,24 +492,24 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
 
         for (int i = 0; i < mListJetting.size(); i++) {
             byte[] dataOutOne = mListJetting.get(i).updateWithDataOut();
-            LogUtil.i(JET, "timerCallingMethod: " + i + " devcnt = " + mListJetting.get(i).getCurJettiingDevCnt() + " " + mJetOutDataBeginId[i]);
+            LogUtil.i(JET, "timerCallingMethod: " + i + " devcnt = " + mListJetting.get(i).getCurJettingDevCnt() + " " + mBeginId[i]);
             if (dataOutOne != null) {
                 LogUtil.i(JET, "timerCallingMethod: " +dataOutOne[0]+" "+dataOutOne[1]+" "+dataOutOne[2]);
                 isAllFinish = false;
                 if (mListJetting.get(i).getIsSelectedMaster() == 1) {
                     // 包含主控
                     dataOut[0] = dataOutOne[0];
-                    System.arraycopy(dataOutOne, 1, dataOut, mJetOutDataBeginId[i], mListJetting.get(i).getDevNum());
+                    System.arraycopy(dataOutOne, 1, dataOut, mBeginId[i], mListJetting.get(i).getDevNum());
                 } else {
-                    System.arraycopy(dataOutOne, 0, dataOut, mJetOutDataBeginId[i], mListJetting.get(i).getDevNum());
+                    System.arraycopy(dataOutOne, 0, dataOut, mBeginId[i], mListJetting.get(i).getDevNum());
                 }
             }
         }
 
-        MainActivity.getAppCtrl().sendCommand(mDevice,
-                BleDevProtocol.pkgEnterRealTimeCtrlMode(mDeviceId, mJetOutRealDmxMin, mJetOutRealDevCnt , dataOut));
+        MainActivity.getAppCtrl().sendCommand(MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
+                BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut));
         LogUtil.i(JET, "timerCallingMethod2: " + dataOut[0] + " " + dataOut[1] + " " + dataOut[2]);
-        LogUtil.i(JET, "timerCallingMethod: " + mDeviceId + " " + mJetOutRealDmxMin + " " + mJetOutRealDevCnt
+        LogUtil.i(JET, "timerCallingMethod: " + mDevId + " " + mStartDmx + " " + mDevNum
                 + " " + isAllFinish + " jet = " + isStarJet);
         if (isAllFinish) {
             LogUtil.i(JET, "终于喷完了！！！");
@@ -533,7 +520,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
             // 喷射停止状态
             isStarJet = false;
             // 齐喷五次
-            mHandler.sendEmptyMessage(HANDLE_ZERO_FIVE);
+            mHandler.sendEmptyMessage(MSG_ZERO_FIVE);
             // 清料
             cmdClearMaterial();
         }
@@ -546,25 +533,25 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         // 喷射 5 次高度为 0，持续时间 0.1s 齐喷效果
         MgrTogetherJet mgrStop = new MgrTogetherJet();
         mgrStop.setType(CONFIG_TOGETHER);
-        mgrStop.setDevCount(mJetOutRealDevCnt);
+        mgrStop.setDevCount(mDevNum);
         mgrStop.setCurrentTime(INIT_ZERO);
         mgrStop.setDuration(1);
         mgrStop.setHigh((byte) INIT_ZERO);
         mgrStop.updateWithDataOut(dataOut);
 
-        MainActivity.getAppCtrl().sendCommand(mDevice,
-                BleDevProtocol.pkgEnterRealTimeCtrlMode(mDeviceId, mJetOutRealDmxMin, mJetOutRealDevCnt, dataOut));
+        MainActivity.getAppCtrl().sendCommand(MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
+                BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut));
     }
 
     /** 发送清料命令 */
     private void cmdClearMaterial() {
         byte[] byHighs = new byte[CTRL_DEV_NUM];
-        for (int i = 0; i < mJetOutRealDevCnt; i++) {
+        for (int i = 0; i < mDevNum; i++) {
             int high = 20;
             byHighs[i] = (byte) high;
         }
         Device device = MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac());
-        byte[] pkgClearMaterial = BleDevProtocol.pkgClearMaterial(mDeviceId, CLEAR_MATERIAL_MASTER, mJetOutRealDmxMin, mJetOutRealDevCnt, byHighs);
+        byte[] pkgClearMaterial = BleDevProtocol.pkgClearMaterial(mDevId, CLEAR_MATERIAL_MASTER, mStartDmx, mDevNum, byHighs);
         MainActivity.getAppCtrl().sendCommand(device, pkgClearMaterial, new OnReceivePackage() {
             @Override
             public void ack(@NonNull byte[] pkg) {
