@@ -4,9 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="138dp"
     android:layout_marginStart="15dp"
+    android:layout_marginTop="10dp"
     android:layout_marginEnd="15dp"
-    android:layout_marginBottom="10dp"
-    android:background="@drawable/ic_bg_master_group"
+    android:layout_marginBottom="5dp"
+    android:background="@drawable/shape_bg_white"
+    android:elevation="4dp"
     android:orientation="vertical">
 
     <LinearLayout
@@ -56,9 +58,12 @@
 
         <Button
             android:id="@+id/btn_master_set"
-            android:layout_width="78dp"
-            android:layout_height="36dp"
-            android:background="@drawable/ic_btn_master_set" />
+            android:layout_width="70dp"
+            android:layout_height="26dp"
+            android:background="@drawable/shape_btn_clickable"
+            android:text="设置主控"
+            android:textColor="@color/colorWhite"
+            android:textSize="12sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -76,7 +81,8 @@
             android:layout_weight="1"
             android:background="@drawable/shape_dev_num"
             android:gravity="center"
-            android:text="设备数量 ?" />
+            android:text="设备数量 ?"
+            android:textColor="@color/colorConfig" />
 
         <View
             android:layout_width="1dp"
@@ -89,7 +95,8 @@
             android:layout_weight="1"
             android:background="@drawable/shape_start_dmx"
             android:gravity="center"
-            android:text="起始DMX ?" />
+            android:text="起始DMX ?"
+            android:textColor="@color/colorConfig" />
 
         <View
             android:layout_width="1dp"
@@ -102,6 +109,7 @@
             android:layout_weight="1"
             android:background="@drawable/shape_jet_type"
             android:gravity="center"
-            android:text="喷射效果" />
+            android:text="喷射效果"
+            android:textColor="@color/colorConfig" />
     </LinearLayout>
 </LinearLayout>

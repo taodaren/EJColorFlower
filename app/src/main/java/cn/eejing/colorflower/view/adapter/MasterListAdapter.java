@@ -32,7 +32,6 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private List<MasterGroupLite> mListMasterGroup;
 
     public MasterListAdapter(Context context, List<MasterGroupLite> list) {
-        LogUtil.i(TAG, "MasterListAdapter size: " + list.size());
         this.mContext = context;
         this.mListMasterGroup = list;
         this.mLayoutInflater = LayoutInflater.from(mContext);

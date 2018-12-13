@@ -3,11 +3,8 @@ package cn.eejing.colorflower.view.fragment;
 import android.Manifest;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.View;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 import java.util.Objects;
@@ -24,6 +21,8 @@ import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
 import static cn.eejing.colorflower.app.AppConstant.APP_QR_GET_DID;
+import static cn.eejing.colorflower.app.AppConstant.DEVICE_CONNECT_NO;
+import static cn.eejing.colorflower.app.AppConstant.DEVICE_CONNECT_YES;
 import static cn.eejing.colorflower.app.AppConstant.QR_DEV_ID;
 import static cn.eejing.colorflower.app.AppConstant.QR_DEV_MAC;
 import static cn.eejing.colorflower.app.AppConstant.REQUEST_CODE_QRCODE_PERMISSIONS;
@@ -35,8 +34,13 @@ import static cn.eejing.colorflower.app.AppConstant.REQUEST_CODE_SCANNING_CONN_D
 
 public class TabCtrlFragment extends BaseFragment implements EasyPermissions.PermissionCallbacks {
     private static final String TAG = "TabCtrlFragment";
+    private static final int CONN_OK = 1;// 连接状态-成功
+    private static final int CONN_NO = 0;// 连接状态-失败
 
     private BaseApplication mApp;
+    private String mConnStatus;
+    // 连接状态标志位
+    private int mFlagConnStatus, mFlagStopContext;
 
     public static TabCtrlFragment newInstance() {
         return new TabCtrlFragment();
@@ -54,8 +58,7 @@ public class TabCtrlFragment extends BaseFragment implements EasyPermissions.Per
 
     @Override
     public void initView(View rootView) {
-        EventBus.getDefault().register(this);
-        mApp = (BaseApplication) getContext().getApplicationContext();
+        mApp = (BaseApplication) Objects.requireNonNull(getContext()).getApplicationContext();
     }
 
     @Override
@@ -65,50 +68,42 @@ public class TabCtrlFragment extends BaseFragment implements EasyPermissions.Per
         requestCodeQRCodePermissions();
     }
 
-    @AfterPermissionGranted(REQUEST_CODE_QRCODE_PERMISSIONS)
-    private void requestCodeQRCodePermissions() {
-        String[] perms = {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
-        if (!EasyPermissions.hasPermissions(getContext(), perms)) {
-            EasyPermissions.requestPermissions(this, "扫描二维码需要打开相机和散光灯的权限", REQUEST_CODE_QRCODE_PERMISSIONS, perms);
-        }
-    }
-
     @OnClick(R.id.btn_ctrl_ble_conn)
     public void onClickedConnDev() {
         mApp.setFlagQrCode(APP_QR_GET_DID);
-
-        Objects.requireNonNull(getActivity()).startActivityForResult(new Intent(getContext(), CtQrScanActivity.class), REQUEST_CODE_SCANNING_CONN_DEV);
+        Objects.requireNonNull(getActivity()).startActivityForResult(
+                new Intent(getContext(), CtQrScanActivity.class),
+                REQUEST_CODE_SCANNING_CONN_DEV
+        );
     }
 
-    private int mFlagConnStatus, mFlagStopContext;
-    private String mStatus;
-
-    /** 蓝牙连接状态 */
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventDevConn(DevConnEvent event) {
-        mStatus = event.getStatus();
-        LogUtil.i(TAG, "ctrl model: " + event.getMac() + " | " + event.getId() + " | " + mStatus);
-        if (mStatus.equals("已连接")) {
-            if (mFlagConnStatus == 0 && mFlagStopContext != 2) {
-                // 如果连接状态为已连接，并且回到 TabCtrlFragment，跳转到设备配置界面
-                startActivity(new Intent(getContext(), CtDevConfigActivity.class)
-                        .putExtra(QR_DEV_ID, event.getId())
-                        .putExtra(QR_DEV_MAC, event.getMac())
-                );
-            }
-            mFlagConnStatus = 1;
-        }
-        if (mStatus.equals("不可连接")) {
-            mFlagConnStatus = 0;
+    @Override
+    public void onEventBleConn(DevConnEvent event) {
+        Log.d(TAG, "onEventBleConn: 控制模块");
+        mConnStatus = event.getStatus();
+        LogUtil.i(TAG, "ctrl model: " + event.getMac() + " | " + event.getId() + " | " + mConnStatus);
+        switch (mConnStatus) {
+            case DEVICE_CONNECT_YES:
+                if (mFlagConnStatus == CONN_NO && mFlagStopContext != 2) {
+                    // 如果连接状态为已连接，并且回到 TabCtrlFragment，跳转到设备配置界面
+                    startActivity(new Intent(getContext(), CtDevConfigActivity.class)
+                            .putExtra(QR_DEV_ID, event.getId())
+                            .putExtra(QR_DEV_MAC, event.getMac())
+                    );
+                }
+                mFlagConnStatus = CONN_OK;
+                break;
+            case DEVICE_CONNECT_NO:
+                mFlagConnStatus = CONN_NO;
+                break;
         }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        LogUtil.w(TAG, "onStop: ");
 
-        if (mStatus != null && mStatus.equals("不可连接")) {
+        if (mConnStatus != null && mConnStatus.equals(DEVICE_CONNECT_NO)) {
             // 正常断开
             mFlagStopContext = 1;
         } else {
@@ -117,10 +112,12 @@ public class TabCtrlFragment extends BaseFragment implements EasyPermissions.Per
         }
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-//        EventBus.getDefault().unregister(this);
+    @AfterPermissionGranted(REQUEST_CODE_QRCODE_PERMISSIONS)
+    private void requestCodeQRCodePermissions() {
+        String[] perms = {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
+        if (!EasyPermissions.hasPermissions(getContext(), perms)) {
+            EasyPermissions.requestPermissions(this, "扫描二维码需要打开相机和散光灯的权限", REQUEST_CODE_QRCODE_PERMISSIONS, perms);
+        }
     }
 
     @Override

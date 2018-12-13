@@ -33,6 +33,7 @@ import static cn.eejing.colorflower.app.AppConstant.TYPE_WAIT_SHIP;
  */
 
 public class PageOrderStatusFragment extends BaseFragment {
+
     @BindView(R.id.rv_mi_order_status)    PullLoadMoreRecyclerView rvOrderStatus;
     @BindView(R.id.ll_no_order)           LinearLayout llNoOrder;
 

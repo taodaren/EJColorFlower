@@ -28,10 +28,10 @@ import cn.eejing.colorflower.view.base.BaseFragment;
  */
 
 public class TabMallFragment extends BaseFragment {
-    private static final String TAG = "TabMallFragment";
 
     @BindView(R.id.rv_tab_mall)        PullLoadMoreRecyclerView rvTabMall;
 
+    private static final String TAG = "TabMallFragment";
     private List<GoodsListBean.DataBean> mList;
     private TabMallAdapter mAdapter;
 

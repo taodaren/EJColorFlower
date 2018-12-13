@@ -37,6 +37,7 @@ import static cn.eejing.colorflower.app.BaseApplication.getVersionName;
  */
 
 public class TabMineFragment extends BaseFragment {
+
     @BindView(R.id.layout_user_info)    RelativeLayout layoutUserInfo;
     @BindView(R.id.layout_vvip_mine)    LinearLayout   layoutVvipShow;
     @BindView(R.id.btn_mine_upgrade)    Button         btnUpgrade;

@@ -9,17 +9,12 @@ import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.TextView;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
 import java.util.Objects;
 
 import butterknife.BindView;
 import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.model.event.DevConnEvent;
 import cn.eejing.colorflower.util.CircleProgress;
-import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.view.base.BaseFragment;
 
 import static cn.eejing.colorflower.app.AppConstant.DEVICE_CONNECT_NO;
@@ -32,7 +27,6 @@ import static cn.eejing.colorflower.app.AppConstant.HANDLE_BLE_DISCONN;
  */
 
 public class ConfigTempFragment extends BaseFragment {
-    private static final String TAG = "ConfigTempFragment";
 
     @BindView(R.id.circle_progress)        CircleProgress mCircleProgress;
     @BindView(R.id.tv_switch_info)         TextView mTvSwitchInfo;
@@ -94,33 +88,7 @@ public class ConfigTempFragment extends BaseFragment {
     @Override
     public void onStart() {
         super.onStart();
-        EventBus.getDefault().register(this);
         mCircleProgress.setProgress(mDevTemp);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        EventBus.getDefault().unregister(this);
-        mCircleProgress.setProgress(0);
-    }
-
-    /** 蓝牙连接状态 */
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventDevConn(DevConnEvent event) {
-        // 接收硬件传过来的已连接设备信息添加到 HashSet
-        LogUtil.d(TAG, "temp cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
-
-        switch (event.getStatus()) {
-            case DEVICE_CONNECT_YES:
-                mHeating = event.getDeviceConfig().getTemperatureThresholdLow() - 50;
-                mDevTemp = event.getDeviceStatus().getTemperature();
-                mHandler.sendEmptyMessage(HANDLE_BLE_CONN);
-                break;
-            case DEVICE_CONNECT_NO:
-                mHandler.sendEmptyMessage(HANDLE_BLE_DISCONN);
-                break;
-        }
     }
 
     @SuppressLint("HandlerLeak")
@@ -139,5 +107,26 @@ public class ConfigTempFragment extends BaseFragment {
             }
         }
     };
+
+    @Override
+    public void onEventBleConn(DevConnEvent event) {
+        // 接收硬件传过来的已连接设备信息添加到 HashSet
+        switch (event.getStatus()) {
+            case DEVICE_CONNECT_YES:
+                mHeating = event.getDeviceConfig().getTemperatureThresholdLow() - 50;
+                mDevTemp = event.getDeviceStatus().getTemperature();
+                mHandler.sendEmptyMessage(HANDLE_BLE_CONN);
+                break;
+            case DEVICE_CONNECT_NO:
+                mHandler.sendEmptyMessage(HANDLE_BLE_DISCONN);
+                break;
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mCircleProgress.setProgress(0);
+    }
 
 }

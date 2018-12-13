@@ -10,10 +10,6 @@ import android.view.View;
 import android.widget.Chronometer;
 import android.widget.TextView;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Objects;
@@ -22,7 +18,6 @@ import butterknife.BindView;
 import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.model.event.DevConnEvent;
 import cn.eejing.colorflower.util.CircleProgress;
-import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.view.base.BaseFragment;
 
 import static cn.eejing.colorflower.app.AppConstant.DEVICE_CONNECT_NO;
@@ -35,7 +30,6 @@ import static cn.eejing.colorflower.app.AppConstant.HANDLE_BLE_DISCONN;
  */
 
 public class ConfigTimeFragment extends BaseFragment {
-    private static final String TAG = "PageDeviceInfoFragment";
 
     @BindView(R.id.circle_progress)        CircleProgress mCircleProgress;
     @BindView(R.id.ch_time_left)           Chronometer    chTimeLeft;
@@ -44,7 +38,6 @@ public class ConfigTimeFragment extends BaseFragment {
     private static int mDevTime;
 
     public static ConfigTimeFragment newInstance(int time) {
-        LogUtil.i(TAG, "newInstance: " + time);
         ConfigTimeFragment fragment = new ConfigTimeFragment();
         mDevTime = time;
         return fragment;
@@ -68,8 +61,9 @@ public class ConfigTimeFragment extends BaseFragment {
         } else {
             // 展示剩余时间
             long nowTimeLong = (long) time * 1000;
-            @SuppressLint("SimpleDateFormat") DateFormat ymdhmsFormat = new SimpleDateFormat("mm:ss");
-            String nowTimeStr = ymdhmsFormat.format(nowTimeLong);
+            @SuppressLint("SimpleDateFormat")
+            DateFormat format = new SimpleDateFormat("mm:ss");
+            String nowTimeStr = format.format(nowTimeLong);
             chTimeLeft.setText(nowTimeStr);
             setCircleInfo(time);
         }
@@ -96,32 +90,7 @@ public class ConfigTimeFragment extends BaseFragment {
     @Override
     public void onStart() {
         super.onStart();
-        EventBus.getDefault().register(this);
         mCircleProgress.setProgress(mDevTime);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        EventBus.getDefault().unregister(this);
-        mCircleProgress.setProgress(0);
-    }
-
-    /** 蓝牙连接状态 */
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventDevConn(DevConnEvent event) {
-        // 接收硬件传过来的已连接设备信息添加到 HashSet
-        LogUtil.i(TAG, "time cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
-
-        switch (event.getStatus()) {
-            case DEVICE_CONNECT_YES:
-                mDevTime = event.getDeviceStatus().getRestTime();
-                mHandler.sendEmptyMessage(HANDLE_BLE_CONN);
-                break;
-            case DEVICE_CONNECT_NO:
-                mHandler.sendEmptyMessage(HANDLE_BLE_DISCONN);
-                break;
-        }
     }
 
     @SuppressLint("HandlerLeak")
@@ -140,5 +109,25 @@ public class ConfigTimeFragment extends BaseFragment {
             }
         }
     };
+
+    @Override
+    public void onEventBleConn(DevConnEvent event) {
+        // 接收硬件传过来的已连接设备信息添加到 HashSet
+        switch (event.getStatus()) {
+            case DEVICE_CONNECT_YES:
+                mDevTime = event.getDeviceStatus().getRestTime();
+                mHandler.sendEmptyMessage(HANDLE_BLE_CONN);
+                break;
+            case DEVICE_CONNECT_NO:
+                mHandler.sendEmptyMessage(HANDLE_BLE_DISCONN);
+                break;
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mCircleProgress.setProgress(0);
+    }
 
 }

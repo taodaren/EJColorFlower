@@ -56,21 +56,21 @@ import static cn.eejing.colorflower.app.AppConstant.INIT_ZERO;
 
 public class CtMasterModeActivity extends BaseActivity implements IShowListener {
 
-    @BindView(R.id.img_ble_toolbar)         ImageView imgBleToolbar;
-    @BindView(R.id.img_add_toolbar)         ImageView imgAddGroup;
-    @BindView(R.id.rv_master_list)          PullLoadMoreRecyclerView rvMasterList;
-    @BindView(R.id.btn_master_start)        Button btnMasterStart;
-    @BindView(R.id.rl_hide_dialog)          RelativeLayout hideDialog;
-    @BindView(R.id.rl_show_dialog)          RelativeLayout showDialog;
+    @BindView(R.id.img_ble_toolbar)     ImageView                imgBleToolbar;
+    @BindView(R.id.img_add_toolbar)     ImageView                imgAddGroup;
+    @BindView(R.id.rv_master_list)      PullLoadMoreRecyclerView rvMasterList;
+    @BindView(R.id.btn_master_start)    Button                   btnMasterStart;
+    @BindView(R.id.rl_hide_dialog)      RelativeLayout           hideDialog;
+    @BindView(R.id.rl_show_dialog)      RelativeLayout           showDialog;
 
-    private static final String TAG = "CtMasterModeActivity";
-    private static final String JET = "主控0.1秒";
-    private static final int MSG_MST_JET   = 1;      // 主控 0.1s 一次
-    private static final int MSG_ZERO_FIVE = 2;      // 齐喷 5 次
+    private static final String   TAG           =         "CtMasterModeActivity";
+    private static final String   JET           =         "主控0.1秒";
+    private static final int      MSG_MST_JET   = 1;      // 主控 0.1s 一次
+    private static final int      MSG_ZERO_FIVE = 2;      // 齐喷 5 次
 
-    private SelfDialog mDialogCrt;
-    private SelfDialogBase mDialogDel;
-    private MasterListAdapter mAdapter;
+    private SelfDialog            mDialogCrt;
+    private SelfDialogBase        mDialogDel;
+    private MasterListAdapter     mAdapter;
     private List<MasterGroupLite> mListMstGroup;          // 分组信息列表集合【全部】
     private List<MasterGroupLite> mListJetting;           // 分组信息列表集合【正在喷射过程中】
 
