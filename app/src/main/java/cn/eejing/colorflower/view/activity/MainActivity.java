@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.ArrayMap;
+import android.util.Log;
 import android.view.KeyEvent;
 
 import com.ashokvarma.bottomnavigation.BottomNavigationBar;
@@ -217,6 +218,10 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     private final List<Device> mDevList = new LinkedList<>();
     private final Map<String, ProtocolWithDev> mProtocolMap = new ArrayMap<>();
 
+    public void showCurState(){
+        Log.d(TAG, "showCurState: "+mProtocolMap);
+    }
+
     private class ProtocolWithDev extends BleDevProtocol {
         final Device device;
         boolean bSendEn = true;              // 用于判断线程是否需要结束
@@ -307,8 +312,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                                                 public void timeout() {
                                                     flagAddTimeOut++;
                                                     if (flagAddTimeOut > 3) {
-                                                        // 超出距离断开连接
-                                                        LogUtil.e(TAG, "timeout1: ");
+                                                        // 超时断开连接
                                                         EventBus.getDefault().post(new DevConnEvent(getDevMac(), DEVICE_CONNECT_NO));
                                                         flagAddTimeOut = 0;
                                                         bSendEn = false;
@@ -329,8 +333,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                                                 public void timeout() {
                                                     flagAddTimeOut++;
                                                     if (flagAddTimeOut > 3) {
-                                                        // 超出距离断开连接
-                                                        LogUtil.e(TAG, "timeout2: ");
+                                                        // 超时断开连接
                                                         EventBus.getDefault().post(new DevConnEvent(getDevMac(), DEVICE_CONNECT_NO));
                                                         flagAddTimeOut = 0;
                                                         bSendEn = false;
@@ -461,6 +464,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
             ProtocolWithDev p = mProtocolMap.get(mac);
             p.stopSendThread();
             mProtocolMap.remove(mac);
+            disconnectAll();
         }
     }
 
@@ -469,6 +473,10 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
         super.onFoundDevice(bleDevice, serviceUuids);
         String name = bleDevice.getName();
         String mac = bleDevice.getAddress();
+        if( mProtocolMap.containsKey(mac) ) {
+            Log.d(TAG, "onFoundDevice MAC: " + mac);
+            addDeviceByObject(bleDevice);
+        }
         // 通过设备广播名称，判断是否为配置的设备
         if (name.indexOf(getAllowedConnDevName()) != 0) {
             return;
@@ -571,13 +579,11 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        LogUtil.i(TAG, "requestCode: " + requestCode);
         switch (requestCode) {
             case REQUEST_CODE_SCANNING_CONN_DEV:
                 if (resultCode == RESULT_OK) {
                     long devId = data.getLongExtra(QR_DEV_ID, 0);
                     mStrDevId = String.valueOf(devId);
-
                     // 获取 ID 对应 MAC
                     getDataWithQueryDevMac();
                 }

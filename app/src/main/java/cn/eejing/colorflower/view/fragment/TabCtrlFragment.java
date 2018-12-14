@@ -13,9 +13,10 @@ import butterknife.OnClick;
 import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.app.BaseApplication;
 import cn.eejing.colorflower.model.event.DevConnEvent;
-import cn.eejing.colorflower.util.LogUtil;
+import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.activity.CtDevConfigActivity;
 import cn.eejing.colorflower.view.activity.CtQrScanActivity;
+import cn.eejing.colorflower.view.activity.MainActivity;
 import cn.eejing.colorflower.view.base.BaseFragment;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -34,13 +35,12 @@ import static cn.eejing.colorflower.app.AppConstant.REQUEST_CODE_SCANNING_CONN_D
 
 public class TabCtrlFragment extends BaseFragment implements EasyPermissions.PermissionCallbacks {
     private static final String TAG = "TabCtrlFragment";
-    private static final int CONN_OK = 1;// 连接状态-成功
-    private static final int CONN_NO = 0;// 连接状态-失败
+    private static final int CONN_NO  =  0; // 连接状态 - 不可连接
+    private static final int CONN_OK  =  1; // 连接状态 - 成功
+    private static final int CONN_DEF =  2; // 连接状态 - 不可连接
 
+    private int mFlagConn;                  // 连接状态标志位
     private BaseApplication mApp;
-    private String mConnStatus;
-    // 连接状态标志位
-    private int mFlagConnStatus, mFlagStopContext;
 
     public static TabCtrlFragment newInstance() {
         return new TabCtrlFragment();
@@ -64,13 +64,15 @@ public class TabCtrlFragment extends BaseFragment implements EasyPermissions.Per
     @Override
     public void onStart() {
         super.onStart();
-        mFlagStopContext = 0;
+        // 每次进入连接状态初始 -1
+        mFlagConn = -1;
         requestCodeQRCodePermissions();
     }
 
     @OnClick(R.id.btn_ctrl_ble_conn)
     public void onClickedConnDev() {
         mApp.setFlagQrCode(APP_QR_GET_DID);
+        MainActivity.getAppCtrl().showCurState();
         Objects.requireNonNull(getActivity()).startActivityForResult(
                 new Intent(getContext(), CtQrScanActivity.class),
                 REQUEST_CODE_SCANNING_CONN_DEV
@@ -79,36 +81,25 @@ public class TabCtrlFragment extends BaseFragment implements EasyPermissions.Per
 
     @Override
     public void onEventBleConn(DevConnEvent event) {
-        Log.d(TAG, "onEventBleConn: 控制模块");
-        mConnStatus = event.getStatus();
-        LogUtil.i(TAG, "ctrl model: " + event.getMac() + " | " + event.getId() + " | " + mConnStatus);
-        switch (mConnStatus) {
-            case DEVICE_CONNECT_YES:
-                if (mFlagConnStatus == CONN_NO && mFlagStopContext != 2) {
-                    // 如果连接状态为已连接，并且回到 TabCtrlFragment，跳转到设备配置界面
+        Log.d(TAG, "onEvent ble conn: 控制模块");
+        if (mFlagConn != CONN_OK) {
+            switch (event.getStatus()) {
+                case DEVICE_CONNECT_YES:
+                    mFlagConn = CONN_OK;
+                    // 如果连接状态为已连接，跳转到设备配置界面
                     startActivity(new Intent(getContext(), CtDevConfigActivity.class)
                             .putExtra(QR_DEV_ID, event.getId())
                             .putExtra(QR_DEV_MAC, event.getMac())
                     );
-                }
-                mFlagConnStatus = CONN_OK;
-                break;
-            case DEVICE_CONNECT_NO:
-                mFlagConnStatus = CONN_NO;
-                break;
-        }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        if (mConnStatus != null && mConnStatus.equals(DEVICE_CONNECT_NO)) {
-            // 正常断开
-            mFlagStopContext = 1;
-        } else {
-            // 异常断开
-            mFlagStopContext = 2;
+                    break;
+                case DEVICE_CONNECT_NO:
+                    mFlagConn = CONN_NO;
+                    ToastUtil.showShort(DEVICE_CONNECT_NO);
+                    break;
+                default:
+                    mFlagConn = CONN_DEF;
+                    break;
+            }
         }
     }
 

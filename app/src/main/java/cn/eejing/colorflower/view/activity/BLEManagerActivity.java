@@ -420,18 +420,9 @@ public class BLEManagerActivity extends BaseActivity {
     };
 
     void onFoundDevice(BluetoothDevice bleDevice, @Nullable List<ParcelUuid> serviceUuids) {
-        String name = bleDevice.getName();
-        String mac = bleDevice.getAddress();
-//        LogUtil.i(TAG, "onFoundDevice " + mac + " | " + name);
-
-        if (serviceUuids != null) {
-            for (ParcelUuid uuid : serviceUuids) {
-//                LogUtil.i(TAG, "serviceUuid " + uuid.toString());
-            }
-        }
     }
 
-    private void addDeviceByObject(BluetoothDevice bleDevice) {
+    protected void addDeviceByObject(BluetoothDevice bleDevice) {
         LogUtil.d(TAG, "addDeviceByObject:");
         final DeviceManager mgr;
         String mac = bleDevice.getAddress();
@@ -712,14 +703,29 @@ public class BLEManagerActivity extends BaseActivity {
     }
 
     /** 断开所有 BLE 设备 */
-    private void disconnectAll() {
-        mIsShutdown = true;
+    public void disconnectAll() {
+//        mIsShutdown = true;
         synchronized (mGattOperationLock) {
             mGattOperations.clear();
         }
         for (DeviceManager mgr : mDevMgrSet.values()) {
             if (mgr.gatt != null && mgr.isConnected) {
                 mgr.gatt.disconnect();
+            }
+        }
+    }
+
+    /** 断开某台 BLE 设备 */
+    public void disconnectOne(String mac) {
+        synchronized (mGattOperationLock) {
+            mGattOperations.clear();
+        }
+        for (DeviceManager mgr : mDevMgrSet.values()) {
+            if( mgr.mac.equals(mac) ) {
+                if (mgr.gatt != null && mgr.isConnected) {
+                    mgr.gatt.disconnect();
+                }
+                return;
             }
         }
     }
