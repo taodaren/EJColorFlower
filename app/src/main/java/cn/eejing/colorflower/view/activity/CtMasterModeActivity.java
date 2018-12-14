@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
-import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
@@ -31,7 +30,6 @@ import cn.eejing.colorflower.model.lite.JetModeConfigLite;
 import cn.eejing.colorflower.model.lite.MasterGroupLite;
 import cn.eejing.colorflower.model.manager.MgrTogetherJet;
 import cn.eejing.colorflower.presenter.IShowListener;
-import cn.eejing.colorflower.presenter.OnReceivePackage;
 import cn.eejing.colorflower.util.BleDevProtocol;
 import cn.eejing.colorflower.util.FabScrollListener;
 import cn.eejing.colorflower.util.LogUtil;
@@ -74,6 +72,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
     private List<MasterGroupLite> mListMstGroup;          // 分组信息列表集合【全部】
     private List<MasterGroupLite> mListJetting;           // 分组信息列表集合【正在喷射过程中】
 
+    private Device mDevice;
     private long mDevId;
     private int mFlagFive;
     private boolean isStarJet;                            // 是否开始喷射
@@ -93,6 +92,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         EventBus.getDefault().register(this);
         setToolbar("多台控制", View.VISIBLE, null, View.GONE);
         mDevId = MainActivity.getAppCtrl().getDevId();
+        mDevice = MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac());
     }
 
     @Override
@@ -405,10 +405,10 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
                 if (mListMstGroup.get(i).getIsSelectedGroup() == 1) {
                     bSelect = true;
                     if (mListMstGroup.get(i).getDevNum() == 0) {
-                        ToastUtil.showShort("设备数量不能为 0，请您重新设置");
+                        ToastUtil.showShort("设备数量不能为0，请您重新设置");
                         bNeedStart = false;
                     } else if (mListMstGroup.get(i).getStartDmx() == 0) {
-                        ToastUtil.showShort("起始DMX不能为 0，请您重新设置");
+                        ToastUtil.showShort("起始DMX不能为0，请您重新设置");
                         bNeedStart = false;
                     } else if (mListMstGroup.get(i).getJetModes().size() == 0) {
                         ToastUtil.showShort("有选中组未设置效果，请重新设置");
@@ -419,7 +419,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
             if (bNeedStart && bSelect) {
                 starJet();
             } else if (!bSelect) {
-                ToastUtil.showShort("起始DMX不能为 0，请您重新设置");
+                ToastUtil.showShort("起始DMX不能为0，请您重新设置");
             }
         }
     }
@@ -524,7 +524,6 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
             // 清料
             cmdClearMaterial();
         }
-
     }
 
     /** 发送 5 次高度为 0，持续时间 0.1s 齐喷效果 */
@@ -539,7 +538,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         mgrStop.setHigh((byte) INIT_ZERO);
         mgrStop.updateWithDataOut(dataOut);
 
-        MainActivity.getAppCtrl().sendCommand(MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
+        MainActivity.getAppCtrl().sendCommand(mDevice,
                 BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut));
     }
 
@@ -550,17 +549,8 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
             int high = 20;
             byHighs[i] = (byte) high;
         }
-        Device device = MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac());
-        byte[] pkgClearMaterial = BleDevProtocol.pkgClearMaterial(mDevId, CLEAR_MATERIAL_MASTER, mStartDmx, mDevNum, byHighs);
-        MainActivity.getAppCtrl().sendCommand(device, pkgClearMaterial, new OnReceivePackage() {
-            @Override
-            public void ack(@NonNull byte[] pkg) {
-            }
-
-            @Override
-            public void timeout() {
-            }
-        });
+        MainActivity.getAppCtrl().sendCommand(mDevice,
+                 BleDevProtocol.pkgClearMaterial(mDevId, CLEAR_MATERIAL_MASTER, mStartDmx, mDevNum, byHighs));
     }
 
 }
