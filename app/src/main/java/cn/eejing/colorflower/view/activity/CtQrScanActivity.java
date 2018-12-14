@@ -52,7 +52,7 @@ public class CtQrScanActivity extends BaseActivity implements View.OnClickListen
         super.onStart();
         // 打开后置摄像头开始预览，但是并未开始识别
         mQRCodeView.startCamera();
-        // 显示扫描框，并且延迟1.5秒后开始识别
+        // 显示扫描框，并开始识别
         mQRCodeView.startSpotAndShowRect();
     }
 
@@ -65,8 +65,7 @@ public class CtQrScanActivity extends BaseActivity implements View.OnClickListen
 
     @Override
     protected void onDestroy() {
-        // 在 onDestroy 方法中调用 mQRCodeView.onDestroy()
-        // 在 onStop 方法中调用 mQRCodeView.stopCamera()，否则会出现黑屏
+        // 销毁二维码扫描控件
         mQRCodeView.onDestroy();
         super.onDestroy();
     }
@@ -107,7 +106,7 @@ public class CtQrScanActivity extends BaseActivity implements View.OnClickListen
 
     private void setResults(String result, String flag) {
         vibrate();
-        // 延迟 1.5s 后开始识别
+        // 开始识别
         mQRCodeView.startSpot();
         LogUtil.i(TAG, "id: " + Long.parseLong(result));
         setResult(RESULT_OK, new Intent().putExtra(flag, Long.parseLong(result)));
@@ -147,6 +146,23 @@ public class CtQrScanActivity extends BaseActivity implements View.OnClickListen
     private void turnOff() {
         tvLightSwitch.setText("开启照明");
         mQRCodeView.closeFlashlight();
+    }
+
+    @Override
+    public void onCameraAmbientBrightnessChanged(boolean isDark) {
+        // 这里是通过修改提示文案来展示环境是否过暗的状态，接入方也可以根据 isDark 的值来实现其他交互效果
+        String tipText = mQRCodeView.getScanBoxView().getTipText();
+        String ambientBrightnessTip = "\n环境过暗，请打开闪光灯";
+        if (isDark) {
+            if (!tipText.contains(ambientBrightnessTip)) {
+                mQRCodeView.getScanBoxView().setTipText(tipText + ambientBrightnessTip);
+            }
+        } else {
+            if (tipText.contains(ambientBrightnessTip)) {
+                tipText = tipText.substring(0, tipText.indexOf(ambientBrightnessTip));
+                mQRCodeView.getScanBoxView().setTipText(tipText);
+            }
+        }
     }
 
     @Override
