@@ -360,8 +360,8 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
                 case MSG_MST_JET:
                     // 主控输入控制
                     timerCallingMethod();
+                    // 如果喷射中并且完成预进料，继续发送。定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息）
                     if (isStarJet && isOverPreFeed) {
-                        // 如果喷射中，继续发送。定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息）
                         mHandler.sendEmptyMessageDelayed(MSG_MST_JET, 100);
                     }
                     break;
@@ -473,14 +473,13 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
     }
 
     private void stopJet() {
-        // 如果是开始喷射状态，点击变为停止状态，暂停不可点击
+        // 齐喷五次并移除喷射消息
+        mHandler.sendEmptyMessage(MSG_ZERO_FIVE);
+        mHandler.removeMessages(MSG_MST_JET);
+        // 如果是开始喷射状态，点击变为停止状态，暂停不可点击，恢复预进料
         isStarJet = false;
         isOverPreFeed = false;
         btnMasterStart.setText("开始");
-        LogUtil.i(JET, "jet=false: " + " jet= " + isStarJet );
-        // 齐喷五次
-        mHandler.sendEmptyMessage(MSG_ZERO_FIVE);
-        mHandler.removeMessages(MSG_MST_JET);
     }
 
     private boolean isOverPreFeed;// 是否完成预进料操作
