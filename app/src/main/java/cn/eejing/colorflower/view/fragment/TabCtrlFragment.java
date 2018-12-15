@@ -3,7 +3,6 @@ package cn.eejing.colorflower.view.fragment;
 import android.Manifest;
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.View;
 
 import java.util.List;
@@ -34,7 +33,6 @@ import static cn.eejing.colorflower.app.AppConstant.REQUEST_CODE_SCANNING_CONN_D
  */
 
 public class TabCtrlFragment extends BaseFragment implements EasyPermissions.PermissionCallbacks {
-    private static final String TAG = "TabCtrlFragment";
     private static final int CONN_NO  =  0; // 连接状态 - 不可连接
     private static final int CONN_OK  =  1; // 连接状态 - 成功
     private static final int CONN_DEF =  2; // 连接状态 - 不可连接
@@ -81,10 +79,9 @@ public class TabCtrlFragment extends BaseFragment implements EasyPermissions.Per
 
     @Override
     public void onEventBleConn(DevConnEvent event) {
-        Log.d(TAG, "onEvent ble conn: 控制模块");
-        if (mFlagConn != CONN_OK) {
-            switch (event.getStatus()) {
-                case DEVICE_CONNECT_YES:
+        switch (event.getStatus()) {
+            case DEVICE_CONNECT_YES:
+                if (mFlagConn != CONN_OK) {
                     mFlagConn = CONN_OK;
                     // 如果连接状态为已连接，跳转到设备配置界面
                     startActivity(new Intent(getContext(), CtDevConfigActivity.class)
@@ -92,14 +89,21 @@ public class TabCtrlFragment extends BaseFragment implements EasyPermissions.Per
                             .putExtra(QR_DEV_MAC, event.getMac())
                     );
                     break;
-                case DEVICE_CONNECT_NO:
+                } else {
+                    return;
+                }
+            case DEVICE_CONNECT_NO:
+                if (mFlagConn != CONN_NO) {
                     mFlagConn = CONN_NO;
-                    ToastUtil.showShort(DEVICE_CONNECT_NO);
+                    ToastUtil.showShort("无法连接设备，请检查连接范围或遮挡物");
+                    MainActivity.getAppCtrl().disconnectDevice(MainActivity.getAppCtrl().getDevMac());
                     break;
-                default:
-                    mFlagConn = CONN_DEF;
-                    break;
-            }
+                } else {
+                    return;
+                }
+            default:
+                mFlagConn = CONN_DEF;
+                break;
         }
     }
 
