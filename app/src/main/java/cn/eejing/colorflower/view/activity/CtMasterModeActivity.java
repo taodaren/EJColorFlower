@@ -2,6 +2,7 @@ package cn.eejing.colorflower.view.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
@@ -359,7 +360,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
                 case MSG_MST_JET:
                     // 主控输入控制
                     timerCallingMethod();
-                    if (isStarJet) {
+                    if (isStarJet && isOverPreFeed) {
                         // 如果喷射中，继续发送。定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息）
                         mHandler.sendEmptyMessageDelayed(MSG_MST_JET, 100);
                     }
@@ -474,56 +475,99 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
     private void stopJet() {
         // 如果是开始喷射状态，点击变为停止状态，暂停不可点击
         isStarJet = false;
+        isOverPreFeed = false;
         btnMasterStart.setText("开始");
         LogUtil.i(JET, "jet=false: " + " jet= " + isStarJet );
         // 齐喷五次
         mHandler.sendEmptyMessage(MSG_ZERO_FIVE);
+        mHandler.removeMessages(MSG_MST_JET);
     }
+
+    private boolean isOverPreFeed;// 是否完成预进料操作
 
     /** 定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息） */
     private void timerCallingMethod() {
         LogUtil.i(JET, "timerCallingMethod isStarJet = " + isStarJet);
         byte[] dataOut = new byte[CTRL_DEV_NUM];
-        // 调用方法判断全部组是否完成喷射
-        boolean isAllFinish = true;
-        for (int i = 0; i < CTRL_DEV_NUM; i++) {
-            dataOut[i] = 0;
-        }
 
-        for (int i = 0; i < mListJetting.size(); i++) {
-            byte[] dataOutOne = mListJetting.get(i).updateWithDataOut();
-            LogUtil.i(JET, "timerCallingMethod: " + i + " devcnt = " + mListJetting.get(i).getCurJettingDevCnt() + " " + mBeginId[i]);
-            if (dataOutOne != null) {
-                LogUtil.i(JET, "timerCallingMethod: " +dataOutOne[0]+" "+dataOutOne[1]+" "+dataOutOne[2]);
-                isAllFinish = false;
-                if (mListJetting.get(i).getIsSelectedMaster() == 1) {
-                    // 包含主控
-                    dataOut[0] = dataOutOne[0];
-                    System.arraycopy(dataOutOne, 1, dataOut, mBeginId[i], mListJetting.get(i).getDevNum());
-                } else {
-                    System.arraycopy(dataOutOne, 0, dataOut, mBeginId[i], mListJetting.get(i).getDevNum());
+        // 预进料操作
+        if (!isOverPreFeed) {
+            // 开始预进料
+            setPreFeed(dataOut);
+        } else {
+            // 调用方法判断全部组是否完成喷射
+            boolean isAllFinish = true;
+            for (int i = 0; i < CTRL_DEV_NUM; i++) {
+                dataOut[i] = 0;
+            }
+
+            for (int i = 0; i < mListJetting.size(); i++) {
+                byte[] dataOutOne = mListJetting.get(i).updateWithDataOut();
+                LogUtil.i(JET, "timerCallingMethod: " + i + " devcnt = " + mListJetting.get(i).getCurJettingDevCnt() + " " + mBeginId[i]);
+                if (dataOutOne != null) {
+                    LogUtil.i(JET, "timerCallingMethod: " + dataOutOne[0] + " " + dataOutOne[1] + " " + dataOutOne[2]);
+                    isAllFinish = false;
+                    if (mListJetting.get(i).getIsSelectedMaster() == 1) {
+                        // 包含主控
+                        dataOut[0] = dataOutOne[0];
+                        System.arraycopy(dataOutOne, 1, dataOut, mBeginId[i], mListJetting.get(i).getDevNum());
+                    } else {
+                        System.arraycopy(dataOutOne, 0, dataOut, mBeginId[i], mListJetting.get(i).getDevNum());
+                    }
                 }
             }
-        }
 
+            MainActivity.getAppCtrl().sendCommand(MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
+                    BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut));
+            LogUtil.i(JET, "timerCallingMethod2: " + dataOut[0] + " " + dataOut[1] + " " + dataOut[2]);
+            LogUtil.i(JET, "timerCallingMethod: " + mDevId + " " + mStartDmx + " " + mDevNum
+                    + " " + isAllFinish + " jet = " + isStarJet);
+            if (isAllFinish) {
+                LogUtil.i(JET, "终于喷完了！！！");
+
+                // 按钮状态初始化
+                btnMasterStart.setText("开始");
+                // 喷射停止状态
+                isStarJet = false;
+                // 预进料初始化
+                isOverPreFeed = false;
+                // 齐喷五次
+                mHandler.sendEmptyMessage(MSG_ZERO_FIVE);
+                // 清料
+                cmdClearMaterial();
+            }
+        }
+    }
+
+    /** 预进料操作 */
+    private void setPreFeed(byte[] dataOut) {
+        for (int i = 0; i < CTRL_DEV_NUM; i++) {
+            dataOut[i] = (byte) 133;
+        }
         MainActivity.getAppCtrl().sendCommand(MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
                 BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut));
-        LogUtil.i(JET, "timerCallingMethod2: " + dataOut[0] + " " + dataOut[1] + " " + dataOut[2]);
-        LogUtil.i(JET, "timerCallingMethod: " + mDevId + " " + mStartDmx + " " + mDevNum
-                + " " + isAllFinish + " jet = " + isStarJet);
-        if (isAllFinish) {
-            LogUtil.i(JET, "终于喷完了！！！");
+        // 暂定2s倒计时，每隔1s更新UI
+        new CountDownTimer(1999, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                btnMasterStart.setTextSize(40);
+                btnMasterStart.setText(String.valueOf(millisUntilFinished / 1000 + 1));
+            }
 
-            // 按钮状态初始化
-            btnMasterStart.setText("开始");
-
-            // 喷射停止状态
-            isStarJet = false;
-            // 齐喷五次
-            mHandler.sendEmptyMessage(MSG_ZERO_FIVE);
-            // 清料
-            cmdClearMaterial();
-        }
+            @Override
+            public void onFinish() {
+                // 停止预进料
+                for (int i = 0; i < CTRL_DEV_NUM; i++) {
+                    dataOut[i] = (byte) 134;
+                }
+                MainActivity.getAppCtrl().sendCommand(MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
+                        BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut));
+                btnMasterStart.setTextSize(20);
+                btnMasterStart.setText("停止");
+                isOverPreFeed = true;
+                mHandler.sendEmptyMessage(MSG_MST_JET);
+            }
+        }.start();
     }
 
     /** 发送 5 次高度为 0，持续时间 0.1s 齐喷效果 */
