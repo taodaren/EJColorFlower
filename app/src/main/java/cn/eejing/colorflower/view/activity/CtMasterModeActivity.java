@@ -7,7 +7,10 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.ScaleAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -549,13 +552,27 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         new CountDownTimer(1999, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
+                btnMasterStart.setEnabled(false);
                 btnMasterStart.setTextSize(40);
                 btnMasterStart.setText(String.valueOf(millisUntilFinished / 1000 + 1));
+
+                // 设置透明度渐变动画
+                final AlphaAnimation alphaAnimation = new AlphaAnimation(0, 1);
+                // 设置动画持续时间
+                alphaAnimation.setDuration(1000);
+                btnMasterStart.startAnimation(alphaAnimation);
+
+                // 设置缩放渐变动画
+                final ScaleAnimation scaleAnimation = new ScaleAnimation(0.5f, 1f, 0.5f, 1f,
+                        Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                scaleAnimation.setDuration(1000);
+                btnMasterStart.startAnimation(scaleAnimation);
             }
 
             @Override
             public void onFinish() {
                 // 停止预进料
+                btnMasterStart.setEnabled(true);
                 for (int i = 0; i < CTRL_DEV_NUM; i++) {
                     dataOut[i] = (byte) 134;
                 }
