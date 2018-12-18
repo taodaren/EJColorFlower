@@ -31,14 +31,22 @@ public abstract class DialogCallback<T> extends JsonCallback<T> {
     @Override
     public void onStart(Request<T, ? extends Request> request) {
         if (mProgressDialog != null && !mProgressDialog.isShowing()) {
-            mProgressDialog.show();
+            try {
+                mProgressDialog.show();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
     @Override
     public void onFinish() {
         if (mProgressDialog != null && mProgressDialog.isShowing()) {
-            mProgressDialog.dismiss();
+            try {
+                mProgressDialog.dismiss();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
