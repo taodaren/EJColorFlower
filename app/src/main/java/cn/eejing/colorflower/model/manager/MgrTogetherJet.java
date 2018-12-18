@@ -14,21 +14,33 @@ public class MgrTogetherJet extends MgrOutputJet {
 
     @Override
     public boolean updateWithDataOut(byte[] dataOut) {
-        LogUtil.i(JET, "updateWithDataOut: 老子进入齐喷了");
+        LogUtil.i(JET, "updateWithDataOut: 进入齐喷");
 
         mCurrentTime++;
         long outputTime = mDuration;
-        for (int i = 0; i < mDevCount; i++) {
-            if (mCurrentTime <= outputTime) {
-                dataOut[i] = mHigh;
-            } else {
-                dataOut[i] = 0;
+        // 判断是否需要停止进料
+        if (isLastEffect
+                && ((outputTime - mCurrentTime) < LAST_TO_END_TIME)
+                && (indexNum < STOP_FEED_ORDER_NUM)) {
+            LogUtil.d(JET, "添加停止进料命令");
+            for (int i = 0; i < mDevCount; i++) {
+                if (mCurrentTime <= outputTime) {
+                    dataOut[i] = (byte) STOP_FEED_START;
+                } else {
+                    dataOut[i] = 0;
+                }
+            }
+            indexNum++;
+        } else {
+            for (int i = 0; i < mDevCount; i++) {
+                if (mCurrentTime <= outputTime) {
+                    dataOut[i] = mHigh;
+                } else {
+                    dataOut[i] = 0;
+                }
             }
         }
-
-        LogUtil.i(JET, "update over mCurrentTime: " + mCurrentTime);
-        LogUtil.i(JET, "update over outputTime: " + outputTime);
-        return mCurrentTime > outputTime;
+        return mCurrentTime >= outputTime;
     }
 
     public void setDuration(int duration) {
@@ -39,11 +51,4 @@ public class MgrTogetherJet extends MgrOutputJet {
         mHigh = high;
     }
 
-    public int getDuration() {
-        return mDuration;
-    }
-
-    public byte getHigh() {
-        return mHigh;
-    }
 }

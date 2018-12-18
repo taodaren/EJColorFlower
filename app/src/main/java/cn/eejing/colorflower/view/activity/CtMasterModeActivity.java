@@ -51,6 +51,11 @@ import static cn.eejing.colorflower.app.AppConstant.DEVICE_CONNECT_YES;
 import static cn.eejing.colorflower.app.AppConstant.HANDLE_BLE_CONN;
 import static cn.eejing.colorflower.app.AppConstant.HANDLE_BLE_DISCONN;
 import static cn.eejing.colorflower.app.AppConstant.INIT_ZERO;
+import static cn.eejing.colorflower.model.manager.MgrOutputJet.PREPARE_FEED_END;
+import static cn.eejing.colorflower.model.manager.MgrOutputJet.PREPARE_FEED_START;
+import static cn.eejing.colorflower.model.manager.MgrOutputJet.PRE_FEED_INTERVAL;
+import static cn.eejing.colorflower.model.manager.MgrOutputJet.PRE_FEED_TIME;
+import static cn.eejing.colorflower.model.manager.MgrOutputJet.STOP_FEED_RELEASE;
 
 /**
  * 多台控制
@@ -529,6 +534,8 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
 
                 // 按钮状态初始化
                 btnMasterStart.setText("开始");
+                // 解除停止进料
+                stopFeedRelease(dataOut);
                 // 喷射停止状态
                 isStarJet = false;
                 // 预进料初始化
@@ -544,12 +551,12 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
     /** 预进料操作 */
     private void setPreFeed(byte[] dataOut) {
         for (int i = 0; i < CTRL_DEV_NUM; i++) {
-            dataOut[i] = (byte) 133;
+            dataOut[i] = (byte) PREPARE_FEED_START;
         }
         MainActivity.getAppCtrl().sendCommand(MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
                 BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut));
-        // 暂定2s倒计时，每隔1s更新UI
-        new CountDownTimer(1999, 1000) {
+        // 暂定 2s 倒计时，每隔 1s 更新UI
+        new CountDownTimer(PRE_FEED_TIME, PRE_FEED_INTERVAL) {
             @Override
             public void onTick(long millisUntilFinished) {
                 btnMasterStart.setEnabled(false);
@@ -574,7 +581,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
                 // 停止预进料
                 btnMasterStart.setEnabled(true);
                 for (int i = 0; i < CTRL_DEV_NUM; i++) {
-                    dataOut[i] = (byte) 134;
+                    dataOut[i] = (byte) PREPARE_FEED_END;
                 }
                 MainActivity.getAppCtrl().sendCommand(MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
                         BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut));
@@ -584,6 +591,15 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
                 mHandler.sendEmptyMessage(MSG_MST_JET);
             }
         }.start();
+    }
+
+    /** 解除停止进料操作 */
+    private void stopFeedRelease(byte[] dataOut) {
+        for (int i = 0; i < CTRL_DEV_NUM; i++) {
+            dataOut[i] = (byte) STOP_FEED_RELEASE;
+        }
+        MainActivity.getAppCtrl().sendCommand(MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
+                BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut));
     }
 
     /** 发送 5 次高度为 0，持续时间 0.1s 齐喷效果 */

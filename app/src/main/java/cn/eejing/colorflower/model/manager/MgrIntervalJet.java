@@ -16,33 +16,47 @@ public class MgrIntervalJet extends MgrOutputJet {
 
     @Override
     public boolean updateWithDataOut(byte[] dataOut) {
-        LogUtil.i(JET, "updateWithDataOut: 老子进入间隔高低了");
+        LogUtil.i(JET, "updateWithDataOut: 进入间隔高低");
 
         mCurrentTime++;
         long outputTime = mDuration;
-        for (int i = 0; i < mDevCount; i++) {
-            if (mCurrentTime <= outputTime) {
-                if (mLoopId % 2 == 0) {
-                    dataOut[i] = (byte) ((i % 2 == 0) ? mHighMax : mHighMin);
+        // 判断是否需要停止进料
+        if (isLastEffect && mLoopId == mLoop
+                && (outputTime - mCurrentTime) < LAST_TO_END_TIME
+                && indexNum < STOP_FEED_ORDER_NUM) {
+            LogUtil.d(JET, "添加停止进料命令");
+            for (int i = 0; i < mDevCount; i++) {
+                // 设置为大于 防止bigIntervalTime==0一直循环停不了 bigIntervalTime将多0.1秒
+                if (mCurrentTime <= outputTime) {
+                    dataOut[i] = (byte) STOP_FEED_START;
                 } else {
-                    dataOut[i] = (byte) ((i % 2 == 0) ? mHighMin : mHighMax);
+                    dataOut[i] = 0;
                 }
-            } else {
-                dataOut[i] = 0;
+            }
+            indexNum++;
+        } else {
+            for (int i = 0; i < mDevCount; i++) {
+                // 设置为大于 防止bigIntervalTime==0一直循环停不了 bigIntervalTime将多0.1秒
+                if (mCurrentTime <= outputTime) {
+                    if (mLoopId % 2 == 0) {
+                        dataOut[i] = (byte) ((i % 2 == 0) ? mHighMax : mHighMin);
+                    } else {
+                        dataOut[i] = (byte) ((i % 2 == 0) ? mHighMin : mHighMax);
+                    }
+
+                } else {
+                    dataOut[i] = 0;
+                }
             }
         }
 
-        if (mCurrentTime >= (outputTime + mGapBig)) {
+        if (mCurrentTime > (outputTime + mGapBig)) {
             mLoopId++;
             mCurrentTime = 0;
         }
 
-        LogUtil.i(JET, "update over mCurrentTime: " + mCurrentTime);
-        LogUtil.i(JET, "update over outputTime: " + outputTime);
-        LogUtil.i(JET, "update over mLoopId: " + mLoopId);
-        LogUtil.i(JET, "update over mLoop: " + mLoop);
         // 等最后一次循环完毕
-        return mCurrentTime > outputTime && mLoopId >= mLoop;
+        return mCurrentTime >= outputTime && mLoopId >= mLoop;
     }
 
     public void setGapBig(int gapBig) {
@@ -53,27 +67,11 @@ public class MgrIntervalJet extends MgrOutputJet {
         mDuration = duration;
     }
 
-    public int getDuration() {
-        return mDuration;
-    }
-
-    public int getGapBig() {
-        return mGapBig;
-    }
-
-    public int getmHighMax() {
-        return mHighMax;
-    }
-
-    public void setmHighMax(int mHighMax) {
+    public void setHighMax(int mHighMax) {
         this.mHighMax = mHighMax;
     }
 
-    public int getmHighMin() {
-        return mHighMin;
-    }
-
-    public void setmHighMin(int mHighMin) {
+    public void setHighMin(int mHighMin) {
         this.mHighMin = mHighMin;
     }
 }

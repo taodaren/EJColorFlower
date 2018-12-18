@@ -20,7 +20,6 @@ import static cn.eejing.colorflower.app.AppConstant.CONFIG_RIDE;
 import static cn.eejing.colorflower.app.AppConstant.CONFIG_STREAM;
 import static cn.eejing.colorflower.app.AppConstant.CONFIG_TOGETHER;
 import static cn.eejing.colorflower.app.AppConstant.CURRENT_TIME;
-import static cn.eejing.colorflower.app.AppConstant.DEFAULT_HIGH;
 import static cn.eejing.colorflower.app.AppConstant.INIT_ZERO;
 import static cn.eejing.colorflower.app.AppConstant.LOOP_ID;
 
@@ -261,8 +260,8 @@ public class MasterGroupLite extends LitePalSupport implements Serializable {
         mgrInterval.setGapBig((int) (Float.parseFloat(lite.getGap()) * 10));
         mgrInterval.setDuration((int) (Float.parseFloat(lite.getDuration()) * 10));
         mgrInterval.setLoop(Integer.parseInt(lite.getJetRound()));
-        mgrInterval.setmHighMax(Integer.parseInt(lite.getHighMax()));
-        mgrInterval.setmHighMin(Integer.parseInt(lite.getHighMin()));
+        mgrInterval.setHighMax(Integer.parseInt(lite.getHighMax()));
+        mgrInterval.setHighMin(Integer.parseInt(lite.getHighMin()));
         return mgrInterval;
     }
 
