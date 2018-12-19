@@ -22,16 +22,16 @@ public class MgrOutputJet {
 
     public static final int LAST_TO_END_TIME    =    30;     // 距离喷射结束发送停止进料的时间（单位0.1s）
     public static final int STOP_FEED_ORDER_NUM =    2;      // 发送停止进料的命令次数
-    public static final int PRE_FEED_TIME       =    1999;   // 预进料时间（单位毫秒）
-    public static final int PRE_FEED_INTERVAL   =    1000;   // 预进料间隔时间（单位毫秒）
+    public static final int PRE_FEED_TIME       =    1400;   // 预进料时间（单位毫秒）
+    public static final int PRE_FEED_INTERVAL   =    450;    // 预进料间隔时间（单位毫秒）
 
-    public int mDevCount;           // 设备数量
-    public int indexNum;            // 发送停止进料的次数
-    public int mLoop;               // 循环次数
-    public int mLoopId;             // 当前循环的次数
-    public int mCurrentTime;        // 当前时间
-    public String mType;            // 喷射效果
-    public boolean isLastEffect;    // 判断是否是每组中设置喷射效果的最后一个 用于在喷射结束前停止进料
+    public int mDevCount;                                    // 设备数量
+    public int indexNum;                                     // 发送停止进料的次数
+    public int mLoop;                                        // 循环次数
+    public int mLoopId;                                      // 当前循环的次数
+    public int mCurrentTime;                                 // 当前时间
+    public String mType;                                     // 喷射效果
+    public boolean isLastEffect = false;                     // 判断是否是每组中设置喷射效果的最后一个 用于在喷射结束前停止进料
 
     public int getDevCount() {
         return mDevCount;

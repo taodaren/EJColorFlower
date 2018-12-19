@@ -216,6 +216,10 @@ public class MasterGroupLite extends LitePalSupport implements Serializable {
                     break;
             }
         }
+        if( mListMstCtrlMgr.size() > 0 ){
+            // 每组中设置喷射效果的最后一个
+            mListMstCtrlMgr.get(mListMstCtrlMgr.size() - 1).isLastEffect = true;
+        }
     }
 
     @NonNull

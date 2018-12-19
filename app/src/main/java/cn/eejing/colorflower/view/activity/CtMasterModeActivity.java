@@ -368,10 +368,8 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
                 case MSG_MST_JET:
                     // 主控输入控制
                     timerCallingMethod();
-                    // 如果喷射中并且完成预进料，继续发送。定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息）
-                    if (isStarJet && isOverPreFeed) {
-                        mHandler.sendEmptyMessageDelayed(MSG_MST_JET, 100);
-                    }
+                    // 如果喷射中，继续发送。定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息）
+                    if (isStarJet) {mHandler.sendEmptyMessageDelayed(MSG_MST_JET, 100);}
                     break;
                 case MSG_ZERO_FIVE:
                     // 齐喷5次
@@ -433,6 +431,8 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         }
     }
 
+    private int nPreInCnt;// 预进料计数
+
     private void starJet() {
         mListJetting = new ArrayList<>();
         for (int i = 0; i < mListMstGroup.size(); i++) {
@@ -474,7 +474,9 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         // 如果是停止喷射状态，点击变为开始状态，暂停可点击
         isStarJet = true;
         btnMasterStart.setText("停止");
-        LogUtil.i(JET, "jet=true: " + " jet= " + isStarJet);
+
+        // 预进料计数初始化
+        nPreInCnt = 14;
 
         // 启动计时器 0.1s
         mHandler.sendEmptyMessage(MSG_MST_JET);
@@ -486,111 +488,115 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         mHandler.removeMessages(MSG_MST_JET);
         // 如果是开始喷射状态，点击变为停止状态，暂停不可点击，恢复预进料
         isStarJet = false;
-        isOverPreFeed = false;
         btnMasterStart.setText("开始");
     }
 
-    private boolean isOverPreFeed;// 是否完成预进料操作
-
     /** 定时调用方法（每 0.1 秒给通过蓝牙设备发一次信息） */
     private void timerCallingMethod() {
-        LogUtil.i(JET, "timerCallingMethod isStarJet = " + isStarJet);
         byte[] dataOut = new byte[CTRL_DEV_NUM];
 
-        // 预进料操作
-        if (!isOverPreFeed) {
-            // 开始预进料
-            setPreFeed(dataOut);
-        } else {
-            // 调用方法判断全部组是否完成喷射
-            boolean isAllFinish = true;
-            for (int i = 0; i < CTRL_DEV_NUM; i++) {
-                dataOut[i] = 0;
-            }
+        // 开始预进料
+        setPreFeed(dataOut);
+        if (nPreInCnt > 0) {
+            return;
+        }
+        // 调用方法判断全部组是否完成喷射
+        boolean isAllFinish = true;
+        for (int i = 0; i < CTRL_DEV_NUM; i++) {
+            dataOut[i] = 0;
+        }
 
-            for (int i = 0; i < mListJetting.size(); i++) {
-                byte[] dataOutOne = mListJetting.get(i).updateWithDataOut();
-                LogUtil.i(JET, "timerCallingMethod: " + i + " devcnt = " + mListJetting.get(i).getCurJettingDevCnt() + " " + mBeginId[i]);
-                if (dataOutOne != null) {
-                    LogUtil.i(JET, "timerCallingMethod: " + dataOutOne[0] + " " + dataOutOne[1] + " " + dataOutOne[2]);
-                    isAllFinish = false;
-                    if (mListJetting.get(i).getIsSelectedMaster() == 1) {
-                        // 包含主控
-                        dataOut[0] = dataOutOne[0];
-                        System.arraycopy(dataOutOne, 1, dataOut, mBeginId[i], mListJetting.get(i).getDevNum());
-                    } else {
-                        System.arraycopy(dataOutOne, 0, dataOut, mBeginId[i], mListJetting.get(i).getDevNum());
-                    }
+        for (int i = 0; i < mListJetting.size(); i++) {
+            byte[] dataOutOne = mListJetting.get(i).updateWithDataOut();
+            if (dataOutOne != null) {
+                isAllFinish = false;
+                if (mListJetting.get(i).getIsSelectedMaster() == 1) {
+                    // 包含主控
+                    dataOut[0] = dataOutOne[0];
+                    System.arraycopy(dataOutOne, 1, dataOut, mBeginId[i], mListJetting.get(i).getDevNum());
+                } else {
+                    System.arraycopy(dataOutOne, 0, dataOut, mBeginId[i], mListJetting.get(i).getDevNum());
                 }
             }
+        }
 
-            MainActivity.getAppCtrl().sendCommand(MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
-                    BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut));
-            LogUtil.i(JET, "timerCallingMethod2: " + dataOut[0] + " " + dataOut[1] + " " + dataOut[2]);
-            LogUtil.i(JET, "timerCallingMethod: " + mDevId + " " + mStartDmx + " " + mDevNum
-                    + " " + isAllFinish + " jet = " + isStarJet);
-            if (isAllFinish) {
-                LogUtil.i(JET, "终于喷完了！！！");
+        MainActivity.getAppCtrl().sendCommand(MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
+                BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut));
+        if (isAllFinish) {
+            LogUtil.i(JET, "终于喷完了！！！");
 
-                // 按钮状态初始化
-                btnMasterStart.setText("开始");
-                // 解除停止进料
-                stopFeedRelease(dataOut);
-                // 喷射停止状态
-                isStarJet = false;
-                // 预进料初始化
-                isOverPreFeed = false;
-                // 齐喷五次
-                mHandler.sendEmptyMessage(MSG_ZERO_FIVE);
-                // 清料
-                cmdClearMaterial();
-            }
+            // 按钮状态初始化
+            btnMasterStart.setText("开始");
+            // 解除停止进料
+            stopFeedRelease(dataOut);
+            // 喷射停止状态
+            isStarJet = false;
+            // 齐喷五次
+            mHandler.sendEmptyMessage(MSG_ZERO_FIVE);
+//            // 清料
+//            cmdClearMaterial();
         }
     }
 
+
     /** 预进料操作 */
     private void setPreFeed(byte[] dataOut) {
-        for (int i = 0; i < CTRL_DEV_NUM; i++) {
-            dataOut[i] = (byte) PREPARE_FEED_START;
+        // 如果计数器小于0，证明预进料过程结束
+        if (nPreInCnt < 0) {
+            return;
         }
-        MainActivity.getAppCtrl().sendCommand(MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
-                BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut));
-        // 暂定 2s 倒计时，每隔 1s 更新UI
-        new CountDownTimer(PRE_FEED_TIME, PRE_FEED_INTERVAL) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                btnMasterStart.setEnabled(false);
-                btnMasterStart.setTextSize(40);
-                btnMasterStart.setText(String.valueOf(millisUntilFinished / 1000 + 1));
 
-                // 设置透明度渐变动画
-                final AlphaAnimation alphaAnimation = new AlphaAnimation(0, 1);
-                // 设置动画持续时间
-                alphaAnimation.setDuration(1000);
-                btnMasterStart.startAnimation(alphaAnimation);
+        // 如果计数最大值与预进料总时间相等，更新倒计时UI
+        if (nPreInCnt * 100 == PRE_FEED_TIME) {
+            // 暂定 1400 毫秒倒计时，每隔 450 毫秒更新UI
+            new CountDownTimer(PRE_FEED_TIME, PRE_FEED_INTERVAL) {
+                @Override
+                public void onTick(long millisUntilFinished) {
+                    btnMasterStart.setEnabled(false);
+                    btnMasterStart.setTextSize(40);
+                    btnMasterStart.setText(String.valueOf(millisUntilFinished / 500 + 1));
 
-                // 设置缩放渐变动画
-                final ScaleAnimation scaleAnimation = new ScaleAnimation(0.5f, 1f, 0.5f, 1f,
-                        Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                scaleAnimation.setDuration(1000);
-                btnMasterStart.startAnimation(scaleAnimation);
-            }
+                    // 设置透明度渐变动画
+                    final AlphaAnimation alphaAnimation = new AlphaAnimation(0, 1);
+                    // 设置动画持续时间
+                    alphaAnimation.setDuration(450);
+                    btnMasterStart.startAnimation(alphaAnimation);
 
-            @Override
-            public void onFinish() {
-                // 停止预进料
-                btnMasterStart.setEnabled(true);
-                for (int i = 0; i < CTRL_DEV_NUM; i++) {
-                    dataOut[i] = (byte) PREPARE_FEED_END;
+                    // 设置缩放渐变动画
+                    final ScaleAnimation scaleAnimation = new ScaleAnimation(0.5f, 1f, 0.5f, 1f,
+                            Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                    scaleAnimation.setDuration(450);
+                    btnMasterStart.startAnimation(scaleAnimation);
                 }
-                MainActivity.getAppCtrl().sendCommand(MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
-                        BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut));
-                btnMasterStart.setTextSize(20);
-                btnMasterStart.setText("停止");
-                isOverPreFeed = true;
-                mHandler.sendEmptyMessage(MSG_MST_JET);
+
+                @Override
+                public void onFinish() {
+                    // 停止预进料
+                    btnMasterStart.setEnabled(true);
+                    btnMasterStart.setTextSize(20);
+                    btnMasterStart.setText("停止");
+                }
+            }.start();
+        }
+
+        nPreInCnt--;
+
+        // 如果预进料计数器为 0，预进料过程结束；如果预进料计数器大于 0，当前在预进料过程
+        if (nPreInCnt == 0) {
+            // 停止预进料
+            for (int i = 0; i < dataOut.length; i++) {
+                dataOut[i] = (byte) PREPARE_FEED_END;
             }
-        }.start();
+            MainActivity.getAppCtrl().sendCommand(MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
+                    BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut));
+        } else if (nPreInCnt > 0) {
+            // 预进料
+            for (int i = 0; i < dataOut.length; i++) {
+                dataOut[i] = (byte) PREPARE_FEED_START;
+            }
+            MainActivity.getAppCtrl().sendCommand(MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
+                    BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut));
+        }
     }
 
     /** 解除停止进料操作 */
