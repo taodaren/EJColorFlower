@@ -17,9 +17,6 @@ import android.widget.RelativeLayout;
 
 import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 import org.litepal.LitePal;
 
 import java.util.ArrayList;
@@ -39,7 +36,7 @@ import cn.eejing.colorflower.util.FabScrollListener;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.adapter.MasterListAdapter;
-import cn.eejing.colorflower.view.base.BaseActivity;
+import cn.eejing.colorflower.view.base.BaseActivityEvent;
 import cn.eejing.colorflower.view.customize.SelfDialog;
 import cn.eejing.colorflower.view.customize.SelfDialogBase;
 
@@ -61,7 +58,7 @@ import static cn.eejing.colorflower.model.manager.MgrOutputJet.STOP_FEED_RELEASE
  * 多台控制
  */
 
-public class CtMasterModeActivity extends BaseActivity implements IShowListener {
+public class CtMasterModeActivity extends BaseActivityEvent implements IShowListener {
 
     @BindView(R.id.img_ble_toolbar)     ImageView                imgBleToolbar;
     @BindView(R.id.img_add_toolbar)     ImageView                imgAddGroup;
@@ -98,7 +95,6 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
 
     @Override
     public void initView() {
-        EventBus.getDefault().register(this);
         setToolbar("多台控制", View.VISIBLE, null, View.GONE);
         mDevId = MainActivity.getAppCtrl().getDevId();
         mDevice = MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac());
@@ -114,7 +110,7 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
         // 刷新数据
         refreshData();
@@ -241,7 +237,6 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
 
     @Override
     protected void onDestroy() {
-        EventBus.getDefault().unregister(this);
         isStarJet = false;
         super.onDestroy();
     }
@@ -254,9 +249,9 @@ public class CtMasterModeActivity extends BaseActivity implements IShowListener 
         imgBleToolbar.setOnClickListener(v -> ToastUtil.showShort("ble"));
     }
 
-    /** 蓝牙连接状态 */
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventDevConn(DevConnEvent event) {
+    @Override
+    public void onEventBleConn(DevConnEvent event) {
+        super.onEventBleConn(event);
         // 接收硬件传过来的已连接设备信息添加到 HashSet
         if (event.getStatus() != null) {
             LogUtil.i(TAG, "dev cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());

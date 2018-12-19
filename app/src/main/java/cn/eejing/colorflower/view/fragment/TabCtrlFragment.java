@@ -16,7 +16,7 @@ import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.activity.CtDevConfigActivity;
 import cn.eejing.colorflower.view.activity.CtQrScanActivity;
 import cn.eejing.colorflower.view.activity.MainActivity;
-import cn.eejing.colorflower.view.base.BaseFragment;
+import cn.eejing.colorflower.view.base.BaseFragmentEvent;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -32,7 +32,7 @@ import static cn.eejing.colorflower.app.AppConstant.REQUEST_CODE_SCANNING_CONN_D
  * 控制模块
  */
 
-public class TabCtrlFragment extends BaseFragment implements EasyPermissions.PermissionCallbacks {
+public class TabCtrlFragment extends BaseFragmentEvent implements EasyPermissions.PermissionCallbacks {
     private static final int CONN_NO  =  0; // 连接状态 - 不可连接
     private static final int CONN_OK  =  1; // 连接状态 - 成功
     private static final int CONN_DEF =  2; // 连接状态 - 不可连接
@@ -79,6 +79,7 @@ public class TabCtrlFragment extends BaseFragment implements EasyPermissions.Per
 
     @Override
     public void onEventBleConn(DevConnEvent event) {
+        super.onEventBleConn(event);
         switch (event.getStatus()) {
             case DEVICE_CONNECT_YES:
                 if (mFlagConn != CONN_OK) {

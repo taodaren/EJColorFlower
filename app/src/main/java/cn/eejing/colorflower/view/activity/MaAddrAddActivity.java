@@ -1,7 +1,10 @@
 package cn.eejing.colorflower.view.activity;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -9,14 +12,11 @@ import com.allen.library.SuperTextView;
 import com.lzy.okgo.model.HttpParams;
 
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.model.event.AddrAddEvent;
-import cn.eejing.colorflower.model.event.AddrSelectEvent;
 import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.CodeMsgBean;
 import cn.eejing.colorflower.presenter.Callback;
@@ -49,7 +49,6 @@ public class MaAddrAddActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        EventBus.getDefault().register(this);
         setToolbar("添加收货地址", View.VISIBLE, null, View.GONE);
     }
 
@@ -155,19 +154,32 @@ public class MaAddrAddActivity extends BaseActivity {
                 }).build();
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
+    public void onStart() {
+        super.onStart();
+        Log.i(TAG, "onStart: " + getIntent());
+        if (null != getIntent()) {
+            Intent intent = getIntent();
+            String provinceName = intent.getStringExtra("province_name");
+            String cityName = intent.getStringExtra("city_name");
+            String districtName = intent.getStringExtra("district_name");
+            mProvinceId = intent.getStringExtra("province_id");
+            mCityId = intent.getStringExtra("city_id");
+            mDistrictId = intent.getStringExtra("district_id");
+            tvAddress.setText(provinceName + " " + cityName + " " + districtName);
+            etAddress.setText("");
+        }
     }
 
-    @SuppressLint("SetTextI18n")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventBySelectAddr(AddrSelectEvent event) {
-        mProvinceId = event.getProvinceId();
-        mCityId = event.getCityId();
-        mDistrictId = event.getDistrictId();
-        tvAddress.setText(event.getProvince() + " " + event.getCity() + " " + event.getDistrict());
-        etAddress.setText("");
-    }
+//    @SuppressLint("SetTextI18n")
+//    @Override
+//    public void onEventAddrSelect(AddrSelectEvent event) {
+//        super.onEventAddrSelect(event);
+//        mProvinceId = event.getProvinceId();
+//        mCityId = event.getCityId();
+//        mDistrictId = event.getDistrictId();
+//        tvAddress.setText(event.getProvince() + " " + event.getCity() + " " + event.getDistrict());
+//        etAddress.setText("");
+//    }
 }

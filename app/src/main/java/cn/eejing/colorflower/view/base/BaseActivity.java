@@ -21,11 +21,18 @@ import com.jaeger.library.StatusBarUtil;
 import com.lzy.okgo.model.HttpParams;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import butterknife.ButterKnife;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.model.event.AddrAddEvent;
+import cn.eejing.colorflower.model.event.AddrSelectEvent;
+import cn.eejing.colorflower.model.event.DevConnEvent;
 import cn.eejing.colorflower.model.http.OkGoBuilder;
 import cn.eejing.colorflower.model.request.VersionUpdateBean;
 import cn.eejing.colorflower.presenter.Callback;
@@ -33,10 +40,10 @@ import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.AppUtils;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.MySettings;
-import cn.eejing.colorflower.view.customize.SelfDialogBase;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.activity.MainActivity;
 import cn.eejing.colorflower.view.activity.SignInActivity;
+import cn.eejing.colorflower.view.customize.SelfDialogBase;
 
 import static cn.eejing.colorflower.app.AppConstant.EXIT_LOGIN;
 import static cn.eejing.colorflower.app.AppConstant.NO_TOKEN;
@@ -151,7 +158,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     public void finishAllActivity() {
-        for (Map.Entry<String, Activity> entry : activityMap.entrySet()) {
+        for (Map.Entry<String, Activity> ignored : activityMap.entrySet()) {
             finish();
         }
         activityMap.clear();

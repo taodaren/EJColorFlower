@@ -6,10 +6,6 @@ import android.widget.LinearLayout;
 import com.lzy.okgo.model.HttpParams;
 import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +20,7 @@ import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.view.adapter.AddrSelectAdapter;
-import cn.eejing.colorflower.view.base.BaseActivity;
+import cn.eejing.colorflower.view.base.BaseActivityEvent;
 
 import static cn.eejing.colorflower.app.AppConstant.FROM_SELECT_TO_ADDR;
 
@@ -32,7 +28,7 @@ import static cn.eejing.colorflower.app.AppConstant.FROM_SELECT_TO_ADDR;
  * 选择收货地址
  */
 
-public class MaAddrSelectActivity extends BaseActivity {
+public class MaAddrSelectActivity extends BaseActivityEvent {
     private static final String TAG = "MaAddrSelectActivity";
 
     @BindView(R.id.rv_shipping_address)    PullLoadMoreRecyclerView rvAddress;
@@ -48,14 +44,13 @@ public class MaAddrSelectActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        EventBus.getDefault().register(this);
         setToolbar("选择收货地址", View.VISIBLE, "管理", View.VISIBLE);
         mList = new ArrayList<>();
         initRecyclerView();
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
         getDataWithAddressList();
     }
@@ -67,8 +62,9 @@ public class MaAddrSelectActivity extends BaseActivity {
         jumpToActivity(MaAddrMgrActivity.class);
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(AddrAddEvent event) {
+    @Override
+    public void onEventAddrAdd(AddrAddEvent event) {
+        super.onEventAddrAdd(event);
         // 地址添加成功返回刷新列表
         getDataWithAddressList();
     }

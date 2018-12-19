@@ -20,10 +20,6 @@ import com.flyco.tablayout.SegmentTabLayout;
 import com.flyco.tablayout.listener.OnTabSelectListener;
 import com.lzy.okgo.model.HttpParams;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +42,7 @@ import cn.eejing.colorflower.util.MySettings;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.util.ViewFindUtils;
 import cn.eejing.colorflower.view.adapter.ViewPagerAdapter;
-import cn.eejing.colorflower.view.base.BaseActivity;
+import cn.eejing.colorflower.view.base.BaseActivityEvent;
 import cn.eejing.colorflower.view.customize.SelfDialog;
 import cn.eejing.colorflower.view.customize.SelfDialogBase;
 import cn.eejing.colorflower.view.fragment.ConfigTempFragment;
@@ -71,7 +67,7 @@ import static cn.eejing.colorflower.app.AppConstant.TYPE_WAIT_USED;
  * 设备配置
  */
 
-public class CtDevConfigActivity extends BaseActivity implements EasyPermissions.PermissionCallbacks {
+public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermissions.PermissionCallbacks {
 
     @BindView(R.id.img_ble_toolbar)         ImageView    imgBleToolbar;
     @BindView(R.id.layout_dmx_set)          LinearLayout dmxSet;
@@ -111,7 +107,6 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
 
     @Override
     public void initView() {
-        EventBus.getDefault().register(this);
         mApp = (BaseApplication) getApplication();
         setToolbar("设备配置", View.VISIBLE, null, View.GONE);
 
@@ -146,7 +141,7 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
         requestCodeQRCodePermissions();
     }
@@ -654,9 +649,9 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
         }
     };
 
-    /** 蓝牙连接状态 */
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventDevConn(DevConnEvent event) {
+    @Override
+    public void onEventBleConn(DevConnEvent event) {
+        super.onEventBleConn(event);
         // 接收硬件传过来的已连接设备信息添加到 HashSet
         if (event.getStatus() != null) {
             LogUtil.i(TAG, "dev cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
@@ -757,12 +752,6 @@ public class CtDevConfigActivity extends BaseActivity implements EasyPermissions
             return true;
         }
         return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
     }
 
     @Override

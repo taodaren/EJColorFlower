@@ -1,6 +1,5 @@
 package cn.eejing.colorflower.view.base;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,15 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
 import butterknife.ButterKnife;
 import cn.eejing.colorflower.R;
-import cn.eejing.colorflower.model.event.DevConnEvent;
-import cn.eejing.colorflower.model.event.JumpLoginEvent;
-import cn.eejing.colorflower.view.activity.SignInActivity;
 
 /**
  * BaseFragment
@@ -49,18 +41,6 @@ public abstract class BaseFragment extends Fragment {
         initData();
         initView(mRootView);
         return mRootView;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        EventBus.getDefault().unregister(this);
     }
 
     public void initData() {
@@ -114,17 +94,6 @@ public abstract class BaseFragment extends Fragment {
             // 隐藏 Toolbar 自带标题栏
             actionBar.setDisplayShowTitleEnabled(false);
         }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventByJumpLogin(JumpLoginEvent event) {
-        // token 返回 20 或 22 跳转到登陆界面
-        startActivity(new Intent(getContext(), SignInActivity.class));
-    }
-
-    /** 蓝牙连接状态 */
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventBleConn(DevConnEvent event) {
     }
 
 }

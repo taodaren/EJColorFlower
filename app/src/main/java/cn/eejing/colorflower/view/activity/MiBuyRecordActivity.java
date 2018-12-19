@@ -85,7 +85,7 @@ public class MiBuyRecordActivity extends BaseActivity {
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
         getDataWithBuyRecord(mStartStamp, mEndStamp);
     }

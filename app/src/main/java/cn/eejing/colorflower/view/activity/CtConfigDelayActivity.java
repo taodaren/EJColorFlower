@@ -100,7 +100,7 @@ public class CtConfigDelayActivity extends BaseActivity implements View.OnClickL
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
         mApp.setFlagGifDemo(null);
     }

@@ -105,6 +105,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.activity.MaAddrAddActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.activity.MaAddrProvinceActivity"

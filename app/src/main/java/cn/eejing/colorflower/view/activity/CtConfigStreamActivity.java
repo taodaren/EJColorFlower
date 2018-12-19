@@ -209,7 +209,7 @@ public class CtConfigStreamActivity extends BaseActivity implements View.OnClick
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
         mApp.setFlagGifDemo(null);
     }

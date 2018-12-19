@@ -9,16 +9,11 @@ import com.lzy.okgo.cache.CacheMode;
 import com.lzy.okgo.model.HttpParams;
 import com.lzy.okgo.model.Response;
 
-import org.greenrobot.eventbus.EventBus;
-
-import cn.eejing.colorflower.model.event.JumpLoginEvent;
 import cn.eejing.colorflower.model.request.BaseBean;
 import cn.eejing.colorflower.model.request.TokenBean;
 import cn.eejing.colorflower.model.session.LoginSession;
 import cn.eejing.colorflower.presenter.Callback;
-import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.MySettings;
-import cn.eejing.colorflower.view.activity.MainActivity;
 
 import static cn.eejing.colorflower.app.AppConstant.NO_TOKEN;
 
@@ -128,7 +123,8 @@ public class OkGoBuilder<T> {
                                     break;
                                 case 20:// Token 不存在
                                 case 22:// Token 已过期
-                                    EventBus.getDefault().post(new JumpLoginEvent("跳转到登陆界面"));
+                                    // 可不做处理，MainActivity 获取 Token 时都重新获取了
+//                                    EventBus.getDefault().post(new JumpLoginEvent("跳转到登陆界面"));
                                     break;
                                 default:
                                     mCallback.onSuccess(response.body(), 1);
@@ -176,7 +172,8 @@ public class OkGoBuilder<T> {
                                 break;
                             case 20:// Token 不存在
                             case 22:// Token 已过期
-                                EventBus.getDefault().post(new JumpLoginEvent("跳转到登陆界面"));
+                                // 可不做处理，MainActivity 获取 Token 时都重新获取了
+//                                EventBus.getDefault().post(new JumpLoginEvent("跳转到登陆界面"));
                                 break;
                             default:
                                 mCallback.onSuccess(response.body(), 1);

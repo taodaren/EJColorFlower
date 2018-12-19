@@ -11,10 +11,6 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.lzy.okgo.model.HttpParams;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
@@ -28,7 +24,7 @@ import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.ToastUtil;
-import cn.eejing.colorflower.view.base.BaseActivity;
+import cn.eejing.colorflower.view.base.BaseActivityEvent;
 
 import static cn.eejing.colorflower.app.AppConstant.FROM_ORDER_TO_ADDR;
 import static cn.eejing.colorflower.app.AppConstant.REQUEST_CODE_ADDR_SELECT;
@@ -37,7 +33,7 @@ import static cn.eejing.colorflower.app.AppConstant.REQUEST_CODE_ADDR_SELECT;
  * 确认订单
  */
 
-public class MaOrderConfirmActivity extends BaseActivity {
+public class MaOrderConfirmActivity extends BaseActivityEvent {
     private static final String TAG = "MaOrderConfirmActivity";
 
     @BindView(R.id.tv_confirm_order_consignee)         TextView     tvConsignee;
@@ -63,7 +59,6 @@ public class MaOrderConfirmActivity extends BaseActivity {
 
     @Override
     public void initView() {
-        EventBus.getDefault().register(this);
         setToolbar("确认订单", View.VISIBLE, null, View.GONE);
 
         mGoodsId = getIntent().getIntExtra("goods_id", 0);
@@ -72,12 +67,6 @@ public class MaOrderConfirmActivity extends BaseActivity {
     @Override
     public void initData() {
         getDataWithConfirmOrder();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
     }
 
     @OnClick({R.id.ll_confirm_order_address, R.id.btn_confirm_order_sub, R.id.btn_confirm_order_add, R.id.btn_submit_order})
@@ -124,8 +113,9 @@ public class MaOrderConfirmActivity extends BaseActivity {
         }
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(AddrAddEvent event) {
+    @Override
+    public void onEventAddrAdd(AddrAddEvent event) {
+        super.onEventAddrAdd(event);
         Log.i(TAG, "onEvent: " + event.getAddStatus());
         // 管理收货地址返回刷新数据
         getDataWithConfirmOrder();

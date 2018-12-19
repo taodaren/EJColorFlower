@@ -116,7 +116,7 @@ public class CtConfigTogetherActivity extends BaseActivity implements View.OnCli
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
         mApp.setFlagGifDemo(null);
     }

@@ -48,7 +48,7 @@ public class CtQrScanActivity extends BaseActivity implements View.OnClickListen
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
         // 打开后置摄像头开始预览，但是并未开始识别
         mQRCodeView.startCamera();
@@ -57,7 +57,7 @@ public class CtQrScanActivity extends BaseActivity implements View.OnClickListen
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         // 关闭摄像头预览，并且隐藏扫描框
         mQRCodeView.stopCamera();
         super.onStop();

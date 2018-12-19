@@ -94,7 +94,7 @@ public class CtSetGroupActivity extends BaseActivity {
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
         refreshData();
     }

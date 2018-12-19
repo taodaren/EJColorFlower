@@ -15,7 +15,7 @@ import butterknife.BindView;
 import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.model.event.DevConnEvent;
 import cn.eejing.colorflower.util.CircleProgress;
-import cn.eejing.colorflower.view.base.BaseFragment;
+import cn.eejing.colorflower.view.base.BaseFragmentEvent;
 
 import static cn.eejing.colorflower.app.AppConstant.DEVICE_CONNECT_NO;
 import static cn.eejing.colorflower.app.AppConstant.DEVICE_CONNECT_YES;
@@ -26,7 +26,7 @@ import static cn.eejing.colorflower.app.AppConstant.HANDLE_BLE_DISCONN;
  * 设备配置温度显示
  */
 
-public class ConfigTempFragment extends BaseFragment {
+public class ConfigTempFragment extends BaseFragmentEvent {
 
     @BindView(R.id.circle_progress)        CircleProgress mCircleProgress;
     @BindView(R.id.tv_switch_info)         TextView mTvSwitchInfo;
@@ -110,6 +110,7 @@ public class ConfigTempFragment extends BaseFragment {
 
     @Override
     public void onEventBleConn(DevConnEvent event) {
+        super.onEventBleConn(event);
         // 接收硬件传过来的已连接设备信息添加到 HashSet
         switch (event.getStatus()) {
             case DEVICE_CONNECT_YES:

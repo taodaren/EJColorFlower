@@ -18,7 +18,7 @@ import butterknife.BindView;
 import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.model.event.DevConnEvent;
 import cn.eejing.colorflower.util.CircleProgress;
-import cn.eejing.colorflower.view.base.BaseFragment;
+import cn.eejing.colorflower.view.base.BaseFragmentEvent;
 
 import static cn.eejing.colorflower.app.AppConstant.DEVICE_CONNECT_NO;
 import static cn.eejing.colorflower.app.AppConstant.DEVICE_CONNECT_YES;
@@ -29,7 +29,7 @@ import static cn.eejing.colorflower.app.AppConstant.HANDLE_BLE_DISCONN;
  * 设备配置剩余时间显示
  */
 
-public class ConfigTimeFragment extends BaseFragment {
+public class ConfigTimeFragment extends BaseFragmentEvent {
 
     @BindView(R.id.circle_progress)        CircleProgress mCircleProgress;
     @BindView(R.id.ch_time_left)           Chronometer    chTimeLeft;
@@ -112,6 +112,7 @@ public class ConfigTimeFragment extends BaseFragment {
 
     @Override
     public void onEventBleConn(DevConnEvent event) {
+        super.onEventBleConn(event);
         // 接收硬件传过来的已连接设备信息添加到 HashSet
         switch (event.getStatus()) {
             case DEVICE_CONNECT_YES:
