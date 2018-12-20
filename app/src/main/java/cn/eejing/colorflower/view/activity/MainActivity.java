@@ -237,7 +237,7 @@ public class MainActivity extends BLEManagerActivity implements ISendCommand, Bo
                 super.run();
                 while (bSendEn) {
                     mMacById = device.getAddress();
-                    if (nCurDealSend != null) { //当前有发送需要进行处理
+                    if (nCurDealSend != null) { // 当前有发送需要进行处理
                         PackageNeedAck curDeal = nCurDealSend;
                         if (curDeal.redoCntWhenTimeOut > 0) {
                             curDeal.redoCntWhenTimeOut--;

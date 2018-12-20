@@ -596,7 +596,7 @@ public class CtMasterModeActivity extends BaseActivityEvent implements IShowList
 
     /** 解除停止进料操作 */
     private void stopFeedRelease(byte[] dataOut) {
-        for (int i = 0; i < CTRL_DEV_NUM; i++) {
+        for (int i = 0; i < dataOut.length; i++) {
             dataOut[i] = (byte) STOP_FEED_RELEASE;
         }
         MainActivity.getAppCtrl().sendCommand(MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
@@ -619,15 +619,15 @@ public class CtMasterModeActivity extends BaseActivityEvent implements IShowList
                 BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut));
     }
 
-    /** 发送清料命令 */
-    private void cmdClearMaterial() {
-        byte[] byHighs = new byte[CTRL_DEV_NUM];
-        for (int i = 0; i < mDevNum; i++) {
-            int high = 20;
-            byHighs[i] = (byte) high;
-        }
-        MainActivity.getAppCtrl().sendCommand(mDevice,
-                 BleDevProtocol.pkgClearMaterial(mDevId, CLEAR_MATERIAL_MASTER, mStartDmx, mDevNum, byHighs));
-    }
+//    /** 发送清料命令 */
+//    private void cmdClearMaterial() {
+//        byte[] byHighs = new byte[CTRL_DEV_NUM];
+//        for (int i = 0; i < mDevNum; i++) {
+//            int high = 20;
+//            byHighs[i] = (byte) high;
+//        }
+//        MainActivity.getAppCtrl().sendCommand(mDevice,
+//                 BleDevProtocol.pkgClearMaterial(mDevId, CLEAR_MATERIAL_MASTER, mStartDmx, mDevNum, byHighs));
+//    }
 
 }

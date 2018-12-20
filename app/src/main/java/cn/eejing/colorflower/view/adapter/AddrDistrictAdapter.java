@@ -1,8 +1,6 @@
 package cn.eejing.colorflower.view.adapter;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -21,7 +19,6 @@ import butterknife.OnClick;
 import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.model.event.AddrSelectEvent;
 import cn.eejing.colorflower.model.request.AreaSelectBean;
-import cn.eejing.colorflower.view.activity.MaAddrAddActivity;
 import cn.eejing.colorflower.view.base.BaseActivity;
 
 /**
@@ -93,15 +90,7 @@ public class AddrDistrictAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         public void onViewClicked() {
             BaseActivity.delActivity("citys");
             BaseActivity.delActivity("provinces");
-            Intent intent = new Intent(mContext, MaAddrAddActivity.class);
-            intent.putExtra("province_name", mProvince);
-            intent.putExtra("city_name", mCity);
-            intent.putExtra("district_name", district);
-            intent.putExtra("province_id", mProvinceId);
-            intent.putExtra("city_id", mCityId);
-            intent.putExtra("district_id", districtId);
-            mContext.startActivity(intent);
-//            EventBus.getDefault().post(new AddrSelectEvent(mProvince, mCity, district, mProvinceId, mCityId, districtId));
+            EventBus.getDefault().post(new AddrSelectEvent(mProvince, mCity, district, mProvinceId, mCityId, districtId));
             mContext.finish();
         }
     }
