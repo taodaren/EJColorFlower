@@ -388,7 +388,7 @@ public class BLEManagerActivity extends BaseActivity {
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
             String mac = result.getDevice().getAddress();
-//            LogUtil.i(TAG, "onScanResult " + callbackType + " " + mac + " | " + result.getDevice().getName());
+            LogUtil.i(TAG, "onScanResult " + callbackType + " " + mac + " | " + result.getDevice().getName());
             if (callbackType == ScanSettings.CALLBACK_TYPE_ALL_MATCHES) {
                 // 如果回调类型全部匹配
                 if (!mDevMgrSet.containsKey(mac)) {
@@ -458,7 +458,7 @@ public class BLEManagerActivity extends BaseActivity {
                 //mgr.gatt.disconnect();
                 //Thread.sleep(10);
                 mgr.gatt.close();
-                MainActivity.getAppCtrl().scanRefresh();
+//                MainActivity.getAppCtrl().scanRefresh();
                 onDeviceDisconnect(mac);
             } catch (Exception e) {
                 e.printStackTrace();

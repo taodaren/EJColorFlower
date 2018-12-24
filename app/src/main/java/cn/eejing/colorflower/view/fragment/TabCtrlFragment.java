@@ -1,6 +1,7 @@
 package cn.eejing.colorflower.view.fragment;
 
 import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.view.View;
@@ -35,7 +36,7 @@ import static cn.eejing.colorflower.app.AppConstant.REQUEST_CODE_SCANNING_CONN_D
 public class TabCtrlFragment extends BaseFragmentEvent implements EasyPermissions.PermissionCallbacks {
     private static final int CONN_NO  =  0; // 连接状态 - 不可连接
     private static final int CONN_OK  =  1; // 连接状态 - 成功
-    private static final int CONN_DEF =  2; // 连接状态 - 不可连接
+    private static final int CONN_DEF =  2; // 连接状态 - 默认
 
     private int mFlagConn;                  // 连接状态标志位
     private BaseApplication mApp;
@@ -69,8 +70,15 @@ public class TabCtrlFragment extends BaseFragmentEvent implements EasyPermission
 
     @OnClick(R.id.btn_ctrl_ble_conn)
     public void onClickedConnDev() {
+        // 如果用户没打开蓝牙，提示用户打开蓝牙
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (!bluetoothAdapter.isEnabled()) {
+            ToastUtil.showShort(getString(R.string.please_open_blue));
+            return;
+        }
+        // 扫描之前断开所有蓝牙设备
+//        MainActivity.getAppCtrl().disconnectAll();
         mApp.setFlagQrCode(APP_QR_GET_DID);
-        MainActivity.getAppCtrl().showCurState();
         Objects.requireNonNull(getActivity()).startActivityForResult(
                 new Intent(getContext(), CtQrScanActivity.class),
                 REQUEST_CODE_SCANNING_CONN_DEV

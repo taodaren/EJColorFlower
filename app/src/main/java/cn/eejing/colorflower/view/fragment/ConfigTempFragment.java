@@ -54,7 +54,7 @@ public class ConfigTempFragment extends BaseFragmentEvent {
     @SuppressLint("SetTextI18n")
     private void setDevTemp(int temp) {
         if (temp == -1) {
-            mTvDevTemp.setText("设备断连");
+            mTvDevTemp.setText("重连中...");
             mTvDevTemp.setVisibility(View.GONE);
             setCircleInfo(0);
         } else {

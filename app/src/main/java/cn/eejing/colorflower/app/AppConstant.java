@@ -66,6 +66,7 @@ public class AppConstant {
     public static final int HANDLE_BLE_CONN                 = 101;
     public static final int HANDLE_BLE_DISCONN              = 102;
     public static final int HANDLE_BLE_OUT_OF_RANGE         = 103;
+    public static final int HANDLE_BLE_RECONNECT            = 104;
 
     public static final String DEVICE_CONNECT_CAN           = "可连接";
     public static final String DEVICE_CONNECT_YES           = "已连接";

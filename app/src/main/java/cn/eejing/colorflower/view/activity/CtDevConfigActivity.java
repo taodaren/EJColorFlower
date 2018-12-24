@@ -12,6 +12,8 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -55,6 +57,7 @@ import static cn.eejing.colorflower.app.AppConstant.DEVICE_CONNECT_NO;
 import static cn.eejing.colorflower.app.AppConstant.DEVICE_CONNECT_YES;
 import static cn.eejing.colorflower.app.AppConstant.HANDLE_BLE_CONN;
 import static cn.eejing.colorflower.app.AppConstant.HANDLE_BLE_DISCONN;
+import static cn.eejing.colorflower.app.AppConstant.HANDLE_BLE_RECONNECT;
 import static cn.eejing.colorflower.app.AppConstant.QR_DEV_ID;
 import static cn.eejing.colorflower.app.AppConstant.QR_DEV_MAC;
 import static cn.eejing.colorflower.app.AppConstant.QR_MATERIAL_ID;
@@ -99,6 +102,7 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
     private boolean isEnterMasterCtrl;
     private long mDevId;
     private String mDevMac;
+    private AlphaAnimation mAnimation;
 
     @Override
     protected int layoutViewId() {
@@ -109,6 +113,8 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
     public void initView() {
         mApp = (BaseApplication) getApplication();
         setToolbar("设备配置", View.VISIBLE, null, View.GONE);
+
+//        initAlphaAnim();
 
         mMemberId = MySettings.getLoginInfo(this).getUserId();
         mDevId = getIntent().getLongExtra(QR_DEV_ID, 0);
@@ -129,6 +135,14 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
         initTLVP();
     }
 
+    private void initAlphaAnim() {
+        mAnimation = new AlphaAnimation(1, 0);
+        mAnimation.setDuration(1000);
+        mAnimation.setRepeatCount(Animation.INFINITE);
+        mAnimation.setRepeatMode(Animation.RESTART);
+        imgBleToolbar.setAnimation(mAnimation);
+    }
+
     @Override
     public void setToolbar(String title, int titleVisibility, String menu, int menuVisibility) {
         super.setToolbar(title, titleVisibility, menu, menuVisibility);
@@ -144,6 +158,12 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
     public void onStart() {
         super.onStart();
         requestCodeQRCodePermissions();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mAnimation.cancel();
     }
 
     @OnClick({R.id.img_back_toolbar, R.id.layout_dmx_set, R.id.btn_add_material, R.id.btn_enter_single, R.id.btn_enter_master})
@@ -634,16 +654,27 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-                case HANDLE_BLE_CONN:
+                case HANDLE_BLE_CONN:// 已连接
+                    removeMessages(HANDLE_BLE_RECONNECT);
                     imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_conn));
                     tvDmxShow.setText("DMX " + String.valueOf(mDMXAddress));
-                    isEnterMasterCtrl = mDMXAddress == 0;
+                    isEnterMasterCtrl = (mDMXAddress == 0);
                     break;
-                case HANDLE_BLE_DISCONN:
+                case HANDLE_BLE_DISCONN:// 不可连接
                     imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_desconn));
                     tvDmxShow.setText("DMX地址");
-                    isEnterMasterCtrl = mDMXAddress == 0;
-                    showDialogByDisconnect(CtDevConfigActivity.this);
+                    isEnterMasterCtrl = (mDMXAddress == 0);
+                    // 非人为不可连接状态，首先断开连接
+                    MainActivity.getAppCtrl().disconnectDevice(mDevMac);
+                    MainActivity.getAppCtrl().connDevice(mDevMac,mDevId);
+                    // 然后进行重连操作，闪烁
+                    //mHandler.sendEmptyMessage(HANDLE_BLE_RECONNECT);
+                    break;
+                case HANDLE_BLE_RECONNECT:// 重连
+                    // 重连，每 8s 扫描一次
+                    //MainActivity.getAppCtrl().scanRefresh();
+//                    MainActivity.getAppCtrl().connDevice(mDevMac, mDevId);
+                    //sendEmptyMessageDelayed(HANDLE_BLE_RECONNECT, 8000);
                     break;
             }
         }
@@ -680,7 +711,7 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
             public void ack(@NonNull byte[] pkg) {
                 if (pkg.length > 8 && pkg[7] == 0) {
                     LogUtil.i(TAG, "配置 DMX 回复成功");
-                    MainActivity.getAppCtrl().getDeviceConfig(mDevMac);
+//                    MainActivity.getAppCtrl().sendDeviConfig(mDevMac);
                     mDialogDmx.dismiss();
                 } else {
                     LogUtil.i(TAG, "配置 DMX 回复失败");
