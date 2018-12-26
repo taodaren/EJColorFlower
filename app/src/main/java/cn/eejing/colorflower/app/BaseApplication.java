@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.clj.fastble.BleManager;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.cache.CacheEntity;
 import com.lzy.okgo.cache.CacheMode;
@@ -61,6 +62,9 @@ public class BaseApplication extends LitePalApplication {
         mHandler = new Handler();
 
         registerActivityLifecycleCallbacks(new MyLifecycleHandler());
+        // BLE
+        initAndConfig();
+        // OkGo
         initOkGo();
         // 初始化 LitePal 数据库
         LitePal.initialize(this);
@@ -116,6 +120,27 @@ public class BaseApplication extends LitePalApplication {
             e.printStackTrace();
         }
         return versionName;
+    }
+
+    /**
+     * 初始化及全局配置
+     *
+     * @method enableLog          默认打开库中的运行日志，如果不喜欢可以关闭
+     * @method setReConnectCount  设置连接时重连次数和重连间隔（毫秒），默认为0次不重连
+     * @method setSplitWriteNum   设置分包发送的时候，每一包的数据长度，默认20个字节
+     * @method setConnectOverTime 设置连接超时时间（毫秒），默认10秒
+     * @method setOperateTimeout  配置操作(readRssi、setMtu、write、read、notify、indicate)超时时间（毫秒），默认5秒
+     */
+    private void initAndConfig() {
+        // 初始化
+        BleManager.getInstance().init(this);
+        // 全局配置
+        BleManager.getInstance()
+                .enableLog(true)
+                .setReConnectCount(1, 5000)
+                .setSplitWriteNum(18)
+                .setConnectOverTime(20000)
+                .setOperateTimeout(5000);
     }
 
     /** 重启当前应用 */

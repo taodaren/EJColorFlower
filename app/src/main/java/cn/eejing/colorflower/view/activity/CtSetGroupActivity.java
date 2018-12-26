@@ -2,7 +2,6 @@ package cn.eejing.colorflower.view.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -17,10 +16,10 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.model.device.BleEEJingCtrl;
 import cn.eejing.colorflower.model.lite.JetModeConfigLite;
 import cn.eejing.colorflower.model.lite.MasterGroupLite;
 import cn.eejing.colorflower.model.manager.MgrOutputJet;
-import cn.eejing.colorflower.presenter.OnReceivePackage;
 import cn.eejing.colorflower.util.BleDevProtocol;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.adapter.CtMasterSetAdapter;
@@ -58,15 +57,9 @@ public class CtSetGroupActivity extends BaseActivity {
     @BindView(R.id.sb_start_dmx)          SeekBar      sbStartDmx;
     @BindView(R.id.tv_jet_time)           TextView     tvJetTime;
 
-    private static final String TAG = "CtSetGroupActivity";
-
     private long mDevId;
-    private String mDevMac;
-    private String mGroupName;
     private int mDevNum, mStartDmx;
     private long mGroupIdMillis;
-    private float mJetTime;
-    private CtMasterSetAdapter mAdapter;
     private List<MasterGroupLite> mListMasterGroup;         // 主控分组信息列表集合
     private List<JetModeConfigLite> mListJetModeCfg;        // 喷射效果及配置集合
 
@@ -80,16 +73,14 @@ public class CtSetGroupActivity extends BaseActivity {
     @Override
     public void initView() {
         mDevId = MainActivity.getAppCtrl().getDevId();
-        mDevMac = MainActivity.getAppCtrl().getDevMac();
         mListMasterGroup = LitePal.where("devId = ?", String.valueOf(mDevId)).find(MasterGroupLite.class);
 
         MasterGroupLite groupLite = mListMasterGroup.get(getIntent().getIntExtra("group_position", 0));
-        mGroupName = groupLite.getGroupName();
         mDevNum = groupLite.getDevNum();
         mStartDmx = groupLite.getStartDmx();
         mGroupIdMillis = groupLite.getGroupIdMillis();
 
-        setToolbar(mGroupName, View.VISIBLE, null, View.GONE);
+        setToolbar(groupLite.getGroupName(), View.VISIBLE, null, View.GONE);
         showData();
     }
 
@@ -184,7 +175,6 @@ public class CtSetGroupActivity extends BaseActivity {
             );
         }
 
-        mJetTime = totalTime;
         return totalTime;
     }
 
@@ -195,15 +185,15 @@ public class CtSetGroupActivity extends BaseActivity {
         LinearLayoutManager manager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         rvMasterSet.setLayoutManager(manager);
         // 绑定适配器
-        mAdapter = new CtMasterSetAdapter(this, mListJetModeCfg);
+        CtMasterSetAdapter adapter = new CtMasterSetAdapter(this, mListJetModeCfg);
         // 监听长按点击事件
-        mAdapter.setLongClickListener(v -> {
+        adapter.setLongClickListener(v -> {
             int position = (int) v.getTag();
             showDelDialog(position);
             return true;
         });
         // 监听单击事件
-        mAdapter.setClickListener(v -> {
+        adapter.setClickListener(v -> {
             if (tvDevNum.getText().equals("0")) {
                 ToastUtil.showShort("设备数量不能为0");
             } else {
@@ -239,7 +229,7 @@ public class CtSetGroupActivity extends BaseActivity {
             }
         });
 
-        rvMasterSet.setAdapter(mAdapter);
+        rvMasterSet.setAdapter(adapter);
     }
 
     private void showDelDialog(final int position) {
@@ -337,19 +327,8 @@ public class CtSetGroupActivity extends BaseActivity {
         }
         // +1代表主控 *2进度关联
         int startDmx = (sbStartDmx.getProgress() + 1) * 2;
-        MainActivity.getAppCtrl().sendCommand(
-                MainActivity.getAppCtrl().getDevice(mDevMac),
-                BleDevProtocol.pkgClearMaterial(mDevId, CLEAR_MATERIAL_MASTER,
-                        startDmx, sbDevNum.getProgress(), byHighs),
-                new OnReceivePackage() {
-                    @Override
-                    public void ack(@NonNull byte[] pkg) {
-                    }
-
-                    @Override
-                    public void timeout() {
-                    }
-                });
+        BleEEJingCtrl.getInstance().sendCommand(BleDevProtocol.pkgClearMaterial(mDevId, CLEAR_MATERIAL_MASTER,
+                startDmx, sbDevNum.getProgress(), byHighs), null);
     }
 
     /** 点击保存 更新主控分组信息 */

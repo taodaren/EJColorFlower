@@ -25,7 +25,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
-import cn.eejing.colorflower.model.device.Device;
+import cn.eejing.colorflower.model.device.BleEEJingCtrl;
 import cn.eejing.colorflower.model.event.DevConnEvent;
 import cn.eejing.colorflower.model.lite.JetModeConfigLite;
 import cn.eejing.colorflower.model.lite.MasterGroupLite;
@@ -40,7 +40,6 @@ import cn.eejing.colorflower.view.base.BaseActivityEvent;
 import cn.eejing.colorflower.view.customize.SelfDialog;
 import cn.eejing.colorflower.view.customize.SelfDialogBase;
 
-import static cn.eejing.colorflower.app.AppConstant.CLEAR_MATERIAL_MASTER;
 import static cn.eejing.colorflower.app.AppConstant.CONFIG_TOGETHER;
 import static cn.eejing.colorflower.app.AppConstant.CTRL_DEV_NUM;
 import static cn.eejing.colorflower.app.AppConstant.DEVICE_CONNECT_NO;
@@ -78,7 +77,6 @@ public class CtMasterModeActivity extends BaseActivityEvent implements IShowList
     private List<MasterGroupLite> mListMstGroup;          // 分组信息列表集合【全部】
     private List<MasterGroupLite> mListJetting;           // 分组信息列表集合【正在喷射过程中】
 
-    private Device mDevice;
     private long mDevId;
     private int mFlagFive;
     private boolean isStarJet;                            // 是否开始喷射
@@ -97,7 +95,6 @@ public class CtMasterModeActivity extends BaseActivityEvent implements IShowList
     public void initView() {
         setToolbar("多台控制", View.VISIBLE, null, View.GONE);
         mDevId = MainActivity.getAppCtrl().getDevId();
-        mDevice = MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac());
     }
 
     @Override
@@ -515,8 +512,7 @@ public class CtMasterModeActivity extends BaseActivityEvent implements IShowList
             }
         }
 
-        MainActivity.getAppCtrl().sendCommand(MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
-                BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut));
+        BleEEJingCtrl.getInstance().sendCommand(BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut), null);
         if (isAllFinish) {
             LogUtil.i(JET, "终于喷完了！！！");
 
@@ -582,15 +578,13 @@ public class CtMasterModeActivity extends BaseActivityEvent implements IShowList
             for (int i = 0; i < dataOut.length; i++) {
                 dataOut[i] = (byte) PREPARE_FEED_END;
             }
-            MainActivity.getAppCtrl().sendCommand(MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
-                    BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut));
+            BleEEJingCtrl.getInstance().sendCommand(BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut), null);
         } else if (nPreInCnt > 0) {
             // 预进料
             for (int i = 0; i < dataOut.length; i++) {
                 dataOut[i] = (byte) PREPARE_FEED_START;
             }
-            MainActivity.getAppCtrl().sendCommand(MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
-                    BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut));
+            BleEEJingCtrl.getInstance().sendCommand(BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut), null);
         }
     }
 
@@ -599,8 +593,7 @@ public class CtMasterModeActivity extends BaseActivityEvent implements IShowList
         for (int i = 0; i < dataOut.length; i++) {
             dataOut[i] = (byte) STOP_FEED_RELEASE;
         }
-        MainActivity.getAppCtrl().sendCommand(MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
-                BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut));
+        BleEEJingCtrl.getInstance().sendCommand(BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut), null);
     }
 
     /** 发送 5 次高度为 0，持续时间 0.1s 齐喷效果 */
@@ -614,20 +607,7 @@ public class CtMasterModeActivity extends BaseActivityEvent implements IShowList
         mgrStop.setDuration(1);
         mgrStop.setHigh((byte) INIT_ZERO);
         mgrStop.updateWithDataOut(dataOut);
-
-        MainActivity.getAppCtrl().sendCommand(mDevice,
-                BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut));
+        BleEEJingCtrl.getInstance().sendCommand(BleDevProtocol.pkgEnterRealTimeCtrlMode(mDevId, mStartDmx, mDevNum, dataOut), null);
     }
-
-//    /** 发送清料命令 */
-//    private void cmdClearMaterial() {
-//        byte[] byHighs = new byte[CTRL_DEV_NUM];
-//        for (int i = 0; i < mDevNum; i++) {
-//            int high = 20;
-//            byHighs[i] = (byte) high;
-//        }
-//        MainActivity.getAppCtrl().sendCommand(mDevice,
-//                 BleDevProtocol.pkgClearMaterial(mDevId, CLEAR_MATERIAL_MASTER, mStartDmx, mDevNum, byHighs));
-//    }
 
 }

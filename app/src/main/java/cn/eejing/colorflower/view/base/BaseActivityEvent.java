@@ -10,6 +10,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import cn.eejing.colorflower.model.event.AddrAddEvent;
 import cn.eejing.colorflower.model.event.AddrSelectEvent;
 import cn.eejing.colorflower.model.event.DevConnEvent;
+import cn.eejing.colorflower.util.LogUtil;
 
 public abstract class BaseActivityEvent extends BaseActivity {
 

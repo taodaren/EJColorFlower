@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.view.View;
 
+import com.clj.fastble.BleManager;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -16,7 +18,6 @@ import cn.eejing.colorflower.model.event.DevConnEvent;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.activity.CtDevConfigActivity;
 import cn.eejing.colorflower.view.activity.CtQrScanActivity;
-import cn.eejing.colorflower.view.activity.MainActivity;
 import cn.eejing.colorflower.view.base.BaseFragmentEvent;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -73,11 +74,11 @@ public class TabCtrlFragment extends BaseFragmentEvent implements EasyPermission
         // 如果用户没打开蓝牙，提示用户打开蓝牙
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (!bluetoothAdapter.isEnabled()) {
-            ToastUtil.showShort(getString(R.string.please_open_blue));
+            ToastUtil.showLong(getString(R.string.please_open_blue));
             return;
         }
         // 扫描之前断开所有蓝牙设备
-//        MainActivity.getAppCtrl().disconnectAll();
+        BleManager.getInstance().disconnectAllDevice();
         mApp.setFlagQrCode(APP_QR_GET_DID);
         Objects.requireNonNull(getActivity()).startActivityForResult(
                 new Intent(getContext(), CtQrScanActivity.class),
@@ -105,7 +106,7 @@ public class TabCtrlFragment extends BaseFragmentEvent implements EasyPermission
                 if (mFlagConn != CONN_NO) {
                     mFlagConn = CONN_NO;
                     ToastUtil.showShort("无法连接设备，请检查连接范围或遮挡物");
-                    MainActivity.getAppCtrl().disconnectDevice(MainActivity.getAppCtrl().getDevMac());
+                    BleManager.getInstance().disconnectAllDevice();
                     break;
                 } else {
                     return;

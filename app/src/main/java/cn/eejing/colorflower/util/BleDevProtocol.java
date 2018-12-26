@@ -3,6 +3,8 @@ package cn.eejing.colorflower.util;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.clj.fastble.utils.HexUtil;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -127,7 +129,7 @@ public class BleDevProtocol {
                 return;
             }
         }
-        LogUtil.e(TAG, "格式错误的 PKG--->" + Util.hex(pkg, mPkgLen));
+        LogUtil.e(TAG, "格式错误的包: " + HexUtil.formatHexString(pkg, true));
     }
 
     public byte[] getPkg() {
@@ -138,13 +140,13 @@ public class BleDevProtocol {
     private void pkgLengthValidated() {
         if (CRC16.validate(pkg, mPkgLen - 2)) {
             if ((pkg[2] & 0x80) != 0) {
-                LogUtil.i(TAG, "ack package " + Util.hex(pkg, mPkgLen));
+                LogUtil.i(TAG, "ack package: " + HexUtil.formatHexString(pkg, true));
                 ackPkg();
             } else {
-                LogUtil.e(TAG, "drop command package " + Util.hex(pkg, mPkgLen));
+                LogUtil.e(TAG, "drop command package: " + HexUtil.formatHexString(pkg, true));
             }
         } else {
-            LogUtil.e(TAG, "CRC wrong package " + Util.hex(pkg, mPkgLen));
+            LogUtil.e(TAG, "CRC错误包: " + HexUtil.formatHexString(pkg, true));
         }
     }
 
@@ -177,7 +179,7 @@ public class BleDevProtocol {
     }
 
     protected void onReceivePkg(@NonNull byte[] pkg, int pkgLen) {
-        LogUtil.e(TAG, "receive package " + Util.hex(pkg, pkgLen));
+        LogUtil.e(TAG, "接收包: " + HexUtil.formatHexString(pkg, true));
     }
 
     /** 是否匹配 */
@@ -207,7 +209,7 @@ public class BleDevProtocol {
         pkg[7 + dataLen] = (byte) (crc & 0xff);
         pkg[8 + dataLen] = (byte) ((crc >> 8) & 0xff);
 
-        LogUtil.i(TAG, "CMD PKG--->" + Util.hex(pkg, pkg.length));
+        LogUtil.i(TAG, "命令打包: " + HexUtil.formatHexString(pkg, true));
         return pkg;
     }
 

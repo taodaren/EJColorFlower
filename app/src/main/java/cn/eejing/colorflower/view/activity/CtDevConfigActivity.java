@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.clj.fastble.BleManager;
 import com.flyco.tablayout.SegmentTabLayout;
 import com.flyco.tablayout.listener.OnTabSelectListener;
 import com.lzy.okgo.model.HttpParams;
@@ -29,7 +30,7 @@ import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.app.BaseApplication;
-import cn.eejing.colorflower.model.device.Device;
+import cn.eejing.colorflower.model.device.BleEEJingCtrl;
 import cn.eejing.colorflower.model.device.DeviceMaterialStatus;
 import cn.eejing.colorflower.model.event.DevConnEvent;
 import cn.eejing.colorflower.model.http.OkGoBuilder;
@@ -59,7 +60,6 @@ import static cn.eejing.colorflower.app.AppConstant.HANDLE_BLE_CONN;
 import static cn.eejing.colorflower.app.AppConstant.HANDLE_BLE_DISCONN;
 import static cn.eejing.colorflower.app.AppConstant.HANDLE_BLE_RECONNECT;
 import static cn.eejing.colorflower.app.AppConstant.QR_DEV_ID;
-import static cn.eejing.colorflower.app.AppConstant.QR_DEV_MAC;
 import static cn.eejing.colorflower.app.AppConstant.QR_MATERIAL_ID;
 import static cn.eejing.colorflower.app.AppConstant.REQUEST_CODE_QRCODE_PERMISSIONS;
 import static cn.eejing.colorflower.app.AppConstant.TYPE_END_USED;
@@ -101,7 +101,6 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
     // 是否可以进入主控模式
     private boolean isEnterMasterCtrl;
     private long mDevId;
-    private String mDevMac;
     private AlphaAnimation mAnimation;
 
     @Override
@@ -118,8 +117,6 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
 
         mMemberId = MySettings.getLoginInfo(this).getUserId();
         mDevId = getIntent().getLongExtra(QR_DEV_ID, 0);
-        mDevMac = getIntent().getStringExtra(QR_DEV_MAC);
-        Log.i(TAG, "设备信息: " + mDevId + " " + mDevMac);
 
         // 如果 DMX 为 0，true；反之 false
         isEnterMasterCtrl = mDMXAddress == 0;
@@ -163,7 +160,7 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mAnimation.cancel();
+//        mAnimation.cancel();
     }
 
     @OnClick({R.id.img_back_toolbar, R.id.layout_dmx_set, R.id.btn_add_material, R.id.btn_enter_single, R.id.btn_enter_master})
@@ -177,11 +174,11 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
                 startActivityForResult(new Intent(this, CtQrScanActivity.class), 1);
                 break;
             case R.id.btn_enter_single:
-                if (!isEnterMasterCtrl) {
+//                if (!isEnterMasterCtrl) {
                     jumpToActivity(new Intent(this, CtSingleModeActivity.class));
-                } else {
-                    ToastUtil.showShort("DMX不为0方可进入单台控制模式");
-                }
+//                } else {
+//                    ToastUtil.showShort("DMX不为0方可进入单台控制模式");
+//                }
                 break;
             case R.id.btn_enter_master:
                 if (isEnterMasterCtrl) {
@@ -212,9 +209,7 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
 
     /** 判断设备加料状态 */
     private void cmdGetAddMaterialStatus(final long qrMid, final int resendNum) {
-        MainActivity.getAppCtrl().sendCommand(
-                MainActivity.getAppCtrl().getDevice(mDevMac),
-                BleDevProtocol.pkgGetAddMaterialStatus(mDevId),
+        BleEEJingCtrl.getInstance().sendCommand(BleDevProtocol.pkgGetAddMaterialStatus(mDevId),
                 new OnReceivePackage() {
                     @Override
                     public void ack(@NonNull byte[] pkg) {
@@ -247,8 +242,7 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
                             ToastUtil.showShort("加料失败，请重新加料");
                         }
                     }
-                }
-        );
+                });
     }
 
     @SuppressWarnings("unchecked")
@@ -400,9 +394,7 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
     private void cmdClearAddMaterialInfo_E(final long deviceMId, final long serverMId, final int resendNum) {
         LogUtil.i(JL, "清除加料信息参数: " + "mDevId--" + mDevId + " mMemberId--" + mMemberId + " deviceMId--" + deviceMId + " serverMId--" + serverMId);
 
-        MainActivity.getAppCtrl().sendCommand(
-                MainActivity.getAppCtrl().getDevice(mDevMac),
-                BleDevProtocol.pkgClearAddMaterialInfo(mDevId, mMemberId, deviceMId),
+        BleEEJingCtrl.getInstance().sendCommand(BleDevProtocol.pkgClearAddMaterialInfo(mDevId, mMemberId, deviceMId),
                 new OnReceivePackage() {
                     @Override
                     public void ack(@NonNull byte[] pkg) {
@@ -431,8 +423,7 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
                             ToastUtil.showShort("清除加料信息失败");
                         }
                     }
-                }
-        );
+                });
     }
 
     @SuppressWarnings("unchecked")
@@ -470,9 +461,7 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
     }
 
     private void cmdGetTimestamps(final long materialId, final int addTime, final int resendNum) {
-        MainActivity.getAppCtrl().sendCommand(
-                MainActivity.getAppCtrl().getDevice(mDevMac),
-                BleDevProtocol.pkgGetTimestamp(mDevId),
+        BleEEJingCtrl.getInstance().sendCommand(BleDevProtocol.pkgGetTimestamp(mDevId),
                 new OnReceivePackage() {
                     @Override
                     public void ack(@NonNull byte[] pkg) {
@@ -496,9 +485,7 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
     }
 
     private void cmdAddMaterial(final long timestamp, final long deviceId, final int addTime, final long materialId, final int resendNum) {
-        MainActivity.getAppCtrl().sendCommand(
-                MainActivity.getAppCtrl().getDevice(mDevMac),
-                BleDevProtocol.pkgAddMaterial(deviceId, addTime, timestamp, mMemberId, materialId),
+        BleEEJingCtrl.getInstance().sendCommand(BleDevProtocol.pkgAddMaterial(deviceId, addTime, timestamp, mMemberId, materialId),
                 new OnReceivePackage() {
                     @Override
                     public void ack(@NonNull byte[] pkg) {
@@ -527,8 +514,7 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
                             ToastUtil.showShort("加料失败");
                         }
                     }
-                }
-        );
+                });
     }
 
     @SuppressWarnings("unchecked")
@@ -570,10 +556,7 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
 
     private void cmdClearAddMaterialInfo_D(final long materialId, final int resendNum) {
         LogUtil.i(JL, "清除加料信息参数: " + "mDevId--" + mDevId + " mMemberId--" + mMemberId + " materialId--" + materialId);
-
-        MainActivity.getAppCtrl().sendCommand(
-                MainActivity.getAppCtrl().getDevice(mDevMac),
-                BleDevProtocol.pkgClearAddMaterialInfo(mDevId, mMemberId, materialId),
+        BleEEJingCtrl.getInstance().sendCommand(BleDevProtocol.pkgClearAddMaterialInfo(mDevId, mMemberId, materialId),
                 new OnReceivePackage() {
                     @Override
                     public void ack(@NonNull byte[] pkg) {
@@ -598,8 +581,7 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
                             ToastUtil.showShort("清除加料信息失败");
                         }
                     }
-                }
-        );
+                });
     }
 
     private void initTLVP() {
@@ -658,15 +640,14 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
                     removeMessages(HANDLE_BLE_RECONNECT);
                     imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_conn));
                     tvDmxShow.setText("DMX " + String.valueOf(mDMXAddress));
-                    isEnterMasterCtrl = (mDMXAddress == 0);
+                    isEnterMasterCtrl = mDMXAddress == 0;
                     break;
                 case HANDLE_BLE_DISCONN:// 不可连接
                     imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_desconn));
                     tvDmxShow.setText("DMX地址");
-                    isEnterMasterCtrl = (mDMXAddress == 0);
+                    isEnterMasterCtrl = mDMXAddress == 0;
                     // 非人为不可连接状态，首先断开连接
-                    MainActivity.getAppCtrl().disconnectDevice(mDevMac);
-                    MainActivity.getAppCtrl().connDevice(mDevMac,mDevId);
+                    BleManager.getInstance().disconnectAllDevice();
                     // 然后进行重连操作，闪烁
                     //mHandler.sendEmptyMessage(HANDLE_BLE_RECONNECT);
                     break;
@@ -685,8 +666,7 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
         super.onEventBleConn(event);
         // 接收硬件传过来的已连接设备信息添加到 HashSet
         if (event.getStatus() != null) {
-            LogUtil.i(TAG, "dev cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
-
+//            LogUtil.i(TAG, "Event 连接信息: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
             switch (event.getStatus()) {
                 case DEVICE_CONNECT_YES:
                     mDMXAddress = event.getDeviceConfig().getDMXAddress();
@@ -705,23 +685,23 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
     }
 
     private void updateDmx(int niDmx) {
-        Device device = MainActivity.getAppCtrl().getDevice(mDevMac);
-        MainActivity.getAppCtrl().sendCommand(device, BleDevProtocol.pkgSetDmxAddress(mDevId, niDmx), new OnReceivePackage() {
-            @Override
-            public void ack(@NonNull byte[] pkg) {
-                if (pkg.length > 8 && pkg[7] == 0) {
-                    LogUtil.i(TAG, "配置 DMX 回复成功");
-//                    MainActivity.getAppCtrl().sendDeviConfig(mDevMac);
-                    mDialogDmx.dismiss();
-                } else {
-                    LogUtil.i(TAG, "配置 DMX 回复失败");
-                }
-            }
+        BleEEJingCtrl.getInstance().sendCommand(BleDevProtocol.pkgSetDmxAddress(mDevId, niDmx),
+                new OnReceivePackage() {
+                    @Override
+                    public void ack(@NonNull byte[] pkg) {
+                        if (pkg.length > 8 && pkg[7] == 0) {
+                            LogUtil.i(TAG, "配置 DMX 回复成功");
+                            BleEEJingCtrl.getInstance().sendCommand(BleDevProtocol.pkgGetConfig(mDevId), null);
+                            mDialogDmx.dismiss();
+                        } else {
+                            LogUtil.i(TAG, "配置 DMX 回复失败");
+                        }
+                    }
 
-            @Override
-            public void timeout() {
-            }
-        });
+                    @Override
+                    public void timeout() {
+                    }
+                });
     }
 
     /** 修改 DMX Dialog */
@@ -768,7 +748,7 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
         mDialogBack = new SelfDialogBase(this);
         mDialogBack.setTitle("返回将断开设备，确定返回吗？");
         mDialogBack.setYesOnclickListener("确定", () -> {
-            MainActivity.getAppCtrl().disconnectDevice(mDevMac);
+            BleManager.getInstance().disconnectAllDevice();
             finish();
             mDialogBack.dismiss();
         });

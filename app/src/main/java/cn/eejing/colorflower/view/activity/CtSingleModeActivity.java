@@ -12,6 +12,7 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
+import cn.eejing.colorflower.model.device.BleEEJingCtrl;
 import cn.eejing.colorflower.util.BleDevProtocol;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.view.base.BaseActivity;
@@ -131,16 +132,10 @@ public class CtSingleModeActivity extends BaseActivity implements SeekBar.OnSeek
     }
 
     private void cmdJetStart() {
-        MainActivity.getAppCtrl().sendCommand(
-                MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
-                BleDevProtocol.pkgJetStart(mDevId, 0, 10, mHigh)
-        );
+        BleEEJingCtrl.getInstance().sendCommand(BleDevProtocol.pkgJetStart(mDevId, 0, 10, mHigh), null);
     }
 
     private void cmdJetStop() {
-        MainActivity.getAppCtrl().sendCommand(
-                MainActivity.getAppCtrl().getDevice(MainActivity.getAppCtrl().getDevMac()),
-                BleDevProtocol.pkgJetStop(mDevId)
-        );
+        BleEEJingCtrl.getInstance().sendCommand(BleDevProtocol.pkgJetStop(mDevId), null);
     }
 }

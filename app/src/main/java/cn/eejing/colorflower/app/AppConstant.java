@@ -19,43 +19,45 @@ public class AppConstant {
             = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
 
     // 发送短信flag
-    public static final int SEND_MSG_FLAG_REGISTER          = 0;         // 注册
-    public static final int SEND_MSG_FLAG_FORGET            = 1;         // 忘记密码
-    public static final int SEND_MSG_FLAG_PAY               = 2;         // 设置支付密码
-    public static final int SMS_RESEND_TIME                 = 299000;    // 短信重新发送时间
+    public static final int SEND_MSG_FLAG_REGISTER           = 0;         // 注册
+    public static final int SEND_MSG_FLAG_FORGET             = 1;         // 忘记密码
+    public static final int SEND_MSG_FLAG_PAY                = 2;         // 设置支付密码
+    public static final int SMS_RESEND_TIME                  = 299000;    // 短信重新发送时间
 
     // 用户 VIP 等级
-    public static final String LEVEL_GENERAL_USER           = "1";
-    public static final String LEVEL_VIP_USER               = "2";
-    public static final String LEVEL_VVIP_USER              = "3";
+    public static final String LEVEL_GENERAL_USER            = "1";
+    public static final String LEVEL_VIP_USER                = "2";
+    public static final String LEVEL_VVIP_USER               = "3";
 
-    public static final String APP_QR_GET_MID               = "二维码扫描获取料包 ID";
-    public static final String APP_QR_GET_DID               = "二维码扫描获取设备 ID";
+    public static final String APP_QR_GET_MID                = "二维码扫描获取料包 ID";
+    public static final String APP_QR_GET_DID                = "二维码扫描获取设备 ID";
 
-    public static final String FROM_SET_TO_ADDR             = "来自于设置";
-    public static final String FROM_SELECT_TO_ADDR          = "来自于选择收货地址";
-    public static final String FROM_ORDER_TO_ADDR           = "来自于确认订单";
+    public static final String FROM_SET_TO_ADDR              = "来自于设置";
+    public static final String FROM_SELECT_TO_ADDR           = "来自于选择收货地址";
+    public static final String FROM_ORDER_TO_ADDR            = "来自于确认订单";
 
-    public static final String QR_DEV_ID                    = "qr_dev_id";
-    public static final String QR_DEV_MAC                   = "qr_dev_mac";
-    public static final String QR_MATERIAL_ID               = "qr_material_id";
+    public static final String QR_DEV_ID                     = "qr_dev_id";
+    public static final String QR_DEV_MAC                    = "qr_dev_mac";
+    public static final String QR_MATERIAL_ID                = "qr_material_id";
 
-    public static final String PAY_ALI                      = "支付宝支付";
-    public static final String PAY_WX                       = "微信支付";
-    public static final String EXIT_LOGIN                   = "exit_login";
-    public static final String ARG_TYPE                     = "arg_type";
+    public static final String PAY_ALI                       = "支付宝支付";
+    public static final String PAY_WX                        = "微信支付";
+    public static final String EXIT_LOGIN                    = "exit_login";
+    public static final String ARG_TYPE                      = "arg_type";
 
     // 连接设备喷射缓存区数量
-    public static final int CTRL_DEV_NUM                    = 300;
+    public static final int CTRL_DEV_NUM                     = 300;
 
     // 蓝牙返回（解析）状态
-    public static final int BLE_RETURN_SUCCESS              = 0;
-    public static final int BLE_RETURN_FAILURE              = 1;
+    public static final int BLE_RETURN_SUCCESS               = 0;
+    public static final int BLE_RETURN_FAILURE               = 1;
 
-    public static final int REQUEST_CODE_FORCED_UPDATE      = 180;        // 强制更新
-    public static final int REQUEST_CODE_QRCODE_PERMISSIONS = 1;          // 请求代码 QRCode 权限
-    public static final int REQUEST_CODE_SCANNING_CONN_DEV  = 10;         // 扫描连接设备
-    public static final int REQUEST_CODE_ADDR_SELECT        = 20;         // 地址选择
+    public static final int REQUEST_CODE_FORCED_UPDATE       = 180;        // 强制更新
+    public static final int REQUEST_CODE_QRCODE_PERMISSIONS  = 1;          // 请求代码 QRCode 权限
+    public static final int REQUEST_CODE_SCANNING_CONN_DEV   = 10;         // 扫描连接设备
+    public static final int REQUEST_CODE_ADDR_SELECT         = 20;         // 地址选择
+    public static final int REQUEST_CODE_OPEN_GPS            = 30;         // 打开GPS
+    public static final int REQUEST_CODE_PERMISSION_LOCATION = 40;         // 许可地点
 
     // 加料使用状态
     public static final String TYPE_NO_USED                 = "0";
