@@ -251,8 +251,7 @@ public class CtMasterModeActivity extends BaseActivityEvent implements IShowList
         super.onEventBleConn(event);
         // 接收硬件传过来的已连接设备信息添加到 HashSet
         if (event.getStatus() != null) {
-            LogUtil.i(TAG, "dev cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
-
+//            LogUtil.i(TAG, "dev cfg event: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
             switch (event.getStatus()) {
                 case DEVICE_CONNECT_YES:
                     mHandler.sendEmptyMessage(HANDLE_BLE_CONN);

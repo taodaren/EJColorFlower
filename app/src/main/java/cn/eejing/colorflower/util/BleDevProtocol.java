@@ -140,7 +140,7 @@ public class BleDevProtocol {
     private void pkgLengthValidated() {
         if (CRC16.validate(pkg, mPkgLen - 2)) {
             if ((pkg[2] & 0x80) != 0) {
-                LogUtil.i(TAG, "ack package: " + HexUtil.formatHexString(pkg, true));
+//                LogUtil.i(TAG, "ack package: " + HexUtil.formatHexString(pkg, true));
                 ackPkg();
             } else {
                 LogUtil.e(TAG, "drop command package: " + HexUtil.formatHexString(pkg, true));
@@ -209,7 +209,7 @@ public class BleDevProtocol {
         pkg[7 + dataLen] = (byte) (crc & 0xff);
         pkg[8 + dataLen] = (byte) ((crc >> 8) & 0xff);
 
-        LogUtil.i(TAG, "命令打包: " + HexUtil.formatHexString(pkg, true));
+//        LogUtil.i(TAG, "命令打包: " + HexUtil.formatHexString(pkg, true));
         return pkg;
     }
 

@@ -1,27 +1,37 @@
 package cn.eejing.colorflower.view.activity;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
+import android.view.KeyEvent;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.eejing.colorflower.R;
 import cn.eejing.colorflower.model.device.BleEEJingCtrl;
+import cn.eejing.colorflower.model.event.DevConnEvent;
 import cn.eejing.colorflower.util.BleDevProtocol;
 import cn.eejing.colorflower.util.LogUtil;
-import cn.eejing.colorflower.view.base.BaseActivity;
+import cn.eejing.colorflower.view.base.BaseActivityEvent;
+import cn.eejing.colorflower.view.customize.SelfDialogBase;
+
+import static cn.eejing.colorflower.app.AppConstant.DEVICE_CONNECT_NO;
+import static cn.eejing.colorflower.app.AppConstant.DEVICE_CONNECT_YES;
 
 /**
  * 单台控制
  */
 
-public class CtSingleModeActivity extends BaseActivity implements SeekBar.OnSeekBarChangeListener {
+public class CtSingleModeActivity extends BaseActivityEvent implements SeekBar.OnSeekBarChangeListener {
 
     @BindView(R.id.tv_high_num)         TextView         tvHighNum;
     @BindView(R.id.sb_high_progress)    SeekBar          sbHigh;
@@ -34,6 +44,7 @@ public class CtSingleModeActivity extends BaseActivity implements SeekBar.OnSeek
     private boolean mIsSwitch;
     private long mDevId;
     private int mHigh = 20;
+    private SelfDialogBase mDialogBack;
 
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler(){
@@ -42,11 +53,22 @@ public class CtSingleModeActivity extends BaseActivity implements SeekBar.OnSeek
             super.handleMessage(msg);
             if (msg.what == MSG_JET_START) {
                 cmdJetStart();
-                LogUtil.d(TAG, "handleMessage  MSG_JET_START");
                 mHandler.sendEmptyMessageDelayed(MSG_JET_START, 300);
             }
         }
     };
+
+    @Override
+    public void onEventBleConn(DevConnEvent event) {
+        super.onEventBleConn(event);
+        LogUtil.i(TAG, "Event 连接信息: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
+        if (event.getStatus() != null) {
+            if (event.getStatus().equals(DEVICE_CONNECT_NO)) {
+                mHandler.removeMessages(MSG_JET_START);
+                showDialogByDisconnect(CtSingleModeActivity.this);
+            }
+        }
+    }
 
     @Override
     protected int layoutViewId() {
@@ -66,6 +88,44 @@ public class CtSingleModeActivity extends BaseActivity implements SeekBar.OnSeek
         setSeekBarClickable(mIsSwitch);
         switchOn.setVisibility(View.GONE);
         switchOff.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void setToolbar(String title, int titleVisibility, String menu, int menuVisibility) {
+        super.setToolbar(title, titleVisibility, menu, menuVisibility);
+        // 设置返回按钮
+        ImageView imgBack = findViewById(R.id.img_back_toolbar);
+        imgBack.setVisibility(View.VISIBLE);
+        imgBack.setOnClickListener(v -> showDialogByBack());
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+            showDialogByBack();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    /** 返回 Dialog */
+    public void showDialogByBack() {
+        mDialogBack = new SelfDialogBase(this);
+        mDialogBack.setTitle("返回将停止控制，确定返回吗？");
+        mDialogBack.setYesOnclickListener("确定", () -> {
+            exit();
+            mDialogBack.dismiss();
+        });
+        mDialogBack.setNoOnclickListener("取消", () -> mDialogBack.dismiss());
+        mDialogBack.show();
+    }
+
+    private void exit() {
+        mHandler.removeMessages(MSG_JET_START);
+        if (mIsSwitch) {
+            cmdJetStop();
+        }
+        finish();
     }
 
     @OnClick({R.id.switch_on, R.id.switch_off, R.id.layout_high})

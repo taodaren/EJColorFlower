@@ -77,7 +77,7 @@ public class BleEEJingCtrl extends BleSingleDevCtrl {
             // 超时断开连接
             EventBus.getDefault().post(new DevConnEvent(mBleDevice.getMac(), DEVICE_CONNECT_NO));
             mCurDevPro.flagAddTimeOut = 0;
-            mCurDevPro.bSendEn = false;
+            mCurDevPro.isSendEnd = false;
         }
     }
 
@@ -175,10 +175,10 @@ public class BleEEJingCtrl extends BleSingleDevCtrl {
 
     /** 继承通过蓝牙与彩花机进行通信的协议数据处理 */
     private class ProtocolWithDev extends BleDevProtocol{
-        final Device device;
-        boolean bSendEn = true;              // 用于判断线程是否需要结束
-        PackageNeedAck nCurDealSend = null;  // 用于引用当前正在发送和等待回复的命令
         final Object lock = new Object();
+        final Device device;
+        boolean isSendEnd = true;              // 用于判断线程是否需要结束
+        PackageNeedAck nCurDealSend = null;    // 用于引用当前正在发送和等待回复的命令
         int flagAddTimeOut = 0;
         // 有一个列队用于缓冲需要发送的数据
         private final LinkedList<PackageNeedAck> mCmdAckList = new LinkedList<>();
@@ -195,7 +195,7 @@ public class BleEEJingCtrl extends BleSingleDevCtrl {
 
         /** 添加一个命令；传入需要发送的加密前的数据 */
         void sendCommand(byte[] pkg, OnReceivePackage callback) {
-            if (!bConnect || (mBleDevice == null)) {
+            if (!isConnect || (mBleDevice == null)) {
                 return;
             }
             addSendCmd(new PackageNeedAck(mBleDevice.getMac(), pkg, callback));
@@ -208,24 +208,33 @@ public class BleEEJingCtrl extends BleSingleDevCtrl {
         }
 
         void stopSendThread() {
-            bSendEn = false;
+            isSendEnd = false;
             synchronized (lock) {
                 lock.notify();
             }
         }
 
-        /* 添加一个管理每个蓝牙设备数据发送的队列
-           每个设备连接到手机后，手机开启一个线程，用于管理当前设备的数据发送，接收，超时，重发 */
-        Thread sendThread = new Thread() { // 发送和等待回复命令的处理线程（通道）
+        /**
+         * 发送和等待回复命令的处理线程（通道）
+         * <p>
+         * 添加一个管理每个蓝牙设备数据发送的队列
+         * 每个设备连接到手机后，手机开启一个线程，用于管理当前设备的数据发送，接收，超时，重发
+         */
+        Thread sendThread = new Thread() { //
             @Override
             public void run() {
                 super.run();
-                sleepTime(100);  //打开通知成功，蓝牙设备真正连接成功，等待一段时间；开始进行收发处理
-                getDevCfg(); //启动时候添加一个 获取配置 和 获取状态的命令
+                // 打开通知成功，蓝牙设备真正连接成功，等待一段时间；开始进行收发处理
+                sleepTime(100);
+                // 启动时候添加一个 获取配置 和 获取状态的命令
+                getDevCfg();
                 getDevStatus();
-                while (bSendEn && bConnect) { //当前发送过程中；而且设备处于连接成功状态
-                    if (nCurDealSend != null) { // 当前有发送需要进行处理
-                        PackageNeedAck curDeal = nCurDealSend; //创建一个临时引用，保存当前正在处理的命令
+                // 当前在发送过程中；并且设备处于连接成功状态
+                while (isSendEnd && isConnect) {
+                    // 当前有发送需要进行处理
+                    if (nCurDealSend != null) {
+                        // 创建一个临时引用，保存当前正在处理的命令
+                        PackageNeedAck curDeal = nCurDealSend;
                         if (curDeal.redoCntWhenTimeOut > 0) {
                             curDeal.redoCntWhenTimeOut--;
                             sendData(curDeal.cmd_pkg);
@@ -235,11 +244,12 @@ public class BleEEJingCtrl extends BleSingleDevCtrl {
                                 nCurDealSend = null;
                             } else {
                                 // 等待回复过程 当 curDeal 被置为 null 时，表示回复成功
-                                long send_time = System.currentTimeMillis();
-                                while (bSendEn && System.currentTimeMillis() - send_time < 300) {
+                                long sendTime = System.currentTimeMillis();
+                                while (isSendEnd && System.currentTimeMillis() - sendTime < 300) {
                                     synchronized (lock) {
                                         try {
-                                            lock.wait(50); //等待2秒
+                                            // 等待一会
+                                            lock.wait(50);
                                         } catch (InterruptedException e) {
                                             e.printStackTrace();
                                         }
@@ -265,7 +275,7 @@ public class BleEEJingCtrl extends BleSingleDevCtrl {
                             }
                         } else {
                             synchronized (lock) {
-                                //线程等待有新的发送任务
+                                // 线程等待有新的发送任务
                                 try {
                                     // 等待 0.5 秒
                                     lock.wait(500);
@@ -276,15 +286,17 @@ public class BleEEJingCtrl extends BleSingleDevCtrl {
                             synchronized (mCmdAckList) {
                                 cmdCnt = mCmdAckList.size();
                             }
-                            if (bSendEn && cmdCnt == 0) {
+                            if (isSendEnd && cmdCnt == 0) {
                                 // 0.5 秒的时间内没有命令；可以发送一次获取状态的命令
                                 DeviceConfig mConfig = device.getConfig();
                                 if (mConfig == null) {
-                                    getDevCfg(); //启动时候添加一个 获取配置 和 获取状态的命令
+                                    // 启动时候添加一个 获取配置 和 获取状态的命令
+                                    getDevCfg();
                                 } else {
-                                    getDevStatus();  //添加一个获取状态 的命令
+                                    // 添加一个获取状态 的命令
+                                    getDevStatus();
                                 }
-                                //上面获取状态或者获取配置肯定会添加一个命令；下面将命令提取出来
+                                // 上面获取状态或者获取配置肯定会添加一个命令；下面将命令提取出来
                                 synchronized (mCmdAckList) {
                                     nCurDealSend = mCmdAckList.getFirst();
                                     mCmdAckList.removeFirst();

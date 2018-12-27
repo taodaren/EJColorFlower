@@ -12,8 +12,6 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -101,7 +99,52 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
     // 是否可以进入主控模式
     private boolean isEnterMasterCtrl;
     private long mDevId;
-    private AlphaAnimation mAnimation;
+
+    @SuppressLint("HandlerLeak")
+    private Handler mHandler = new Handler() {
+        @SuppressLint("SetTextI18n")
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case HANDLE_BLE_CONN:// 已连接
+                    removeMessages(HANDLE_BLE_RECONNECT);
+                    imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_conn));
+                    tvDmxShow.setText("DMX " + String.valueOf(mDMXAddress));
+                    isEnterMasterCtrl = mDMXAddress == 0;
+                    break;
+                case HANDLE_BLE_DISCONN:// 不可连接
+                    imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_desconn));
+                    tvDmxShow.setText("DMX地址");
+                    isEnterMasterCtrl = mDMXAddress == 0;
+                    // 非人为不可连接状态，首先断开连接
+                    BleManager.getInstance().disconnectAllDevice();
+                    break;
+            }
+        }
+    };
+
+    @Override
+    public void onEventBleConn(DevConnEvent event) {
+        super.onEventBleConn(event);
+        if (event.getStatus() != null) {
+//            LogUtil.i(TAG, "Event 连接信息: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
+            switch (event.getStatus()) {
+                case DEVICE_CONNECT_YES:
+                    mDMXAddress = event.getDeviceConfig().getDMXAddress();
+                    mTemperature = event.getDeviceStatus().getTemperature();
+                    mRestTime = event.getDeviceStatus().getRestTime();
+                    mHandler.sendEmptyMessage(HANDLE_BLE_CONN);
+                    break;
+                case DEVICE_CONNECT_NO:
+                    mDMXAddress = -1;
+                    mTemperature = -1;
+                    mRestTime = -1;
+                    mHandler.sendEmptyMessage(HANDLE_BLE_DISCONN);
+                    break;
+            }
+        }
+    }
 
     @Override
     protected int layoutViewId() {
@@ -112,8 +155,6 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
     public void initView() {
         mApp = (BaseApplication) getApplication();
         setToolbar("设备配置", View.VISIBLE, null, View.GONE);
-
-//        initAlphaAnim();
 
         mMemberId = MySettings.getLoginInfo(this).getUserId();
         mDevId = getIntent().getLongExtra(QR_DEV_ID, 0);
@@ -130,14 +171,6 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
         mPageType = getIntent().getIntExtra("page", 0);
 
         initTLVP();
-    }
-
-    private void initAlphaAnim() {
-        mAnimation = new AlphaAnimation(1, 0);
-        mAnimation.setDuration(1000);
-        mAnimation.setRepeatCount(Animation.INFINITE);
-        mAnimation.setRepeatMode(Animation.RESTART);
-        imgBleToolbar.setAnimation(mAnimation);
     }
 
     @Override
@@ -157,12 +190,6 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
         requestCodeQRCodePermissions();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-//        mAnimation.cancel();
-    }
-
     @OnClick({R.id.img_back_toolbar, R.id.layout_dmx_set, R.id.btn_add_material, R.id.btn_enter_single, R.id.btn_enter_master})
     public void onViewClicked(View view) {
         switch (view.getId()) {
@@ -174,11 +201,7 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
                 startActivityForResult(new Intent(this, CtQrScanActivity.class), 1);
                 break;
             case R.id.btn_enter_single:
-//                if (!isEnterMasterCtrl) {
-                    jumpToActivity(new Intent(this, CtSingleModeActivity.class));
-//                } else {
-//                    ToastUtil.showShort("DMX不为0方可进入单台控制模式");
-//                }
+                jumpToActivity(new Intent(this, CtSingleModeActivity.class));
                 break;
             case R.id.btn_enter_master:
                 if (isEnterMasterCtrl) {
@@ -205,6 +228,13 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
             default:
                 break;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mHandler.removeMessages(HANDLE_BLE_CONN);
+        mHandler.removeMessages(HANDLE_BLE_DISCONN);
     }
 
     /** 判断设备加料状态 */
@@ -629,61 +659,6 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
         mVPager.setCurrentItem(mPageType);
     }
 
-    @SuppressLint("HandlerLeak")
-    private Handler mHandler = new Handler() {
-        @SuppressLint("SetTextI18n")
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case HANDLE_BLE_CONN:// 已连接
-                    removeMessages(HANDLE_BLE_RECONNECT);
-                    imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_conn));
-                    tvDmxShow.setText("DMX " + String.valueOf(mDMXAddress));
-                    isEnterMasterCtrl = mDMXAddress == 0;
-                    break;
-                case HANDLE_BLE_DISCONN:// 不可连接
-                    imgBleToolbar.setImageDrawable(getResources().getDrawable(R.drawable.ic_ble_desconn));
-                    tvDmxShow.setText("DMX地址");
-                    isEnterMasterCtrl = mDMXAddress == 0;
-                    // 非人为不可连接状态，首先断开连接
-                    BleManager.getInstance().disconnectAllDevice();
-                    // 然后进行重连操作，闪烁
-                    //mHandler.sendEmptyMessage(HANDLE_BLE_RECONNECT);
-                    break;
-                case HANDLE_BLE_RECONNECT:// 重连
-                    // 重连，每 8s 扫描一次
-                    //MainActivity.getAppCtrl().scanRefresh();
-//                    MainActivity.getAppCtrl().connDevice(mDevMac, mDevId);
-                    //sendEmptyMessageDelayed(HANDLE_BLE_RECONNECT, 8000);
-                    break;
-            }
-        }
-    };
-
-    @Override
-    public void onEventBleConn(DevConnEvent event) {
-        super.onEventBleConn(event);
-        // 接收硬件传过来的已连接设备信息添加到 HashSet
-        if (event.getStatus() != null) {
-//            LogUtil.i(TAG, "Event 连接信息: " + event.getMac() + " | " + event.getId() + " | " + event.getStatus());
-            switch (event.getStatus()) {
-                case DEVICE_CONNECT_YES:
-                    mDMXAddress = event.getDeviceConfig().getDMXAddress();
-                    mTemperature = event.getDeviceStatus().getTemperature();
-                    mRestTime = event.getDeviceStatus().getRestTime();
-                    mHandler.sendEmptyMessage(HANDLE_BLE_CONN);
-                    break;
-                case DEVICE_CONNECT_NO:
-                    mDMXAddress = -1;
-                    mTemperature = -1;
-                    mRestTime = -1;
-                    mHandler.sendEmptyMessage(HANDLE_BLE_DISCONN);
-                    break;
-            }
-        }
-    }
-
     private void updateDmx(int niDmx) {
         BleEEJingCtrl.getInstance().sendCommand(BleDevProtocol.pkgSetDmxAddress(mDevId, niDmx),
                 new OnReceivePackage() {
@@ -748,7 +723,8 @@ public class CtDevConfigActivity extends BaseActivityEvent implements EasyPermis
         mDialogBack = new SelfDialogBase(this);
         mDialogBack.setTitle("返回将断开设备，确定返回吗？");
         mDialogBack.setYesOnclickListener("确定", () -> {
-            BleManager.getInstance().disconnectAllDevice();
+//            BleManager.getInstance().disconnectAllDevice();
+            BleEEJingCtrl.getInstance().disConnect();
             finish();
             mDialogBack.dismiss();
         });

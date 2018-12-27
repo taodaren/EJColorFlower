@@ -5,7 +5,6 @@ import android.util.Log;
 
 import com.clj.fastble.BleManager;
 import com.clj.fastble.bluetooth.BleBluetooth;
-import com.clj.fastble.bluetooth.SplitWriter;
 import com.clj.fastble.callback.BleGattCallback;
 import com.clj.fastble.callback.BleIndicateCallback;
 import com.clj.fastble.callback.BleMtuChangedCallback;
@@ -42,7 +41,6 @@ import cn.eejing.colorflower.presenter.ble.startScan.IScanStarted;
 import cn.eejing.colorflower.presenter.ble.startScan.IScanning;
 import cn.eejing.colorflower.presenter.ble.write.IWriteFailure;
 import cn.eejing.colorflower.presenter.ble.write.IWriteSuccess;
-import cn.eejing.colorflower.presenter.comm.ObserverManager;
 import cn.eejing.colorflower.util.LogUtil;
 import cn.eejing.colorflower.util.ToastUtil;
 
@@ -92,7 +90,8 @@ public class BleSingleDevCtrl {
         return bleCtrl;
     }
 
-    protected boolean bConnect = false;  //是否已经连接
+    // 是否已经连接
+    protected boolean isConnect = false;
 
     /** 此构造方法用于各接口回调的默认实现 */
     public BleSingleDevCtrl() {
@@ -165,12 +164,14 @@ public class BleSingleDevCtrl {
         return this;
     }
 
+    protected String mConnectMac = null;
     /**
      * 扫描
      * - 扫描及过滤过程是在工作线程中进行，所以不会影响主线程的UI操作，最终每一个回调结果都会回到主线程。
      */
     public BleSingleDevCtrl startScan(String mac) {
         // 扫描规则配置
+        mConnectMac = mac;
         setScanRule(mac);
 
         BleManager.getInstance().scan(new BleScanCallback() {
@@ -202,6 +203,18 @@ public class BleSingleDevCtrl {
             }
         });
         return this;
+    }
+
+
+    /**
+     * 断开连接，主动调用断开连接函数，否则检测到断开需要重连
+     */
+    public void disConnect(){
+        mConnectMac = null;
+        if( mBleDevice != null ) {
+            BleManager.getInstance().disconnect(mBleDevice);
+            mBleDevice = null;
+        }
     }
 
     /**
@@ -255,19 +268,22 @@ public class BleSingleDevCtrl {
         mBleDevice = bleDevice;
         // 连接成功，100 毫秒后 notify
         sleepTime(100);
-        bConnect = true;
+        isConnect = true;
         openNotify();
         connectSuccessByMac.onConnectSuccess(bleDevice, gatt, status);
     }
 
     protected void DealWhenDisConnected(boolean isActiveDisConnected, BleDevice bleDevice, BluetoothGatt gatt, int status) {
-        if (isActiveDisConnected) { //主动调用断开命令 断开设备
+        if ( mConnectMac == null ) {
+            // 主动调用断开命令 断开设备
             ToastUtil.showLong(BaseApplication.getContext().getString(R.string.active_disconnected));
-        } else { //因为信号弱，或者其它原因断开；需要重连
-            ToastUtil.showLong(BaseApplication.getContext().getString(R.string.disconnected));
-            ObserverManager.getInstance().notifyObserver(bleDevice);
+        } else {
+            // 因为信号弱，或者其它原因断开；需要重连
+            ToastUtil.showLong(BaseApplication.getContext().getString(R.string.other_disconnected));
+            //ObserverManager.getInstance().notifyObserver(bleDevice);
+            startScan( mConnectMac );
         }
-        bConnect = false;
+        isConnect = false;
         disConnectedByMac.onDisConnected(isActiveDisConnected, bleDevice, gatt, status);
     }
 
@@ -287,7 +303,7 @@ public class BleSingleDevCtrl {
             @Override/* 连接失败 */
             public void onConnectFail(BleDevice bleDevice, BleException exception) {
                 ToastUtil.showLong(BaseApplication.getContext().getString(R.string.connect_fail));
-                bConnect = false;
+                isConnect = false;
                 connectFailByMac.onConnectFail(bleDevice, exception);
             }
 
@@ -310,7 +326,7 @@ public class BleSingleDevCtrl {
     }
 
     protected void DealWhenReceiveData(byte[] data){
-        LogUtil.i(TAG, "通知接收数据: " + HexUtil.formatHexString(data, true));
+//        LogUtil.i(TAG, "通知接收数据: " + HexUtil.formatHexString(data, true));
         characteristicChanged.onCharacteristicChanged(data);
     }
 
@@ -326,7 +342,6 @@ public class BleSingleDevCtrl {
 
     /** 彩花机数据发送过程 */
     public BleSingleDevCtrl sendData(byte[] bytes) {
-        LogUtil.w(TAG, "len：" + bytes.length + " pkg：" + HexUtil.formatHexString(bytes, true));
         write(mBleDevice, UUID_GATT_SERVICE, UUID_GATT_CHARACTERISTIC_WRITE, bytes, true,
                 new BleWriteCallback() {
                     @Override
