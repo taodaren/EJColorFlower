@@ -231,6 +231,7 @@
             </RelativeLayout>
 
             <TextView
+                android:id="@+id/tv_cumulative_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="25dp"

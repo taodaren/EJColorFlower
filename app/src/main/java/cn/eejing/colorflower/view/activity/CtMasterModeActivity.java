@@ -148,11 +148,20 @@ public class CtMasterModeActivity extends BaseActivityEvent implements IShowList
         // 监听设置主控按钮
         mAdapter.setClickSetMaster(v -> {
             int position = (int) v.getTag();
+            // 临时变量记录选中状态，如果当前状态为 2 是未选中，否则选中
+            int isMst;
+            if (mListMstGroup.get(position).getIsSelectedMaster() == 2) {
+                isMst = 0;
+            } else {
+                isMst = 1;
+            }
             for (int i = 0; i < mListMstGroup.size(); i++) {
                 if (i == position) {
-                    Intent intent = new Intent(CtMasterModeActivity.this, CtSetGroupActivity.class);
-                    intent.putExtra("group_position", position);
-                    jumpToActivity(intent);
+                    jumpToActivity(new Intent(this, CtSetGroupActivity.class)
+                            .putExtra("group_position", position)
+                            // 将是否选中主控传递过去
+                            .putExtra("is_include_mst", isMst)
+                    );
                 }
             }
         });

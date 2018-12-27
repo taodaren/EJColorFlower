@@ -56,6 +56,7 @@ public class CtSetGroupActivity extends BaseActivity {
     @BindView(R.id.sb_dev_num)            SeekBar      sbDevNum;
     @BindView(R.id.sb_start_dmx)          SeekBar      sbStartDmx;
     @BindView(R.id.tv_jet_time)           TextView     tvJetTime;
+    @BindView(R.id.tv_cumulative_time)    TextView     tvCumulativeTime;
 
     private long mDevId;
     private int mDevNum, mStartDmx;
@@ -64,6 +65,7 @@ public class CtSetGroupActivity extends BaseActivity {
     private List<JetModeConfigLite> mListJetModeCfg;        // 喷射效果及配置集合
 
     private SelfDialogBase mDialog;
+    private int mIsSelectMst;                               // 是否选中主控 1-选中 0-未选中
 
     @Override
     protected int layoutViewId() {
@@ -72,9 +74,14 @@ public class CtSetGroupActivity extends BaseActivity {
 
     @Override
     public void initView() {
+        mIsSelectMst = getIntent().getIntExtra("is_include_mst", 0);
+        if (mIsSelectMst == 0) {
+            tvCumulativeTime.setText("累计时间");
+        } else if (mIsSelectMst == 1) {
+            tvCumulativeTime.setText("累计时间（含主控）");
+        }
         mDevId = MainActivity.getAppCtrl().getDevId();
         mListMasterGroup = LitePal.where("devId = ?", String.valueOf(mDevId)).find(MasterGroupLite.class);
-
         MasterGroupLite groupLite = mListMasterGroup.get(getIntent().getIntExtra("group_position", 0));
         mDevNum = groupLite.getDevNum();
         mStartDmx = groupLite.getStartDmx();
@@ -163,9 +170,10 @@ public class CtSetGroupActivity extends BaseActivity {
     /** 计算总时间 */
     private float countTotalTime() {
         float totalTime = 0.0f;
+        int newDevNum = Integer.parseInt(tvDevNum.getText().toString()) + mIsSelectMst;
         for (int position = 0; position < mListJetModeCfg.size(); position++) {
             totalTime += MgrOutputJet.calCountAloneTime(
-                    Integer.parseInt(tvDevNum.getText().toString()),
+                    newDevNum,
                     mListJetModeCfg.get(position).getJetType(),
                     mListJetModeCfg.get(position).getDirection(),
                     mListJetModeCfg.get(position).getGap(),
@@ -201,13 +209,17 @@ public class CtSetGroupActivity extends BaseActivity {
                 long jetIdMillis = mListJetModeCfg.get(position).getJetIdMillis();
                 switch (mListJetModeCfg.get(position).getJetType()) {
                     case CONFIG_STREAM:
+                        // todo 流水灯需要传入是否包含主控，用于计算时间
                         startActivity(new Intent(CtSetGroupActivity.this, CtConfigStreamActivity.class)
                                 .putExtra("device_num", Integer.parseInt(tvDevNum.getText().toString()))
+                                .putExtra("is_include_mst", mIsSelectMst)
                                 .putExtra("jet_id_millis", jetIdMillis));
                         break;
                     case CONFIG_RIDE:
+                        // todo 跑马灯需要传入是否包含主控，用于计算时间
                         startActivity(new Intent(CtSetGroupActivity.this, CtConfigRideActivity.class)
                                 .putExtra("device_num", Integer.parseInt(tvDevNum.getText().toString()))
+                                .putExtra("is_include_mst", mIsSelectMst)
                                 .putExtra("jet_id_millis", jetIdMillis));
                         break;
                     case CONFIG_INTERVAL:

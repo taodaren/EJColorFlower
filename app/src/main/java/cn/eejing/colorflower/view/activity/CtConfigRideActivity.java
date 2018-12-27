@@ -59,10 +59,10 @@ public class CtConfigRideActivity extends BaseActivity implements View.OnClickLi
     private BaseApplication mApp;
     private long mJetIdMillis;
     private int mDevNum;
-    // 喷射效果及配置集合
-    private List<JetModeConfigLite> mListJetModeCfg;
-    // 用于保存当前被选中的按钮
-    private String strBtnDirection;
+    private int mIsSelectMst;                           // 是否选中主控 1-选中 0-未选中
+    private List<JetModeConfigLite> mListJetModeCfg;    // 喷射效果及配置集合
+    private String strBtnDirection;                     // 用于保存当前被选中的按钮
+
     // 监听 EditText 文本
     private TextWatcher textWatcher = new TextWatcher() {
         @Override
@@ -105,6 +105,7 @@ public class CtConfigRideActivity extends BaseActivity implements View.OnClickLi
         setToolbar(CONFIG_RIDE, View.VISIBLE, null, View.GONE);
         mApp = (BaseApplication) getApplication();
         mDevNum = getIntent().getIntExtra("device_num", 0);
+        mIsSelectMst = getIntent().getIntExtra("is_include_mst", 0);
         mJetIdMillis = getIntent().getLongExtra("jet_id_millis", 0);
         initConfig();
 
@@ -229,7 +230,8 @@ public class CtConfigRideActivity extends BaseActivity implements View.OnClickLi
 
     private String countTime() {
         float totalTime;
-        totalTime = MgrOutputJet.calCountAloneTime(mDevNum, CONFIG_RIDE, strBtnDirection,
+        int newDevNum = mDevNum + mIsSelectMst;
+        totalTime = MgrOutputJet.calCountAloneTime(newDevNum, CONFIG_RIDE, strBtnDirection,
                 etGap.getText().toString(),
                 etDuration.getText().toString(),
                 etGapBig.getText().toString(),
