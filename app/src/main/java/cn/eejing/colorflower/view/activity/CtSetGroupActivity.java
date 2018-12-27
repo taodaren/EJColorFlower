@@ -209,14 +209,14 @@ public class CtSetGroupActivity extends BaseActivity {
                 long jetIdMillis = mListJetModeCfg.get(position).getJetIdMillis();
                 switch (mListJetModeCfg.get(position).getJetType()) {
                     case CONFIG_STREAM:
-                        // todo 流水灯需要传入是否包含主控，用于计算时间
+                        // 流水灯需要传入是否包含主控，用于计算时间
                         startActivity(new Intent(CtSetGroupActivity.this, CtConfigStreamActivity.class)
                                 .putExtra("device_num", Integer.parseInt(tvDevNum.getText().toString()))
                                 .putExtra("is_include_mst", mIsSelectMst)
                                 .putExtra("jet_id_millis", jetIdMillis));
                         break;
                     case CONFIG_RIDE:
-                        // todo 跑马灯需要传入是否包含主控，用于计算时间
+                        // 跑马灯需要传入是否包含主控，用于计算时间
                         startActivity(new Intent(CtSetGroupActivity.this, CtConfigRideActivity.class)
                                 .putExtra("device_num", Integer.parseInt(tvDevNum.getText().toString()))
                                 .putExtra("is_include_mst", mIsSelectMst)
