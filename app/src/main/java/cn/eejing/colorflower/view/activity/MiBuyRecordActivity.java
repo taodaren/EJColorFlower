@@ -44,6 +44,7 @@ import static cn.eejing.colorflower.util.DateUtil.getLastDay;
  */
 
 public class MiBuyRecordActivity extends BaseActivity {
+
     @BindView(R.id.rv_buy_record)    PullLoadMoreRecyclerView rvBuy;
     @BindView(R.id.tv_not_pay)       TextView tvNotPay;
 
@@ -156,6 +157,9 @@ public class MiBuyRecordActivity extends BaseActivity {
         dialogTime();
     }
 
+    // 滑动到当前年月
+    private int itemStartYear, itemStartMonth, itemEndYear, itemEndMonth;
+
     private void dialogTime() {
         final WheelView wvStartYear, wvStartMonth, wvStartDay, wvEndYear, wvEndMonth, wvEndDay;
         TextView tvOk, tvCancel;
@@ -170,15 +174,16 @@ public class MiBuyRecordActivity extends BaseActivity {
         View outView = LayoutInflater.from(this).inflate(R.layout.layout_bottom_dialog, null);
 
         // 日期滚轮
-        wvStartYear = outView.findViewById(R.id.start_year);
+        wvStartYear  = outView.findViewById(R.id.start_year);
         wvStartMonth = outView.findViewById(R.id.start_month);
-        wvStartDay = outView.findViewById(R.id.start_day);
-        wvEndYear = outView.findViewById(R.id.end_year);
-        wvEndMonth = outView.findViewById(R.id.end_month);
-        wvEndDay = outView.findViewById(R.id.end_day);
-        tvOk = outView.findViewById(R.id.tv_ok);
-        tvCancel = outView.findViewById(R.id.tv_cancel);
+        wvStartDay   = outView.findViewById(R.id.start_day);
+        wvEndYear    = outView.findViewById(R.id.end_year);
+        wvEndMonth   = outView.findViewById(R.id.end_month);
+        wvEndDay     = outView.findViewById(R.id.end_day);
+        tvOk         = outView.findViewById(R.id.tv_ok);
+        tvCancel     = outView.findViewById(R.id.tv_cancel);
 
+        // 设置滚轮样式
         wvStartYear.setStyle(style);
         wvStartMonth.setStyle(style);
         wvStartDay.setStyle(style);
@@ -193,27 +198,50 @@ public class MiBuyRecordActivity extends BaseActivity {
         int currentMonth = Integer.parseInt(split[1]);
         int currentDay = Integer.parseInt(split[2]);
 
-        // 开始时间
+        itemStartYear = currentYear;
+        itemStartMonth = currentMonth;
+        itemEndYear = currentYear;
+        itemEndMonth = currentMonth;
+
+        // 设置滚轮数据源 Adapter
         wvStartYear.setWheelAdapter(new MyWheelAdapter(this));
+        wvStartMonth.setWheelAdapter(new MyWheelAdapter(this));
+        wvStartDay.setWheelAdapter(new MyWheelAdapter(this));
+        wvEndYear.setWheelAdapter(new MyWheelAdapter(this));
+        wvEndMonth.setWheelAdapter(new MyWheelAdapter(this));
+        wvEndDay.setWheelAdapter(new MyWheelAdapter(this));
+
+        // 设置滚轮数据 开始时间及结束时间
         wvStartYear.setWheelData(getYearData(currentYear));
         wvStartYear.setSelection(0);
-        wvStartMonth.setWheelAdapter(new MyWheelAdapter(this));
         wvStartMonth.setWheelData(getMonthData());
         wvStartMonth.setSelection(currentMonth - 1);
-        wvStartDay.setWheelAdapter(new MyWheelAdapter(this));
         wvStartDay.setWheelData(getDayData(getLastDay(currentYear, currentMonth)));
         wvStartDay.setSelection(currentDay - 1);
-
-        // 结束时间
-        wvEndYear.setWheelAdapter(new MyWheelAdapter(this));
         wvEndYear.setWheelData(getYearData(currentYear));
         wvEndYear.setSelection(0);
-        wvEndMonth.setWheelAdapter(new MyWheelAdapter(this));
         wvEndMonth.setWheelData(getMonthData());
         wvEndMonth.setSelection(currentMonth - 1);
-        wvEndDay.setWheelAdapter(new MyWheelAdapter(this));
         wvEndDay.setWheelData(getDayData(getLastDay(currentYear, currentMonth)));
         wvEndDay.setSelection(currentDay - 1);
+
+        // 滑动监听 改变当前滚动年月所对应日期
+        wvStartYear.setOnWheelItemSelectedListener((WheelView.OnWheelItemSelectedListener<String>) (position, text) -> {
+            itemStartYear = Integer.parseInt(text);
+            wvStartDay.resetDataFromTop(getDayData(getLastDay(itemStartYear, itemStartMonth)));
+        });
+        wvStartMonth.setOnWheelItemSelectedListener((WheelView.OnWheelItemSelectedListener<String>) (position, text) -> {
+            itemStartMonth = Integer.parseInt(text);
+            wvStartDay.resetDataFromTop(getDayData(getLastDay(itemStartYear, itemStartMonth)));
+        });
+        wvEndYear.setOnWheelItemSelectedListener((WheelView.OnWheelItemSelectedListener<String>) (position, text) -> {
+            itemEndYear = Integer.parseInt(text);
+            wvEndDay.resetDataFromTop(getDayData(getLastDay(itemEndYear, itemEndMonth)));
+        });
+        wvEndMonth.setOnWheelItemSelectedListener((WheelView.OnWheelItemSelectedListener<String>) (position, text) -> {
+            itemEndMonth = Integer.parseInt(text);
+            wvEndDay.resetDataFromTop(getDayData(getLastDay(itemEndYear, itemEndMonth)));
+        });
 
         // 确定
         tvOk.setOnClickListener(v -> {
