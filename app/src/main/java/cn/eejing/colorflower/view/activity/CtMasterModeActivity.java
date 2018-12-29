@@ -14,6 +14,7 @@ import android.view.animation.ScaleAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.wuxiaolong.pullloadmorerecyclerview.PullLoadMoreRecyclerView;
 
@@ -34,6 +35,7 @@ import cn.eejing.colorflower.presenter.IShowListener;
 import cn.eejing.colorflower.util.BleDevProtocol;
 import cn.eejing.colorflower.util.FabScrollListener;
 import cn.eejing.colorflower.util.LogUtil;
+import cn.eejing.colorflower.util.ScreenUtils;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.adapter.MasterListAdapter;
 import cn.eejing.colorflower.view.base.BaseActivityEvent;
@@ -61,10 +63,11 @@ public class CtMasterModeActivity extends BaseActivityEvent implements IShowList
 
     @BindView(R.id.img_ble_toolbar)     ImageView                imgBleToolbar;
     @BindView(R.id.img_add_toolbar)     ImageView                imgAddGroup;
+    @BindView(R.id.img_start_dialog)    ImageView                imgStartDialog;
     @BindView(R.id.rv_master_list)      PullLoadMoreRecyclerView rvMasterList;
     @BindView(R.id.btn_master_start)    Button                   btnMasterStart;
     @BindView(R.id.rl_hide_dialog)      RelativeLayout           hideDialog;
-    @BindView(R.id.rl_show_dialog)      RelativeLayout           showDialog;
+    @BindView(R.id.tv_group_not)        TextView                 tvNotGroup;
 
     private static final String   TAG           =         "CtMasterModeActivity";
     private static final String   JET           =         "主控0.1秒";
@@ -131,7 +134,13 @@ public class CtMasterModeActivity extends BaseActivityEvent implements IShowList
         }
 
         if (mListMstGroup.size() > 0) {
+            tvNotGroup.setVisibility(View.GONE);
             initRecyclerView();
+        } else if (mAdapter != null) {
+            tvNotGroup.setVisibility(View.VISIBLE);
+            // 解决删除最后一条不删除问题
+            mListMstGroup.clear();
+            mAdapter.notifyDataSetChanged();
         }
     }
 
@@ -228,16 +237,19 @@ public class CtMasterModeActivity extends BaseActivityEvent implements IShowList
         showStartDialog();
     }
 
+    /** 显示开始 */
     private void showStartDialog() {
-        showDialog.setVisibility(View.GONE);
+        imgStartDialog.setImageDrawable(getResources().getDrawable(R.drawable.ic_start_down));
         hideDialog.animate().translationY(0)
                 .setInterpolator(new DecelerateInterpolator(3));
     }
 
+    /** 隐藏开始 */
     private void hideStartDialog() {
-        showDialog.setVisibility(View.VISIBLE);
+        imgStartDialog.setImageDrawable(getResources().getDrawable(R.drawable.ic_start_up));
+        int px = ScreenUtils.dip2px(this, 32);
         RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) hideDialog.getLayoutParams();
-        hideDialog.animate().translationY(hideDialog.getHeight() + layoutParams.bottomMargin)
+        hideDialog.animate().translationY(hideDialog.getHeight() + layoutParams.bottomMargin - px)
                 .setInterpolator(new AccelerateInterpolator(3));
     }
 
@@ -385,17 +397,23 @@ public class CtMasterModeActivity extends BaseActivityEvent implements IShowList
         }
     };
 
-    @OnClick({R.id.btn_master_start, R.id.img_start_hide, R.id.rl_show_dialog})
+    private boolean mIsShowDialog;
+
+    @OnClick({R.id.btn_master_start, R.id.img_start_dialog})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_master_start:
                 clickStartStop();
                 break;
-            case R.id.img_start_hide:
-                hideStartDialog();
-                break;
-            case R.id.rl_show_dialog:
-                showStartDialog();
+            case R.id.img_start_dialog:
+                // 如果当前是显示状态，点击变为隐藏状态；反之亦然
+                if (mIsShowDialog) {
+                    mIsShowDialog = false;
+                    hideStartDialog();
+                } else {
+                    mIsShowDialog = true;
+                    showStartDialog();
+                }
                 break;
         }
     }

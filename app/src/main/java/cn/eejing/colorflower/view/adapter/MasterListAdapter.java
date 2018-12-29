@@ -76,6 +76,12 @@ public class MasterListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         return mListMasterGroup.size();
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        // 取消复用，解决重复错乱问题
+        return position;
+    }
+
     class ItemViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.ll_group_mst)                 LinearLayout layoutGroupMst;
         @BindView(R.id.img_group_is_selected)        ImageView    imgSelectGroup;
