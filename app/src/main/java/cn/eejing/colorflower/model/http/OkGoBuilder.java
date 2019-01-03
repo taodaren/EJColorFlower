@@ -1,6 +1,7 @@
 package cn.eejing.colorflower.model.http;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -14,6 +15,8 @@ import cn.eejing.colorflower.model.request.TokenBean;
 import cn.eejing.colorflower.model.session.LoginSession;
 import cn.eejing.colorflower.presenter.Callback;
 import cn.eejing.colorflower.util.MySettings;
+import cn.eejing.colorflower.util.ToastUtil;
+import cn.eejing.colorflower.view.activity.SignInActivity;
 
 import static cn.eejing.colorflower.app.AppConstant.NO_TOKEN;
 
@@ -113,6 +116,7 @@ public class OkGoBuilder<T> {
                         String json = new Gson().toJson(response.body());
                         BaseBean bean = new Gson().fromJson(json, BaseBean.class);
                         if (!mToken.equals(NO_TOKEN)) {
+                            Log.i(TAG, "Code: " + bean.getCode());
                             switch (bean.getCode()) {
                                 case 21:// Token 已更新，重新请求接口
                                     mParams.remove("token");
@@ -123,8 +127,9 @@ public class OkGoBuilder<T> {
                                     break;
                                 case 20:// Token 不存在
                                 case 22:// Token 已过期
-                                    // 可不做处理，MainActivity 获取 Token 时都重新获取了
-//                                    EventBus.getDefault().post(new JumpLoginEvent("跳转到登陆界面"));
+                                    // 跳转到登陆界面
+                                    mActivity.startActivity(new Intent(mActivity, SignInActivity.class));
+                                    ToastUtil.showShort("账号过期，已重新登陆");
                                     break;
                                 default:
                                     mCallback.onSuccess(response.body(), 1);

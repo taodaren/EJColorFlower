@@ -148,7 +148,7 @@ public class BleEEJingCtrl extends BleSingleDevCtrl {
     /** 发送数据成功的回调函数处理过程 */
     @Override
     protected void DealWhenSendDataSuccess(int current, int total, byte[] justWrite){
-        //LogUtil.d(TAG, "发送数据成功: " + HexUtil.formatHexString(justWrite, true));
+//        LogUtil.d(TAG, "发送数据成功: " + HexUtil.formatHexString(justWrite, true));
         super.DealWhenSendDataSuccess(current,total,justWrite);
         curSendFailureCnt = 0;
     }
@@ -170,6 +170,7 @@ public class BleEEJingCtrl extends BleSingleDevCtrl {
     /** 彩花机数据发送过程；需要进行加密 */
     @Override
     public BleSingleDevCtrl sendData(byte[] bytes) {
+//        LogUtil.i(TAG, "sendData: " + HexUtil.formatHexString(bytes, true));
         return super.sendData(BleDevProtocol.wrappedPackage(bytes));
     }
 

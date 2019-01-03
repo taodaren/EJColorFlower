@@ -280,7 +280,6 @@ public class BleSingleDevCtrl {
         } else {
             // 因为信号弱，或者其它原因断开；需要重连
             ToastUtil.showLong(BaseApplication.getContext().getString(R.string.other_disconnected));
-            //ObserverManager.getInstance().notifyObserver(bleDevice);
             startScan( mConnectMac );
         }
         isConnect = false;

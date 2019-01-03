@@ -28,6 +28,7 @@ import static cn.eejing.colorflower.app.AppConstant.TYPE_WAIT_SHIP;
  */
 
 public class MiOrderDetailsActivity extends BaseActivity {
+
     @BindView(R.id.tv_order_dtl_status)       TextView  tvOrderStatus;
     @BindView(R.id.tv_order_dtl_consignee)    TextView  tvConsignee;
     @BindView(R.id.tv_order_dtl_phone)        TextView  tvPhone;
@@ -94,7 +95,7 @@ public class MiOrderDetailsActivity extends BaseActivity {
     @SuppressLint("SetTextI18n")
     private void setData(OrderDetailsBean.DataBean bean) {
         Glide.with(this).load(bean.getOriginal_img()).into(imgShow);
-        tvConsignee.setText(getString(R.string.text_consignee) + bean.getGoods_name());
+        tvConsignee.setText(getString(R.string.text_consignee) + bean.getConsignee());
         tvAddress.setText(getString(R.string.text_shipping_address) + bean.getAddress());
         tvPhone.setText(bean.getMobile());
         tvName.setText(bean.getGoods_name());
