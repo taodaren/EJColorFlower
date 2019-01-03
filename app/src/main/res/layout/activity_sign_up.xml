@@ -114,7 +114,7 @@
 
             <Button
                 android:id="@+id/btn_register_get_code"
-                android:layout_width="wrap_content"
+                android:layout_width="100dp"
                 android:layout_height="24dp"
                 android:layout_marginStart="10dp"
                 android:background="@drawable/shape_btn_color_primary"

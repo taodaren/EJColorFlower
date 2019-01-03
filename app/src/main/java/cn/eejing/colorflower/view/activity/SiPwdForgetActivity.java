@@ -18,11 +18,13 @@ import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.ClearableEditText;
 import cn.eejing.colorflower.util.Encryption;
 import cn.eejing.colorflower.util.LogUtil;
+import cn.eejing.colorflower.util.MyCountDownTimer;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.base.BaseActivity;
 
 import static cn.eejing.colorflower.app.AppConstant.NO_TOKEN;
 import static cn.eejing.colorflower.app.AppConstant.SEND_MSG_FLAG_FORGET;
+import static cn.eejing.colorflower.app.AppConstant.SMS_RESEND_TIME;
 
 /**
  * 忘记密码
@@ -129,14 +131,14 @@ public class SiPwdForgetActivity extends BaseActivity {
         try {
             String encryptPhone = Encryption.encrypt(etPhone.getText().toString(), mIv);
 
-            OkGoBuilder.getInstance().setToken(MainActivity.getAppCtrl().getToken());
+            OkGoBuilder.getInstance().setToken(NO_TOKEN);
             HttpParams params = new HttpParams();
             params.put("mobile", encryptPhone);
             params.put("iv", mIv);
             params.put("flag", SEND_MSG_FLAG_FORGET);
 
             OkGoBuilder.getInstance().Builder(this)
-                    .url(Urls.GET_DEVICE_MAC)
+                    .url(Urls.SEND_MSG)
                     .method(OkGoBuilder.POST)
                     .params(params)
                     .cls(CodeMsgBean.class)
@@ -148,6 +150,14 @@ public class SiPwdForgetActivity extends BaseActivity {
                             switch (bean.getCode()) {
                                 case 1:
                                     ToastUtil.showShort("验证码发送成功");
+                                    new MyCountDownTimer(
+                                            SiPwdForgetActivity.this,
+                                            btnForgetGetCode,
+                                            SMS_RESEND_TIME,
+                                            1000,
+                                            R.drawable.shape_btn_color_primary,
+                                            R.drawable.shape_btn_color_primary
+                                    ).start();
                                     break;
                                 default:
                                     ToastUtil.showShort(bean.getMessage());

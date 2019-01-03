@@ -19,11 +19,13 @@ import cn.eejing.colorflower.presenter.Urls;
 import cn.eejing.colorflower.util.ClearableEditText;
 import cn.eejing.colorflower.util.Encryption;
 import cn.eejing.colorflower.util.LogUtil;
+import cn.eejing.colorflower.util.MyCountDownTimer;
 import cn.eejing.colorflower.util.ToastUtil;
 import cn.eejing.colorflower.view.base.BaseActivity;
 
 import static cn.eejing.colorflower.app.AppConstant.NO_TOKEN;
 import static cn.eejing.colorflower.app.AppConstant.SEND_MSG_FLAG_REGISTER;
+import static cn.eejing.colorflower.app.AppConstant.SMS_RESEND_TIME;
 
 /**
  * 注册
@@ -127,39 +129,11 @@ public class SignUpActivity extends BaseActivity {
         try {
             String encryptPhone = Encryption.encrypt(mPhone.getText().toString(), mIv);
 
-            OkGoBuilder.getInstance().setToken(NO_TOKEN);
-            HttpParams params = new HttpParams();
-            params.put("mobile", encryptPhone);
-            params.put("iv", mIv);
-            params.put("flag", SEND_MSG_FLAG_REGISTER);
 
-            OkGoBuilder.getInstance().Builder(this)
-                    .url(Urls.SEND_MSG)
-                    .method(OkGoBuilder.POST)
-                    .params(params)
-                    .cls(CodeMsgBean.class)
-                    .callback(new Callback<CodeMsgBean>() {
-                        @Override
-                        public void onSuccess(CodeMsgBean bean, int id) {
-                            LogUtil.d(TAG, "发送短信 请求成功");
-
-                            switch (bean.getCode()) {
-                                case 1:
-                                    ToastUtil.showShort("验证码发送成功");
-                                    break;
-                                default:
-                                    ToastUtil.showShort(bean.getMessage());
-                                    break;
-                            }
-                        }
-
-                        @Override
-                        public void onError(Throwable e, int id) {
-                        }
-                    }).build();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
     @SuppressWarnings("unchecked")
